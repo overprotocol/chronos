@@ -30,7 +30,8 @@ jobs:
     strategy:
       matrix:
         symbol-list:
-          [osx_amd64, osx_arm64, windows_amd64, linux_amd64, linux_arm64]
+          # [osx_amd64, osx_arm64, windows_amd64, linux_amd64, linux_arm64]
+          [windows_amd64, linux_amd64, linux_arm64]
     uses: ./.github/workflows/_build-bazel.yml
     with:
       build-type: ${{ matrix.symbol-list }}

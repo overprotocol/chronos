@@ -19,12 +19,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install osx cross-compiler
-        if: ${{ inputs.build-type == 'osx_amd64' || inputs.build-type == 'osx_arm64' }}
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y osxcross
-
       - uses: bazel-contrib/setup-bazel@0.8.5
         with:
           bazelisk-cache: true
