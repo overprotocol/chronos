@@ -1,0 +1,134 @@
+name: Build with tag
+
+on:
+  push:
+    tags:
+      - "v*_*" # Format: v<major>.<minor>.<patch>[_<stable|beta|dev>]
+
+permissions:
+  contents: write
+
+jobs:
+  extract-version:
+    runs-on: ubuntu-latest
+    outputs:
+      tag_name: ${{ steps.extract.outputs.tag_name }}
+      version_name: ${{ steps.extract.outputs.version_name }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Extract tag name, version
+        id: extract
+        run: |
+          full_tag="${{ github.ref_name }}"
+          version_name="${full_tag%%_*}"
+          tag_name="${full_tag#*_}"
+          echo "tag_name=$tag_name" >> $GITHUB_OUTPUT
+          echo "version_name=$version_name" >> $GITHUB_OUTPUT
+
+  build:
+    needs: extract-version
+    strategy:
+      matrix:
+        symbol-list:
+          [osx_amd64, osx_arm64, windows_amd64, linux_amd64, linux_arm64]
+    uses: ./.github/workflows/_build-bazel.yml
+    with:
+      build-type: ${{ matrix.symbol-list }}
+      tag_name: ${{ needs.extract-version.outputs.tag_name }}
+      version_name: ${{ needs.extract-version.outputs.version_name }}
+
+  upload-aws:
+    needs: [build, extract-version]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist/${{ github.sha }}
+
+      - name: Upload to S3
+        run: |
+          aws s3 cp dist/${{ github.sha }} \
+            s3://${{ secrets.AWS_BUCKET_NAME }}/${{ needs.extract-version.outputs.version_name }}/${{ needs.extract-version.outputs.tag_name }} \
+            --recursive --acl public-read
+
+      - name: Update latest S3 bucket (when version_name is stable)
+        if: ${{ needs.extract-version.outputs.version_name == 'stable' }}
+        run: |
+          aws s3 cp dist/${{ github.sha }} \
+            s3://${{ secrets.AWS_BUCKET_NAME }}/latest/chronos \
+            --recursive --acl public-read
+
+  build-docker:
+    needs: [extract-version]
+    runs-on: ubuntu-latest
+    steps:
+      # TODO: Add docker build and push steps
+      - name: Build Docker image
+        run: |
+          echo "Building Docker image for ${GITHUB_REF_NAME}"
+
+  create-release:
+    needs: [build, extract-version]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: "Generate release changelog"
+        id: changelog
+        run: |
+          git fetch --tags
+          prev_tag=$(git tag --sort=-version:refname | grep -e "^v[0-9.]*$" | head -n 1)
+          echo "previous release: $prev_tag"
+          if [ "$prev_tag" ]; then
+            changelog=$(git log --oneline --no-decorate $prev_tag..HEAD)
+          else
+            changelog=$(git log --oneline --no-decorate)
+          fi
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo " - ${changelog//$'\n'/$'\n' - }" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist/${{ github.sha }}
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/${{ github.sha }}/*
+          draft: true
+          prerelease: false
+          body: |
+            ### Changes
+            ${{ steps.changelog.outputs.changelog }}
+
+            ### Release Artifacts
+            Please read through our official [documentation](https://docs.over.network/) for setup instructions.
+            | Release File  | Description |
+            | ------------- | ------------- |
+            | [chronos_windows_amd64.zip](https://github.com/overprotocol/chronos/releases/download/${{ github.ref_name }}/chronos_windows_amd64.zip) | chronos executables for windows/amd64 |
+            | [chronos_linux_amd64.zip](https://github.com/overprotocol/chronos/releases/download/${{ github.ref_name }}/chronos_linux_amd64.zip) | chronos executables for linux/amd64 |
+            | [chronos_linux_arm64.zip](https://github.com/overprotocol/chronos/releases/download/${{ github.ref_name }}/chronos_linux_arm64.zip) | chronos executables for linux/arm64 |
+            | [chronos_osx_amd64.zip](https://github.com/overprotocol/chronos/releases/download/${{ github.ref_name }}/chronos_osx_amd64.zip) | chronos executable for macos/amd64 |
+            | [chronos_osx_arm64.zip](https://github.com/overprotocol/chronos/releases/download/${{ github.ref_name }}/chronos_osx_arm64.zip) | chronos executable for macos/arm64 |
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+  clean:
+    needs: upload-aws
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clean up
+        run: |
+          rm -rf dist
+          rm -rf bazel-bin
