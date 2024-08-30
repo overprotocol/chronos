@@ -46,7 +46,7 @@ container_bundle(
     name = "image_bundle",
     images = {
         "overfoundation/prysmctl:latest": ":image_with_creation_time",
-        "overfoundation/prysmctl:{DOCKER_TAG}": ":image_with_creation_time",
+        "overfoundation/prysmctl:$(DOCKER_TAG)": ":image_with_creation_time",
     },
     tags = ["manual"],
     visibility = ["//cmd/prysmctl:__pkg__"],
@@ -63,7 +63,7 @@ container_bundle(
     name = "image_bundle_debug",
     images = {
         "overfoundation/prysmctl:latest-debug": ":image_debug",
-        "overfoundation/prysmctl:{DOCKER_TAG}-debug": ":image_debug",
+        "overfoundation/prysmctl:$(DOCKER_TAG)-debug": ":image_debug",
     },
     tags = ["manual"],
     visibility = ["//cmd/prysmctl:__pkg__"],
@@ -80,7 +80,7 @@ container_bundle(
     name = "image_bundle_alpine",
     images = {
         "overfoundation/prysmctl:latest-alpine": ":image_alpine",
-        "overfoundation/prysmctl:{DOCKER_TAG}-alpine": ":image_alpine",
+        "overfoundation/prysmctl:$(DOCKER_TAG)-alpine": ":image_alpine",
     },
     tags = ["manual"],
     visibility = ["//cmd/prysmctl:__pkg__"],

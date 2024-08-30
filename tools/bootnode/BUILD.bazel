@@ -52,7 +52,7 @@ container_bundle(
     name = "image_bundle",
     images = {
         "overfoundation/bootnode:latest": ":image",
-        "overfoundation/bootnode:{DOCKER_TAG}": ":image",
+        "overfoundation/bootnode:$(DOCKER_TAG)": ":image",
     },
     tags = ["manual"],
 )

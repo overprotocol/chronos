@@ -67,7 +67,7 @@ container_bundle(
     name = "image_bundle",
     images = {
         "overfoundation/chronos-beacon-chain:latest": ":image_with_creation_time",
-        "overfoundation/chronos-beacon-chain:{DOCKER_TAG}": ":image_with_creation_time",
+        "overfoundation/chronos-beacon-chain:$(DOCKER_TAG)": ":image_with_creation_time",
     },
     tags = ["manual"],
     visibility = ["//beacon-chain:__pkg__"],
@@ -84,7 +84,7 @@ container_bundle(
     name = "image_bundle_debug",
     images = {
         "overfoundation/chronos-beacon-chain:latest-debug": ":image_debug",
-        "overfoundation/chronos-beacon-chain:{DOCKER_TAG}-debug": ":image_debug",
+        "overfoundation/chronos-beacon-chain:$(DOCKER_TAG)-debug": ":image_debug",
     },
     tags = ["manual"],
     visibility = ["//beacon-chain:__pkg__"],
@@ -101,7 +101,7 @@ container_bundle(
     name = "image_bundle_alpine",
     images = {
         "overfoundation/beacon-chain:latest-alpine": ":image_alpine",
-        "overfoundation/beacon-chain:{DOCKER_TAG}-alpine": ":image_alpine",
+        "overfoundation/beacon-chain:$(DOCKER_TAG)-alpine": ":image_alpine",
     },
     tags = ["manual"],
     visibility = ["//beacon-chain:__pkg__"],

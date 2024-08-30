@@ -61,7 +61,7 @@ container_bundle(
     name = "image_bundle",
     images = {
         "overfoundation/chronos-validator:latest": ":image_with_creation_time",
-        "overfoundation/chronos-validator:{DOCKER_TAG}": ":image_with_creation_time",
+        "overfoundation/chronos-validator:$(DOCKER_TAG)": ":image_with_creation_time",
     },
     tags = ["manual"],
     visibility = ["//validator:__pkg__"],
@@ -78,7 +78,7 @@ container_bundle(
     name = "image_bundle_debug",
     images = {
         "overfoundation/chronos-validator:latest-debug": ":image_debug",
-        "overfoundation/chronos-validator:{DOCKER_TAG}-debug": ":image_debug",
+        "overfoundation/chronos-validator:$(DOCKER_TAG)-debug": ":image_debug",
     },
     tags = ["manual"],
     visibility = ["//validator:__pkg__"],
@@ -95,7 +95,7 @@ container_bundle(
     name = "image_bundle_alpine",
     images = {
         "overfoundation/chronos-validator:latest-alpine": ":image_alpine",
-        "overfoundation/chronos-validator:{DOCKER_TAG}-alpine": ":image_alpine",
+        "overfoundation/chronos-validator:$(DOCKER_TAG)-alpine": ":image_alpine",
     },
     tags = ["manual"],
     visibility = ["//validator:__pkg__"],
