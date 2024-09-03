@@ -16,25 +16,9 @@ on:
 jobs:
   build-binaries:
     runs-on: ubuntu-latest
+    container: ghcr.io/overprotocol/bazel-cross:0.0.1
     steps:
       - uses: actions/checkout@v3
-
-      - uses: bazel-contrib/setup-bazel@0.8.5
-        with:
-          bazelisk-cache: true
-
-      - name: Install dependencies for cross-compilation
-        run: |
-          sudo apt-get update
-          # Install general build dependencies
-          sudo apt-get install -y build-essential clang
-          # Install additional dependencies for different platforms if necessary
-          if [[ "${{ inputs.build-type }}" == "windows_amd64" ]]; then
-            sudo apt-get install -y mingw-w64
-          elif [[ "${{ inputs.build-type }}" == "osx_amd64" || "${{ inputs.build-type }}" == "osx_arm64" ]]; then
-            sudo apt-get install -y llvm
-          fi
-
       - name: Build ${{ inputs.build-type }}
         run: |
           bazel build --sandbox_debug --verbose_failures --config=release --config=${{ inputs.build-type }} \
