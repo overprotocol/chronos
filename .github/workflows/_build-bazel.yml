@@ -16,7 +16,11 @@ on:
 jobs:
   build-binaries:
     runs-on: ubuntu-latest
-    container: ghcr.io/overprotocol/bazel-cross:0.0.1
+    container:
+      image: ghcr.io/overprotocol/bazel-cross:0.0.1
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v3
       - name: Build ${{ inputs.build-type }}
