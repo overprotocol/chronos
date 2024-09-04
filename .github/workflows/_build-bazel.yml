@@ -39,7 +39,7 @@ jobs:
           mkdir -p dist/${{ github.sha }}
 
       - name: Zip artifact (Windows)
-        if: ${{ inputs.build-type == 'windows' }}
+        if: ${{ inputs.build-type == 'windows_amd64' }}
         run: |
           zip -j dist/${{ github.sha }}/chronos_${{ inputs.build-type }}.zip \
             bazel-bin/cmd/beacon-chain/beacon-chain_/beacon-chain.exe \
@@ -49,7 +49,7 @@ jobs:
             bazel-bin/tools/bootnode/bootnode_/bootnode.exe
 
       - name: Zip artifact (Non-Windows)
-        if: ${{ inputs.build-type != 'windows' }}
+        if: ${{ inputs.build-type != 'windows_amd64' }}
         run: |
           zip -j dist/${{ github.sha }}/chronos_${{ inputs.build-type }}.zip \
             bazel-bin/cmd/beacon-chain/beacon-chain_/beacon-chain \
