@@ -16,18 +16,18 @@ This toolchain suite describes cross compile configuration with a Dockerfile wit
 1) Build and push the worker docker image, if necessary.
 
 ```bash
-docker build -t gcr.io/prysmaticlabs/rbe-worker:latest tools/cross-toolchain/.
-docker push gcr.io/prysmaticlabs/rbe-worker:latest 
+docker buildx build --platform linux/amd64 -t overfoundation/bazel-cross:latest tools/cross-toolchain/.
+docker push overfoundation/bazel-cross:latest
 ```
 
-Note: You must configured your gcr access credentials to push to gcr.io/prysmaticlabs. Run `gcloud auth configure-docker` or contact SRE team for push access.
+Note: You must configured your ghcr access credentials to push to OverFoundation Docker Hub. Contact SRE team for push access.
 
-2) Note the docker image sha256 digest from the recently pushed image or use the latest one available.
+1) Note the docker image sha256 digest from the recently pushed image or use the latest one available.
 
-3) Download and run [rbe_configs_gen](https://github.com/bazelbuild/bazel-toolchains#rbe_configs_gen---cli-tool-to-generate-configs) CLI tool.
+2) Download and run [rbe_configs_gen](https://github.com/bazelbuild/bazel-toolchains#rbe_configs_gen---cli-tool-to-generate-configs) CLI tool.
 
 ```bash
-# Run from the root of the Prysm repo.
+# Run from the root of the Chronos repo.
 rbe_configs_gen \
   --bazel_version=$(cat .bazelversion) \
   --target_os=linux \
@@ -36,7 +36,7 @@ rbe_configs_gen \
   --generate_cpp_configs=true \
   --generate_java_configs=true \
   --cpp_env_json=tools/cross-toolchain/cpp_env_clang.json \
-  --toolchain_container=gcr.io/prysmaticlabs/rbe-worker@sha256:90d490709a0fb0c817569f37408823a0490e5502cbecc36415caabfc36a0c2e8 # The sha256 digest from step 2.
+  --toolchain_container=overfoundation/bazel-cross@sha256:662e9fc2eee120b09fc67ad320a08cfab3609787827af005a0b9f49145cd1d6a # The sha256 digest from step 2.
 ```
 
 4) Test the builds work locally for all supported platforms.
@@ -62,7 +62,7 @@ bazel run //:gazelle
 ### Cross compile target support
 
 | target           | linux_amd64                                                        | linux_arm64                                | osx_amd64                          | osx_arm64                          | windows_amd64                      |
-|------------------|--------------------------------------------------------------------|--------------------------------------------|------------------------------------|------------------------------------|------------------------------------|
+| ---------------- | ------------------------------------------------------------------ | ------------------------------------------ | ---------------------------------- | ---------------------------------- | ---------------------------------- |
 | `//beacon-chain` | :heavy_check_mark:  docker-sandbox and RBE, supported locally only | :heavy_check_mark:  docker-sandbox and RBE | :heavy_check_mark:  docker-sandbox | :heavy_check_mark:  docker-sandbox | :heavy_check_mark:  docker-sandbox |
 | `//validator`    | :heavy_check_mark:  docker-sandbox and RBE                         | :heavy_check_mark: docker-sandbox and RBE  | :heavy_check_mark:  docker-sandbox | :heavy_check_mark:  docker-sandbox | :heavy_check_mark:                 |
 
@@ -73,7 +73,7 @@ The configurations above are enforced via pull request presubmit checks.
 Use these values with `--config=<flag>`, multiple times if more than one value is defined in the table. Example: `bazel build //beacon-chain --config=windows_amd64_docker` to build windows binary in a docker sandbox.
 
 | Config                        | linux_amd64                | linux_arm64                 | osx_amd64                 | osx_arm64                 | windows_amd64                 |
-|-------------------------------|----------------------------|-----------------------------|---------------------------|---------------------------|-------------------------------|
+| ----------------------------- | -------------------------- | --------------------------- | ------------------------- | ------------------------- | ----------------------------- |
 | Local run                     | `linux_amd64`              | `linux_arm64`               | `osx_amd64`               | `osx_arm64`               | `windows_amd64`               |
 | Docker sandbox                | `linux_amd64_docker`       | `linux_arm64_docker`        | `osx_amd64_docker`        | `osx_arm64_docker`        | `windows_amd64_docker `       |
 | RBE (See [Caveats](#caveats)) | `linux_amd64` and `remote` | `linux_arm64`  and `remote` | `osx_amd64`  and `remote` | `osx_arm64`  and `remote` | `windows_amd64`  and `remote` |

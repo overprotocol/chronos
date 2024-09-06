@@ -17,11 +17,7 @@ jobs:
   build-binaries:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/overprotocol/bazel-cross:0.0.1
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-      options: --dns 8.8.8.8 --dns 8.8.4.4
+      image: overfoundation/bazel-cross:latest
     steps:
       - uses: actions/checkout@v3
       - name: Build ${{ inputs.build-type }}
