@@ -451,7 +451,7 @@ func calculateEligibleEpoch(headSlot primitives.Slot) uint64 {
 	currentEpoch := slots.ToEpoch(headSlot)
 	currentPeriodStartEpoch := currentEpoch - currentEpoch.Mod(uint64(epochsPerEth1VotingPeriod))
 	midEpochInThisPeriod := currentPeriodStartEpoch + epochsPerEth1VotingPeriod/2
-	if currentEpoch <= midEpochInThisPeriod {
+	if currentEpoch < midEpochInThisPeriod {
 		return uint64(currentPeriodStartEpoch.Add(uint64(epochsPerEth1VotingPeriod))+epochsPerEth1VotingPeriod/2) + 1
 	} else {
 		return uint64(currentPeriodStartEpoch.Add(uint64(epochsPerEth1VotingPeriod.Mul(2)))+epochsPerEth1VotingPeriod/2) + 1
