@@ -7,7 +7,6 @@ on:
 
 permissions:
   contents: write
-  packages: read
 
 jobs:
   extract-version:
@@ -38,34 +37,34 @@ jobs:
       tag_name: ${{ needs.extract-version.outputs.tag_name }}
       version_name: ${{ needs.extract-version.outputs.version_name }}
 
-  upload-aws:
-    needs: [build, extract-version]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+  # upload-aws:
+  #   needs: [build, extract-version]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Configure AWS credentials
+  #       uses: aws-actions/configure-aws-credentials@v1
+  #       with:
+  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #         aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: dist/${{ github.sha }}
+  #     - name: Download artifacts
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         path: dist/${{ github.sha }}
 
-      - name: Upload to S3
-        run: |
-          aws s3 cp dist/${{ github.sha }} \
-            s3://${{ secrets.AWS_BUCKET_NAME }}/${{ needs.extract-version.outputs.version_name }}/${{ needs.extract-version.outputs.tag_name }} \
-            --recursive --acl public-read
+  #     - name: Upload to S3
+  #       run: |
+  #         aws s3 cp dist/${{ github.sha }} \
+  #           s3://${{ secrets.AWS_BUCKET_NAME }}/${{ needs.extract-version.outputs.version_name }}/${{ needs.extract-version.outputs.tag_name }} \
+  #           --recursive --acl public-read
 
-      - name: Update latest S3 bucket (when version_name is stable)
-        if: ${{ needs.extract-version.outputs.version_name == 'stable' }}
-        run: |
-          aws s3 cp dist/${{ github.sha }} \
-            s3://${{ secrets.AWS_BUCKET_NAME }}/latest/chronos \
-            --recursive --acl public-read
+  #     - name: Update latest S3 bucket (when version_name is stable)
+  #       if: ${{ needs.extract-version.outputs.version_name == 'stable' }}
+  #       run: |
+  #         aws s3 cp dist/${{ github.sha }} \
+  #           s3://${{ secrets.AWS_BUCKET_NAME }}/latest/chronos \
+  #           --recursive --acl public-read
 
   build-docker:
     needs: [extract-version]
@@ -126,7 +125,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
   clean:
-    needs: upload-aws
+    needs: [create-release]
     runs-on: ubuntu-latest
     steps:
       - name: Clean up
