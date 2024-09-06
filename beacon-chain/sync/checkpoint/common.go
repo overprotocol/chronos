@@ -17,7 +17,10 @@ type Initializer interface {
 // isCheckpointStatePresent checks if the checkpoint and corresponding state exist in the database.
 func isCheckpointStatePresent(ctx context.Context, d db.Database) (bool, error) {
 	origin, err := d.OriginCheckpointBlockRoot(ctx)
-	if err != nil && !errors.Is(err, db.ErrNotFound) {
+	if err != nil  {
+		if errors.Is(err, db.ErrNotFound){
+			return false, nil
+		}
 		return false, errors.Wrap(err, "error while checking database for origin root")
 	}
 	// Check corresponding state
