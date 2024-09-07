@@ -43,8 +43,6 @@ jobs:
       - name: Zip artifact (Windows)
         if: ${{ inputs.build-type == 'windows_amd64' }}
         run: |
-          ./bazel-bin/cmd/beacon-chain/beacon-chain_/beacon-chain.exe --version
-
           zip -j dist/${{ github.sha }}/chronos_${{ inputs.build-type }}.zip \
             bazel-bin/cmd/beacon-chain/beacon-chain_/beacon-chain.exe \
             bazel-bin/cmd/validator/validator_/validator.exe \
@@ -55,8 +53,6 @@ jobs:
       - name: Zip artifact (Non-Windows)
         if: ${{ inputs.build-type != 'windows_amd64' }}
         run: |
-          ./bazel-bin/cmd/beacon-chain/beacon-chain_/beacon-chain --version
-
           zip -j dist/${{ github.sha }}/chronos_${{ inputs.build-type }}.zip \
             bazel-bin/cmd/beacon-chain/beacon-chain_/beacon-chain \
             bazel-bin/cmd/validator/validator_/validator \
