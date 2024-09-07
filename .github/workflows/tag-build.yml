@@ -122,8 +122,8 @@ jobs:
             | [chronos_windows_amd64.zip](https://github.com/overprotocol/chronos/releases/download/${{ github.ref_name }}/chronos_windows_amd64.zip) | chronos executables for windows/amd64 |
             | [chronos_linux_amd64.zip](https://github.com/overprotocol/chronos/releases/download/${{ github.ref_name }}/chronos_linux_amd64.zip) | chronos executables for linux/amd64 |
             | [chronos_linux_arm64.zip](https://github.com/overprotocol/chronos/releases/download/${{ github.ref_name }}/chronos_linux_arm64.zip) | chronos executables for linux/arm64 |
-            | [chronos_osx_amd64.zip](https://github.com/overprotocol/chronos/releases/download/${{ github.ref_name }}/chronos_osx_amd64.zip) | chronos executable for macos/amd64 |
-            | [chronos_osx_arm64.zip](https://github.com/overprotocol/chronos/releases/download/${{ github.ref_name }}/chronos_osx_arm64.zip) | chronos executable for macos/arm64 |
+            | [chronos_osx_amd64.zip](https://github.com/overprotocol/chronos/releases/download/${{ github.ref_name }}/chronos_osx_amd64.zip) | chronos executables for macos/amd64 |
+            | [chronos_osx_arm64.zip](https://github.com/overprotocol/chronos/releases/download/${{ github.ref_name }}/chronos_osx_arm64.zip) | chronos executables for macos/arm64 |
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
