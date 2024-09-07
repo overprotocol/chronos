@@ -20,10 +20,13 @@ jobs:
       image: overfoundation/bazel-cross:latest
     steps:
       - uses: actions/checkout@v3
+      - name: Git config
+        run: |
+          git config --global --add safe.directory /__w/chronos/chronos
+
       - name: Build ${{ inputs.build-type }}
         run: |
           bazel build \
-            --workspace_status_command=./hack/workspace_status.sh \ # Stamp binaries with git information
             --config=release \
             --config=${{ inputs.build-type }} \
             //cmd/beacon-chain \
