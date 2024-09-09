@@ -7,17 +7,8 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/prysmaticlabs/prysm/v4/beacon-chain/db"
-	"github.com/prysmaticlabs/prysm/v4/config/params"
 	"github.com/prysmaticlabs/prysm/v4/io/file"
-	log "github.com/sirupsen/logrus"
 )
-
-// Initializer describes a type that is able to obtain the checkpoint sync data (BeaconState and SignedBeaconBlock)
-// in some way and perform database setup to prepare the beacon node for syncing from the given checkpoint.
-// See FileInitializer and APIInitializer.
-type Initializer interface {
-	Initialize(ctx context.Context, d db.Database) error
-}
 
 // NewFileInitializer validates the given path information and creates an Initializer which will
 // use the provided state and block files to prepare the node for checkpoint sync.
@@ -43,14 +34,12 @@ type FileInitializer struct {
 // Initialize is called in the BeaconNode db startup code if an Initializer is present.
 // Initialize does what is needed to prepare the beacon node database for syncing from the weak subjectivity checkpoint.
 func (fi *FileInitializer) Initialize(ctx context.Context, d db.Database) error {
-	origin, err := d.OriginCheckpointBlockRoot(ctx)
-	if err == nil && origin != params.BeaconConfig().ZeroHash {
-		log.Warnf("origin checkpoint root %#x found in db, ignoring checkpoint sync flags", origin)
+	exists, err := isCheckpointStatePresent(ctx, d)
+	if err != nil {
+		return err
+	}
+	if exists {
 		return nil
-	} else {
-		if !errors.Is(err, db.ErrNotFound) {
-			return errors.Wrap(err, "error while checking database for origin root")
-		}
 	}
 	serBlock, err := file.ReadFileAsBytes(fi.blockPath)
 	if err != nil {
