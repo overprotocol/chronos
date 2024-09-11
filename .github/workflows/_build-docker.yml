@@ -9,6 +9,11 @@ on:
       version_name:
         required: true
         type: string
+    secrets:
+      DOCKERHUB_USERNAME:
+        required: true
+      DOCKERHUB_TOKEN:
+        required: true
 
 jobs:
   build-images:
@@ -63,7 +68,7 @@ jobs:
           docker load -i bazel-bin/cmd/validator/image_bundle.tar
 
       - name: Login docker hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
