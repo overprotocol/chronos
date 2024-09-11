@@ -53,6 +53,9 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: docker-images
+          path: |
+            bazel-bin/cmd/beacon-chain/image_bundle.tar
+            bazel-bin/cmd/validator/image_bundle.tar
 
       - name: Load images
         run: |
