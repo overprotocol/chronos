@@ -36,7 +36,7 @@ container_bundle(
     name = "image_bundle",
     images = {
         "overfoundation/eth1monitor:latest": ":image",
-        "overfoundation/eth1monitor:{DOCKER_TAG}": ":image",
+        "overfoundation/eth1monitor:$(DOCKER_TAG)": ":image",
     },
     tags = ["manual"],
 )
