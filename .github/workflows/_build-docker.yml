@@ -62,6 +62,10 @@ jobs:
             bazel-bin/cmd/beacon-chain/image_bundle.tar
             bazel-bin/cmd/validator/image_bundle.tar
 
+      - name: List files
+        run: |
+          find bazel-bin/cmd -maxdepth 2 -type d -ls
+
       - name: Load images
         run: |
           docker load -i bazel-bin/cmd/beacon-chain/image_bundle.tar
