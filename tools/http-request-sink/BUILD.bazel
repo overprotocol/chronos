@@ -34,7 +34,7 @@ container_bundle(
     name = "image_bundle",
     images = {
         "overfoundation/http-request-sink:latest": ":image",
-        "overfoundation/http-request-sink:{DOCKER_TAG}": ":image",
+        "overfoundation/http-request-sink:$(DOCKER_TAG)": ":image",
     },
     tags = ["manual"],
 )

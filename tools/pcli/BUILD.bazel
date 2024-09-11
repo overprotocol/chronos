@@ -43,7 +43,7 @@ container_bundle(
     name = "image_bundle",
     images = {
         "overfoundation/pcli:latest": ":image",
-        "overfoundation/pcli:{DOCKER_TAG}": ":image",
+        "overfoundation/pcli:$(DOCKER_TAG)": ":image",
     },
     tags = ["manual"],
 )
