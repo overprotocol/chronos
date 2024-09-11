@@ -57,7 +57,7 @@ jobs:
         run: |
           aws s3 cp dist/${{ github.sha }} \
             s3://${{ secrets.AWS_BUCKET_NAME }}/${{ needs.extract-version.outputs.version_name }}/${{ needs.extract-version.outputs.tag_name }} \
-            --recursive --acl public-read
+            --recursive --exclude "*" --include "*.zip" --acl public-read
 
   upload-aws-latest:
     needs: [build, extract-version]
@@ -93,7 +93,7 @@ jobs:
         run: |
           aws s3 cp dist/${{ github.sha }} \
             s3://${{ secrets.AWS_BUCKET_NAME }}/latest/chronos \
-            --recursive --acl public-read
+            --recursive --exclude "*" --include "*.zip" --acl public-read
 
   docker:
     needs: [extract-version]
