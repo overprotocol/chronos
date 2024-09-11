@@ -53,6 +53,11 @@ jobs:
         with:
           path: dist/${{ github.sha }}
 
+      - name: Flatten directory structure
+        run: |
+          find dist/${{ github.sha }} -name '*.zip' -exec mv {} dist/${{ github.sha }}/ \;
+          find dist/${{ github.sha }} -mindepth 1 -type d -delete
+
       - name: Upload to S3
         run: |
           aws s3 cp dist/${{ github.sha }} \
@@ -75,6 +80,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: dist/${{ github.sha }}
+
+      - name: Flatten directory structure
+        run: |
+          find dist/${{ github.sha }} -name '*.zip' -exec mv {} dist/${{ github.sha }}/ \;
+          find dist/${{ github.sha }} -mindepth 1 -type d -delete
 
       - name: Download latest.yml from S3
         run: |
