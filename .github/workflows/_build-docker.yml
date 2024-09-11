@@ -58,11 +58,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: docker-images
-          path: bazel-bin
-
-      - name: List files
-        run: |
-          find bazel-bin -maxdepth 5 -type f -ls
+          path: bazel-bin/cmd
 
       - name: Load images
         run: |
