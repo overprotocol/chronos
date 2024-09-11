@@ -95,14 +95,12 @@ jobs:
             s3://${{ secrets.AWS_BUCKET_NAME }}/latest/chronos \
             --recursive --acl public-read
 
-  build-docker:
+  docker:
     needs: [extract-version]
-    runs-on: ubuntu-latest
-    steps:
-      # TODO: Add docker build and push steps
-      - name: Build Docker image
-        run: |
-          echo "Building Docker image for ${GITHUB_REF_NAME}"
+    uses: ./.github/workflows/_build-docker.yml
+    with:
+      tag_name: ${{ needs.extract-version.outputs.tag_name }}
+      version_name: ${{ needs.extract-version.outputs.version_name }}
 
   create-release:
     needs: [build, extract-version]
