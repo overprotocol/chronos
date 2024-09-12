@@ -336,7 +336,7 @@ type Validator struct {
 	ActivationEpoch            uint64
 }
 
-// ListValidators returns filterable list of validators with their balance, status and index.
+// EstimatedActivation returns estimated activation timing for depositing validators.
 func (bs *Server) EstimatedActivation(w http.ResponseWriter, r *http.Request) {
 	segments := strings.Split(r.URL.Path, "/")
 	pubKey := segments[len(segments)-1]
@@ -403,12 +403,6 @@ func (bs *Server) EstimatedActivation(w http.ResponseWriter, r *http.Request) {
 	}
 
 	activationsPerEpoch := uint64(math.Max(float64(params.BeaconConfig().MinPerEpochChurnLimit), float64(activeValCount/params.BeaconConfig().ChurnLimitQuotient)))
-	eth1DataVotesLength := params.BeaconConfig().Eth1DataVotesLength()
-	remainingSlotsInPeriod := eth1DataVotesLength - uint64(headSlot.ModSlot(primitives.Slot(eth1DataVotesLength)))
-	baseEligibleSlots := params.BeaconConfig().Eth1FollowDistance +
-		eth1DataVotesLength/2 +
-		uint64(params.BeaconConfig().SlotsPerEpoch.Mul(3)) +
-		remainingSlotsInPeriod
 
 	if len(pubKey) == 0 {
 		if len(activationQ) == 0 {
@@ -416,11 +410,11 @@ func (bs *Server) EstimatedActivation(w http.ResponseWriter, r *http.Request) {
 		} else {
 			waitingEpoch = (uint64(len(activationQ))+activationsPerEpoch)/activationsPerEpoch + uint64(params.BeaconConfig().MaxSeedLookahead)
 		}
-		eligibleEpoch = uint64(slots.ToEpoch(headSlot.Add(baseEligibleSlots)))
+		eligibleEpoch = calculateEligibleEpoch(headSlot)
 	} else {
 		if len(activationQ) == 0 {
 			waitingEpoch = uint64(0)
-			eligibleEpoch = uint64(slots.ToEpoch(headSlot.Add(baseEligibleSlots)))
+			eligibleEpoch = calculateEligibleEpoch(headSlot)
 		} else {
 			for _, val := range activationQ {
 				if pubKey == hex.EncodeToString(val.PublicKey) {
@@ -438,7 +432,7 @@ func (bs *Server) EstimatedActivation(w http.ResponseWriter, r *http.Request) {
 			}
 			if status == 0 {
 				waitingEpoch = (uint64(len(activationQ))+activationsPerEpoch)/activationsPerEpoch + uint64(params.BeaconConfig().MaxSeedLookahead)
-				eligibleEpoch = uint64(slots.ToEpoch(headSlot.Add(baseEligibleSlots)))
+				eligibleEpoch = calculateEligibleEpoch(headSlot)
 			}
 		}
 	}
@@ -449,6 +443,19 @@ func (bs *Server) EstimatedActivation(w http.ResponseWriter, r *http.Request) {
 		Status:        status,
 	}
 	network.WriteJson(w, response)
+}
+
+func calculateEligibleEpoch(headSlot primitives.Slot) uint64 {
+	epochsPerEth1VotingPeriod := params.BeaconConfig().EpochsPerEth1VotingPeriod
+
+	currentEpoch := slots.ToEpoch(headSlot)
+	currentPeriodStartEpoch := currentEpoch - currentEpoch.Mod(uint64(epochsPerEth1VotingPeriod))
+	midEpochInThisPeriod := currentPeriodStartEpoch + epochsPerEth1VotingPeriod/2
+	if currentEpoch < midEpochInThisPeriod {
+		return uint64(currentPeriodStartEpoch.Add(uint64(epochsPerEth1VotingPeriod))+epochsPerEth1VotingPeriod/2) + 1
+	} else {
+		return uint64(currentPeriodStartEpoch.Add(uint64(epochsPerEth1VotingPeriod.Mul(2)))+epochsPerEth1VotingPeriod/2) + 1
+	}
 }
 
 func handleHTTPError(w http.ResponseWriter, message string, code int) {

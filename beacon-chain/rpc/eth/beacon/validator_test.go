@@ -977,3 +977,23 @@ func TestListCommittees(t *testing.T) {
 		assert.Equal(t, true, resp.Finalized)
 	})
 }
+
+func TestCalculateEligibleEpoch(t *testing.T) {
+	tests := []struct {
+		headSlot primitives.Slot
+		want     uint64
+	}{
+		{headSlot: 93122, want: 2977},
+		{headSlot: 93287, want: 3041},
+		{headSlot: 107802, want: 3489},
+		{headSlot: 120101, want: 3873},
+		{headSlot: 141829, want: 4513},
+		{headSlot: 156671, want: 4961},
+		{headSlot: 156680, want: 5025},
+		{headSlot: 156693, want: 5025},
+	}
+	for _, test := range tests {
+		got := calculateEligibleEpoch(test.headSlot)
+		assert.Equal(t, test.want, got, "Incorrect Eligible Epoch")
+	}
+}
