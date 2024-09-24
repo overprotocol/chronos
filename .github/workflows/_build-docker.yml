@@ -1,0 +1,67 @@
+name: Build binaries with Bazel
+
+on:
+  workflow_call:
+    inputs:
+      build-type:
+        required: true
+        type: string
+      tag_name:
+        required: true
+        type: string
+      version_name:
+        required: true
+        type: string
+
+jobs:
+  build-binaries:
+    runs-on: ubuntu-latest
+    container:
+      image: overfoundation/bazel-cross:latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Git config
+        run: |
+          git config --global --add safe.directory /__w/chronos/chronos
+
+      - name: Build ${{ inputs.build-type }}
+        run: |
+          bazel build \
+            --config=release \
+            --config=${{ inputs.build-type }} \
+            //cmd/beacon-chain \
+            //cmd/validator \
+            //cmd/prysmctl \
+            //tools/enr-calculator \
+            //tools/bootnode
+
+      - name: Make dist directory
+        run: |
+          mkdir -p dist
+          mkdir -p dist/${{ github.sha }}
+
+      - name: Zip artifact (Windows)
+        if: ${{ inputs.build-type == 'windows_amd64' }}
+        run: |
+          zip -j dist/${{ github.sha }}/chronos_${{ inputs.build-type }}.zip \
+            bazel-bin/cmd/beacon-chain/beacon-chain_/beacon-chain.exe \
+            bazel-bin/cmd/validator/validator_/validator.exe \
+            bazel-bin/cmd/prysmctl/prysmctl_/prysmctl.exe \
+            bazel-bin/tools/enr-calculator/enr-calculator_/enr-calculator.exe \
+            bazel-bin/tools/bootnode/bootnode_/bootnode.exe
+
+      - name: Zip artifact (Non-Windows)
+        if: ${{ inputs.build-type != 'windows_amd64' }}
+        run: |
+          zip -j dist/${{ github.sha }}/chronos_${{ inputs.build-type }}.zip \
+            bazel-bin/cmd/beacon-chain/beacon-chain_/beacon-chain \
+            bazel-bin/cmd/validator/validator_/validator \
+            bazel-bin/cmd/prysmctl/prysmctl_/prysmctl \
+            bazel-bin/tools/enr-calculator/enr-calculator_/enr-calculator \
+            bazel-bin/tools/bootnode/bootnode_/bootnode
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: chronos_${{ github.sha }}_${{ inputs.build-type }}
+          path: dist/${{ github.sha }}/chronos_${{ inputs.build-type }}.zip
