@@ -1,67 +1,78 @@
-name: Build binaries with Bazel
+name: Build Docker images with Bazel and push to Docker Hub
 
 on:
   workflow_call:
     inputs:
-      build-type:
-        required: true
-        type: string
       tag_name:
         required: true
         type: string
       version_name:
         required: true
         type: string
+    secrets:
+      DOCKERHUB_USERNAME:
+        required: true
+      DOCKERHUB_TOKEN:
+        required: true
 
 jobs:
-  build-binaries:
+  build-and-push-images:
     runs-on: ubuntu-latest
     container:
       image: overfoundation/bazel-cross:latest
+    outputs:
+      docker_tag: ${{ steps.set-docker-tag.outputs.docker_tag }}
     steps:
       - uses: actions/checkout@v3
       - name: Git config
         run: |
           git config --global --add safe.directory /__w/chronos/chronos
 
-      - name: Build ${{ inputs.build-type }}
+      - name: Set Docker Tag
+        id: set-docker-tag
         run: |
-          bazel build \
-            --config=release \
-            --config=${{ inputs.build-type }} \
-            //cmd/beacon-chain \
-            //cmd/validator \
-            //cmd/prysmctl \
-            //tools/enr-calculator \
-            //tools/bootnode
+          echo "docker_tag=${{ inputs.version_name }}_${{ inputs.tag_name }}" >> $GITHUB_OUTPUT
 
-      - name: Make dist directory
-        run: |
-          mkdir -p dist
-          mkdir -p dist/${{ github.sha }}
-
-      - name: Zip artifact (Windows)
-        if: ${{ inputs.build-type == 'windows_amd64' }}
-        run: |
-          zip -j dist/${{ github.sha }}/chronos_${{ inputs.build-type }}.zip \
-            bazel-bin/cmd/beacon-chain/beacon-chain_/beacon-chain.exe \
-            bazel-bin/cmd/validator/validator_/validator.exe \
-            bazel-bin/cmd/prysmctl/prysmctl_/prysmctl.exe \
-            bazel-bin/tools/enr-calculator/enr-calculator_/enr-calculator.exe \
-            bazel-bin/tools/bootnode/bootnode_/bootnode.exe
-
-      - name: Zip artifact (Non-Windows)
-        if: ${{ inputs.build-type != 'windows_amd64' }}
-        run: |
-          zip -j dist/${{ github.sha }}/chronos_${{ inputs.build-type }}.zip \
-            bazel-bin/cmd/beacon-chain/beacon-chain_/beacon-chain \
-            bazel-bin/cmd/validator/validator_/validator \
-            bazel-bin/cmd/prysmctl/prysmctl_/prysmctl \
-            bazel-bin/tools/enr-calculator/enr-calculator_/enr-calculator \
-            bazel-bin/tools/bootnode/bootnode_/bootnode
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      - name: Login docker hub
+        uses: docker/login-action@v3
         with:
-          name: chronos_${{ github.sha }}_${{ inputs.build-type }}
-          path: dist/${{ github.sha }}/chronos_${{ inputs.build-type }}.zip
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Run push_images for beacon-chain
+        run: |
+          echo "Run push_images(beacon-chain) for ${{ steps.set-docker-tag.outputs.docker_tag }}"
+          bazel run \
+            //cmd/beacon-chain:push_images \
+            --config=release \
+            -- \
+            --tag=${{ steps.set-docker-tag.outputs.docker_tag }} \
+            --repository=overfoundation/chronos-beacon-chain
+
+      - name: Run push_images for validator
+        run: |
+          echo "Run push_images(validator) for ${{ steps.set-docker-tag.outputs.docker_tag }}"
+          bazel run \
+            //cmd/validator:push_images \
+            --config=release \
+            -- \
+            --tag=${{ steps.set-docker-tag.outputs.docker_tag }} \
+            --repository=overfoundation/chronos-validator
+
+      - name: Run push_images for latest
+        if: ${{ inputs.tag_name == 'stable' }}
+        run: |
+          echo "Run push_images(latest) for ${{ steps.set-docker-tag.outputs.docker_tag }}"
+          bazel run \
+            //cmd/beacon-chain:push_images \
+            --config=release \
+            -- \
+            --tag=latest \
+            --repository=overfoundation/chronos-beacon-chain
+
+          bazel run \
+            //cmd/validator:push_images \
+            --config=release \
+            -- \
+            --tag=latest \
+            --repository=overfoundation/chronos-validator
