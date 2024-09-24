@@ -389,12 +389,10 @@ func randomBlobData() ([]byte, error) {
 }
 
 func randomAddress() common.Address {
-	// #nosec G404
-	switch mathRand.Int31n(5) {
+	switch mathRand.Int31n(5) { // #nosec G404
 	case 0, 1, 2:
 		b := make([]byte, 20)
-		// #nosec G404
-		_, err := mathRand.Read(b)
+		_, err := mathRand.Read(b) // #nosec G404
 		if err != nil {
 			panic(err)
 		}
