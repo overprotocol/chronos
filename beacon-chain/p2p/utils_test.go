@@ -2,11 +2,13 @@ package p2p
 
 import (
 	"fmt"
+	"math/rand"
 	"path/filepath"
 	"testing"
 
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/p2p/enode"
+	"github.com/prysmaticlabs/go-bitfield"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/wrapper"
 	"github.com/prysmaticlabs/prysm/v5/io/file"
@@ -14,6 +16,7 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/testing/assert"
 	"github.com/prysmaticlabs/prysm/v5/testing/require"
 	logTest "github.com/sirupsen/logrus/hooks/test"
+	"google.golang.org/protobuf/proto"
 )
 
 // Test `verifyConnectivity` function by trying to connect to google.com (successfully)
