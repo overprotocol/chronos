@@ -1,17 +1,13 @@
 #!/bin/sh -l
 set -e
-
 export PATH="$PATH:/usr/local/go/bin"
 
-cd "/github/workspace"
-
-go env -w GOPRIVATE=github.com/superblock-dev
-git config --global url."https://$1@github.com/superblock-dev".insteadOf "https://github.com/superblock-dev"
+cd "$GITHUB_WORKSPACE"
 
 cp go.mod go.mod.orig
 cp go.sum go.sum.orig
 
-go mod tidy -compat=1.21
+go mod tidy -compat=1.17
 
 echo "Checking go.mod and go.sum:"
 checks=0
