@@ -13,8 +13,7 @@ func MinimalSpecConfig() *BeaconChainConfig {
 	minimalConfig.MaxCommitteesPerSlot = 4
 	minimalConfig.TargetCommitteeSize = 4
 	minimalConfig.MaxValidatorsPerCommittee = 2048
-	minimalConfig.MinPerEpochChurnLimit = 2           // Changed in EIP7514
-	minimalConfig.MaxPerEpochActivationChurnLimit = 4 // New in EIP7514
+	minimalConfig.MinPerEpochChurnLimit = 2 // Changed in EIP7514
 	minimalConfig.ChurnLimitQuotient = 32
 	minimalConfig.ShuffleRoundCount = 10
 	minimalConfig.MinGenesisActiveValidatorCount = 64

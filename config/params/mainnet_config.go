@@ -272,7 +272,6 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	// Subnet value
 	BlobsidecarSubnetCount: 6,
 
-	MaxPerEpochActivationChurnLimit:  8,
 	MinEpochsForBlobsSidecarsRequest: 4096,
 	MaxRequestBlobSidecars:           768,
 	MaxRequestBlocksDeneb:            128,

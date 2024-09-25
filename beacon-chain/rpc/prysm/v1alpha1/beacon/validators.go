@@ -3,6 +3,7 @@ package beacon
 import (
 	"context"
 	"fmt"
+	"github.com/prysmaticlabs/prysm/v5/runtime/version"
 	"sort"
 	"strconv"
 
@@ -17,7 +18,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
 	"github.com/prysmaticlabs/prysm/v5/encoding/bytesutil"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
-	"github.com/prysmaticlabs/prysm/v5/runtime/version"
 	"github.com/prysmaticlabs/prysm/v5/time/slots"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -516,9 +516,6 @@ func (bs *Server) GetValidatorQueue(
 	}
 
 	churnLimit := helpers.ValidatorActivationChurnLimit(activeValidatorCount, activeValidatorDeposit, coreTime.CurrentEpoch(headState))
-	if headState.Version() >= version.Deneb {
-		churnLimit = helpers.ValidatorActivationChurnLimitDeneb(activeValidatorCount, activeValidatorDeposit, coreTime.CurrentEpoch(headState))
-	}
 	return &ethpb.ValidatorQueue{
 		ChurnLimit:                 churnLimit,
 		ActivationPublicKeys:       activationQueueKeys,

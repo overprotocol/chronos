@@ -451,51 +451,6 @@ func TestExitChurnLimit_OK(t *testing.T) {
 	}
 }
 
-func TestChurnLimitDeneb_OK(t *testing.T) {
-	tests := []struct {
-		validatorCount int
-		wantedChurn    uint64
-		epoch          primitives.Epoch
-	}{
-		{166016, 5, 41063},
-		{166017, 4, 41063},
-		{1000000, params.BeaconConfig().MaxPerEpochActivationChurnLimit, 0},
-		{2000000, params.BeaconConfig().MaxPerEpochActivationChurnLimit, 0},
-	}
-	for _, test := range tests {
-		helpers.ClearCache()
-
-		// Create validators
-		validators := make([]*ethpb.Validator, test.validatorCount)
-		for i := range validators {
-			validators[i] = &ethpb.Validator{
-				EffectiveBalance: params.BeaconConfig().MaxEffectiveBalance,
-				ExitEpoch:        params.BeaconConfig().FarFutureEpoch,
-			}
-		}
-
-		// Initialize beacon state
-		beaconState, err := state_native.InitializeFromProtoPhase0(&ethpb.BeaconState{
-			Slot:        1,
-			Validators:  validators,
-			RandaoMixes: make([][]byte, params.BeaconConfig().EpochsPerHistoricalVector),
-		})
-		require.NoError(t, err)
-
-		// Get active validator count
-		validatorCount, err := helpers.ActiveValidatorCount(context.Background(), beaconState, time.CurrentEpoch(beaconState))
-		require.NoError(t, err)
-
-		// Get active validator balance
-		validatorDeposit, err := helpers.TotalActiveBalance(beaconState)
-		require.NoError(t, err)
-
-		// Test churn limit calculation
-		resultChurn := helpers.ValidatorActivationChurnLimitDeneb(validatorCount, validatorDeposit, test.epoch)
-		assert.Equal(t, test.wantedChurn, resultChurn)
-	}
-}
-
 // Test basic functionality of ActiveValidatorIndices without caching. This test will need to be
 // rewritten when releasing some cache flag.
 func TestActiveValidatorIndices(t *testing.T) {
