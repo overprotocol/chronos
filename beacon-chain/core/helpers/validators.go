@@ -294,16 +294,6 @@ func ValidatorExitChurnLimit(activeValidatorCount uint64, activeValidatorDeposit
 	return calculateChurnLimit(activeValidatorCount, activeValidatorDeposit, epoch, true)
 }
 
-// ValidatorActivationChurnLimitDeneb returns the maximum number of validators that can be activated in a slot post Deneb.
-func ValidatorActivationChurnLimitDeneb(activeValidatorCount uint64, activeValidatorDeposit uint64, epoch primitives.Epoch) uint64 {
-	limit := calculateChurnLimit(activeValidatorCount, activeValidatorDeposit, epoch, false)
-	// New in Deneb.
-	if limit > params.BeaconConfig().MaxPerEpochActivationChurnLimit {
-		return params.BeaconConfig().MaxPerEpochActivationChurnLimit
-	}
-	return limit
-}
-
 // BeaconProposerIndex returns proposer index of a current slot.
 //
 // Spec pseudocode definition:

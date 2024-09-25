@@ -211,18 +211,16 @@ func TestProcessRegistryUpdates_EligibleToActivate(t *testing.T) {
 	}
 }
 
+// EIP 7514 is Removed
 func TestProcessRegistryUpdates_EligibleToActivate_Cancun(t *testing.T) {
 	finalizedEpoch := primitives.Epoch(4)
 	base := &ethpb.BeaconStateDeneb{
 		Slot:                5 * params.BeaconConfig().SlotsPerEpoch,
 		FinalizedCheckpoint: &ethpb.Checkpoint{Epoch: finalizedEpoch, Root: make([]byte, fieldparams.RootLength)},
 	}
-	cfg := params.BeaconConfig()
-	cfg.MinPerEpochChurnLimit = 10
-	cfg.ChurnLimitQuotient = 1
-	params.OverrideBeaconConfig(cfg)
+	limit := helpers.ValidatorActivationChurnLimit(0, params.BeaconConfig().EffectiveBalanceIncrement, 5)
 
-	for i := uint64(0); i < 10; i++ {
+	for i := uint64(0); i < limit+10; i++ {
 		base.Validators = append(base.Validators, &ethpb.Validator{
 			ActivationEligibilityEpoch: finalizedEpoch,
 			EffectiveBalance:           params.BeaconConfig().MaxEffectiveBalance,
@@ -236,11 +234,11 @@ func TestProcessRegistryUpdates_EligibleToActivate_Cancun(t *testing.T) {
 	require.NoError(t, err)
 	for i, validator := range newState.Validators() {
 		// Note: In Deneb, only validators indices before `MaxPerEpochActivationChurnLimit` should be activated.
-		if uint64(i) < params.BeaconConfig().MaxPerEpochActivationChurnLimit && validator.ActivationEpoch != helpers.ActivationExitEpoch(currentEpoch) {
+		if uint64(i) < limit && validator.ActivationEpoch != helpers.ActivationExitEpoch(currentEpoch) {
 			t.Errorf("Could not update registry %d, validators failed to activate: wanted activation epoch %d, got %d",
 				i, helpers.ActivationExitEpoch(currentEpoch), validator.ActivationEpoch)
 		}
-		if uint64(i) >= params.BeaconConfig().MaxPerEpochActivationChurnLimit && validator.ActivationEpoch != params.BeaconConfig().FarFutureEpoch {
+		if uint64(i) >= limit && validator.ActivationEpoch != params.BeaconConfig().FarFutureEpoch {
 			t.Errorf("Could not update registry %d, validators should not have been activated, wanted activation epoch: %d, got %d",
 				i, params.BeaconConfig().FarFutureEpoch, validator.ActivationEpoch)
 		}
