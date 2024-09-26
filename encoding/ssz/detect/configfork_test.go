@@ -48,6 +48,7 @@ func TestSlotFromBlock(t *testing.T) {
 func TestByState(t *testing.T) {
 	undo := util.HackElectraMaxuint(t)
 	defer undo()
+	params.SetupForkEpochConfigForTest()
 	bc := params.BeaconConfig()
 	altairSlot, err := slots.EpochStart(bc.AltairForkEpoch)
 	require.NoError(t, err)
@@ -144,6 +145,7 @@ func TestUnmarshalState(t *testing.T) {
 	ctx := context.Background()
 	undo := util.HackElectraMaxuint(t)
 	defer undo()
+	params.SetupForkEpochConfigForTest()
 	bc := params.BeaconConfig()
 	altairSlot, err := slots.EpochStart(bc.AltairForkEpoch)
 	require.NoError(t, err)
