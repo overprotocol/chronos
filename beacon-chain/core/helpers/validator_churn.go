@@ -40,14 +40,3 @@ func BalanceChurnLimit(activeBalance primitives.Gwei) primitives.Gwei {
 func ActivationExitChurnLimit(activeBalance primitives.Gwei) primitives.Gwei {
 	return min(primitives.Gwei(params.BeaconConfig().MaxPerEpochActivationExitChurnLimit), BalanceChurnLimit(activeBalance))
 }
-
-// ConsolidationChurnLimit for the current active balance, in gwei.
-// New in EIP-7251: https://eips.ethereum.org/EIPS/eip-7251
-//
-// Spec definition:
-//
-//	def get_consolidation_churn_limit(state: BeaconState) -> Gwei:
-//	    return get_balance_churn_limit(state) - get_activation_exit_churn_limit(state)
-func ConsolidationChurnLimit(activeBalance primitives.Gwei) primitives.Gwei {
-	return BalanceChurnLimit(activeBalance) - ActivationExitChurnLimit(activeBalance)
-}

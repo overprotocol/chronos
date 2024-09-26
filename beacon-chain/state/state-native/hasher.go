@@ -307,14 +307,6 @@ func ComputeFieldRootsWithHasher(ctx context.Context, state *BeaconState) ([][]b
 		eeeRoot := ssz.Uint64Root(uint64(state.earliestExitEpoch))
 		fieldRoots[types.EarliestExitEpoch.RealPosition()] = eeeRoot[:]
 
-		// ConsolidationBalanceToConsume root.
-		cbtcRoot := ssz.Uint64Root(uint64(state.consolidationBalanceToConsume))
-		fieldRoots[types.ConsolidationBalanceToConsume.RealPosition()] = cbtcRoot[:]
-
-		// EarliestConsolidationEpoch root.
-		eceRoot := ssz.Uint64Root(uint64(state.earliestConsolidationEpoch))
-		fieldRoots[types.EarliestConsolidationEpoch.RealPosition()] = eceRoot[:]
-
 		// PendingBalanceDeposits root.
 		pbdRoot, err := stateutil.PendingBalanceDepositsRoot(state.pendingBalanceDeposits)
 		if err != nil {
@@ -329,12 +321,6 @@ func ComputeFieldRootsWithHasher(ctx context.Context, state *BeaconState) ([][]b
 		}
 		fieldRoots[types.PendingPartialWithdrawals.RealPosition()] = ppwRoot[:]
 
-		// PendingConsolidations root.
-		pcRoot, err := stateutil.PendingConsolidationsRoot(state.pendingConsolidations)
-		if err != nil {
-			return nil, errors.Wrap(err, "could not compute pending consolidations merkleization")
-		}
-		fieldRoots[types.PendingConsolidations.RealPosition()] = pcRoot[:]
 	}
 
 	return fieldRoots, nil

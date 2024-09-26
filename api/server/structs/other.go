@@ -255,12 +255,6 @@ type WithdrawalRequest struct {
 	Amount          string `json:"amount"`
 }
 
-type ConsolidationRequest struct {
-	SourceAddress string `json:"source_address"`
-	SourcePubkey  string `json:"source_pubkey"`
-	TargetPubkey  string `json:"target_pubkey"`
-}
-
 type PendingBalanceDeposit struct {
 	Index  string `json:"index"`
 	Amount string `json:"amount"`
@@ -270,9 +264,4 @@ type PendingPartialWithdrawal struct {
 	Index             string `json:"index"`
 	Amount            string `json:"amount"`
 	WithdrawableEpoch string `json:"withdrawable_epoch"`
-}
-
-type PendingConsolidation struct {
-	SourceIndex string `json:"source_index"`
-	TargetIndex string `json:"target_index"`
 }

@@ -56,16 +56,16 @@ func (wr *WithdrawalRequest) Copy() *WithdrawalRequest {
 }
 
 // Copy --
-func (cr *ConsolidationRequest) Copy() *ConsolidationRequest {
-	if cr == nil {
-		return nil
-	}
-	return &ConsolidationRequest{
-		SourceAddress: bytesutil.SafeCopyBytes(cr.SourceAddress),
-		SourcePubkey:  bytesutil.SafeCopyBytes(cr.SourcePubkey),
-		TargetPubkey:  bytesutil.SafeCopyBytes(cr.TargetPubkey),
-	}
-}
+//func (cr *ConsolidationRequest) Copy() *ConsolidationRequest {
+//	if cr == nil {
+//		return nil
+//	}
+//	return &ConsolidationRequest{
+//		SourceAddress: bytesutil.SafeCopyBytes(cr.SourceAddress),
+//		SourcePubkey:  bytesutil.SafeCopyBytes(cr.SourcePubkey),
+//		TargetPubkey:  bytesutil.SafeCopyBytes(cr.TargetPubkey),
+//	}
+//}
 
 // Copy -- Deneb
 func (payload *ExecutionPayloadDeneb) Copy() *ExecutionPayloadDeneb {

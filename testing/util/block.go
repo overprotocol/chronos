@@ -33,37 +33,35 @@ import (
 // BlockGenConfig is used to define the requested conditions
 // for block generation.
 type BlockGenConfig struct {
-	NumProposerSlashings     uint64
-	NumAttesterSlashings     uint64
-	NumAttestations          uint64
-	NumDeposits              uint64
-	NumVoluntaryExits        uint64
-	NumBailOuts              uint64 // Only for post Altair blocks
-	NumTransactions          uint64 // Only for post Bellatrix blocks
-	FullSyncAggregate        bool
-	NumBLSChanges            uint64 // Only for post Capella blocks
-	NumWithdrawals           uint64
-	NumDepositRequests       uint64 // Only for post Electra blocks
-	NumWithdrawalRequests    uint64 // Only for post Electra blocks
-	NumConsolidationRequests uint64 // Only for post Electra blocks
+	NumProposerSlashings  uint64
+	NumAttesterSlashings  uint64
+	NumAttestations       uint64
+	NumDeposits           uint64
+	NumVoluntaryExits     uint64
+	NumBailOuts           uint64 // Only for post Altair blocks
+	NumTransactions       uint64 // Only for post Bellatrix blocks
+	FullSyncAggregate     bool
+	NumBLSChanges         uint64 // Only for post Capella blocks
+	NumWithdrawals        uint64
+	NumDepositRequests    uint64 // Only for post Electra blocks
+	NumWithdrawalRequests uint64 // Only for post Electra blocks
 }
 
 // DefaultBlockGenConfig returns the block config that utilizes the
 // current params in the beacon config.
 func DefaultBlockGenConfig() *BlockGenConfig {
 	return &BlockGenConfig{
-		NumProposerSlashings:     0,
-		NumAttesterSlashings:     0,
-		NumAttestations:          1,
-		NumDeposits:              0,
-		NumVoluntaryExits:        0,
-		NumBailOuts:              0,
-		NumTransactions:          0,
-		NumBLSChanges:            0,
-		NumWithdrawals:           0,
-		NumConsolidationRequests: 0,
-		NumWithdrawalRequests:    0,
-		NumDepositRequests:       0,
+		NumProposerSlashings:  0,
+		NumAttesterSlashings:  0,
+		NumAttestations:       1,
+		NumDeposits:           0,
+		NumVoluntaryExits:     0,
+		NumBailOuts:           0,
+		NumTransactions:       0,
+		NumBLSChanges:         0,
+		NumWithdrawals:        0,
+		NumWithdrawalRequests: 0,
+		NumDepositRequests:    0,
 	}
 }
 

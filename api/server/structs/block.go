@@ -552,5 +552,4 @@ type ExecutionPayloadHeaderElectra = ExecutionPayloadHeaderDeneb
 type ExecutionRequests struct {
 	Deposits       []*DepositRequest       `json:"deposits"`
 	Withdrawals    []*WithdrawalRequest    `json:"withdrawals"`
-	Consolidations []*ConsolidationRequest `json:"consolidations"`
 }

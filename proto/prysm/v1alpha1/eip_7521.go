@@ -11,14 +11,3 @@ func (pw *PendingPartialWithdrawal) Copy() *PendingPartialWithdrawal {
 		WithdrawableEpoch: pw.WithdrawableEpoch,
 	}
 }
-
-// Copy --
-func (pc *PendingConsolidation) Copy() *PendingConsolidation {
-	if pc == nil {
-		return nil
-	}
-	return &PendingConsolidation{
-		SourceIndex: pc.SourceIndex,
-		TargetIndex: pc.TargetIndex,
-	}
-}

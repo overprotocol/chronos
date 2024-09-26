@@ -162,17 +162,14 @@ ssz_electra_objs = [
     "BeaconStateElectra",
     "BlindedBeaconBlockBodyElectra",
     "BlindedBeaconBlockElectra",
-    "Consolidation",
     "IndexedAttestationElectra",
     "PendingBalanceDeposit",
     "PendingBalanceDeposits",
-    "PendingConsolidation",
     "PendingPartialWithdrawal",
     "SignedAggregateAttestationAndProofElectra",
     "SignedBeaconBlockContentsElectra",
     "SignedBeaconBlockElectra",
     "SignedBlindedBeaconBlockElectra",
-    "SignedConsolidation",
 ]
 
 ssz_gen_marshal(
