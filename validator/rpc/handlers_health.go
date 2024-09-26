@@ -196,10 +196,10 @@ func (s *Server) GetStatus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	httputil.WriteJson(w, struct {
-		IsConnectedWithBeaconNode bool `json:"isConnectedWithBeaconNode"`
-		IsBeaconNodeSyncing       bool `json:"isBeaconNodeSyncing"`
-		IsWalletInitialized       bool `json:"isWalletInitialized"`
-		CanInitializeWallet       bool `json:"canInitializeWallet"`
+		IsConnectedWithBeaconNode bool `json:"is_connected_with_beacon_node"`
+		IsBeaconNodeSyncing       bool `json:"is_beacon_node_syncing"`
+		IsWalletInitialized       bool `json:"is_wallet_initialized"`
+		CanInitializeWallet       bool `json:"can_initialize_wallet"`
 	}{
 		IsConnectedWithBeaconNode: isConnectionWithBeaconNode,
 		IsBeaconNodeSyncing:       isBeaconNodeSyncing,
