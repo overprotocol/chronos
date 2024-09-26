@@ -88,6 +88,7 @@ func TestProcessRegistryUpdates(t *testing.T) {
 						ExitEpoch:         params.BeaconConfig().FarFutureEpoch,
 						WithdrawableEpoch: params.BeaconConfig().FarFutureEpoch,
 					})
+					base.BailOutScores = append(base.BailOutScores, 0)
 				}
 				st, err := state_native.InitializeFromProtoElectra(base)
 				require.NoError(t, err)
