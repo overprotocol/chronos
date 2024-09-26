@@ -2196,6 +2196,7 @@ func TestReconstructBlindedBlockBatch(t *testing.T) {
 		require.Equal(t, 0, len(results))
 	})
 	t.Run("expected error for nil response", func(t *testing.T) {
+		params.SetupForkEpochConfigForTest()
 		ctx := context.Background()
 		slot, err := slots.EpochStart(params.BeaconConfig().DenebForkEpoch)
 		require.NoError(t, err)

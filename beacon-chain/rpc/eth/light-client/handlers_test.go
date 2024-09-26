@@ -137,6 +137,7 @@ func TestLightClientHandler_GetLightClientBootstrap_Capella(t *testing.T) {
 }
 
 func TestLightClientHandler_GetLightClientBootstrap_Deneb(t *testing.T) {
+	params.SetupForkEpochConfigForTest()
 	helpers.ClearCache()
 	slot := primitives.Slot(params.BeaconConfig().DenebForkEpoch * primitives.Epoch(params.BeaconConfig().SlotsPerEpoch)).Add(1)
 

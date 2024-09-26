@@ -213,7 +213,7 @@ func TestGetSpec(t *testing.T) {
 	data, ok := resp.Data.(map[string]interface{})
 	require.Equal(t, true, ok)
 
-	assert.Equal(t, 168, len(data))
+	assert.Equal(t, 176, len(data))
 	for k, v := range data {
 		t.Run(k, func(t *testing.T) {
 			switch k {
@@ -287,6 +287,10 @@ func TestGetSpec(t *testing.T) {
 				assert.Equal(t, "0x"+hex.EncodeToString([]byte("DenebForkVersion")), v)
 			case "DENEB_FORK_EPOCH":
 				assert.Equal(t, "105", v)
+			case "ELECTRA_FORK_VERSION":
+				assert.Equal(t, "0x"+hex.EncodeToString([]byte("ElectraForkVersion")), v)
+			case "ELECTRA_FORK_EPOCH":
+				assert.Equal(t, "107", v)
 			case "MIN_ANCHOR_POW_BLOCK_DIFFICULTY":
 				assert.Equal(t, "1000", v)
 			case "BLS_WITHDRAWAL_PREFIX":
@@ -498,6 +502,16 @@ func TestGetSpec(t *testing.T) {
 				assert.Equal(t, "1024", v)
 			case "MAX_REQUEST_BLOCKS_DENEB":
 				assert.Equal(t, "128", v)
+			case "NUMBER_OF_COLUMNS":
+				assert.Equal(t, "128", v)
+			case "MIN_PER_EPOCH_CHURN_LIMIT_ELECTRA":
+				assert.Equal(t, "128000000000", v)
+			case "MAX_PER_EPOCH_ACTIVATION_EXIT_CHURN_LIMIT":
+				assert.Equal(t, "256000000000", v)
+			case "DATA_COLUMN_SIDECAR_SUBNET_COUNT":
+				assert.Equal(t, "128", v)
+			case "MAX_REQUEST_DATA_COLUMN_SIDECARS":
+				assert.Equal(t, "16384", v)
 			case "BAILOUT_SCORE_BIAS":
 				assert.Equal(t, "77", v)
 			case "BAILOUT_SCORE_THRESHOLD":

@@ -99,6 +99,7 @@ func blindedBlockWithHeader(t *testing.T, b interfaces.ReadOnlySignedBeaconBlock
 }
 
 func denebSlot(t *testing.T) primitives.Slot {
+	params.SetupForkEpochConfigForTest()
 	s, err := slots.EpochStart(params.BeaconConfig().DenebForkEpoch)
 	require.NoError(t, err)
 	return s

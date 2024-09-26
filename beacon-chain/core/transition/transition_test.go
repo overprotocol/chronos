@@ -662,6 +662,8 @@ func TestProcessSlots_ThroughDenebEpoch(t *testing.T) {
 }
 
 func TestProcessSlots_ThroughElectraEpoch(t *testing.T) {
+	params.SetupForkEpochConfigForTest()
+
 	transition.SkipSlotCache.Disable()
 	params.SetupTestConfigCleanup(t)
 	conf := params.BeaconConfig()

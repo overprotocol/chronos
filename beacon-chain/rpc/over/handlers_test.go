@@ -64,7 +64,7 @@ func TestEstimatedActivation(t *testing.T) {
 			input: "",
 			want: &structs.EstimatedActivationResponse{
 				WaitingEpoch:  uint64(5),
-				EligibleEpoch: uint64(131),
+				EligibleEpoch: uint64(97),
 				Status:        uint64(0),
 			},
 		},
@@ -124,7 +124,7 @@ func TestEstimatedActivation(t *testing.T) {
 			input: strings.Repeat("0", 96),
 			want: &structs.EstimatedActivationResponse{
 				WaitingEpoch:  uint64(5),
-				EligibleEpoch: uint64(131),
+				EligibleEpoch: uint64(97),
 				Status:        uint64(0),
 			},
 		},
@@ -180,7 +180,7 @@ func TestEstimatedActivation_NoPendingValidators(t *testing.T) {
 		require.NoError(t, json.Unmarshal(writer.Body.Bytes(), resp))
 		want := &structs.EstimatedActivationResponse{
 			WaitingEpoch:  uint64(0),
-			EligibleEpoch: uint64(131),
+			EligibleEpoch: uint64(97),
 			Status:        uint64(0),
 		}
 		assert.DeepEqual(t, want, resp)

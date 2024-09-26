@@ -135,6 +135,7 @@ func TestProcessVoluntaryExits_AppliesCorrectStatus(t *testing.T) {
 }
 
 func TestVerifyExitAndSignature(t *testing.T) {
+	params.SetupForkEpochConfigForTest()
 	// Remove after electra fork epoch is defined.
 	cfg := params.BeaconConfig()
 	cfg.ElectraForkEpoch = cfg.DenebForkEpoch * 2
