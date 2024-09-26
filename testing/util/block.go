@@ -1454,6 +1454,9 @@ func HydrateBeaconBlockBodyElectra(b *ethpb.BeaconBlockBodyElectra) *ethpb.Beaco
 			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
 		}
 	}
+	if b.BailOuts == nil {
+		b.BailOuts = make([]*ethpb.BailOut, 0)
+	}
 	if b.ExecutionPayload == nil {
 		b.ExecutionPayload = &enginev1.ExecutionPayloadElectra{
 			ParentHash:            make([]byte, fieldparams.RootLength),
@@ -1666,6 +1669,9 @@ func HydrateBlindedBeaconBlockBodyElectra(b *ethpb.BlindedBeaconBlockBodyElectra
 			SyncCommitteeBits:      make([]byte, fieldparams.SyncAggregateSyncCommitteeBytesLength),
 			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
 		}
+	}
+	if b.BailOuts == nil {
+		b.BailOuts = make([]*ethpb.BailOut, 0)
 	}
 	if b.ExecutionPayloadHeader == nil {
 		b.ExecutionPayloadHeader = &enginev1.ExecutionPayloadHeaderElectra{
