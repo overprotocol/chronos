@@ -429,6 +429,9 @@ func NewBeaconStateElectra(options ...func(state *ethpb.BeaconStateElectra) erro
 		FinalizedCheckpoint:         &ethpb.Checkpoint{Root: make([]byte, fieldparams.RootLength)},
 		LatestBlockHeader:           HydrateBeaconHeader(&ethpb.BeaconBlockHeader{}),
 		PreviousJustifiedCheckpoint: &ethpb.Checkpoint{Root: make([]byte, fieldparams.RootLength)},
+		RewardAdjustmentFactor:      0,
+		PreviousEpochReserve:        0,
+		CurrentEpochReserve:         0,
 		PreviousEpochParticipation:  make([]byte, 0),
 		CurrentEpochParticipation:   make([]byte, 0),
 		CurrentSyncCommittee: &ethpb.SyncCommittee{
