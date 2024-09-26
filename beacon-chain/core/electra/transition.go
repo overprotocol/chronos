@@ -8,6 +8,7 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/altair"
 	e "github.com/prysmaticlabs/prysm/v5/beacon-chain/core/epoch"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/epoch/precompute"
+	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/interfaces"
@@ -79,6 +80,11 @@ func ProcessEpoch(ctx context.Context, state state.BeaconState) error {
 
 	if err := ProcessRegistryUpdates(ctx, state); err != nil {
 		return errors.Wrap(err, "could not process registry updates")
+	}
+
+	err = helpers.ProcessRewardFactorUpdate(state)
+	if err != nil {
+		return errors.Wrap(err, "could not update reserve and reward factor")
 	}
 
 	proportionalSlashingMultiplier, err := state.ProportionalSlashingMultiplier()
