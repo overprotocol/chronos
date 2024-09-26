@@ -826,33 +826,26 @@ func PayloadToHeaderElectra(payload interfaces.ExecutionDataElectra) (*enginev1.
 		return nil, err
 	}
 
-	consolidationRequests := payload.ConsolidationRequests()
-	consolidationRequestsRoot, err := ssz.ConsolidationRequestsSliceRoot(consolidationRequests, fieldparams.MaxConsolidationRequestsPerPayload)
-	if err != nil {
-		return nil, err
-	}
-
 	return &enginev1.ExecutionPayloadHeaderElectra{
-		ParentHash:                bytesutil.SafeCopyBytes(payload.ParentHash()),
-		FeeRecipient:              bytesutil.SafeCopyBytes(payload.FeeRecipient()),
-		StateRoot:                 bytesutil.SafeCopyBytes(payload.StateRoot()),
-		ReceiptsRoot:              bytesutil.SafeCopyBytes(payload.ReceiptsRoot()),
-		LogsBloom:                 bytesutil.SafeCopyBytes(payload.LogsBloom()),
-		PrevRandao:                bytesutil.SafeCopyBytes(payload.PrevRandao()),
-		BlockNumber:               payload.BlockNumber(),
-		GasLimit:                  payload.GasLimit(),
-		GasUsed:                   payload.GasUsed(),
-		Timestamp:                 payload.Timestamp(),
-		ExtraData:                 bytesutil.SafeCopyBytes(payload.ExtraData()),
-		BaseFeePerGas:             bytesutil.SafeCopyBytes(payload.BaseFeePerGas()),
-		BlockHash:                 bytesutil.SafeCopyBytes(payload.BlockHash()),
-		TransactionsRoot:          txRoot[:],
-		WithdrawalsRoot:           withdrawalsRoot[:],
-		BlobGasUsed:               blobGasUsed,
-		ExcessBlobGas:             excessBlobGas,
-		DepositRequestsRoot:       depositRequestsRoot[:],
-		WithdrawalRequestsRoot:    withdrawalRequestsRoot[:],
-		ConsolidationRequestsRoot: consolidationRequestsRoot[:],
+		ParentHash:             bytesutil.SafeCopyBytes(payload.ParentHash()),
+		FeeRecipient:           bytesutil.SafeCopyBytes(payload.FeeRecipient()),
+		StateRoot:              bytesutil.SafeCopyBytes(payload.StateRoot()),
+		ReceiptsRoot:           bytesutil.SafeCopyBytes(payload.ReceiptsRoot()),
+		LogsBloom:              bytesutil.SafeCopyBytes(payload.LogsBloom()),
+		PrevRandao:             bytesutil.SafeCopyBytes(payload.PrevRandao()),
+		BlockNumber:            payload.BlockNumber(),
+		GasLimit:               payload.GasLimit(),
+		GasUsed:                payload.GasUsed(),
+		Timestamp:              payload.Timestamp(),
+		ExtraData:              bytesutil.SafeCopyBytes(payload.ExtraData()),
+		BaseFeePerGas:          bytesutil.SafeCopyBytes(payload.BaseFeePerGas()),
+		BlockHash:              bytesutil.SafeCopyBytes(payload.BlockHash()),
+		TransactionsRoot:       txRoot[:],
+		WithdrawalsRoot:        withdrawalsRoot[:],
+		BlobGasUsed:            blobGasUsed,
+		ExcessBlobGas:          excessBlobGas,
+		DepositRequestsRoot:    depositRequestsRoot[:],
+		WithdrawalRequestsRoot: withdrawalRequestsRoot[:],
 	}, nil
 }
 
@@ -1571,11 +1564,6 @@ func (e executionPayloadElectra) DepositRequests() []*enginev1.DepositRequest {
 // WithdrawalRequests --
 func (e executionPayloadElectra) WithdrawalRequests() []*enginev1.WithdrawalRequest {
 	return e.p.WithdrawalRequests
-}
-
-// ConsolidationRequests --
-func (e executionPayloadElectra) ConsolidationRequests() []*enginev1.ConsolidationRequest {
-	return e.p.ConsolidationRequests
 }
 
 // IsBlinded returns true if the underlying data is blinded.

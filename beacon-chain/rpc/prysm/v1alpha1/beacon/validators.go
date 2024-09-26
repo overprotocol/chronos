@@ -3,7 +3,6 @@ package beacon
 import (
 	"context"
 	"fmt"
-	"github.com/prysmaticlabs/prysm/v5/runtime/version"
 	"sort"
 	"strconv"
 

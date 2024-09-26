@@ -13,7 +13,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/encoding/bytesutil"
 	enginev1 "github.com/prysmaticlabs/prysm/v5/proto/engine/v1"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
-	"github.com/prysmaticlabs/prysm/v5/time/slots"
 )
 
 // UpgradeToElectra updates inputs a generic state to return the version Electra state.
@@ -253,40 +252,36 @@ func UpgradeToElectra(beaconState state.BeaconState) (state.BeaconState, error) 
 		NextSyncCommittee:           nextSyncCommittee,
 		BailOutScores:               bailoutScores,
 		LatestExecutionPayloadHeader: &enginev1.ExecutionPayloadHeaderElectra{
-			ParentHash:                payloadHeader.ParentHash(),
-			FeeRecipient:              payloadHeader.FeeRecipient(),
-			StateRoot:                 payloadHeader.StateRoot(),
-			ReceiptsRoot:              payloadHeader.ReceiptsRoot(),
-			LogsBloom:                 payloadHeader.LogsBloom(),
-			PrevRandao:                payloadHeader.PrevRandao(),
-			BlockNumber:               payloadHeader.BlockNumber(),
-			GasLimit:                  payloadHeader.GasLimit(),
-			GasUsed:                   payloadHeader.GasUsed(),
-			Timestamp:                 payloadHeader.Timestamp(),
-			ExtraData:                 payloadHeader.ExtraData(),
-			BaseFeePerGas:             payloadHeader.BaseFeePerGas(),
-			BlockHash:                 payloadHeader.BlockHash(),
-			TransactionsRoot:          txRoot,
-			WithdrawalsRoot:           wdRoot,
-			ExcessBlobGas:             excessBlobGas,
-			BlobGasUsed:               blobGasUsed,
-			DepositRequestsRoot:       bytesutil.Bytes32(0), // [New in Electra:EIP6110]
-			WithdrawalRequestsRoot:    bytesutil.Bytes32(0), // [New in Electra:EIP7002]
-			ConsolidationRequestsRoot: bytesutil.Bytes32(0), // [New in Electra:EIP7251]
+			ParentHash:             payloadHeader.ParentHash(),
+			FeeRecipient:           payloadHeader.FeeRecipient(),
+			StateRoot:              payloadHeader.StateRoot(),
+			ReceiptsRoot:           payloadHeader.ReceiptsRoot(),
+			LogsBloom:              payloadHeader.LogsBloom(),
+			PrevRandao:             payloadHeader.PrevRandao(),
+			BlockNumber:            payloadHeader.BlockNumber(),
+			GasLimit:               payloadHeader.GasLimit(),
+			GasUsed:                payloadHeader.GasUsed(),
+			Timestamp:              payloadHeader.Timestamp(),
+			ExtraData:              payloadHeader.ExtraData(),
+			BaseFeePerGas:          payloadHeader.BaseFeePerGas(),
+			BlockHash:              payloadHeader.BlockHash(),
+			TransactionsRoot:       txRoot,
+			WithdrawalsRoot:        wdRoot,
+			ExcessBlobGas:          excessBlobGas,
+			BlobGasUsed:            blobGasUsed,
+			DepositRequestsRoot:    bytesutil.Bytes32(0), // [New in Electra:EIP6110]
+			WithdrawalRequestsRoot: bytesutil.Bytes32(0), // [New in Electra:EIP7002]
 		},
 		NextWithdrawalIndex:          wi,
 		NextWithdrawalValidatorIndex: vi,
 		HistoricalSummaries:          summaries,
 
-		DepositRequestsStartIndex:     params.BeaconConfig().UnsetDepositRequestsStartIndex,
-		DepositBalanceToConsume:       0,
-		ExitBalanceToConsume:          helpers.ActivationExitChurnLimit(primitives.Gwei(tab)),
-		EarliestExitEpoch:             earliestExitEpoch,
-		ConsolidationBalanceToConsume: helpers.ConsolidationChurnLimit(primitives.Gwei(tab)),
-		EarliestConsolidationEpoch:    helpers.ActivationExitEpoch(slots.ToEpoch(beaconState.Slot())),
-		PendingBalanceDeposits:        make([]*ethpb.PendingBalanceDeposit, 0),
-		PendingPartialWithdrawals:     make([]*ethpb.PendingPartialWithdrawal, 0),
-		PendingConsolidations:         make([]*ethpb.PendingConsolidation, 0),
+		DepositRequestsStartIndex: params.BeaconConfig().UnsetDepositRequestsStartIndex,
+		DepositBalanceToConsume:   0,
+		ExitBalanceToConsume:      helpers.ActivationExitChurnLimit(primitives.Gwei(tab)),
+		EarliestExitEpoch:         earliestExitEpoch,
+		PendingBalanceDeposits:    make([]*ethpb.PendingBalanceDeposit, 0),
+		PendingPartialWithdrawals: make([]*ethpb.PendingPartialWithdrawal, 0),
 	}
 
 	// Sorting preActivationIndices based on a custom criteria

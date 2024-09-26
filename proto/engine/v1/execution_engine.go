@@ -56,16 +56,16 @@ func (wr *WithdrawalRequest) Copy() *WithdrawalRequest {
 }
 
 // Copy --
-func (cr *ConsolidationRequest) Copy() *ConsolidationRequest {
-	if cr == nil {
-		return nil
-	}
-	return &ConsolidationRequest{
-		SourceAddress: bytesutil.SafeCopyBytes(cr.SourceAddress),
-		SourcePubkey:  bytesutil.SafeCopyBytes(cr.SourcePubkey),
-		TargetPubkey:  bytesutil.SafeCopyBytes(cr.TargetPubkey),
-	}
-}
+//func (cr *ConsolidationRequest) Copy() *ConsolidationRequest {
+//	if cr == nil {
+//		return nil
+//	}
+//	return &ConsolidationRequest{
+//		SourceAddress: bytesutil.SafeCopyBytes(cr.SourceAddress),
+//		SourcePubkey:  bytesutil.SafeCopyBytes(cr.SourcePubkey),
+//		TargetPubkey:  bytesutil.SafeCopyBytes(cr.TargetPubkey),
+//	}
+//}
 
 // Copy -- Electra
 func (payload *ExecutionPayloadElectra) Copy() *ExecutionPayloadElectra {
@@ -73,26 +73,26 @@ func (payload *ExecutionPayloadElectra) Copy() *ExecutionPayloadElectra {
 		return nil
 	}
 	return &ExecutionPayloadElectra{
-		ParentHash:            bytesutil.SafeCopyBytes(payload.ParentHash),
-		FeeRecipient:          bytesutil.SafeCopyBytes(payload.FeeRecipient),
-		StateRoot:             bytesutil.SafeCopyBytes(payload.StateRoot),
-		ReceiptsRoot:          bytesutil.SafeCopyBytes(payload.ReceiptsRoot),
-		LogsBloom:             bytesutil.SafeCopyBytes(payload.LogsBloom),
-		PrevRandao:            bytesutil.SafeCopyBytes(payload.PrevRandao),
-		BlockNumber:           payload.BlockNumber,
-		GasLimit:              payload.GasLimit,
-		GasUsed:               payload.GasUsed,
-		Timestamp:             payload.Timestamp,
-		ExtraData:             bytesutil.SafeCopyBytes(payload.ExtraData),
-		BaseFeePerGas:         bytesutil.SafeCopyBytes(payload.BaseFeePerGas),
-		BlockHash:             bytesutil.SafeCopyBytes(payload.BlockHash),
-		Transactions:          bytesutil.SafeCopy2dBytes(payload.Transactions),
-		Withdrawals:           copySlice(payload.Withdrawals),
-		BlobGasUsed:           payload.BlobGasUsed,
-		ExcessBlobGas:         payload.ExcessBlobGas,
-		DepositRequests:       copySlice(payload.DepositRequests),
-		WithdrawalRequests:    copySlice(payload.WithdrawalRequests),
-		ConsolidationRequests: copySlice(payload.ConsolidationRequests),
+		ParentHash:         bytesutil.SafeCopyBytes(payload.ParentHash),
+		FeeRecipient:       bytesutil.SafeCopyBytes(payload.FeeRecipient),
+		StateRoot:          bytesutil.SafeCopyBytes(payload.StateRoot),
+		ReceiptsRoot:       bytesutil.SafeCopyBytes(payload.ReceiptsRoot),
+		LogsBloom:          bytesutil.SafeCopyBytes(payload.LogsBloom),
+		PrevRandao:         bytesutil.SafeCopyBytes(payload.PrevRandao),
+		BlockNumber:        payload.BlockNumber,
+		GasLimit:           payload.GasLimit,
+		GasUsed:            payload.GasUsed,
+		Timestamp:          payload.Timestamp,
+		ExtraData:          bytesutil.SafeCopyBytes(payload.ExtraData),
+		BaseFeePerGas:      bytesutil.SafeCopyBytes(payload.BaseFeePerGas),
+		BlockHash:          bytesutil.SafeCopyBytes(payload.BlockHash),
+		Transactions:       bytesutil.SafeCopy2dBytes(payload.Transactions),
+		Withdrawals:        copySlice(payload.Withdrawals),
+		BlobGasUsed:        payload.BlobGasUsed,
+		ExcessBlobGas:      payload.ExcessBlobGas,
+		DepositRequests:    copySlice(payload.DepositRequests),
+		WithdrawalRequests: copySlice(payload.WithdrawalRequests),
+		//ConsolidationRequests: copySlice(payload.ConsolidationRequests),
 	}
 }
 
@@ -178,26 +178,26 @@ func (payload *ExecutionPayloadHeaderElectra) Copy() *ExecutionPayloadHeaderElec
 	}
 
 	return &ExecutionPayloadHeaderElectra{
-		ParentHash:                bytesutil.SafeCopyBytes(payload.ParentHash),
-		FeeRecipient:              bytesutil.SafeCopyBytes(payload.FeeRecipient),
-		StateRoot:                 bytesutil.SafeCopyBytes(payload.StateRoot),
-		ReceiptsRoot:              bytesutil.SafeCopyBytes(payload.ReceiptsRoot),
-		LogsBloom:                 bytesutil.SafeCopyBytes(payload.LogsBloom),
-		PrevRandao:                bytesutil.SafeCopyBytes(payload.PrevRandao),
-		BlockNumber:               payload.BlockNumber,
-		GasLimit:                  payload.GasLimit,
-		GasUsed:                   payload.GasUsed,
-		Timestamp:                 payload.Timestamp,
-		ExtraData:                 bytesutil.SafeCopyBytes(payload.ExtraData),
-		BaseFeePerGas:             bytesutil.SafeCopyBytes(payload.BaseFeePerGas),
-		BlockHash:                 bytesutil.SafeCopyBytes(payload.BlockHash),
-		TransactionsRoot:          bytesutil.SafeCopyBytes(payload.TransactionsRoot),
-		WithdrawalsRoot:           bytesutil.SafeCopyBytes(payload.WithdrawalsRoot),
-		BlobGasUsed:               payload.BlobGasUsed,
-		ExcessBlobGas:             payload.ExcessBlobGas,
-		DepositRequestsRoot:       bytesutil.SafeCopyBytes(payload.DepositRequestsRoot),
-		WithdrawalRequestsRoot:    bytesutil.SafeCopyBytes(payload.WithdrawalRequestsRoot),
-		ConsolidationRequestsRoot: bytesutil.SafeCopyBytes(payload.ConsolidationRequestsRoot),
+		ParentHash:             bytesutil.SafeCopyBytes(payload.ParentHash),
+		FeeRecipient:           bytesutil.SafeCopyBytes(payload.FeeRecipient),
+		StateRoot:              bytesutil.SafeCopyBytes(payload.StateRoot),
+		ReceiptsRoot:           bytesutil.SafeCopyBytes(payload.ReceiptsRoot),
+		LogsBloom:              bytesutil.SafeCopyBytes(payload.LogsBloom),
+		PrevRandao:             bytesutil.SafeCopyBytes(payload.PrevRandao),
+		BlockNumber:            payload.BlockNumber,
+		GasLimit:               payload.GasLimit,
+		GasUsed:                payload.GasUsed,
+		Timestamp:              payload.Timestamp,
+		ExtraData:              bytesutil.SafeCopyBytes(payload.ExtraData),
+		BaseFeePerGas:          bytesutil.SafeCopyBytes(payload.BaseFeePerGas),
+		BlockHash:              bytesutil.SafeCopyBytes(payload.BlockHash),
+		TransactionsRoot:       bytesutil.SafeCopyBytes(payload.TransactionsRoot),
+		WithdrawalsRoot:        bytesutil.SafeCopyBytes(payload.WithdrawalsRoot),
+		BlobGasUsed:            payload.BlobGasUsed,
+		ExcessBlobGas:          payload.ExcessBlobGas,
+		DepositRequestsRoot:    bytesutil.SafeCopyBytes(payload.DepositRequestsRoot),
+		WithdrawalRequestsRoot: bytesutil.SafeCopyBytes(payload.WithdrawalRequestsRoot),
+		//ConsolidationRequestsRoot: bytesutil.SafeCopyBytes(payload.ConsolidationRequestsRoot),
 	}
 }
 

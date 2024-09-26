@@ -49,7 +49,6 @@ ssz_gen_marshal(
         "Withdrawal",
         "WithdrawalRequest",
         "DepositRequest",
-        "ConsolidationRequest",
     ],
 )
 

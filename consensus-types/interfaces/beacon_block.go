@@ -129,5 +129,4 @@ type ExecutionDataElectra interface {
 	ExecutionData
 	DepositRequests() []*enginev1.DepositRequest
 	WithdrawalRequests() []*enginev1.WithdrawalRequest
-	ConsolidationRequests() []*enginev1.ConsolidationRequest
 }

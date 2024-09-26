@@ -774,14 +774,6 @@ func BeaconStateElectraFromConsensus(st beaconState.BeaconState) (*BeaconStateEl
 	if err != nil {
 		return nil, err
 	}
-	cbtc, err := st.ConsolidationBalanceToConsume()
-	if err != nil {
-		return nil, err
-	}
-	ece, err := st.EarliestConsolidationEpoch()
-	if err != nil {
-		return nil, err
-	}
 	pbd, err := st.PendingBalanceDeposits()
 	if err != nil {
 		return nil, err
@@ -790,52 +782,45 @@ func BeaconStateElectraFromConsensus(st beaconState.BeaconState) (*BeaconStateEl
 	if err != nil {
 		return nil, err
 	}
-	pc, err := st.PendingConsolidations()
-	if err != nil {
-		return nil, err
-	}
 
 	return &BeaconStateElectra{
-		GenesisTime:                   fmt.Sprintf("%d", st.GenesisTime()),
-		GenesisValidatorsRoot:         hexutil.Encode(st.GenesisValidatorsRoot()),
-		Slot:                          fmt.Sprintf("%d", st.Slot()),
-		Fork:                          ForkFromConsensus(st.Fork()),
-		LatestBlockHeader:             BeaconBlockHeaderFromConsensus(st.LatestBlockHeader()),
-		BlockRoots:                    br,
-		StateRoots:                    sr,
-		HistoricalRoots:               hr,
-		RewardAdjustmentFactor:        st.RewardAdjustmentFactor(),
-		Eth1Data:                      Eth1DataFromConsensus(st.Eth1Data()),
-		Eth1DataVotes:                 votes,
-		Eth1DepositIndex:              fmt.Sprintf("%d", st.Eth1DepositIndex()),
-		Validators:                    vals,
-		Balances:                      bals,
-		PreviousEpochReserve:          st.PreviousEpochReserve(),
-		CurrentEpochReserve:           st.CurrentEpochReserve(),
-		RandaoMixes:                   rm,
-		Slashings:                     slashings,
-		PreviousEpochParticipation:    prevPart,
-		CurrentEpochParticipation:     currPart,
-		JustificationBits:             hexutil.Encode(st.JustificationBits()),
-		PreviousJustifiedCheckpoint:   CheckpointFromConsensus(st.PreviousJustifiedCheckpoint()),
-		CurrentJustifiedCheckpoint:    CheckpointFromConsensus(st.CurrentJustifiedCheckpoint()),
-		FinalizedCheckpoint:           CheckpointFromConsensus(st.FinalizedCheckpoint()),
-		InactivityScores:              is,
-		CurrentSyncCommittee:          SyncCommitteeFromConsensus(currSc),
-		NextSyncCommittee:             SyncCommitteeFromConsensus(nextSc),
-		BailOutScores:                 bo,
-		LatestExecutionPayloadHeader:  payload,
-		NextWithdrawalIndex:           fmt.Sprintf("%d", nwi),
-		NextWithdrawalValidatorIndex:  fmt.Sprintf("%d", nwvi),
-		HistoricalSummaries:           hs,
-		DepositRequestsStartIndex:     fmt.Sprintf("%d", drsi),
-		DepositBalanceToConsume:       fmt.Sprintf("%d", dbtc),
-		ExitBalanceToConsume:          fmt.Sprintf("%d", ebtc),
-		EarliestExitEpoch:             fmt.Sprintf("%d", eee),
-		ConsolidationBalanceToConsume: fmt.Sprintf("%d", cbtc),
-		EarliestConsolidationEpoch:    fmt.Sprintf("%d", ece),
-		PendingBalanceDeposits:        PendingBalanceDepositsFromConsensus(pbd),
-		PendingPartialWithdrawals:     PendingPartialWithdrawalsFromConsensus(ppw),
-		PendingConsolidations:         PendingConsolidationsFromConsensus(pc),
+		GenesisTime:                  fmt.Sprintf("%d", st.GenesisTime()),
+		GenesisValidatorsRoot:        hexutil.Encode(st.GenesisValidatorsRoot()),
+		Slot:                         fmt.Sprintf("%d", st.Slot()),
+		Fork:                         ForkFromConsensus(st.Fork()),
+		LatestBlockHeader:            BeaconBlockHeaderFromConsensus(st.LatestBlockHeader()),
+		BlockRoots:                   br,
+		StateRoots:                   sr,
+		HistoricalRoots:              hr,
+		RewardAdjustmentFactor:       st.RewardAdjustmentFactor(),
+		Eth1Data:                     Eth1DataFromConsensus(st.Eth1Data()),
+		Eth1DataVotes:                votes,
+		Eth1DepositIndex:             fmt.Sprintf("%d", st.Eth1DepositIndex()),
+		Validators:                   vals,
+		Balances:                     bals,
+		PreviousEpochReserve:         st.PreviousEpochReserve(),
+		CurrentEpochReserve:          st.CurrentEpochReserve(),
+		RandaoMixes:                  rm,
+		Slashings:                    slashings,
+		PreviousEpochParticipation:   prevPart,
+		CurrentEpochParticipation:    currPart,
+		JustificationBits:            hexutil.Encode(st.JustificationBits()),
+		PreviousJustifiedCheckpoint:  CheckpointFromConsensus(st.PreviousJustifiedCheckpoint()),
+		CurrentJustifiedCheckpoint:   CheckpointFromConsensus(st.CurrentJustifiedCheckpoint()),
+		FinalizedCheckpoint:          CheckpointFromConsensus(st.FinalizedCheckpoint()),
+		InactivityScores:             is,
+		CurrentSyncCommittee:         SyncCommitteeFromConsensus(currSc),
+		NextSyncCommittee:            SyncCommitteeFromConsensus(nextSc),
+		BailOutScores:                bo,
+		LatestExecutionPayloadHeader: payload,
+		NextWithdrawalIndex:          fmt.Sprintf("%d", nwi),
+		NextWithdrawalValidatorIndex: fmt.Sprintf("%d", nwvi),
+		HistoricalSummaries:          hs,
+		DepositRequestsStartIndex:    fmt.Sprintf("%d", drsi),
+		DepositBalanceToConsume:      fmt.Sprintf("%d", dbtc),
+		ExitBalanceToConsume:         fmt.Sprintf("%d", ebtc),
+		EarliestExitEpoch:            fmt.Sprintf("%d", eee),
+		PendingBalanceDeposits:       PendingBalanceDepositsFromConsensus(pbd),
+		PendingPartialWithdrawals:    PendingPartialWithdrawalsFromConsensus(ppw),
 	}, nil
 }

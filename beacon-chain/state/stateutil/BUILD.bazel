@@ -13,7 +13,6 @@ go_library(
         "participation_bit_root.go",
         "pending_attestation_root.go",
         "pending_balance_deposits_root.go",
-        "pending_consolidations_root.go",
         "pending_partial_withdrawals_root.go",
         "reference.go",
         "sync_committee.root.go",

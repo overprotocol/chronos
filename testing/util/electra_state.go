@@ -15,7 +15,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/crypto/bls"
 	enginev1 "github.com/prysmaticlabs/prysm/v5/proto/engine/v1"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
-	"github.com/prysmaticlabs/prysm/v5/time/slots"
 )
 
 // DeterministicGenesisStateElectra returns a genesis state in Electra format made using the deterministic deposits.
@@ -211,13 +210,10 @@ func buildGenesisBeaconStateElectra(genesisTime uint64, preState state.BeaconSta
 		Eth1DepositIndex: preState.Eth1DepositIndex(),
 
 		// Electra Data
-		DepositRequestsStartIndex:     params.BeaconConfig().UnsetDepositRequestsStartIndex,
-		ExitBalanceToConsume:          helpers.ActivationExitChurnLimit(primitives.Gwei(tab)),
-		EarliestConsolidationEpoch:    helpers.ActivationExitEpoch(slots.ToEpoch(preState.Slot())),
-		ConsolidationBalanceToConsume: helpers.ConsolidationChurnLimit(primitives.Gwei(tab)),
-		PendingBalanceDeposits:        make([]*ethpb.PendingBalanceDeposit, 0),
-		PendingPartialWithdrawals:     make([]*ethpb.PendingPartialWithdrawal, 0),
-		PendingConsolidations:         make([]*ethpb.PendingConsolidation, 0),
+		DepositRequestsStartIndex: params.BeaconConfig().UnsetDepositRequestsStartIndex,
+		ExitBalanceToConsume:      helpers.ActivationExitChurnLimit(primitives.Gwei(tab)),
+		PendingBalanceDeposits:    make([]*ethpb.PendingBalanceDeposit, 0),
+		PendingPartialWithdrawals: make([]*ethpb.PendingPartialWithdrawal, 0),
 	}
 
 	var scBits [fieldparams.SyncAggregateSyncCommitteeBytesLength]byte
@@ -279,20 +275,19 @@ func buildGenesisBeaconStateElectra(genesisTime uint64, preState state.BeaconSta
 	}
 
 	st.LatestExecutionPayloadHeader = &enginev1.ExecutionPayloadHeaderElectra{
-		ParentHash:                make([]byte, 32),
-		FeeRecipient:              make([]byte, 20),
-		StateRoot:                 make([]byte, 32),
-		ReceiptsRoot:              make([]byte, 32),
-		LogsBloom:                 make([]byte, 256),
-		PrevRandao:                make([]byte, 32),
-		ExtraData:                 make([]byte, 0),
-		BaseFeePerGas:             make([]byte, 32),
-		BlockHash:                 make([]byte, 32),
-		TransactionsRoot:          make([]byte, 32),
-		WithdrawalsRoot:           make([]byte, 32),
-		DepositRequestsRoot:       make([]byte, 32),
-		WithdrawalRequestsRoot:    make([]byte, 32),
-		ConsolidationRequestsRoot: make([]byte, 32),
+		ParentHash:             make([]byte, 32),
+		FeeRecipient:           make([]byte, 20),
+		StateRoot:              make([]byte, 32),
+		ReceiptsRoot:           make([]byte, 32),
+		LogsBloom:              make([]byte, 256),
+		PrevRandao:             make([]byte, 32),
+		ExtraData:              make([]byte, 0),
+		BaseFeePerGas:          make([]byte, 32),
+		BlockHash:              make([]byte, 32),
+		TransactionsRoot:       make([]byte, 32),
+		WithdrawalsRoot:        make([]byte, 32),
+		DepositRequestsRoot:    make([]byte, 32),
+		WithdrawalRequestsRoot: make([]byte, 32),
 	}
 
 	return state_native.InitializeFromProtoElectra(st)

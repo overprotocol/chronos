@@ -111,11 +111,8 @@ var electraFields = append(
 	types.DepositBalanceToConsume,
 	types.ExitBalanceToConsume,
 	types.EarliestExitEpoch,
-	types.ConsolidationBalanceToConsume,
-	types.EarliestConsolidationEpoch,
 	types.PendingBalanceDeposits,
 	types.PendingPartialWithdrawals,
-	types.PendingConsolidations,
 )
 
 const (
@@ -124,14 +121,14 @@ const (
 	bellatrixSharedFieldRefCount = 13
 	capellaSharedFieldRefCount   = 14
 	denebSharedFieldRefCount     = 14
-	electraSharedFieldRefCount   = 17
+	electraSharedFieldRefCount   = 16
 
 	experimentalStatePhase0SharedFieldRefCount    = 5
 	experimentalStateAltairSharedFieldRefCount    = 5
 	experimentalStateBellatrixSharedFieldRefCount = 6
 	experimentalStateCapellaSharedFieldRefCount   = 7
 	experimentalStateDenebSharedFieldRefCount     = 7
-	experimentalStateElectraSharedFieldRefCount   = 10
+	experimentalStateElectraSharedFieldRefCount   = 9
 )
 
 // InitializeFromProtoPhase0 the beacon state from a protobuf representation.
@@ -791,11 +788,8 @@ func InitializeFromProtoUnsafeElectra(st *ethpb.BeaconStateElectra) (state.Beaco
 		depositBalanceToConsume:             st.DepositBalanceToConsume,
 		exitBalanceToConsume:                st.ExitBalanceToConsume,
 		earliestExitEpoch:                   st.EarliestExitEpoch,
-		consolidationBalanceToConsume:       st.ConsolidationBalanceToConsume,
-		earliestConsolidationEpoch:          st.EarliestConsolidationEpoch,
 		pendingBalanceDeposits:              st.PendingBalanceDeposits,
 		pendingPartialWithdrawals:           st.PendingPartialWithdrawals,
-		pendingConsolidations:               st.PendingConsolidations,
 
 		dirtyFields:         make(map[types.FieldIndex]bool, fieldCount),
 		dirtyIndices:        make(map[types.FieldIndex][]uint64, fieldCount),
@@ -862,7 +856,6 @@ func InitializeFromProtoUnsafeElectra(st *ethpb.BeaconStateElectra) (state.Beaco
 	b.sharedFieldReferences[types.HistoricalSummaries] = stateutil.NewRef(1)                 // New in Capella.
 	b.sharedFieldReferences[types.PendingBalanceDeposits] = stateutil.NewRef(1)              // New in Electra.
 	b.sharedFieldReferences[types.PendingPartialWithdrawals] = stateutil.NewRef(1)           // New in Electra.
-	b.sharedFieldReferences[types.PendingConsolidations] = stateutil.NewRef(1)               // New in Electra.
 	if !features.Get().EnableExperimentalState {
 		b.sharedFieldReferences[types.BlockRoots] = stateutil.NewRef(1)
 		b.sharedFieldReferences[types.StateRoots] = stateutil.NewRef(1)
@@ -904,20 +897,18 @@ func (b *BeaconState) Copy() state.BeaconState {
 		version: b.version,
 
 		// Primitive types, safe to copy.
-		genesisTime:                   b.genesisTime,
-		slot:                          b.slot,
-		eth1DepositIndex:              b.eth1DepositIndex,
-		nextWithdrawalIndex:           b.nextWithdrawalIndex,
-		nextWithdrawalValidatorIndex:  b.nextWithdrawalValidatorIndex,
-		rewardAdjustmentFactor:        b.rewardAdjustmentFactor,
-		previousEpochReserve:          b.previousEpochReserve,
-		currentEpochReserve:           b.currentEpochReserve,
-		depositRequestsStartIndex:     b.depositRequestsStartIndex,
-		depositBalanceToConsume:       b.depositBalanceToConsume,
-		exitBalanceToConsume:          b.exitBalanceToConsume,
-		earliestExitEpoch:             b.earliestExitEpoch,
-		consolidationBalanceToConsume: b.consolidationBalanceToConsume,
-		earliestConsolidationEpoch:    b.earliestConsolidationEpoch,
+		genesisTime:                  b.genesisTime,
+		slot:                         b.slot,
+		eth1DepositIndex:             b.eth1DepositIndex,
+		nextWithdrawalIndex:          b.nextWithdrawalIndex,
+		nextWithdrawalValidatorIndex: b.nextWithdrawalValidatorIndex,
+		rewardAdjustmentFactor:       b.rewardAdjustmentFactor,
+		previousEpochReserve:         b.previousEpochReserve,
+		currentEpochReserve:          b.currentEpochReserve,
+		depositRequestsStartIndex:    b.depositRequestsStartIndex,
+		depositBalanceToConsume:      b.depositBalanceToConsume,
+		exitBalanceToConsume:         b.exitBalanceToConsume,
+		earliestExitEpoch:            b.earliestExitEpoch,
 
 		// Large arrays, infrequently changed, constant size.
 		blockRoots:                b.blockRoots,
@@ -946,7 +937,6 @@ func (b *BeaconState) Copy() state.BeaconState {
 		bailoutScoresMultiValue:    b.bailoutScoresMultiValue,
 		pendingBalanceDeposits:     b.pendingBalanceDeposits,
 		pendingPartialWithdrawals:  b.pendingPartialWithdrawals,
-		pendingConsolidations:      b.pendingConsolidations,
 
 		// Everything else, too small to be concerned about, constant size.
 		genesisValidatorsRoot:               b.genesisValidatorsRoot,
@@ -1369,16 +1359,10 @@ func (b *BeaconState) rootSelector(ctx context.Context, field types.FieldIndex) 
 		return ssz.Uint64Root(uint64(b.exitBalanceToConsume)), nil
 	case types.EarliestExitEpoch:
 		return ssz.Uint64Root(uint64(b.earliestExitEpoch)), nil
-	case types.ConsolidationBalanceToConsume:
-		return ssz.Uint64Root(uint64(b.consolidationBalanceToConsume)), nil
-	case types.EarliestConsolidationEpoch:
-		return ssz.Uint64Root(uint64(b.earliestConsolidationEpoch)), nil
 	case types.PendingBalanceDeposits:
 		return stateutil.PendingBalanceDepositsRoot(b.pendingBalanceDeposits)
 	case types.PendingPartialWithdrawals:
 		return stateutil.PendingPartialWithdrawalsRoot(b.pendingPartialWithdrawals)
-	case types.PendingConsolidations:
-		return stateutil.PendingConsolidationsRoot(b.pendingConsolidations)
 	}
 	return [32]byte{}, errors.New("invalid field index provided")
 }
