@@ -48,7 +48,7 @@ func TestProcessPendingBalanceDeposits(t *testing.T) {
 		{
 			name: "more deposits than balance to consume processes partial deposits",
 			state: func() state.BeaconState {
-				st := stateWithActiveBalanceETH(t, 1_000)
+				st := stateWithActiveBalanceETH(t, 8_000)
 				require.NoError(t, st.SetDepositBalanceToConsume(100))
 				amountAvailForProcessing := helpers.ActivationExitChurnLimit(1_000 * 1e9)
 				deps := make([]*eth.PendingBalanceDeposit, 20)
@@ -82,7 +82,7 @@ func TestProcessPendingBalanceDeposits(t *testing.T) {
 		{
 			name: "less deposits than balance to consume processes all deposits",
 			state: func() state.BeaconState {
-				st := stateWithActiveBalanceETH(t, 1_000)
+				st := stateWithActiveBalanceETH(t, 8_000)
 				require.NoError(t, st.SetDepositBalanceToConsume(0))
 				amountAvailForProcessing := helpers.ActivationExitChurnLimit(1_000 * 1e9)
 				deps := make([]*eth.PendingBalanceDeposit, 5)
@@ -116,7 +116,7 @@ func TestProcessPendingBalanceDeposits(t *testing.T) {
 		{
 			name: "exiting validator deposit postponed",
 			state: func() state.BeaconState {
-				st := stateWithActiveBalanceETH(t, 1_000)
+				st := stateWithActiveBalanceETH(t, 8_000)
 				require.NoError(t, st.SetDepositBalanceToConsume(0))
 				amountAvailForProcessing := helpers.ActivationExitChurnLimit(1_000 * 1e9)
 				deps := make([]*eth.PendingBalanceDeposit, 5)

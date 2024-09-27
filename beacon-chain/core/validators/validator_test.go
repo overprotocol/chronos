@@ -195,6 +195,7 @@ func TestInitiateValidatorExit_ProperExit_Electra(t *testing.T) {
 				EffectiveBalance: params.BeaconConfig().MinActivationBalance,
 			},
 		},
+		BailOutScores: make([]uint64, 4),
 	}
 	state, err := state_native.InitializeFromProtoElectra(base)
 	require.NoError(t, err)
@@ -287,10 +288,11 @@ func TestSlashValidator_Electra(t *testing.T) {
 	}
 
 	base := &ethpb.BeaconStateElectra{
-		Validators:  registry,
-		Slashings:   make([]uint64, params.BeaconConfig().EpochsPerSlashingsVector),
-		RandaoMixes: make([][]byte, params.BeaconConfig().EpochsPerHistoricalVector),
-		Balances:    balances,
+		Validators:    registry,
+		Slashings:     make([]uint64, params.BeaconConfig().EpochsPerSlashingsVector),
+		RandaoMixes:   make([][]byte, params.BeaconConfig().EpochsPerHistoricalVector),
+		Balances:      balances,
+		BailOutScores: make([]uint64, validatorCount),
 	}
 	state, err := state_native.InitializeFromProtoElectra(base)
 	require.NoError(t, err)

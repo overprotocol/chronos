@@ -208,6 +208,7 @@ func stateWithActiveBalanceETH(t *testing.T, balETH uint64) state.BeaconState {
 
 	vals := make([]*eth.Validator, numVals)
 	bals := make([]uint64, numVals)
+	bailoutScores := make([]uint64, numVals)
 	for i := uint64(0); i < numVals; i++ {
 		wc := make([]byte, 32)
 		wc[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
@@ -219,6 +220,7 @@ func stateWithActiveBalanceETH(t *testing.T, balETH uint64) state.BeaconState {
 			WithdrawalCredentials: wc,
 		}
 		bals[i] = balPerVal
+		bailoutScores[i] = 0
 	}
 	st, err := state_native.InitializeFromProtoUnsafeElectra(&eth.BeaconStateElectra{
 		Slot:       10 * params.BeaconConfig().SlotsPerEpoch,
@@ -227,6 +229,7 @@ func stateWithActiveBalanceETH(t *testing.T, balETH uint64) state.BeaconState {
 		Fork: &eth.Fork{
 			CurrentVersion: params.BeaconConfig().ElectraForkVersion,
 		},
+		BailOutScores: bailoutScores,
 	})
 	require.NoError(t, err)
 
@@ -244,7 +247,7 @@ func TestProcessConsolidationRequests(t *testing.T) {
 			name: "one valid request",
 			state: func() state.BeaconState {
 				st := &eth.BeaconStateElectra{
-					Validators: createValidatorsWithTotalActiveBalance(32000000000000000), // 32M ETH
+					Validators: createValidatorsWithTotalActiveBalance(256000000000000000), // 256M OVER
 				}
 				// Validator scenario setup. See comments in reqs section.
 				st.Validators[3].WithdrawalCredentials = bytesutil.Bytes32(0)
@@ -347,7 +350,7 @@ func TestProcessConsolidationRequests(t *testing.T) {
 			name: "pending consolidations limit reached",
 			state: func() state.BeaconState {
 				st := &eth.BeaconStateElectra{
-					Validators:            createValidatorsWithTotalActiveBalance(32000000000000000), // 32M ETH
+					Validators:            createValidatorsWithTotalActiveBalance(256000000000000000), // 256M OVER
 					PendingConsolidations: make([]*eth.PendingConsolidation, params.BeaconConfig().PendingConsolidationsLimit),
 				}
 				s, err := state_native.InitializeFromProtoElectra(st)
@@ -378,7 +381,7 @@ func TestProcessConsolidationRequests(t *testing.T) {
 			name: "pending consolidations limit reached during processing",
 			state: func() state.BeaconState {
 				st := &eth.BeaconStateElectra{
-					Validators:            createValidatorsWithTotalActiveBalance(32000000000000000), // 32M ETH
+					Validators:            createValidatorsWithTotalActiveBalance(256000000000000000), // 256M OVER
 					PendingConsolidations: make([]*eth.PendingConsolidation, params.BeaconConfig().PendingConsolidationsLimit-1),
 				}
 				s, err := state_native.InitializeFromProtoElectra(st)
