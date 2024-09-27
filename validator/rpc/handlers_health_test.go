@@ -217,5 +217,5 @@ func TestServer_GetStatus(t *testing.T) {
 	body, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
 	require.NotNil(t, body)
-	require.StringContains(t, `{"isConnectedWithBeaconNode":false,"isBeaconNodeSyncing":false,"isWalletInitialized":false,"canInitializeWallet":false}`, string(body))
+	require.StringContains(t, `{"is_connected_with_beacon_node":false,"is_beacon_node_syncing":false,"is_wallet_initialized":false,"can_initialize_wallet":false}`, string(body))
 }

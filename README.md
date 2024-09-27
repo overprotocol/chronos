@@ -29,7 +29,3 @@ We welcome contributions from the community. Please refer to our [contributing g
 ## License
 
 [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.en.html)
-
-## Legal Disclaimer
-
-[Terms of Use](/TERMS_OF_SERVICE.md)
