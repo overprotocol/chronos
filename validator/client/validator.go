@@ -160,6 +160,7 @@ func (v *validator) WaitForKeymanagerInitialization(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
+		v.isWaitingForKeymanagerInitialization = false
 		v.km = km
 	} else {
 		if v.interopKeysConfig != nil {
