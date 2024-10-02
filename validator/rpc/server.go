@@ -139,7 +139,6 @@ func NewServer(ctx context.Context, cfg *Config) *Server {
 		if err := server.InitializeOverNodeRoutes(); err != nil {
 			log.WithError(err).Fatal("Could not initialize OverNode routes")
 		}
-
 	}
 
 	if err := server.InitializeRoutesWithWebHandler(); err != nil {
