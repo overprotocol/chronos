@@ -134,15 +134,16 @@ func NewServer(ctx context.Context, cfg *Config) *Server {
 		log.WithError(err).Fatal("Could not register beacon chain gRPC or HTTP client")
 	}
 
-	if err := server.InitializeRoutesWithWebHandler(); err != nil {
-		log.WithError(err).Fatal("Could not initialize routes with web handler")
-	}
-
 	// register OverNode API routes
 	if server.useOverNode {
 		if err := server.InitializeOverNodeRoutes(); err != nil {
 			log.WithError(err).Fatal("Could not initialize OverNode routes")
 		}
+
+	}
+
+	if err := server.InitializeRoutesWithWebHandler(); err != nil {
+		log.WithError(err).Fatal("Could not initialize routes with web handler")
 	}
 
 	opts := []httprest.Option{
