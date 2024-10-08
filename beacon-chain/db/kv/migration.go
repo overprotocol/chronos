@@ -11,10 +11,10 @@ var migrationCompleted = []byte("done")
 type migration func(context.Context, *bolt.DB) error
 
 var migrations = []migration{
-	migrateArchivedIndex,
-	migrateBlockSlotIndex,
-	migrateStateValidators,
-	migrateFinalizedParent,
+	//migrateArchivedIndex,
+	//migrateBlockSlotIndex,
+	//migrateStateValidators,
+	//migrateFinalizedParent,
 }
 
 // RunMigrations defined in the migrations array.
