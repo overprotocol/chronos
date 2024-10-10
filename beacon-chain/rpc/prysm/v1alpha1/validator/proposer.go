@@ -11,6 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	emptypb "github.com/golang/protobuf/ptypes/empty"
 	"github.com/pkg/errors"
+	builderapi "github.com/prysmaticlabs/prysm/v5/api/client/builder"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/blockchain"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/builder"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/cache"
@@ -25,11 +26,12 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/blocks"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/interfaces"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
+	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing/trace"
+	enginev1 "github.com/prysmaticlabs/prysm/v5/proto/engine/v1"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	"github.com/prysmaticlabs/prysm/v5/runtime/version"
 	"github.com/prysmaticlabs/prysm/v5/time/slots"
 	"github.com/sirupsen/logrus"
-	"go.opencensus.io/trace"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -40,7 +42,7 @@ var eth1DataNotification bool
 
 const (
 	eth1dataTimeout           = 2 * time.Second
-	defaultBuilderBoostFactor = uint64(100)
+	defaultBuilderBoostFactor = primitives.Gwei(100)
 )
 
 // GetBeaconBlock is called by a proposer during its assigned slot to request a block to sign
@@ -87,36 +89,28 @@ func (vs *Server) GetBeaconBlock(ctx context.Context, req *ethpb.BlockRequest) (
 	// Set proposer index.
 	idx, err := helpers.BeaconProposerIndex(ctx, head)
 	if err != nil {
-		return nil, fmt.Errorf("could not calculate proposer index %v", err)
+		return nil, fmt.Errorf("could not calculate proposer index %w", err)
 	}
 	sBlk.SetProposerIndex(idx)
 
 	builderBoostFactor := defaultBuilderBoostFactor
 	if req.BuilderBoostFactor != nil {
-		builderBoostFactor = req.BuilderBoostFactor.Value
+		builderBoostFactor = primitives.Gwei(req.BuilderBoostFactor.Value)
 	}
 
-	if err = vs.BuildBlockParallel(ctx, sBlk, head, req.SkipMevBoost, builderBoostFactor); err != nil {
-		return nil, errors.Wrap(err, "could not build block in parallel")
-	}
-
-	sr, err := vs.computeStateRoot(ctx, sBlk)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Could not compute state root: %v", err)
-	}
-	sBlk.SetStateRoot(sr)
-
+	resp, err := vs.BuildBlockParallel(ctx, sBlk, head, req.SkipMevBoost, builderBoostFactor)
 	log.WithFields(logrus.Fields{
 		"slot":               req.Slot,
 		"sinceSlotStartTime": time.Since(t),
 		"validator":          sBlk.Block().ProposerIndex(),
 	}).Info("Finished building block")
-
-	// Blob cache is updated after BuildBlockParallel
-	return vs.constructGenericBeaconBlock(sBlk, bundleCache.get(req.Slot))
+	if err != nil {
+		return nil, errors.Wrap(err, "could not build block in parallel")
+	}
+	return resp, nil
 }
 
-func (vs *Server) handleSuccesfulReorgAttempt(ctx context.Context, slot primitives.Slot, parentRoot, headRoot [32]byte) (state.BeaconState, error) {
+func (vs *Server) handleSuccesfulReorgAttempt(ctx context.Context, slot primitives.Slot, parentRoot, _ [32]byte) (state.BeaconState, error) {
 	// Try to get the state from the NSC
 	head := transition.NextSlotState(parentRoot[:], slot)
 	if head != nil {
@@ -184,7 +178,7 @@ func (vs *Server) getParentState(ctx context.Context, slot primitives.Slot) (sta
 	return head, parentRoot, err
 }
 
-func (vs *Server) BuildBlockParallel(ctx context.Context, sBlk interfaces.SignedBeaconBlock, head state.BeaconState, skipMevBoost bool, builderBoostFactor uint64) error {
+func (vs *Server) BuildBlockParallel(ctx context.Context, sBlk interfaces.SignedBeaconBlock, head state.BeaconState, skipMevBoost bool, builderBoostFactor primitives.Gwei) (*ethpb.GenericBeaconBlock, error) {
 	// Build consensus fields in background
 	var wg sync.WaitGroup
 	wg.Add(1)
@@ -200,20 +194,26 @@ func (vs *Server) BuildBlockParallel(ctx context.Context, sBlk interfaces.Signed
 		sBlk.SetEth1Data(eth1Data)
 
 		// Set deposit and attestation.
-		deposits, atts, err := vs.packDepositsAndAttestations(ctx, head, eth1Data) // TODO: split attestations and deposits
+		deposits, atts, err := vs.packDepositsAndAttestations(ctx, head, sBlk.Block().Slot(), eth1Data) // TODO: split attestations and deposits
 		if err != nil {
 			sBlk.SetDeposits([]*ethpb.Deposit{})
-			sBlk.SetAttestations([]*ethpb.Attestation{})
+			if err := sBlk.SetAttestations([]ethpb.Att{}); err != nil {
+				log.WithError(err).Error("Could not set attestations on block")
+			}
 			log.WithError(err).Error("Could not pack deposits and attestations")
 		} else {
 			sBlk.SetDeposits(deposits)
-			sBlk.SetAttestations(atts)
+			if err := sBlk.SetAttestations(atts); err != nil {
+				log.WithError(err).Error("Could not set attestations on block")
+			}
 		}
 
 		// Set slashings.
 		validProposerSlashings, validAttSlashings := vs.getSlashings(ctx, head)
 		sBlk.SetProposerSlashings(validProposerSlashings)
-		sBlk.SetAttesterSlashings(validAttSlashings)
+		if err := sBlk.SetAttesterSlashings(validAttSlashings); err != nil {
+			log.WithError(err).Error("Could not set attester slashings on block")
+		}
 
 		// Set exits.
 		sBlk.SetVoluntaryExits(vs.getExits(head, sBlk.Block().Slot()))
@@ -228,30 +228,39 @@ func (vs *Server) BuildBlockParallel(ctx context.Context, sBlk interfaces.Signed
 		vs.setBlsToExecData(sBlk, head)
 	}()
 
-	localPayload, overrideBuilder, err := vs.getLocalPayload(ctx, sBlk.Block(), head)
-	if err != nil {
-		return status.Errorf(codes.Internal, "Could not get local payload: %v", err)
-	}
-
-	// There's no reason to try to get a builder bid if local override is true.
-	var builderPayload interfaces.ExecutionData
-	var builderKzgCommitments [][]byte
-	overrideBuilder = overrideBuilder || skipMevBoost // Skip using mev-boost if requested by the caller.
-	if !overrideBuilder {
-		builderPayload, builderKzgCommitments, err = vs.getBuilderPayloadAndBlobs(ctx, sBlk.Block().Slot(), sBlk.Block().ProposerIndex())
+	winningBid := primitives.ZeroWei()
+	var bundle *enginev1.BlobsBundle
+	if sBlk.Version() >= version.Bellatrix {
+		local, err := vs.getLocalPayload(ctx, sBlk.Block(), head)
 		if err != nil {
-			builderGetPayloadMissCount.Inc()
-			log.WithError(err).Error("Could not get builder payload")
+			return nil, status.Errorf(codes.Internal, "Could not get local payload: %v", err)
+		}
+
+		// There's no reason to try to get a builder bid if local override is true.
+		var builderBid builderapi.Bid
+		if !(local.OverrideBuilder || skipMevBoost) {
+			builderBid, err = vs.getBuilderPayloadAndBlobs(ctx, sBlk.Block().Slot(), sBlk.Block().ProposerIndex())
+			if err != nil {
+				builderGetPayloadMissCount.Inc()
+				log.WithError(err).Error("Could not get builder payload")
+			}
+		}
+
+		winningBid, bundle, err = setExecutionData(ctx, sBlk, local, builderBid, builderBoostFactor)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Could not set execution data: %v", err)
 		}
 	}
 
-	if err := setExecutionData(ctx, sBlk, localPayload, builderPayload, builderKzgCommitments, builderBoostFactor); err != nil {
-		return status.Errorf(codes.Internal, "Could not set execution data: %v", err)
+	wg.Wait()
+
+	sr, err := vs.computeStateRoot(ctx, sBlk)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Could not compute state root: %v", err)
 	}
+	sBlk.SetStateRoot(sr)
 
-	wg.Wait() // Wait until block is built via consensus and execution fields.
-
-	return nil
+	return vs.constructGenericBeaconBlock(sBlk, bundle, winningBid)
 }
 
 // ProposeBeaconBlock handles the proposal of beacon blocks.
@@ -271,8 +280,8 @@ func (vs *Server) ProposeBeaconBlock(ctx context.Context, req *ethpb.GenericSign
 	var sidecars []*ethpb.BlobSidecar
 	if block.IsBlinded() {
 		block, sidecars, err = vs.handleBlindedBlock(ctx, block)
-	} else {
-		sidecars, err = vs.handleUnblindedBlock(block, req)
+	} else if block.Version() >= version.Deneb {
+		sidecars, err = vs.blobSidecarsFromUnblindedBlock(block, req)
 	}
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "%s: %v", "handle block failed", err)
@@ -339,13 +348,12 @@ func (vs *Server) handleBlindedBlock(ctx context.Context, block interfaces.Signe
 	return copiedBlock, sidecars, nil
 }
 
-// handleUnblindedBlock processes unblinded beacon blocks.
-func (vs *Server) handleUnblindedBlock(block interfaces.SignedBeaconBlock, req *ethpb.GenericSignedBeaconBlock) ([]*ethpb.BlobSidecar, error) {
-	dbBlockContents := req.GetDeneb()
-	if dbBlockContents == nil {
-		return nil, nil
+func (vs *Server) blobSidecarsFromUnblindedBlock(block interfaces.SignedBeaconBlock, req *ethpb.GenericSignedBeaconBlock) ([]*ethpb.BlobSidecar, error) {
+	rawBlobs, proofs, err := blobsAndProofs(req)
+	if err != nil {
+		return nil, err
 	}
-	return BuildBlobSidecars(block, dbBlockContents.Blobs, dbBlockContents.KzgProofs)
+	return BuildBlobSidecars(block, rawBlobs, proofs)
 }
 
 // broadcastReceiveBlock broadcasts a block and handles its reception.
@@ -424,7 +432,7 @@ func (vs *Server) PrepareBeaconProposer(
 	if len(validatorIndices) != 0 {
 		log.WithFields(logrus.Fields{
 			"validatorCount": len(validatorIndices),
-		}).Info("Updated fee recipient addresses for validator indices")
+		}).Debug("Updated fee recipient addresses for validator indices")
 	}
 	return &emptypb.Empty{}, nil
 }
@@ -495,4 +503,17 @@ func (vs *Server) SubmitValidatorRegistrations(ctx context.Context, reg *ethpb.S
 	}
 
 	return &emptypb.Empty{}, nil
+}
+
+func blobsAndProofs(req *ethpb.GenericSignedBeaconBlock) ([][]byte, [][]byte, error) {
+	switch {
+	case req.GetDeneb() != nil:
+		dbBlockContents := req.GetDeneb()
+		return dbBlockContents.Blobs, dbBlockContents.KzgProofs, nil
+	case req.GetElectra() != nil:
+		dbBlockContents := req.GetElectra()
+		return dbBlockContents.Blobs, dbBlockContents.KzgProofs, nil
+	default:
+		return nil, nil, errors.Errorf("unknown request type provided: %T", req)
+	}
 }

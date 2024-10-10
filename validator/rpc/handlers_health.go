@@ -6,19 +6,19 @@ import (
 	"net/http"
 
 	"github.com/prysmaticlabs/prysm/v5/api"
+	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing/trace"
 	"github.com/prysmaticlabs/prysm/v5/network/httputil"
 	pb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	"github.com/prysmaticlabs/prysm/v5/runtime/version"
-	"go.opencensus.io/trace"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 // GetVersion returns the beacon node and validator client versions
 func (s *Server) GetVersion(w http.ResponseWriter, r *http.Request) {
-	ctx, span := trace.StartSpan(r.Context(), "validator.web.health.GetVersion")
+	ctx, span := trace.StartSpan(r.Context(), "validator.web.health.Version")
 	defer span.End()
 
-	beacon, err := s.nodeClient.GetVersion(ctx, &emptypb.Empty{})
+	beacon, err := s.nodeClient.Version(ctx, &emptypb.Empty{})
 	if err != nil {
 		httputil.HandleError(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -178,7 +178,7 @@ func (s *Server) GetStatus(w http.ResponseWriter, r *http.Request) {
 	var isConnectionWithBeaconNode bool
 	var isBeaconNodeSyncing bool
 
-	syncStatus, err := s.nodeClient.GetSyncStatus(ctx, &emptypb.Empty{})
+	syncStatus, err := s.nodeClient.SyncStatus(ctx, &emptypb.Empty{})
 	if err != nil || s.validatorService.Status() != nil {
 		isConnectionWithBeaconNode = false
 		isBeaconNodeSyncing = false

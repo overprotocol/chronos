@@ -83,8 +83,8 @@ func TestGetValidatorCount(t *testing.T) {
 			Slashed:           false,
 		},
 	}
-	for _, validator := range validators {
-		require.NoError(t, st.AppendValidator(validator))
+	for _, v := range validators {
+		require.NoError(t, st.AppendValidator(v))
 		require.NoError(t, st.AppendBalance(params.BeaconConfig().MaxEffectiveBalance))
 	}
 
@@ -292,7 +292,7 @@ func TestGetValidatorCount(t *testing.T) {
 			}
 
 			chainClient := mock.NewMockChainClient(ctrl)
-			chainClient.EXPECT().ListValidators(
+			chainClient.EXPECT().Validators(
 				gomock.Any(),
 				gomock.Any(),
 			).Return(
@@ -300,7 +300,7 @@ func TestGetValidatorCount(t *testing.T) {
 				nil,
 			)
 
-			chainClient.EXPECT().GetChainHead(
+			chainClient.EXPECT().ChainHead(
 				gomock.Any(),
 				gomock.Any(),
 			).Return(
@@ -318,7 +318,7 @@ func TestGetValidatorCount(t *testing.T) {
 				require.Equal(t, true, ok)
 				statuses = append(statuses, valStatus)
 			}
-			vcCountResp, err := prysmBeaconChainClient.GetValidatorCount(context.Background(), "", statuses)
+			vcCountResp, err := prysmBeaconChainClient.ValidatorCount(context.Background(), "", statuses)
 			require.NoError(t, err)
 			require.DeepEqual(t, test.expectedResponse, vcCountResp)
 		})

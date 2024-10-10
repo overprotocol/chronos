@@ -11,9 +11,9 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/encoding/bytesutil"
 	"github.com/prysmaticlabs/prysm/v5/math"
 	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing"
+	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing/trace"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	"github.com/prysmaticlabs/prysm/v5/validator/client/iface"
-	"go.opencensus.io/trace"
 )
 
 // WaitForActivation checks whether the validator pubkey is in the active
@@ -96,7 +96,7 @@ func (v *validator) internalWaitForActivation(ctx context.Context, accountsChang
 				break
 			}
 			// If context is canceled we return from the function.
-			if ctx.Err() == context.Canceled {
+			if errors.Is(ctx.Err(), context.Canceled) {
 				return errors.Wrap(ctx.Err(), "context has been canceled so shutting down the loop")
 			}
 			if err != nil {
@@ -109,9 +109,8 @@ func (v *validator) internalWaitForActivation(ctx context.Context, accountsChang
 				return v.internalWaitForActivation(incrementRetries(ctx), accountsChangedChan)
 			}
 
-			statuses := make([]*validatorStatus, len(res.Statuses))
-			for i, s := range res.Statuses {
-				statuses[i] = &validatorStatus{
+			for _, s := range res.Statuses {
+				v.pubkeyToStatus[bytesutil.ToBytes48(s.PublicKey)] = &validatorStatus{
 					publicKey: s.PublicKey,
 					status:    s.Status,
 					index:     s.Index,
@@ -120,7 +119,7 @@ func (v *validator) internalWaitForActivation(ctx context.Context, accountsChang
 
 			// "-1" indicates that validator count endpoint is not supported by the beacon node.
 			var valCount int64 = -1
-			valCounts, err := v.prysmChainClient.GetValidatorCount(ctx, "head", []validator2.Status{validator2.Active})
+			valCounts, err := v.prysmChainClient.ValidatorCount(ctx, "head", []validator2.Status{validator2.Active})
 			if err != nil && !errors.Is(err, iface.ErrNotSupported) {
 				return errors.Wrap(err, "could not get active validator count")
 			}
@@ -129,7 +128,7 @@ func (v *validator) internalWaitForActivation(ctx context.Context, accountsChang
 				valCount = int64(valCounts[0].Count)
 			}
 
-			someAreActive = v.checkAndLogValidatorStatus(statuses, valCount)
+			someAreActive = v.checkAndLogValidatorStatus(valCount)
 		}
 	}
 

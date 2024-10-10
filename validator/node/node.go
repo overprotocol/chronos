@@ -6,8 +6,6 @@ package node
 import (
 	"context"
 	"fmt"
-	"net"
-	"net/http"
 	"net/url"
 	"os"
 	"os/signal"
@@ -20,11 +18,9 @@ import (
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/gorilla/mux"
-	gwruntime "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/pkg/errors"
 	"github.com/prysmaticlabs/prysm/v5/api"
-	"github.com/prysmaticlabs/prysm/v5/api/gateway"
-	"github.com/prysmaticlabs/prysm/v5/api/server"
+	"github.com/prysmaticlabs/prysm/v5/api/server/middleware"
 	"github.com/prysmaticlabs/prysm/v5/async/event"
 	"github.com/prysmaticlabs/prysm/v5/cmd"
 	"github.com/prysmaticlabs/prysm/v5/cmd/validator/flags"
@@ -32,13 +28,10 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/config/proposer"
 	"github.com/prysmaticlabs/prysm/v5/config/proposer/loader"
-	"github.com/prysmaticlabs/prysm/v5/container/slice"
-	"github.com/prysmaticlabs/prysm/v5/encoding/bytesutil"
 	"github.com/prysmaticlabs/prysm/v5/io/file"
 	"github.com/prysmaticlabs/prysm/v5/monitoring/backup"
 	"github.com/prysmaticlabs/prysm/v5/monitoring/prometheus"
 	tracing2 "github.com/prysmaticlabs/prysm/v5/monitoring/tracing"
-	pb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	"github.com/prysmaticlabs/prysm/v5/runtime"
 	"github.com/prysmaticlabs/prysm/v5/runtime/debug"
 	"github.com/prysmaticlabs/prysm/v5/runtime/prereqs"
@@ -56,7 +49,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/validator/rpc"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
-	"google.golang.org/protobuf/encoding/protojson"
 )
 
 // ValidatorClient defines an instance of an Ethereum validator that manages
@@ -144,14 +136,14 @@ func NewValidatorClient(cliCtx *cli.Context) (*ValidatorClient, error) {
 
 func newRouter(cliCtx *cli.Context) *mux.Router {
 	var allowedOrigins []string
-	if cliCtx.IsSet(flags.GPRCGatewayCorsDomain.Name) {
-		allowedOrigins = strings.Split(cliCtx.String(flags.GPRCGatewayCorsDomain.Name), ",")
+	if cliCtx.IsSet(flags.HTTPServerCorsDomain.Name) {
+		allowedOrigins = strings.Split(cliCtx.String(flags.HTTPServerCorsDomain.Name), ",")
 	} else {
-		allowedOrigins = strings.Split(flags.GPRCGatewayCorsDomain.Value, ",")
+		allowedOrigins = strings.Split(flags.HTTPServerCorsDomain.Value, ",")
 	}
 	r := mux.NewRouter()
-	r.Use(server.NormalizeQueryValuesHandler)
-	r.Use(server.CorsHandler(allowedOrigins))
+	r.Use(middleware.NormalizeQueryValuesHandler)
+	r.Use(middleware.CorsHandler(allowedOrigins))
 	return r
 }
 
@@ -276,9 +268,6 @@ func (c *ValidatorClient) initializeForOverNode(cliCtx *cli.Context, router *mux
 	if err := c.registerRPCService(router); err != nil {
 		return err
 	}
-	if err := c.registerRPCGatewayService(router); err != nil {
-		return err
-	}
 	return nil
 }
 
@@ -289,7 +278,7 @@ func (c *ValidatorClient) initializeFromCLI(cliCtx *cli.Context, router *mux.Rou
 	if !isInteropNumValidatorsSet {
 		// Custom Check For Web3Signer
 		if isWeb3SignerURLFlagSet {
-			c.wallet = wallet.NewWalletForWeb3Signer()
+			c.wallet = wallet.NewWalletForWeb3Signer(cliCtx)
 		} else {
 			w, err := wallet.OpenWalletOrElseCli(cliCtx, func(cliCtx *cli.Context) (*wallet.Wallet, error) {
 				return nil, wallet.ErrNoWalletFound
@@ -320,9 +309,6 @@ func (c *ValidatorClient) initializeFromCLI(cliCtx *cli.Context, router *mux.Rou
 	}
 	if cliCtx.Bool(flags.EnableRPCFlag.Name) {
 		if err := c.registerRPCService(router); err != nil {
-			return err
-		}
-		if err := c.registerRPCGatewayService(router); err != nil {
 			return err
 		}
 	}
@@ -502,9 +488,9 @@ func (c *ValidatorClient) registerValidatorService(cliCtx *cli.Context) error {
 		Wallet:                  c.wallet,
 		WalletInitializedFeed:   c.walletInitializedFeed,
 		GRPCMaxCallRecvMsgSize:  c.cliCtx.Int(cmd.GrpcMaxCallRecvMsgSizeFlag.Name),
-		GRPCRetries:             c.cliCtx.Uint(flags.GrpcRetriesFlag.Name),
-		GRPCRetryDelay:          c.cliCtx.Duration(flags.GrpcRetryDelayFlag.Name),
-		GRPCHeaders:             strings.Split(c.cliCtx.String(flags.GrpcHeadersFlag.Name), ","),
+		GRPCRetries:             c.cliCtx.Uint(flags.GRPCRetriesFlag.Name),
+		GRPCRetryDelay:          c.cliCtx.Duration(flags.GRPCRetryDelayFlag.Name),
+		GRPCHeaders:             strings.Split(c.cliCtx.String(flags.GRPCHeadersFlag.Name), ","),
 		BeaconNodeGRPCEndpoint:  c.cliCtx.String(flags.BeaconRPCProviderFlag.Name),
 		BeaconNodeCert:          c.cliCtx.String(flags.CertFlag.Name),
 		BeaconApiEndpoint:       c.cliCtx.String(flags.BeaconRESTApiProviderFlag.Name),
@@ -545,31 +531,21 @@ func Web3SignerConfig(cliCtx *cli.Context) (*remoteweb3signer.SetupConfig, error
 		if cliCtx.IsSet(flags.WalletPasswordFileFlag.Name) {
 			log.Warnf("%s was provided while using web3signer and will be ignored", flags.WalletPasswordFileFlag.Name)
 		}
-
-		if publicKeysSlice := cliCtx.StringSlice(flags.Web3SignerPublicValidatorKeysFlag.Name); len(publicKeysSlice) > 0 {
-			pks := make([]string, 0)
+		if cliCtx.IsSet(flags.Web3SignerPublicValidatorKeysFlag.Name) {
+			publicKeysSlice := cliCtx.StringSlice(flags.Web3SignerPublicValidatorKeysFlag.Name)
 			if len(publicKeysSlice) == 1 {
 				pURL, err := url.ParseRequestURI(publicKeysSlice[0])
 				if err == nil && pURL.Scheme != "" && pURL.Host != "" {
 					web3signerConfig.PublicKeysURL = publicKeysSlice[0]
 				} else {
-					pks = strings.Split(publicKeysSlice[0], ",")
+					web3signerConfig.ProvidedPublicKeys = strings.Split(publicKeysSlice[0], ",")
 				}
-			} else if len(publicKeysSlice) > 1 {
-				pks = publicKeysSlice
+			} else {
+				web3signerConfig.ProvidedPublicKeys = publicKeysSlice
 			}
-			if len(pks) > 0 {
-				pks = slice.Unique[string](pks)
-				var validatorKeys [][48]byte
-				for _, key := range pks {
-					decodedKey, decodeErr := hexutil.Decode(key)
-					if decodeErr != nil {
-						return nil, errors.Wrapf(decodeErr, "could not decode public key for web3signer: %s", key)
-					}
-					validatorKeys = append(validatorKeys, bytesutil.ToBytes48(decodedKey))
-				}
-				web3signerConfig.ProvidedPublicKeys = validatorKeys
-			}
+		}
+		if cliCtx.IsSet(flags.Web3SignerKeyFileFlag.Name) {
+			web3signerConfig.KeyFilePath = cliCtx.String(flags.Web3SignerKeyFileFlag.Name)
 		}
 	}
 	return web3signerConfig, nil
@@ -609,15 +585,22 @@ func (c *ValidatorClient) registerRPCService(router *mux.Router) error {
 		CloseCh:   c.stop,
 	}
 
+	host := c.cliCtx.String(flags.HTTPServerHost.Name)
+	if host != flags.DefaultHTTPServerHost {
+		log.WithField("webHost", host).Warn(
+			"You are using a non-default web host. Web traffic is served by HTTP, so be wary of " +
+				"changing this parameter if you are exposing this host to the Internet!",
+		)
+	}
+	port := c.cliCtx.Int(flags.HTTPServerPort.Name)
+
 	s := rpc.NewServer(c.cliCtx.Context, &rpc.Config{
-		Host:                   c.cliCtx.String(flags.RPCHost.Name),
-		Port:                   fmt.Sprintf("%d", c.cliCtx.Int(flags.RPCPort.Name)),
-		GRPCGatewayHost:        c.cliCtx.String(flags.GRPCGatewayHost.Name),
-		GRPCGatewayPort:        c.cliCtx.Int(flags.GRPCGatewayPort.Name),
+		HTTPHost:               host,
+		HTTPPort:               port,
 		GRPCMaxCallRecvMsgSize: c.cliCtx.Int(cmd.GrpcMaxCallRecvMsgSizeFlag.Name),
-		GRPCRetries:            c.cliCtx.Uint(flags.GrpcRetriesFlag.Name),
-		GRPCRetryDelay:         c.cliCtx.Duration(flags.GrpcRetryDelayFlag.Name),
-		GRPCHeaders:            strings.Split(c.cliCtx.String(flags.GrpcHeadersFlag.Name), ","),
+		GRPCRetries:            c.cliCtx.Uint(flags.GRPCRetriesFlag.Name),
+		GRPCRetryDelay:         c.cliCtx.Duration(flags.GRPCRetryDelayFlag.Name),
+		GRPCHeaders:            strings.Split(c.cliCtx.String(flags.GRPCHeadersFlag.Name), ","),
 		BeaconNodeGRPCEndpoint: c.cliCtx.String(flags.BeaconRPCProviderFlag.Name),
 		BeaconApiEndpoint:      c.cliCtx.String(flags.BeaconRESTApiProviderFlag.Name),
 		BeaconApiTimeout:       time.Second * 30,
@@ -636,108 +619,34 @@ func (c *ValidatorClient) registerRPCService(router *mux.Router) error {
 	return c.services.RegisterService(s)
 }
 
-func (c *ValidatorClient) registerRPCGatewayService(router *mux.Router) error {
-	gatewayHost := c.cliCtx.String(flags.GRPCGatewayHost.Name)
-	if gatewayHost != flags.DefaultGatewayHost {
-		log.WithField("webHost", gatewayHost).Warn(
-			"You are using a non-default web host. Web traffic is served by HTTP, so be wary of " +
-				"changing this parameter if you are exposing this host to the Internet!",
-		)
-	}
-	gatewayPort := c.cliCtx.Int(flags.GRPCGatewayPort.Name)
-	rpcHost := c.cliCtx.String(flags.RPCHost.Name)
-	rpcPort := c.cliCtx.Int(flags.RPCPort.Name)
-	rpcAddr := net.JoinHostPort(rpcHost, fmt.Sprintf("%d", rpcPort))
-	gatewayAddress := net.JoinHostPort(gatewayHost, fmt.Sprintf("%d", gatewayPort))
-	timeout := c.cliCtx.Int(cmd.ApiTimeoutFlag.Name)
-	var allowedOrigins []string
-	if c.cliCtx.IsSet(flags.GPRCGatewayCorsDomain.Name) {
-		allowedOrigins = strings.Split(c.cliCtx.String(flags.GPRCGatewayCorsDomain.Name), ",")
-	} else {
-		allowedOrigins = strings.Split(flags.GPRCGatewayCorsDomain.Value, ",")
-	}
-	maxCallSize := c.cliCtx.Uint64(cmd.GrpcMaxCallRecvMsgSizeFlag.Name)
+// func setWalletPasswordFilePath(cliCtx *cli.Context) error {
+// 	walletDir := cliCtx.String(flags.WalletDirFlag.Name)
+// 	defaultWalletPasswordFilePath := filepath.Join(walletDir, wallet.DefaultWalletPasswordFile)
+// 	exists, err := file.Exists(defaultWalletPasswordFilePath, file.Regular)
+// 	if err != nil {
+// 		return errors.Wrap(err, "could not check if default wallet password file exists")
+// 	}
 
-	registrations := []gateway.PbHandlerRegistration{
-		pb.RegisterHealthHandler,
-	}
-	gwmux := gwruntime.NewServeMux(
-		gwruntime.WithMarshalerOption(gwruntime.MIMEWildcard, &gwruntime.HTTPBodyMarshaler{
-			Marshaler: &gwruntime.JSONPb{
-				MarshalOptions: protojson.MarshalOptions{
-					EmitUnpopulated: true,
-					UseProtoNames:   true,
-				},
-				UnmarshalOptions: protojson.UnmarshalOptions{
-					DiscardUnknown: true,
-				},
-			},
-		}),
-		gwruntime.WithMarshalerOption(
-			api.EventStreamMediaType, &gwruntime.EventSourceJSONPb{}, // TODO: remove this
-		),
-		gwruntime.WithForwardResponseOption(gateway.HttpResponseModifier),
-	)
+// 	if exists {
+// 		// Ensure file has proper permissions.
+// 		hasPerms, err := file.HasReadWritePermissions(defaultWalletPasswordFilePath)
+// 		if err != nil {
+// 			return err
+// 		}
+// 		if !hasPerms {
+// 			return fmt.Errorf(
+// 				"wallet password file %s does not have proper 0600 permissions",
+// 				defaultWalletPasswordFilePath,
+// 			)
+// 		}
 
-	muxHandler := func(h http.HandlerFunc, w http.ResponseWriter, req *http.Request) {
-		// The validator gateway handler requires this special logic as it serves the web APIs and the web UI.
-		if strings.HasPrefix(req.URL.Path, "/api") {
-			req.URL.Path = strings.Replace(req.URL.Path, "/api", "", 1)
-			// Else, we handle with the Prysm API gateway without a middleware.
-			h(w, req)
-		}
-		// Removed prysm web UI
-	}
-
-	pbHandler := &gateway.PbMux{
-		Registrations: registrations,
-		Mux:           gwmux,
-	}
-	opts := []gateway.Option{
-		gateway.WithMuxHandler(muxHandler),
-		gateway.WithRouter(router), // note some routes are registered in server.go
-		gateway.WithRemoteAddr(rpcAddr),
-		gateway.WithGatewayAddr(gatewayAddress),
-		gateway.WithMaxCallRecvMsgSize(maxCallSize),
-		gateway.WithPbHandlers([]*gateway.PbMux{pbHandler}),
-		gateway.WithAllowedOrigins(allowedOrigins),
-		gateway.WithTimeout(uint64(timeout)),
-	}
-	gw, err := gateway.New(c.cliCtx.Context, opts...)
-	if err != nil {
-		return err
-	}
-	return c.services.RegisterService(gw)
-}
-
-//func setWalletPasswordFilePath(cliCtx *cli.Context) error {
-//	walletDir := cliCtx.String(flags.WalletDirFlag.Name)
-//	defaultWalletPasswordFilePath := filepath.Join(walletDir, wallet.DefaultWalletPasswordFile)
-//	exists, err := file.Exists(defaultWalletPasswordFilePath, file.Regular)
-//	if err != nil {
-//		return errors.Wrap(err, "could not check if default wallet password file exists")
-//	}
-//
-//	if exists {
-//		// Ensure file has proper permissions.
-//		hasPerms, err := file.HasReadWritePermissions(defaultWalletPasswordFilePath)
-//		if err != nil {
-//			return err
-//		}
-//		if !hasPerms {
-//			return fmt.Errorf(
-//				"wallet password file %s does not have proper 0600 permissions",
-//				defaultWalletPasswordFilePath,
-//			)
-//		}
-//
-//		// Set the filepath into the cli context.
-//		if err := cliCtx.Set(flags.WalletPasswordFileFlag.Name, defaultWalletPasswordFilePath); err != nil {
-//			return errors.Wrap(err, "could not set default wallet password file path")
-//		}
-//	}
-//	return nil
-//}
+// 		// Set the filepath into the cli context.
+// 		if err := cliCtx.Set(flags.WalletPasswordFileFlag.Name, defaultWalletPasswordFilePath); err != nil {
+// 			return errors.Wrap(err, "could not set default wallet password file path")
+// 		}
+// 	}
+// 	return nil
+// }
 
 func clearDB(ctx context.Context, dataDir string, force bool, isDatabaseMinimal bool) error {
 	var (

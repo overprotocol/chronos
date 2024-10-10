@@ -22,7 +22,7 @@ import (
 func TestGetBeaconStatus_NotConnected(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	nodeClient := validatormock.NewMockNodeClient(ctrl)
-	nodeClient.EXPECT().GetSyncStatus(
+	nodeClient.EXPECT().SyncStatus(
 		gomock.Any(), // ctx
 		gomock.Any(),
 	).Return(nil /*response*/, errors.New("uh oh"))
@@ -48,19 +48,19 @@ func TestGetBeaconStatus_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	nodeClient := validatormock.NewMockNodeClient(ctrl)
 	chainClient := validatormock.NewMockChainClient(ctrl)
-	nodeClient.EXPECT().GetSyncStatus(
+	nodeClient.EXPECT().SyncStatus(
 		gomock.Any(), // ctx
 		gomock.Any(),
 	).Return(&ethpb.SyncStatus{Syncing: true}, nil)
 	timeStamp := timestamppb.New(time.Unix(0, 0))
-	nodeClient.EXPECT().GetGenesis(
+	nodeClient.EXPECT().Genesis(
 		gomock.Any(), // ctx
 		gomock.Any(),
 	).Return(&ethpb.Genesis{
 		GenesisTime:            timeStamp,
 		DepositContractAddress: []byte("hello"),
 	}, nil)
-	chainClient.EXPECT().GetChainHead(
+	chainClient.EXPECT().ChainHead(
 		gomock.Any(), // ctx
 		gomock.Any(),
 	).Return(&ethpb.ChainHead{
@@ -230,7 +230,7 @@ func TestServer_GetValidators(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			beaconChainClient := validatormock.NewMockChainClient(ctrl)
 			if tt.wantErr == "" {
-				beaconChainClient.EXPECT().ListValidators(
+				beaconChainClient.EXPECT().Validators(
 					gomock.Any(), // ctx
 					tt.expectedReq,
 				).Return(tt.chainResp, nil)

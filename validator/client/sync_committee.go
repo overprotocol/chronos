@@ -6,11 +6,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/pkg/errors"
-	"github.com/prysmaticlabs/prysm/v5/validator/client/iface"
-
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	emptypb "github.com/golang/protobuf/ptypes/empty"
+	"github.com/pkg/errors"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/altair"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/signing"
 	fieldparams "github.com/prysmaticlabs/prysm/v5/config/fieldparams"
@@ -18,11 +16,12 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
 	"github.com/prysmaticlabs/prysm/v5/encoding/bytesutil"
 	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing"
+	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing/trace"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	validatorpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1/validator-client"
 	"github.com/prysmaticlabs/prysm/v5/time/slots"
+	"github.com/prysmaticlabs/prysm/v5/validator/client/iface"
 	"github.com/sirupsen/logrus"
-	"go.opencensus.io/trace"
 )
 
 // SubmitSyncCommitteeMessage submits the sync committee message to the beacon chain.
@@ -33,7 +32,7 @@ func (v *validator) SubmitSyncCommitteeMessage(ctx context.Context, slot primiti
 
 	v.waitOneThirdOrValidBlock(ctx, slot)
 
-	res, err := v.validatorClient.GetSyncMessageBlockRoot(ctx, &emptypb.Empty{})
+	res, err := v.validatorClient.SyncMessageBlockRoot(ctx, &emptypb.Empty{})
 	if err != nil {
 		log.WithError(err).Error("Could not request sync message block root to sign")
 		tracing.AnnotateError(span, err)
@@ -107,7 +106,7 @@ func (v *validator) SubmitSignedContributionAndProof(ctx context.Context, slot p
 		return
 	}
 
-	indexRes, err := v.validatorClient.GetSyncSubcommitteeIndex(ctx, &ethpb.SyncSubcommitteeIndexRequest{
+	indexRes, err := v.validatorClient.SyncSubcommitteeIndex(ctx, &ethpb.SyncSubcommitteeIndexRequest{
 		PublicKey: pubKey[:],
 		Slot:      slot,
 	})
@@ -139,7 +138,7 @@ func (v *validator) SubmitSignedContributionAndProof(ctx context.Context, slot p
 		}
 		subCommitteeSize := params.BeaconConfig().SyncCommitteeSize / params.BeaconConfig().SyncCommitteeSubnetCount
 		subnet := uint64(comIdx) / subCommitteeSize
-		contribution, err := v.validatorClient.GetSyncCommitteeContribution(ctx, &ethpb.SyncCommitteeContributionRequest{
+		contribution, err := v.validatorClient.SyncCommitteeContribution(ctx, &ethpb.SyncCommitteeContributionRequest{
 			Slot:      slot,
 			PublicKey: pubKey[:],
 			SubnetId:  subnet,
@@ -192,6 +191,9 @@ func (v *validator) SubmitSignedContributionAndProof(ctx context.Context, slot p
 
 // Signs and returns selection proofs per validator for slot and pub key.
 func (v *validator) selectionProofs(ctx context.Context, slot primitives.Slot, pubKey [fieldparams.BLSPubkeyLength]byte, indexRes *ethpb.SyncSubcommitteeIndexResponse, validatorIndex primitives.ValidatorIndex) ([][]byte, error) {
+	ctx, span := trace.StartSpan(ctx, "validator.selectionProofs")
+	defer span.End()
+
 	selectionProofs := make([][]byte, len(indexRes.Indices))
 	cfg := params.BeaconConfig()
 	size := cfg.SyncCommitteeSize
@@ -216,7 +218,7 @@ func (v *validator) selectionProofs(ctx context.Context, slot primitives.Slot, p
 	// Override selection proofs with aggregated ones if the node is part of a Distributed Validator.
 	if v.distributed && len(selections) > 0 {
 		var err error
-		selections, err := v.validatorClient.GetAggregatedSyncSelections(ctx, selections)
+		selections, err := v.validatorClient.AggregatedSyncSelections(ctx, selections)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to get aggregated sync selections")
 		}
@@ -231,6 +233,9 @@ func (v *validator) selectionProofs(ctx context.Context, slot primitives.Slot, p
 
 // Signs input slot with domain sync committee selection proof. This is used to create the signature for sync committee selection.
 func (v *validator) signSyncSelectionData(ctx context.Context, pubKey [fieldparams.BLSPubkeyLength]byte, index uint64, slot primitives.Slot) (signature []byte, err error) {
+	ctx, span := trace.StartSpan(ctx, "validator.signSyncSelectionData")
+	defer span.End()
+
 	domain, err := v.domainData(ctx, slots.ToEpoch(slot), params.BeaconConfig().DomainSyncCommitteeSelectionProof[:])
 	if err != nil {
 		return nil, err
@@ -258,6 +263,9 @@ func (v *validator) signSyncSelectionData(ctx context.Context, pubKey [fieldpara
 
 // This returns the signature of validator signing over sync committee contribution and proof object.
 func (v *validator) signContributionAndProof(ctx context.Context, pubKey [fieldparams.BLSPubkeyLength]byte, c *ethpb.ContributionAndProof, slot primitives.Slot) ([]byte, error) {
+	ctx, span := trace.StartSpan(ctx, "validator.signContributionAndProof")
+	defer span.End()
+
 	d, err := v.domainData(ctx, slots.ToEpoch(c.Contribution.Slot), params.BeaconConfig().DomainContributionAndProof[:])
 	if err != nil {
 		return nil, err

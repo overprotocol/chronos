@@ -19,7 +19,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-// Initialize a client connect to a beacon node gRPC endpoint.
+// Initialize a client connect to a beacon node gRPC or HTTP endpoint.
 func (s *Server) registerBeaconClient() error {
 	streamInterceptor := grpc.WithStreamInterceptor(middleware.ChainStreamClient(
 		grpcopentracing.StreamClientInterceptor(),
@@ -54,11 +54,13 @@ func (s *Server) registerBeaconClient() error {
 		s.beaconApiTimeout,
 	)
 
-	restHandler := beaconApi.NewBeaconApiJsonRestHandler(http.Client{Timeout: s.beaconApiTimeout}, s.beaconApiEndpoint)
+	restHandler := beaconApi.NewBeaconApiJsonRestHandler(
+		http.Client{Timeout: s.beaconApiTimeout},
+		s.beaconApiEndpoint,
+	)
 
 	s.chainClient = beaconChainClientFactory.NewChainClient(conn, restHandler)
 	s.nodeClient = nodeClientFactory.NewNodeClient(conn, restHandler)
 	s.beaconNodeValidatorClient = validatorClientFactory.NewValidatorClient(conn, restHandler)
-
 	return nil
 }

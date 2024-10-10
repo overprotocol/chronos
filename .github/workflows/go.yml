@@ -2,11 +2,9 @@ name: Go
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ '*' ]
-  merge_group:
-    types: [checks_requested]
+    branches: ["*"]
 
 jobs:
   formatting:
@@ -28,15 +26,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Set up Go 1.21.5
+      - name: Set up Go 1.22
         uses: actions/setup-go@v4
         with:
-          go-version: '1.21.5'
-          cache: false
+          go-version: "1.22.6"
       - name: Run Gosec Security Scanner
         run: | # https://github.com/securego/gosec/issues/469
           export PATH=$PATH:$(go env GOPATH)/bin
-          go install github.com/securego/gosec/v2/cmd/gosec@v2.15.0
+          go install github.com/securego/gosec/v2/cmd/gosec@v2.19.0
           gosec -exclude-generated -exclude=G307 -exclude-dir=crypto/bls/herumi ./...
 
   lint:
@@ -46,11 +43,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Go 1.21.5
+      - name: Set up Go 1.22
         uses: actions/setup-go@v4
         with:
-          go-version: '1.21.5'
-        id: go
+          go-version: "1.22.6"
+          id: go
 
       - name: Golangci-lint
         uses: golangci/golangci-lint-action@v5
@@ -65,7 +62,7 @@ jobs:
       - name: Set up Go 1.x
         uses: actions/setup-go@v4
         with:
-          go-version: '1.21.5'
+          go-version: "1.22.6"
         id: go
 
       - name: Check out code into the Go module directory
@@ -79,14 +76,13 @@ jobs:
         # Use blst tag to allow go and bazel builds for blst.
         run: go build -v ./...
         env:
-           CGO_CFLAGS: "-O2 -D__BLST_PORTABLE__"
+          CGO_CFLAGS: "-O2 -D__BLST_PORTABLE__"
         # fuzz leverage go tag based stubs at compile time.
         # Building and testing with these tags should be checked and enforced at pre-submit.
       - name: Test for fuzzing
         run: go test  -tags=fuzz,develop ./...  -test.run=^Fuzz
         env:
-           CGO_CFLAGS: "-O2 -D__BLST_PORTABLE__"
-
-# Tests run via Bazel for now...
+          CGO_CFLAGS: "-O2 -D__BLST_PORTABLE__"
+# # Tests run via Bazel for now...
 #      - name: Test
 #        run: go test -v ./...

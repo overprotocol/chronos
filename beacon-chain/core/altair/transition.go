@@ -8,7 +8,7 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/epoch/precompute"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
-	"go.opencensus.io/trace"
+	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing/trace"
 )
 
 // ProcessEpoch describes the per epoch operations that are performed on the beacon state.
@@ -29,92 +29,92 @@ import (
 //	process_historical_roots_update(state)
 //	process_participation_flag_updates(state)  # [New in Altair]
 //	process_sync_committee_updates(state)  # [New in Altair]
-func ProcessEpoch(ctx context.Context, state state.BeaconState) (state.BeaconState, error) {
+func ProcessEpoch(ctx context.Context, state state.BeaconState) error {
 	ctx, span := trace.StartSpan(ctx, "altair.ProcessEpoch")
 	defer span.End()
 
 	if state == nil || state.IsNil() {
-		return nil, errors.New("nil state")
+		return errors.New("nil state")
 	}
 	vp, bp, err := InitializePrecomputeValidators(ctx, state)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// New in Altair.
 	vp, bp, err = ProcessEpochParticipation(ctx, state, bp, vp)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	state, err = precompute.ProcessJustificationAndFinalizationPreCompute(state, bp)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not process justification")
+		return errors.Wrap(err, "could not process justification")
 	}
 
 	// New in Altair.
 	state, vp, err = ProcessInactivityAndBailOutScores(ctx, state, vp)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not process inactivity/bail out updates")
+		return errors.Wrap(err, "could not process inactivity/bail out updates")
 	}
 
 	// New in Altair.
 	state, err = ProcessRewardsAndPenaltiesPrecompute(state, bp, vp)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not process rewards and penalties")
+		return errors.Wrap(err, "could not process rewards and penalties")
 	}
 
 	state, err = e.ProcessRegistryUpdates(ctx, state)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not process registry updates")
+		return errors.Wrap(err, "could not process registry updates")
 	}
 
 	err = helpers.ProcessRewardFactorUpdate(state)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not update reserve and reward factor")
+		return errors.Wrap(err, "could not update reserve and reward factor")
 	}
 
 	// Modified in Altair and Bellatrix.
 	proportionalSlashingMultiplier, err := state.ProportionalSlashingMultiplier()
 	if err != nil {
-		return nil, err
+		return err
 	}
 	state, err = e.ProcessSlashings(state, proportionalSlashingMultiplier)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	state, err = e.ProcessEth1DataReset(state)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	state, err = e.ProcessEffectiveBalanceUpdates(state)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	state, err = e.ProcessSlashingsReset(state)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	state, err = e.ProcessRandaoMixesReset(state)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	state, err = e.ProcessHistoricalDataUpdate(state)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// New in Altair.
 	state, err = ProcessParticipationFlagUpdates(state)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// New in Altair.
-	state, err = ProcessSyncCommitteeUpdates(ctx, state)
+	_, err = ProcessSyncCommitteeUpdates(ctx, state)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return state, nil
+	return nil
 }

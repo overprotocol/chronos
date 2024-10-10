@@ -35,6 +35,8 @@ func UnderDevnetSpecConfig() *BeaconChainConfig {
 	underConfig.CapellaForkEpoch = math.MaxUint64 - 1
 	underConfig.DenebForkVersion = (hexutil.MustDecode("0x20000093"))
 	underConfig.DenebForkEpoch = math.MaxUint64 - 1
+	underConfig.ElectraForkVersion = (hexutil.MustDecode("0x20000094"))
+	underConfig.ElectraForkEpoch = math.MaxUint64 - 1
 	// Ethereum PoW parameters.
 	underConfig.DepositChainID = 181818   // Chain ID of eth1 under.
 	underConfig.DepositNetworkID = 181818 // Network ID of eth1 under.

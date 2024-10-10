@@ -182,7 +182,7 @@ load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_depe
 go_rules_dependencies()
 
 go_register_toolchains(
-    go_version = "1.21.8",
+    go_version = "1.22.4",
     nogo = "@//:nogo",
 )
 
@@ -227,7 +227,7 @@ filegroup(
     url = "https://github.com/ethereum/EIPs/archive/5480440fe51742ed23342b68cf106cefd427e39d.tar.gz",
 )
 
-consensus_spec_version = "v1.4.0"
+consensus_spec_version = "v1.5.0-alpha.5"
 
 bls_test_version = "v0.1.1"
 
@@ -243,7 +243,7 @@ filegroup(
     visibility = ["//visibility:public"],
 )
     """,
-    sha256 = "c282c0f86f23f3d2e0f71f5975769a4077e62a7e3c7382a16bd26a7e589811a0",
+    integrity = "sha256-R9vG5HEL5eGMOAmbkKfJ2jfelNqL5V0xBUPiXOiGM6U=",
     url = "https://github.com/ethereum/consensus-spec-tests/releases/download/%s/general.tar.gz" % consensus_spec_version,
 )
 
@@ -259,7 +259,7 @@ filegroup(
     visibility = ["//visibility:public"],
 )
     """,
-    sha256 = "4649c35aa3b8eb0cfdc81bee7c05649f90ef36bede5b0513e1f2e8baf37d6033",
+    integrity = "sha256-AEIiEOlf1XuxoRMCsN+kgJMo4LrS05+biTA1p/7Ro00=",
     url = "https://github.com/ethereum/consensus-spec-tests/releases/download/%s/minimal.tar.gz" % consensus_spec_version,
 )
 
@@ -275,7 +275,7 @@ filegroup(
     visibility = ["//visibility:public"],
 )
     """,
-    sha256 = "c5a03f724f757456ffaabd2a899992a71d2baf45ee4db65ca3518f2b7ee928c8",
+    integrity = "sha256-LH/Xr20yrJRYnbpjRGupMWTIOWt3cpxZJWXgThwVDsk=",
     url = "https://github.com/ethereum/consensus-spec-tests/releases/download/%s/mainnet.tar.gz" % consensus_spec_version,
 )
 
@@ -290,7 +290,7 @@ filegroup(
     visibility = ["//visibility:public"],
 )
     """,
-    sha256 = "cd1c9d97baccbdde1d2454a7dceb8c6c61192a3b581eee12ffc94969f2db8453",
+    integrity = "sha256-mlytz4MPjKh0DwV7FMiAtnRbJw9B6o78/x66/vmnYc8=",
     strip_prefix = "consensus-specs-" + consensus_spec_version[1:],
     url = "https://github.com/ethereum/consensus-specs/archive/refs/tags/%s.tar.gz" % consensus_spec_version,
 )
@@ -332,14 +332,14 @@ http_archive(
 filegroup(
     name = "configs",
     srcs = [
-        "custom_config_data/config.yaml",
+        "metadata/config.yaml",
     ],
     visibility = ["//visibility:public"],
 )
 """,
-    sha256 = "5f4be6fd088683ea9db45c863b9c5a1884422449e5b59fd2d561d3ba0f73ffd9",
-    strip_prefix = "holesky-9d9aabf2d4de51334ee5fed6c79a4d55097d1a43",
-    url = "https://github.com/eth-clients/holesky/archive/9d9aabf2d4de51334ee5fed6c79a4d55097d1a43.tar.gz",  # 2024-01-22
+    integrity = "sha256-b7ZTT+olF+VXEJYNTV5jggNtCkt9dOejm1i2VE+zy+0=",
+    strip_prefix = "holesky-874c199423ccd180607320c38cbaca05d9a1573a",
+    url = "https://github.com/eth-clients/holesky/archive/874c199423ccd180607320c38cbaca05d9a1573a.tar.gz",  # 2024-06-18
 )
 
 http_archive(

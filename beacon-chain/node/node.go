@@ -19,8 +19,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
-	apigateway "github.com/prysmaticlabs/prysm/v5/api/gateway"
-	"github.com/prysmaticlabs/prysm/v5/api/server"
+	"github.com/prysmaticlabs/prysm/v5/api/server/httprest"
+	"github.com/prysmaticlabs/prysm/v5/api/server/middleware"
 	"github.com/prysmaticlabs/prysm/v5/async/event"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/blockchain"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/builder"
@@ -34,7 +34,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/execution"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/forkchoice"
 	doublylinkedtree "github.com/prysmaticlabs/prysm/v5/beacon-chain/forkchoice/doubly-linked-tree"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/gateway"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/monitor"
 	closehandler "github.com/prysmaticlabs/prysm/v5/beacon-chain/node/close-handler"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/node/registration"
@@ -123,7 +122,6 @@ type BeaconNode struct {
 	initialSyncComplete     chan struct{}
 	BlobStorage             *filesystem.BlobStorage
 	BlobStorageOptions      []filesystem.BlobStorageOption
-	blobRetentionEpochs     primitives.Epoch
 	verifyInitWaiter        *verification.InitializerWaiter
 	syncChecker             *initialsync.SyncChecker
 }
@@ -372,9 +370,9 @@ func registerServices(cliCtx *cli.Context, beacon *BeaconNode, synchronizer *sta
 		return errors.Wrap(err, "could not register RPC service")
 	}
 
-	log.Debugln("Registering GRPC Gateway Service")
-	if err := beacon.registerGRPCGateway(router); err != nil {
-		return errors.Wrap(err, "could not register GRPC gateway service")
+	log.Debugln("Registering HTTP Service")
+	if err := beacon.registerHTTPService(router); err != nil {
+		return errors.Wrap(err, "could not register HTTP service")
 	}
 
 	log.Debugln("Registering Validator Monitoring Service")
@@ -405,14 +403,14 @@ func initSyncWaiter(ctx context.Context, complete chan struct{}) func() error {
 
 func newRouter(cliCtx *cli.Context) *mux.Router {
 	var allowedOrigins []string
-	if cliCtx.IsSet(flags.GPRCGatewayCorsDomain.Name) {
-		allowedOrigins = strings.Split(cliCtx.String(flags.GPRCGatewayCorsDomain.Name), ",")
+	if cliCtx.IsSet(flags.HTTPServerCorsDomain.Name) {
+		allowedOrigins = strings.Split(cliCtx.String(flags.HTTPServerCorsDomain.Name), ",")
 	} else {
-		allowedOrigins = strings.Split(flags.GPRCGatewayCorsDomain.Value, ",")
+		allowedOrigins = strings.Split(flags.HTTPServerCorsDomain.Value, ",")
 	}
 	r := mux.NewRouter()
-	r.Use(server.NormalizeQueryValuesHandler)
-	r.Use(server.CorsHandler(allowedOrigins))
+	r.Use(middleware.NormalizeQueryValuesHandler)
+	r.Use(middleware.CorsHandler(allowedOrigins))
 	return r
 }
 
@@ -577,7 +575,7 @@ func (b *BeaconNode) startDB(cliCtx *cli.Context, depositAddress string) error {
 
 	if b.GenesisInitializer != nil {
 		if err := b.GenesisInitializer.Initialize(b.ctx, d); err != nil {
-			if err == db.ErrExistingGenesisState {
+			if errors.Is(err, db.ErrExistingGenesisState) {
 				return errors.Errorf("Genesis state flag specified but a genesis state "+
 					"exists already. Run again with --%s and/or ensure you are using the "+
 					"appropriate testnet flag to load the given genesis state.", cmd.ClearDB.Name)
@@ -983,10 +981,9 @@ func (b *BeaconNode) registerRPCService(router *mux.Router) error {
 	cert := b.cliCtx.String(flags.CertFlag.Name)
 	key := b.cliCtx.String(flags.KeyFlag.Name)
 	mockEth1DataVotes := b.cliCtx.Bool(flags.InteropMockEth1DataVotesFlag.Name)
-
 	maxMsgSize := b.cliCtx.Int(cmd.GrpcMaxCallRecvMsgSizeFlag.Name)
-	enableDebugRPCEndpoints := b.cliCtx.Bool(flags.EnableDebugRPCEndpoints.Name)
 	enableOverNodeRPCEndpoints := b.cliCtx.Bool(flags.EnableOverNodeRPCEndpoints.Name)
+	enableDebugRPCEndpoints := !b.cliCtx.Bool(flags.DisableDebugRPCEndpoints.Name)
 
 	p2pService := b.fetchP2P()
 
@@ -1076,44 +1073,18 @@ func (b *BeaconNode) registerPrometheusService(_ *cli.Context) error {
 	return b.services.RegisterService(service)
 }
 
-func (b *BeaconNode) registerGRPCGateway(router *mux.Router) error {
-	if b.cliCtx.Bool(flags.DisableGRPCGateway.Name) {
-		return nil
+func (b *BeaconNode) registerHTTPService(router *mux.Router) error {
+	host := b.cliCtx.String(flags.HTTPServerHost.Name)
+	port := b.cliCtx.Int(flags.HTTPServerPort.Name)
+	address := net.JoinHostPort(host, strconv.Itoa(port))
+	opts := []httprest.Option{
+		httprest.WithRouter(router),
+		httprest.WithHTTPAddr(address),
 	}
-	gatewayHost := b.cliCtx.String(flags.GRPCGatewayHost.Name)
-	gatewayPort := b.cliCtx.Int(flags.GRPCGatewayPort.Name)
-	rpcHost := b.cliCtx.String(flags.RPCHost.Name)
-	rpcPort := b.cliCtx.Int(flags.RPCPort.Name)
-
-	selfAddress := net.JoinHostPort(rpcHost, strconv.Itoa(rpcPort))
-	gatewayAddress := net.JoinHostPort(gatewayHost, strconv.Itoa(gatewayPort))
-	allowedOrigins := strings.Split(b.cliCtx.String(flags.GPRCGatewayCorsDomain.Name), ",")
-	enableDebugRPCEndpoints := b.cliCtx.Bool(flags.EnableDebugRPCEndpoints.Name)
-	selfCert := b.cliCtx.String(flags.CertFlag.Name)
-	maxCallSize := b.cliCtx.Uint64(cmd.GrpcMaxCallRecvMsgSizeFlag.Name)
-	httpModules := b.cliCtx.String(flags.HTTPModules.Name)
-	timeout := b.cliCtx.Int(cmd.ApiTimeoutFlag.Name)
-
-	gatewayConfig := gateway.DefaultConfig(enableDebugRPCEndpoints, httpModules)
-	muxs := make([]*apigateway.PbMux, 0)
-	if gatewayConfig.V1AlphaPbMux != nil {
-		muxs = append(muxs, gatewayConfig.V1AlphaPbMux)
+	if b.cliCtx.IsSet(cmd.ApiTimeoutFlag.Name) {
+		opts = append(opts, httprest.WithTimeout(b.cliCtx.Duration(cmd.ApiTimeoutFlag.Name)))
 	}
-	if gatewayConfig.EthPbMux != nil {
-		muxs = append(muxs, gatewayConfig.EthPbMux)
-	}
-
-	opts := []apigateway.Option{
-		apigateway.WithRouter(router),
-		apigateway.WithGatewayAddr(gatewayAddress),
-		apigateway.WithRemoteAddr(selfAddress),
-		apigateway.WithPbHandlers(muxs),
-		apigateway.WithRemoteCert(selfCert),
-		apigateway.WithMaxCallRecvMsgSize(maxCallSize),
-		apigateway.WithAllowedOrigins(allowedOrigins),
-		apigateway.WithTimeout(uint64(timeout)),
-	}
-	g, err := apigateway.New(b.ctx, opts...)
+	g, err := httprest.New(b.ctx, opts...)
 	if err != nil {
 		return err
 	}

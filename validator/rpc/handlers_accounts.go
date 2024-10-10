@@ -22,6 +22,7 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/crypto/aes"
 	"github.com/prysmaticlabs/prysm/v5/crypto/bls"
 	"github.com/prysmaticlabs/prysm/v5/encoding/bytesutil"
+	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing/trace"
 	"github.com/prysmaticlabs/prysm/v5/network/httputil"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	validatorpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1/validator-client"
@@ -32,7 +33,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/validator/keymanager/derived"
 	"github.com/prysmaticlabs/prysm/v5/validator/keymanager/local"
 	keystorev4 "github.com/wealdtech/go-eth2-wallet-encryptor-keystorev4"
-	"go.opencensus.io/trace"
 )
 
 var tempPassword = "temp-password"
@@ -105,7 +105,7 @@ func (s *Server) ListAccounts(w http.ResponseWriter, r *http.Request) {
 	}
 	start, end, nextPageToken, err := pagination.StartAndEndPage(pageToken, int(ps), len(keys))
 	if err != nil {
-		httputil.HandleError(w, fmt.Errorf("Could not paginate results: %v",
+		httputil.HandleError(w, fmt.Errorf("Could not paginate results: %w",
 			err).Error(), http.StatusInternalServerError)
 		return
 	}
@@ -133,7 +133,7 @@ func (s *Server) BackupAccounts(w http.ResponseWriter, r *http.Request) {
 	var req BackupAccountsRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 	switch {
-	case err == io.EOF:
+	case errors.Is(err, io.EOF):
 		httputil.HandleError(w, "No data submitted", http.StatusBadRequest)
 		return
 	case err != nil:
@@ -242,7 +242,7 @@ func (s *Server) VoluntaryExit(w http.ResponseWriter, r *http.Request) {
 	var req VoluntaryExitRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 	switch {
-	case err == io.EOF:
+	case errors.Is(err, io.EOF):
 		httputil.HandleError(w, "No data submitted", http.StatusBadRequest)
 		return
 	case err != nil:
@@ -309,7 +309,7 @@ func (s *Server) CreateDepositDataList(w http.ResponseWriter, r *http.Request) {
 	var req CreateDepositDataListRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 	switch {
-	case err == io.EOF:
+	case errors.Is(err, io.EOF):
 		httputil.HandleError(w, "No data submitted", http.StatusBadRequest)
 		return
 	case err != nil:
@@ -390,7 +390,7 @@ func (s *Server) ImportAccountsWithPrivateKey(w http.ResponseWriter, r *http.Req
 	var req ImportAccountsWithPrivateKeyRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 	switch {
-	case err == io.EOF:
+	case errors.Is(err, io.EOF):
 		httputil.HandleError(w, "No data submitted", http.StatusBadRequest)
 		return
 	case err != nil:

@@ -19,12 +19,13 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/time"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/transition"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
+	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing/trace"
 	"github.com/prysmaticlabs/prysm/v5/network/httputil"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/eth/v1"
 	ethpbv2 "github.com/prysmaticlabs/prysm/v5/proto/eth/v2"
+	eth "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	"github.com/prysmaticlabs/prysm/v5/runtime/version"
 	"github.com/prysmaticlabs/prysm/v5/time/slots"
-	"go.opencensus.io/trace"
 )
 
 const (
@@ -173,7 +174,11 @@ func handleBlockOperationEvents(w http.ResponseWriter, flusher http.Flusher, req
 		if !ok {
 			return write(w, flusher, topicDataMismatch, event.Data, AttestationTopic)
 		}
-		att := structs.AttFromConsensus(attData.Attestation)
+		a, ok := attData.Attestation.(*eth.Attestation)
+		if !ok {
+			return write(w, flusher, topicDataMismatch, event.Data, AttestationTopic)
+		}
+		att := structs.AttFromConsensus(a)
 		return send(w, flusher, AttestationTopic, att)
 	case operation.ExitReceived:
 		if _, ok := requestedTopics[VoluntaryExitTopic]; !ok {
@@ -229,7 +234,11 @@ func handleBlockOperationEvents(w http.ResponseWriter, flusher http.Flusher, req
 		if !ok {
 			return write(w, flusher, topicDataMismatch, event.Data, AttesterSlashingTopic)
 		}
-		return send(w, flusher, AttesterSlashingTopic, structs.AttesterSlashingFromConsensus(attesterSlashingData.AttesterSlashing))
+		slashing, ok := attesterSlashingData.AttesterSlashing.(*eth.AttesterSlashing)
+		if ok {
+			return send(w, flusher, AttesterSlashingTopic, structs.AttesterSlashingFromConsensus(slashing))
+		}
+		// TODO: extend to Electra
 	case operation.ProposerSlashingReceived:
 		if _, ok := requestedTopics[ProposerSlashingTopic]; !ok {
 			return nil
@@ -297,21 +306,30 @@ func (s *Server) handleStateEvents(ctx context.Context, w http.ResponseWriter, f
 		for _, b := range updateData.Data.FinalityBranch {
 			finalityBranch = append(finalityBranch, hexutil.Encode(b))
 		}
+
+		attestedBeacon, err := updateData.Data.AttestedHeader.GetBeacon()
+		if err != nil {
+			return errors.Wrap(err, "could not get attested header")
+		}
+		finalizedBeacon, err := updateData.Data.FinalizedHeader.GetBeacon()
+		if err != nil {
+			return errors.Wrap(err, "could not get finalized header")
+		}
 		update := &structs.LightClientFinalityUpdateEvent{
 			Version: version.String(int(updateData.Version)),
 			Data: &structs.LightClientFinalityUpdate{
 				AttestedHeader: &structs.BeaconBlockHeader{
-					Slot:          fmt.Sprintf("%d", updateData.Data.AttestedHeader.Slot),
-					ProposerIndex: fmt.Sprintf("%d", updateData.Data.AttestedHeader.ProposerIndex),
-					ParentRoot:    hexutil.Encode(updateData.Data.AttestedHeader.ParentRoot),
-					StateRoot:     hexutil.Encode(updateData.Data.AttestedHeader.StateRoot),
-					BodyRoot:      hexutil.Encode(updateData.Data.AttestedHeader.BodyRoot),
+					Slot:          fmt.Sprintf("%d", attestedBeacon.Slot),
+					ProposerIndex: fmt.Sprintf("%d", attestedBeacon.ProposerIndex),
+					ParentRoot:    hexutil.Encode(attestedBeacon.ParentRoot),
+					StateRoot:     hexutil.Encode(attestedBeacon.StateRoot),
+					BodyRoot:      hexutil.Encode(attestedBeacon.BodyRoot),
 				},
 				FinalizedHeader: &structs.BeaconBlockHeader{
-					Slot:          fmt.Sprintf("%d", updateData.Data.FinalizedHeader.Slot),
-					ProposerIndex: fmt.Sprintf("%d", updateData.Data.FinalizedHeader.ProposerIndex),
-					ParentRoot:    hexutil.Encode(updateData.Data.FinalizedHeader.ParentRoot),
-					StateRoot:     hexutil.Encode(updateData.Data.FinalizedHeader.StateRoot),
+					Slot:          fmt.Sprintf("%d", finalizedBeacon.Slot),
+					ProposerIndex: fmt.Sprintf("%d", finalizedBeacon.ProposerIndex),
+					ParentRoot:    hexutil.Encode(finalizedBeacon.ParentRoot),
+					StateRoot:     hexutil.Encode(finalizedBeacon.StateRoot),
 				},
 				FinalityBranch: finalityBranch,
 				SyncAggregate: &structs.SyncAggregate{
@@ -330,15 +348,19 @@ func (s *Server) handleStateEvents(ctx context.Context, w http.ResponseWriter, f
 		if !ok {
 			return write(w, flusher, topicDataMismatch, event.Data, LightClientOptimisticUpdateTopic)
 		}
+		attestedBeacon, err := updateData.Data.AttestedHeader.GetBeacon()
+		if err != nil {
+			return errors.Wrap(err, "could not get attested header")
+		}
 		update := &structs.LightClientOptimisticUpdateEvent{
 			Version: version.String(int(updateData.Version)),
 			Data: &structs.LightClientOptimisticUpdate{
 				AttestedHeader: &structs.BeaconBlockHeader{
-					Slot:          fmt.Sprintf("%d", updateData.Data.AttestedHeader.Slot),
-					ProposerIndex: fmt.Sprintf("%d", updateData.Data.AttestedHeader.ProposerIndex),
-					ParentRoot:    hexutil.Encode(updateData.Data.AttestedHeader.ParentRoot),
-					StateRoot:     hexutil.Encode(updateData.Data.AttestedHeader.StateRoot),
-					BodyRoot:      hexutil.Encode(updateData.Data.AttestedHeader.BodyRoot),
+					Slot:          fmt.Sprintf("%d", attestedBeacon.Slot),
+					ProposerIndex: fmt.Sprintf("%d", attestedBeacon.ProposerIndex),
+					ParentRoot:    hexutil.Encode(attestedBeacon.ParentRoot),
+					StateRoot:     hexutil.Encode(attestedBeacon.StateRoot),
+					BodyRoot:      hexutil.Encode(attestedBeacon.BodyRoot),
 				},
 				SyncAggregate: &structs.SyncAggregate{
 					SyncCommitteeBits:      hexutil.Encode(updateData.Data.SyncAggregate.SyncCommitteeBits),
@@ -430,28 +452,32 @@ func (s *Server) sendPayloadAttributes(ctx context.Context, w http.ResponseWrite
 	if err != nil {
 		return write(w, flusher, "Could not get head state proposer index: "+err.Error())
 	}
-
+	feeRecipient := params.BeaconConfig().DefaultFeeRecipient.Bytes()
+	tValidator, exists := s.TrackedValidatorsCache.Validator(proposerIndex)
+	if exists {
+		feeRecipient = tValidator.FeeRecipient[:]
+	}
 	var attributes interface{}
 	switch headState.Version() {
 	case version.Bellatrix:
 		attributes = &structs.PayloadAttributesV1{
 			Timestamp:             fmt.Sprintf("%d", t.Unix()),
 			PrevRandao:            hexutil.Encode(prevRando),
-			SuggestedFeeRecipient: hexutil.Encode(headPayload.FeeRecipient()),
+			SuggestedFeeRecipient: hexutil.Encode(feeRecipient),
 		}
 	case version.Capella:
-		withdrawals, err := headState.ExpectedWithdrawals()
+		withdrawals, _, err := headState.ExpectedWithdrawals()
 		if err != nil {
 			return write(w, flusher, "Could not get head state expected withdrawals: "+err.Error())
 		}
 		attributes = &structs.PayloadAttributesV2{
 			Timestamp:             fmt.Sprintf("%d", t.Unix()),
 			PrevRandao:            hexutil.Encode(prevRando),
-			SuggestedFeeRecipient: hexutil.Encode(headPayload.FeeRecipient()),
+			SuggestedFeeRecipient: hexutil.Encode(feeRecipient),
 			Withdrawals:           structs.WithdrawalsFromConsensus(withdrawals),
 		}
-	case version.Deneb:
-		withdrawals, err := headState.ExpectedWithdrawals()
+	case version.Deneb, version.Electra:
+		withdrawals, _, err := headState.ExpectedWithdrawals()
 		if err != nil {
 			return write(w, flusher, "Could not get head state expected withdrawals: "+err.Error())
 		}
@@ -462,7 +488,7 @@ func (s *Server) sendPayloadAttributes(ctx context.Context, w http.ResponseWrite
 		attributes = &structs.PayloadAttributesV3{
 			Timestamp:             fmt.Sprintf("%d", t.Unix()),
 			PrevRandao:            hexutil.Encode(prevRando),
-			SuggestedFeeRecipient: hexutil.Encode(headPayload.FeeRecipient()),
+			SuggestedFeeRecipient: hexutil.Encode(feeRecipient),
 			Withdrawals:           structs.WithdrawalsFromConsensus(withdrawals),
 			ParentBeaconBlockRoot: hexutil.Encode(parentRoot[:]),
 		}

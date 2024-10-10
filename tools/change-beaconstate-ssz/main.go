@@ -68,6 +68,9 @@ func main() {
 		fork = version.Capella
 	case bytesutil.ToBytes4(OldBeaconConfig.DenebForkVersion):
 		fork = version.Deneb
+	case bytesutil.ToBytes4(OldBeaconConfig.ElectraForkVersion):
+		fork = version.Electra
+
 	default:
 		panic("unknown fork version")
 	}
@@ -234,6 +237,7 @@ func main() {
 			panic(err)
 		}
 
+	// TODO: Fix Deneb and Electra
 	case version.Deneb:
 		st := &ethpb.BeaconStateOldDeneb{}
 		err = st.UnmarshalSSZ(oldSSZ)
@@ -241,6 +245,45 @@ func main() {
 			panic(err)
 		}
 		newSt := &ethpb.BeaconStateDeneb{}
+
+		// construct new state from old state
+		newSt.GenesisTime = st.GenesisTime
+		newSt.GenesisValidatorsRoot = st.GenesisValidatorsRoot
+		newSt.Slot = st.Slot
+		newSt.Fork = st.Fork
+		newSt.LatestBlockHeader = st.LatestBlockHeader
+		newSt.BlockRoots = st.BlockRoots
+		newSt.StateRoots = st.StateRoots
+		newSt.HistoricalRoots = st.HistoricalRoots
+		newSt.Eth1Data = st.Eth1Data
+		newSt.Eth1DataVotes = st.Eth1DataVotes
+		newSt.Eth1DepositIndex = st.Eth1DepositIndex
+		newSt.Validators = st.Validators
+		newSt.Balances = st.Balances
+		newSt.RandaoMixes = st.RandaoMixes
+		newSt.Slashings = st.Slashings
+		newSt.JustificationBits = st.JustificationBits
+		newSt.PreviousJustifiedCheckpoint = st.PreviousJustifiedCheckpoint
+		newSt.CurrentJustifiedCheckpoint = st.CurrentJustifiedCheckpoint
+		newSt.FinalizedCheckpoint = st.FinalizedCheckpoint
+
+		// Fill: RewardAdjustmentFactor, PreviousEpochReserve, CurrentEpochReserve
+		newSt.RewardAdjustmentFactor = 0
+		newSt.PreviousEpochReserve = 0
+		newSt.CurrentEpochReserve = 0
+
+		output, err = newSt.MarshalSSZ()
+		if err != nil {
+			panic(err)
+		}
+
+	case version.Electra:
+		st := &ethpb.BeaconStateOldElectra{}
+		err = st.UnmarshalSSZ(oldSSZ)
+		if err != nil {
+			panic(err)
+		}
+		newSt := &ethpb.BeaconStateElectra{}
 
 		// construct new state from old state
 		newSt.GenesisTime = st.GenesisTime

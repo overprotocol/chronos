@@ -44,7 +44,7 @@ import (
 )
 
 const (
-	errNoEpochInfoError = "Cannot retrieve information about an epoch in the future"
+	errNoEpochInfoError = "cannot retrieve information about an epoch in the future"
 )
 
 func TestServer_GetValidatorActiveSetChanges_CannotRequestFutureEpoch(t *testing.T) {
@@ -54,11 +54,13 @@ func TestServer_GetValidatorActiveSetChanges_CannotRequestFutureEpoch(t *testing
 	require.NoError(t, err)
 	require.NoError(t, st.SetSlot(0))
 	bs := &Server{
-		GenesisTimeFetcher: &mock.ChainService{},
-		HeadFetcher: &mock.ChainService{
-			State: st,
+		CoreService: &core.Service{
+			BeaconDB:           beaconDB,
+			GenesisTimeFetcher: &mock.ChainService{},
+			HeadFetcher: &mock.ChainService{
+				State: st,
+			},
 		},
-		BeaconDB: beaconDB,
 	}
 
 	wanted := errNoEpochInfoError
@@ -66,7 +68,7 @@ func TestServer_GetValidatorActiveSetChanges_CannotRequestFutureEpoch(t *testing
 		ctx,
 		&ethpb.GetValidatorActiveSetChangesRequest{
 			QueryFilter: &ethpb.GetValidatorActiveSetChangesRequest_Epoch{
-				Epoch: slots.ToEpoch(bs.GenesisTimeFetcher.CurrentSlot()) + 1,
+				Epoch: slots.ToEpoch(bs.CoreService.GenesisTimeFetcher.CurrentSlot()) + 1,
 			},
 		},
 	)
@@ -1029,7 +1031,7 @@ func TestServer_ListValidators_FromOldEpoch(t *testing.T) {
 
 	ctx := context.Background()
 	slot := primitives.Slot(0)
-	epochs := 5
+	epochs := primitives.Epoch(5)
 	numVals := uint64(10)
 
 	beaconDB := dbTest.SetupDB(t)
@@ -1078,7 +1080,7 @@ func TestServer_ListValidators_FromOldEpoch(t *testing.T) {
 	}
 	req = &ethpb.ListValidatorsRequest{
 		QueryFilter: &ethpb.ListValidatorsRequest_Epoch{
-			Epoch: 5,
+			Epoch: epochs,
 		},
 	}
 	res, err = bs.ListValidators(context.Background(), req)
@@ -1284,10 +1286,12 @@ func TestServer_GetValidatorActiveSetChanges(t *testing.T) {
 	require.NoError(t, beaconDB.SaveState(ctx, headState, gRoot))
 
 	bs := &Server{
-		FinalizationFetcher: &mock.ChainService{
-			FinalizedCheckPoint: &ethpb.Checkpoint{Epoch: 0, Root: make([]byte, fieldparams.RootLength)},
+		CoreService: &core.Service{
+			FinalizedFetcher: &mock.ChainService{
+				FinalizedCheckPoint: &ethpb.Checkpoint{Epoch: 0, Root: make([]byte, fieldparams.RootLength)},
+			},
+			GenesisTimeFetcher: &mock.ChainService{},
 		},
-		GenesisTimeFetcher: &mock.ChainService{},
 	}
 	addDefaultReplayerBuilder(bs, beaconDB)
 	res, err := bs.GetValidatorActiveSetChanges(ctx, &ethpb.GetValidatorActiveSetChangesRequest{
@@ -1483,27 +1487,25 @@ func TestServer_GetValidatorQueue_PendingExit(t *testing.T) {
 }
 
 func TestServer_GetValidatorParticipation_CannotRequestFutureEpoch(t *testing.T) {
-	beaconDB := dbTest.SetupDB(t)
-
 	ctx := context.Background()
 	headState, err := util.NewBeaconState()
 	require.NoError(t, err)
 	require.NoError(t, headState.SetSlot(0))
 	bs := &Server{
-		BeaconDB: beaconDB,
-		HeadFetcher: &mock.ChainService{
-			State: headState,
+		CoreService: &core.Service{
+			HeadFetcher: &mock.ChainService{
+				State: headState,
+			},
+			GenesisTimeFetcher: &mock.ChainService{},
 		},
-		GenesisTimeFetcher: &mock.ChainService{},
-		StateGen:           stategen.New(beaconDB, doublylinkedtree.New()),
 	}
 
-	wanted := "Cannot retrieve information about an epoch"
+	wanted := "cannot retrieve information about an epoch"
 	_, err = bs.GetValidatorParticipation(
 		ctx,
 		&ethpb.GetValidatorParticipationRequest{
 			QueryFilter: &ethpb.GetValidatorParticipationRequest_Epoch{
-				Epoch: slots.ToEpoch(bs.GenesisTimeFetcher.CurrentSlot()) + 1,
+				Epoch: slots.ToEpoch(bs.CoreService.GenesisTimeFetcher.CurrentSlot()) + 1,
 			},
 		},
 	)
@@ -1556,18 +1558,20 @@ func TestServer_GetValidatorParticipation_CurrentAndPrevEpoch(t *testing.T) {
 	m := &mock.ChainService{State: headState}
 	offset := int64(params.BeaconConfig().SlotsPerEpoch.Mul(params.BeaconConfig().SecondsPerSlot))
 	bs := &Server{
-		BeaconDB:    beaconDB,
-		HeadFetcher: m,
-		StateGen:    stategen.New(beaconDB, doublylinkedtree.New()),
-		GenesisTimeFetcher: &mock.ChainService{
-			Genesis: prysmTime.Now().Add(time.Duration(-1*offset) * time.Second),
+		BeaconDB: beaconDB,
+		StateGen: stategen.New(beaconDB, doublylinkedtree.New()),
+		CoreService: &core.Service{
+			HeadFetcher: m,
+			GenesisTimeFetcher: &mock.ChainService{
+				Genesis: prysmTime.Now().Add(time.Duration(-1*offset) * time.Second),
+			},
+			FinalizedFetcher: &mock.ChainService{FinalizedCheckPoint: &ethpb.Checkpoint{Epoch: 100}},
 		},
 		CanonicalFetcher: &mock.ChainService{
 			CanonicalRoots: map[[32]byte]bool{
 				bRoot: true,
 			},
 		},
-		FinalizationFetcher: &mock.ChainService{FinalizedCheckPoint: &ethpb.Checkpoint{Epoch: 100}},
 	}
 	addDefaultReplayerBuilder(bs, beaconDB)
 
@@ -1635,18 +1639,20 @@ func TestServer_GetValidatorParticipation_OrphanedUntilGenesis(t *testing.T) {
 	m := &mock.ChainService{State: headState}
 	offset := int64(params.BeaconConfig().SlotsPerEpoch.Mul(params.BeaconConfig().SecondsPerSlot))
 	bs := &Server{
-		BeaconDB:    beaconDB,
-		HeadFetcher: m,
-		StateGen:    stategen.New(beaconDB, doublylinkedtree.New()),
-		GenesisTimeFetcher: &mock.ChainService{
-			Genesis: prysmTime.Now().Add(time.Duration(-1*offset) * time.Second),
+		BeaconDB: beaconDB,
+		StateGen: stategen.New(beaconDB, doublylinkedtree.New()),
+		CoreService: &core.Service{
+			HeadFetcher: m,
+			GenesisTimeFetcher: &mock.ChainService{
+				Genesis: prysmTime.Now().Add(time.Duration(-1*offset) * time.Second),
+			},
+			FinalizedFetcher: &mock.ChainService{FinalizedCheckPoint: &ethpb.Checkpoint{Epoch: 100}},
 		},
 		CanonicalFetcher: &mock.ChainService{
 			CanonicalRoots: map[[32]byte]bool{
 				bRoot: true,
 			},
 		},
-		FinalizationFetcher: &mock.ChainService{FinalizedCheckPoint: &ethpb.Checkpoint{Epoch: 100}},
 	}
 	addDefaultReplayerBuilder(bs, beaconDB)
 
@@ -1751,13 +1757,15 @@ func runGetValidatorParticipationCurrentAndPrevEpoch(t *testing.T, genState stat
 	m := &mock.ChainService{State: genState}
 	offset := int64(params.BeaconConfig().SlotsPerEpoch.Mul(params.BeaconConfig().SecondsPerSlot))
 	bs := &Server{
-		BeaconDB:    beaconDB,
+		BeaconDB: beaconDB,
+		CoreService: &core.Service{
+			GenesisTimeFetcher: &mock.ChainService{
+				Genesis: prysmTime.Now().Add(time.Duration(-1*offset) * time.Second),
+			},
+			FinalizedFetcher: &mock.ChainService{FinalizedCheckPoint: &ethpb.Checkpoint{Epoch: 100}},
+		},
 		HeadFetcher: m,
 		StateGen:    stategen.New(beaconDB, doublylinkedtree.New()),
-		GenesisTimeFetcher: &mock.ChainService{
-			Genesis: prysmTime.Now().Add(time.Duration(-1*offset) * time.Second),
-		},
-		FinalizationFetcher: &mock.ChainService{FinalizedCheckPoint: &ethpb.Checkpoint{Epoch: 100}},
 	}
 	addDefaultReplayerBuilder(bs, beaconDB)
 
@@ -2274,12 +2282,17 @@ func setupValidators(t testing.TB, _ db.Database, count int) ([]*ethpb.Validator
 }
 
 func TestServer_GetIndividualVotes_RequestFutureSlot(t *testing.T) {
-	ds := &Server{GenesisTimeFetcher: &mock.ChainService{}}
+	bs := &Server{
+		CoreService: &core.Service{
+			GenesisTimeFetcher: &mock.ChainService{},
+		},
+	}
+
 	req := &ethpb.IndividualVotesRequest{
-		Epoch: slots.ToEpoch(ds.GenesisTimeFetcher.CurrentSlot()) + 1,
+		Epoch: slots.ToEpoch(bs.CoreService.GenesisTimeFetcher.CurrentSlot()) + 1,
 	}
 	wanted := errNoEpochInfoError
-	_, err := ds.GetIndividualVotes(context.Background(), req)
+	_, err := bs.GetIndividualVotes(context.Background(), req)
 	assert.ErrorContains(t, wanted, err)
 }
 
@@ -2308,8 +2321,10 @@ func TestServer_GetIndividualVotes_ValidatorsDontExist(t *testing.T) {
 	require.NoError(t, beaconDB.SaveState(ctx, beaconState, gRoot))
 	require.NoError(t, beaconDB.SaveGenesisBlockRoot(ctx, gRoot))
 	bs := &Server{
-		StateGen:           gen,
-		GenesisTimeFetcher: &mock.ChainService{},
+		CoreService: &core.Service{
+			StateGen:           gen,
+			GenesisTimeFetcher: &mock.ChainService{},
+		},
 	}
 	addDefaultReplayerBuilder(bs, beaconDB)
 
@@ -2404,8 +2419,10 @@ func TestServer_GetIndividualVotes_Working(t *testing.T) {
 	require.NoError(t, beaconDB.SaveState(ctx, beaconState, gRoot))
 	require.NoError(t, beaconDB.SaveGenesisBlockRoot(ctx, gRoot))
 	bs := &Server{
-		StateGen:           gen,
-		GenesisTimeFetcher: &mock.ChainService{},
+		CoreService: &core.Service{
+			StateGen:           gen,
+			GenesisTimeFetcher: &mock.ChainService{},
+		},
 	}
 	addDefaultReplayerBuilder(bs, beaconDB)
 
@@ -2467,8 +2484,10 @@ func TestServer_GetIndividualVotes_WorkingAltair(t *testing.T) {
 	require.NoError(t, beaconDB.SaveState(ctx, beaconState, gRoot))
 	require.NoError(t, beaconDB.SaveGenesisBlockRoot(ctx, gRoot))
 	bs := &Server{
-		StateGen:           gen,
-		GenesisTimeFetcher: &mock.ChainService{},
+		CoreService: &core.Service{
+			StateGen:           gen,
+			GenesisTimeFetcher: &mock.ChainService{},
+		},
 	}
 	addDefaultReplayerBuilder(bs, beaconDB)
 
@@ -2553,8 +2572,10 @@ func TestServer_GetIndividualVotes_AltairEndOfEpoch(t *testing.T) {
 	require.NoError(t, gen.SaveState(ctx, gRoot, beaconState))
 	require.NoError(t, beaconDB.SaveState(ctx, beaconState, gRoot))
 	bs := &Server{
-		StateGen:           gen,
-		GenesisTimeFetcher: &mock.ChainService{},
+		CoreService: &core.Service{
+			StateGen:           gen,
+			GenesisTimeFetcher: &mock.ChainService{},
+		},
 	}
 	addDefaultReplayerBuilder(bs, beaconDB)
 
@@ -2641,8 +2662,10 @@ func TestServer_GetIndividualVotes_BellatrixEndOfEpoch(t *testing.T) {
 	require.NoError(t, gen.SaveState(ctx, gRoot, beaconState))
 	require.NoError(t, beaconDB.SaveState(ctx, beaconState, gRoot))
 	bs := &Server{
-		StateGen:           gen,
-		GenesisTimeFetcher: &mock.ChainService{},
+		CoreService: &core.Service{
+			StateGen:           gen,
+			GenesisTimeFetcher: &mock.ChainService{},
+		},
 	}
 	addDefaultReplayerBuilder(bs, beaconDB)
 
@@ -2729,8 +2752,10 @@ func TestServer_GetIndividualVotes_CapellaEndOfEpoch(t *testing.T) {
 	require.NoError(t, gen.SaveState(ctx, gRoot, beaconState))
 	require.NoError(t, beaconDB.SaveState(ctx, beaconState, gRoot))
 	bs := &Server{
-		StateGen:           gen,
-		GenesisTimeFetcher: &mock.ChainService{},
+		CoreService: &core.Service{
+			StateGen:           gen,
+			GenesisTimeFetcher: &mock.ChainService{},
+		},
 	}
 	addDefaultReplayerBuilder(bs, beaconDB)
 

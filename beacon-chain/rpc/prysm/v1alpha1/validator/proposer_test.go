@@ -278,9 +278,11 @@ func TestServer_GetBeaconBlock_Bellatrix(t *testing.T) {
 
 	proposerServer := getProposerServer(db, beaconState, parentRoot[:])
 	proposerServer.Eth1BlockFetcher = c
+	ed, err := blocks.NewWrappedExecutionData(payload)
+	require.NoError(t, err)
 	proposerServer.ExecutionEngineCaller = &mockExecution.EngineClient{
-		PayloadIDBytes:   &enginev1.PayloadIDBytes{1},
-		ExecutionPayload: payload,
+		PayloadIDBytes:     &enginev1.PayloadIDBytes{1},
+		GetPayloadResponse: &blocks.GetPayloadResponse{ExecutionData: ed},
 	}
 
 	randaoReveal, err := util.RandaoReveal(beaconState, 0, privKeys)
@@ -401,9 +403,11 @@ func TestServer_GetBeaconBlock_Capella(t *testing.T) {
 	}
 
 	proposerServer := getProposerServer(db, beaconState, parentRoot[:])
+	ed, err := blocks.NewWrappedExecutionData(payload)
+	require.NoError(t, err)
 	proposerServer.ExecutionEngineCaller = &mockExecution.EngineClient{
-		PayloadIDBytes:          &enginev1.PayloadIDBytes{1},
-		ExecutionPayloadCapella: payload,
+		PayloadIDBytes:     &enginev1.PayloadIDBytes{1},
+		GetPayloadResponse: &blocks.GetPayloadResponse{ExecutionData: ed},
 	}
 
 	randaoReveal, err := util.RandaoReveal(beaconState, 0, privKeys)
@@ -511,6 +515,8 @@ func TestServer_GetBeaconBlock_Deneb(t *testing.T) {
 		BlobGasUsed:   4,
 		ExcessBlobGas: 5,
 	}
+	ed, err := blocks.NewWrappedExecutionData(payload)
+	require.NoError(t, err)
 
 	kc := make([][]byte, 0)
 	kc = append(kc, bytesutil.PadTo([]byte("kc"), 48))
@@ -521,9 +527,11 @@ func TestServer_GetBeaconBlock_Deneb(t *testing.T) {
 	bundle := &enginev1.BlobsBundle{KzgCommitments: kc, Proofs: proofs, Blobs: blobs}
 	proposerServer := getProposerServer(db, beaconState, parentRoot[:])
 	proposerServer.ExecutionEngineCaller = &mockExecution.EngineClient{
-		PayloadIDBytes:        &enginev1.PayloadIDBytes{1},
-		ExecutionPayloadDeneb: payload,
-		BlobsBundle:           bundle,
+		PayloadIDBytes: &enginev1.PayloadIDBytes{1},
+		GetPayloadResponse: &blocks.GetPayloadResponse{
+			ExecutionData: ed,
+			BlobsBundle:   bundle,
+		},
 	}
 
 	randaoReveal, err := util.RandaoReveal(beaconState, 0, privKeys)
@@ -547,6 +555,132 @@ func TestServer_GetBeaconBlock_Deneb(t *testing.T) {
 	got, err := proposerServer.GetBeaconBlock(ctx, req)
 	require.NoError(t, err)
 	require.DeepEqual(t, got.GetDeneb().Block.Body.BlobKzgCommitments, kc)
+}
+
+func TestServer_GetBeaconBlock_Electra(t *testing.T) {
+	db := dbutil.SetupDB(t)
+	ctx := context.Background()
+	transition.SkipSlotCache.Disable()
+
+	params.SetupTestConfigCleanup(t)
+	cfg := params.BeaconConfig().Copy()
+	cfg.ElectraForkEpoch = 5
+	cfg.DenebForkEpoch = 4
+	cfg.CapellaForkEpoch = 3
+	cfg.BellatrixForkEpoch = 2
+	cfg.AltairForkEpoch = 1
+	params.OverrideBeaconConfig(cfg)
+	beaconState, privKeys := util.DeterministicGenesisState(t, 64)
+
+	stateRoot, err := beaconState.HashTreeRoot(ctx)
+	require.NoError(t, err, "Could not hash genesis state")
+
+	genesis := b.NewGenesisBlock(stateRoot[:])
+	util.SaveBlock(t, ctx, db, genesis)
+
+	parentRoot, err := genesis.Block.HashTreeRoot()
+	require.NoError(t, err, "Could not get signing root")
+	require.NoError(t, db.SaveState(ctx, beaconState, parentRoot), "Could not save genesis state")
+	require.NoError(t, db.SaveHeadBlockRoot(ctx, parentRoot), "Could not save genesis state")
+
+	electraSlot, err := slots.EpochStart(params.BeaconConfig().ElectraForkEpoch)
+	require.NoError(t, err)
+
+	var scBits [fieldparams.SyncAggregateSyncCommitteeBytesLength]byte
+	blk := &ethpb.SignedBeaconBlockElectra{
+		Block: &ethpb.BeaconBlockElectra{
+			Slot:       electraSlot + 1,
+			ParentRoot: parentRoot[:],
+			StateRoot:  genesis.Block.StateRoot,
+			Body: &ethpb.BeaconBlockBodyElectra{
+				RandaoReveal:  genesis.Block.Body.RandaoReveal,
+				Graffiti:      genesis.Block.Body.Graffiti,
+				Eth1Data:      genesis.Block.Body.Eth1Data,
+				SyncAggregate: &ethpb.SyncAggregate{SyncCommitteeBits: scBits[:], SyncCommitteeSignature: make([]byte, 96)},
+				ExecutionPayload: &enginev1.ExecutionPayloadElectra{
+					ParentHash:    make([]byte, fieldparams.RootLength),
+					FeeRecipient:  make([]byte, fieldparams.FeeRecipientLength),
+					StateRoot:     make([]byte, fieldparams.RootLength),
+					ReceiptsRoot:  make([]byte, fieldparams.RootLength),
+					LogsBloom:     make([]byte, fieldparams.LogsBloomLength),
+					PrevRandao:    make([]byte, fieldparams.RootLength),
+					BaseFeePerGas: make([]byte, fieldparams.RootLength),
+					BlockHash:     make([]byte, fieldparams.RootLength),
+				},
+			},
+		},
+	}
+
+	blkRoot, err := blk.Block.HashTreeRoot()
+	require.NoError(t, err)
+	require.NoError(t, err, "Could not get signing root")
+	require.NoError(t, db.SaveState(ctx, beaconState, blkRoot), "Could not save genesis state")
+	require.NoError(t, db.SaveHeadBlockRoot(ctx, blkRoot), "Could not save genesis state")
+
+	random, err := helpers.RandaoMix(beaconState, slots.ToEpoch(beaconState.Slot()))
+	require.NoError(t, err)
+	timeStamp, err := slots.ToTime(beaconState.GenesisTime(), electraSlot+1)
+	require.NoError(t, err)
+	dr := []*enginev1.DepositRequest{{
+		Pubkey:                bytesutil.PadTo(privKeys[0].PublicKey().Marshal(), 48),
+		WithdrawalCredentials: bytesutil.PadTo([]byte("wc"), 32),
+		Amount:                123,
+		Signature:             bytesutil.PadTo([]byte("sig"), 96),
+		Index:                 456,
+	}}
+	wr := []*enginev1.WithdrawalRequest{
+		{
+			SourceAddress:   bytesutil.PadTo([]byte("sa"), 20),
+			ValidatorPubkey: bytesutil.PadTo(privKeys[1].PublicKey().Marshal(), 48),
+			Amount:          789,
+		},
+	}
+	cr := []*enginev1.ConsolidationRequest{
+		{
+			SourceAddress: bytesutil.PadTo([]byte("sa"), 20),
+			SourcePubkey:  bytesutil.PadTo(privKeys[1].PublicKey().Marshal(), 48),
+			TargetPubkey:  bytesutil.PadTo(privKeys[2].PublicKey().Marshal(), 48),
+		},
+	}
+	payload := &enginev1.ExecutionPayloadElectra{
+		Timestamp:             uint64(timeStamp.Unix()),
+		ParentHash:            make([]byte, fieldparams.RootLength),
+		FeeRecipient:          make([]byte, fieldparams.FeeRecipientLength),
+		StateRoot:             make([]byte, fieldparams.RootLength),
+		ReceiptsRoot:          make([]byte, fieldparams.RootLength),
+		LogsBloom:             make([]byte, fieldparams.LogsBloomLength),
+		PrevRandao:            random,
+		BaseFeePerGas:         make([]byte, fieldparams.RootLength),
+		BlockHash:             make([]byte, fieldparams.RootLength),
+		DepositRequests:       dr,
+		WithdrawalRequests:    wr,
+		ConsolidationRequests: cr,
+	}
+
+	proposerServer := getProposerServer(db, beaconState, parentRoot[:])
+	ed, err := blocks.NewWrappedExecutionData(payload)
+	require.NoError(t, err)
+	proposerServer.ExecutionEngineCaller = &mockExecution.EngineClient{
+		PayloadIDBytes:     &enginev1.PayloadIDBytes{1},
+		GetPayloadResponse: &blocks.GetPayloadResponse{ExecutionData: ed},
+	}
+
+	randaoReveal, err := util.RandaoReveal(beaconState, 0, privKeys)
+	require.NoError(t, err)
+
+	graffiti := bytesutil.ToBytes32([]byte("eth2"))
+	require.NoError(t, err)
+	req := &ethpb.BlockRequest{
+		Slot:         electraSlot + 1,
+		RandaoReveal: randaoReveal,
+		Graffiti:     graffiti[:],
+	}
+
+	got, err := proposerServer.GetBeaconBlock(ctx, req)
+	require.NoError(t, err)
+	p := got.GetElectra().Block.Body.ExecutionPayload
+	require.DeepEqual(t, dr, p.DepositRequests)
+	require.DeepEqual(t, wr, p.WithdrawalRequests)
 }
 
 func TestServer_GetBeaconBlock_Optimistic(t *testing.T) {
@@ -619,10 +753,12 @@ func injectSlashings(t *testing.T, st state.BeaconState, keys []bls.SecretKey, s
 
 	attSlashings := make([]*ethpb.AttesterSlashing, params.BeaconConfig().MaxAttesterSlashings)
 	for i := uint64(0); i < params.BeaconConfig().MaxAttesterSlashings; i++ {
-		attesterSlashing, err := util.GenerateAttesterSlashingForValidator(st, keys[i+params.BeaconConfig().MaxProposerSlashings], primitives.ValidatorIndex(i+params.BeaconConfig().MaxProposerSlashings) /* validator index */)
+		generatedAttesterSlashing, err := util.GenerateAttesterSlashingForValidator(st, keys[i+params.BeaconConfig().MaxProposerSlashings], primitives.ValidatorIndex(i+params.BeaconConfig().MaxProposerSlashings) /* validator index */)
 		require.NoError(t, err)
+		attesterSlashing, ok := generatedAttesterSlashing.(*ethpb.AttesterSlashing)
+		require.Equal(t, true, ok, "Attester slashing has the wrong type (expected %T, got %T)", &ethpb.AttesterSlashing{}, generatedAttesterSlashing)
 		attSlashings[i] = attesterSlashing
-		err = server.SlashingsPool.InsertAttesterSlashing(context.Background(), st, attesterSlashing)
+		err = server.SlashingsPool.InsertAttesterSlashing(context.Background(), st, generatedAttesterSlashing.(*ethpb.AttesterSlashing))
 		require.NoError(t, err)
 	}
 	return proposerSlashings, attSlashings
@@ -781,6 +917,57 @@ func TestProposer_ProposeBlock_OK(t *testing.T) {
 			},
 			useBuilder: true,
 			err:        "unblind sidecars failed: commitment value doesn't match block",
+		},
+		{
+			name: "electra block no blob",
+			block: func(parent [32]byte) *ethpb.GenericSignedBeaconBlock {
+				sb := &ethpb.SignedBeaconBlockContentsElectra{
+					Block: &ethpb.SignedBeaconBlockElectra{
+						Block: &ethpb.BeaconBlockElectra{Slot: 5, ParentRoot: parent[:], Body: util.HydrateBeaconBlockBodyElectra(&ethpb.BeaconBlockBodyElectra{})},
+					},
+				}
+				blk := &ethpb.GenericSignedBeaconBlock_Electra{Electra: sb}
+				return &ethpb.GenericSignedBeaconBlock{Block: blk, IsBlinded: false}
+			},
+		},
+		{
+			name: "electra block some blob",
+			block: func(parent [32]byte) *ethpb.GenericSignedBeaconBlock {
+				sb := &ethpb.SignedBeaconBlockContentsElectra{
+					Block: &ethpb.SignedBeaconBlockElectra{
+						Block: &ethpb.BeaconBlockElectra{
+							Slot: 5, ParentRoot: parent[:],
+							Body: util.HydrateBeaconBlockBodyElectra(&ethpb.BeaconBlockBodyElectra{
+								BlobKzgCommitments: [][]byte{bytesutil.PadTo([]byte("kc"), 48), bytesutil.PadTo([]byte("kc1"), 48), bytesutil.PadTo([]byte("kc2"), 48)},
+							}),
+						},
+					},
+					KzgProofs: [][]byte{{0x01}, {0x02}, {0x03}},
+					Blobs:     [][]byte{{0x01}, {0x02}, {0x03}},
+				}
+				blk := &ethpb.GenericSignedBeaconBlock_Electra{Electra: sb}
+				return &ethpb.GenericSignedBeaconBlock{Block: blk, IsBlinded: false}
+			},
+		},
+		{
+			name: "electra block some blob (kzg and blob count mismatch)",
+			block: func(parent [32]byte) *ethpb.GenericSignedBeaconBlock {
+				sb := &ethpb.SignedBeaconBlockContentsElectra{
+					Block: &ethpb.SignedBeaconBlockElectra{
+						Block: &ethpb.BeaconBlockElectra{
+							Slot: 5, ParentRoot: parent[:],
+							Body: util.HydrateBeaconBlockBodyElectra(&ethpb.BeaconBlockBodyElectra{
+								BlobKzgCommitments: [][]byte{bytesutil.PadTo([]byte("kc"), 48), bytesutil.PadTo([]byte("kc1"), 48)},
+							}),
+						},
+					},
+					KzgProofs: [][]byte{{0x01}, {0x02}, {0x03}},
+					Blobs:     [][]byte{{0x01}, {0x02}, {0x03}},
+				}
+				blk := &ethpb.GenericSignedBeaconBlock_Electra{Electra: sb}
+				return &ethpb.GenericSignedBeaconBlock{Block: blk, IsBlinded: false}
+			},
+			err: "blob KZG commitments don't match number of blobs or KZG proofs",
 		},
 	}
 
@@ -2398,22 +2585,22 @@ func TestProposer_FilterAttestation(t *testing.T) {
 	tests := []struct {
 		name         string
 		wantedErr    string
-		inputAtts    func() []*ethpb.Attestation
-		expectedAtts func(inputAtts []*ethpb.Attestation) []*ethpb.Attestation
+		inputAtts    func() []ethpb.Att
+		expectedAtts func(inputAtts []ethpb.Att) []ethpb.Att
 	}{
 		{
 			name: "nil attestations",
-			inputAtts: func() []*ethpb.Attestation {
+			inputAtts: func() []ethpb.Att {
 				return nil
 			},
-			expectedAtts: func(inputAtts []*ethpb.Attestation) []*ethpb.Attestation {
-				return []*ethpb.Attestation{}
+			expectedAtts: func(inputAtts []ethpb.Att) []ethpb.Att {
+				return []ethpb.Att{}
 			},
 		},
 		{
 			name: "invalid attestations",
-			inputAtts: func() []*ethpb.Attestation {
-				atts := make([]*ethpb.Attestation, 10)
+			inputAtts: func() []ethpb.Att {
+				atts := make([]ethpb.Att, 10)
 				for i := 0; i < len(atts); i++ {
 					atts[i] = util.HydrateAttestation(&ethpb.Attestation{
 						Data: &ethpb.AttestationData{
@@ -2423,14 +2610,14 @@ func TestProposer_FilterAttestation(t *testing.T) {
 				}
 				return atts
 			},
-			expectedAtts: func(inputAtts []*ethpb.Attestation) []*ethpb.Attestation {
-				return []*ethpb.Attestation{}
+			expectedAtts: func(inputAtts []ethpb.Att) []ethpb.Att {
+				return []ethpb.Att{}
 			},
 		},
 		{
 			name: "filter aggregates ok",
-			inputAtts: func() []*ethpb.Attestation {
-				atts := make([]*ethpb.Attestation, 10)
+			inputAtts: func() []ethpb.Att {
+				atts := make([]ethpb.Att, 10)
 				for i := 0; i < len(atts); i++ {
 					atts[i] = util.HydrateAttestation(&ethpb.Attestation{
 						Data: &ethpb.AttestationData{
@@ -2439,29 +2626,29 @@ func TestProposer_FilterAttestation(t *testing.T) {
 						},
 						AggregationBits: bitfield.Bitlist{0b00010010},
 					})
-					committee, err := helpers.BeaconCommitteeFromState(context.Background(), st, atts[i].Data.Slot, atts[i].Data.CommitteeIndex)
+					committee, err := helpers.BeaconCommitteeFromState(context.Background(), st, atts[i].GetData().Slot, atts[i].GetData().CommitteeIndex)
 					assert.NoError(t, err)
-					attestingIndices, err := attestation.AttestingIndices(atts[i].AggregationBits, committee)
+					attestingIndices, err := attestation.AttestingIndices(atts[i], committee)
 					require.NoError(t, err)
 					assert.NoError(t, err)
 					domain, err := signing.Domain(st.Fork(), 0, params.BeaconConfig().DomainBeaconAttester, params.BeaconConfig().ZeroHash[:])
 					require.NoError(t, err)
 					sigs := make([]bls.Signature, len(attestingIndices))
 					var zeroSig [96]byte
-					atts[i].Signature = zeroSig[:]
+					atts[i].(*ethpb.Attestation).Signature = zeroSig[:]
 
 					for i, indice := range attestingIndices {
-						hashTreeRoot, err := signing.ComputeSigningRoot(atts[i].Data, domain)
+						hashTreeRoot, err := signing.ComputeSigningRoot(atts[i].GetData(), domain)
 						require.NoError(t, err)
 						sig := privKeys[indice].Sign(hashTreeRoot[:])
 						sigs[i] = sig
 					}
-					atts[i].Signature = bls.AggregateSignatures(sigs).Marshal()
+					atts[i].(*ethpb.Attestation).Signature = bls.AggregateSignatures(sigs).Marshal()
 				}
 				return atts
 			},
-			expectedAtts: func(inputAtts []*ethpb.Attestation) []*ethpb.Attestation {
-				return []*ethpb.Attestation{inputAtts[0], inputAtts[1]}
+			expectedAtts: func(inputAtts []ethpb.Att) []ethpb.Att {
+				return []ethpb.Att{inputAtts[0], inputAtts[1]}
 			},
 		},
 	}
@@ -2591,10 +2778,10 @@ func TestProposer_DeleteAttsInPool_Aggregated(t *testing.T) {
 	priv, err := bls.RandKey()
 	require.NoError(t, err)
 	sig := priv.Sign([]byte("foo")).Marshal()
-	aggregatedAtts := []*ethpb.Attestation{
+	aggregatedAtts := []ethpb.Att{
 		util.HydrateAttestation(&ethpb.Attestation{Data: &ethpb.AttestationData{Slot: 1}, AggregationBits: bitfield.Bitlist{0b10101}, Signature: sig}),
 		util.HydrateAttestation(&ethpb.Attestation{Data: &ethpb.AttestationData{Slot: 1}, AggregationBits: bitfield.Bitlist{0b11010}, Signature: sig})}
-	unaggregatedAtts := []*ethpb.Attestation{
+	unaggregatedAtts := []ethpb.Att{
 		util.HydrateAttestation(&ethpb.Attestation{Data: &ethpb.AttestationData{Slot: 1}, AggregationBits: bitfield.Bitlist{0b10010}, Signature: sig}),
 		util.HydrateAttestation(&ethpb.Attestation{Data: &ethpb.AttestationData{Slot: 1}, AggregationBits: bitfield.Bitlist{0b10100}, Signature: sig})}
 
@@ -2930,4 +3117,16 @@ func TestProposer_GetParentHeadState(t *testing.T) {
 		require.NotEqual(t, [32]byte(str), [32]byte(genesisStr))
 		require.LogsContain(t, hook, "late block attempted reorg failed")
 	})
+}
+
+func TestProposer_ElectraBlobsAndProofs(t *testing.T) {
+	electraContents := &ethpb.SignedBeaconBlockContentsElectra{Block: &ethpb.SignedBeaconBlockElectra{}}
+	electraContents.KzgProofs = make([][]byte, 10)
+	electraContents.Blobs = make([][]byte, 10)
+
+	genBlock := &ethpb.GenericSignedBeaconBlock{Block: &ethpb.GenericSignedBeaconBlock_Electra{Electra: electraContents}}
+	blobs, proofs, err := blobsAndProofs(genBlock)
+	require.NoError(t, err)
+	require.Equal(t, 10, len(blobs))
+	require.Equal(t, 10, len(proofs))
 }

@@ -11,10 +11,10 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
 	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing"
+	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing/trace"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	"github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1/attestation"
 	"github.com/prysmaticlabs/prysm/v5/runtime/version"
-	"go.opencensus.io/trace"
 )
 
 // ProcessAttestations process the attestations in state and update individual validator's pre computes,
@@ -54,11 +54,11 @@ func ProcessAttestations(
 			return nil, nil, errors.Wrap(err, "could not check validator attested previous epoch")
 		}
 
-		committee, err := helpers.BeaconCommitteeFromState(ctx, state, a.Data.Slot, a.Data.CommitteeIndex)
+		committee, err := helpers.BeaconCommitteeFromState(ctx, state, a.GetData().Slot, a.GetData().CommitteeIndex)
 		if err != nil {
 			return nil, nil, err
 		}
-		indices, err := attestation.AttestingIndices(a.AggregationBits, committee)
+		indices, err := attestation.AttestingIndices(a, committee)
 		if err != nil {
 			return nil, nil, err
 		}

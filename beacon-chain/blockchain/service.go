@@ -12,7 +12,6 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/bailout"
-	"go.opencensus.io/trace"
 
 	"github.com/prysmaticlabs/prysm/v5/async/event"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/blockchain/kzg"
@@ -42,6 +41,7 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/interfaces"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
 	"github.com/prysmaticlabs/prysm/v5/encoding/bytesutil"
+	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing/trace"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	prysmTime "github.com/prysmaticlabs/prysm/v5/time"
 	"github.com/prysmaticlabs/prysm/v5/time/slots"
@@ -332,6 +332,8 @@ func (s *Service) StartFromSavedState(saved state.BeaconState) error {
 		return errors.Wrap(err, "failed to initialize blockchain service")
 	}
 
+	saved.SaveValidatorIndices() // used to handle Validator index invariant from EIP6110
+
 	return nil
 }
 
@@ -506,7 +508,7 @@ func (s *Service) saveGenesisData(ctx context.Context, genesisState state.Beacon
 	}
 	genesisBlk, err := s.cfg.BeaconDB.GenesisBlock(ctx)
 	if err != nil || genesisBlk == nil || genesisBlk.IsNil() {
-		return fmt.Errorf("could not load genesis block: %v", err)
+		return fmt.Errorf("could not load genesis block: %w", err)
 	}
 	genesisBlkRoot, err := genesisBlk.Block().HashTreeRoot()
 	if err != nil {
