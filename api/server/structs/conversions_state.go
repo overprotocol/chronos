@@ -734,7 +734,7 @@ func BeaconStateElectraFromConsensus(st beaconState.BeaconState) (*BeaconStateEl
 	if err != nil {
 		return nil, err
 	}
-	srcPayload, ok := execData.Proto().(*enginev1.ExecutionPayloadHeaderElectra)
+	srcPayload, ok := execData.Proto().(*enginev1.ExecutionPayloadHeaderDeneb)
 	if !ok {
 		return nil, errPayloadHeaderNotFound
 	}

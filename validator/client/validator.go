@@ -622,6 +622,9 @@ func (v *validator) UpdateDuties(ctx context.Context, slot primitives.Slot) erro
 // subscribeToSubnets iterates through each validator duty, signs each slot, and asks beacon node
 // to eagerly subscribe to subnets so that the aggregator has attestations to aggregate.
 func (v *validator) subscribeToSubnets(ctx context.Context, duties *ethpb.DutiesResponse) error {
+	ctx, span := trace.StartSpan(ctx, "validator.subscribeToSubnets")
+	defer span.End()
+
 	subscribeSlots := make([]primitives.Slot, 0, len(duties.CurrentEpochDuties)+len(duties.NextEpochDuties))
 	subscribeCommitteeIndices := make([]primitives.CommitteeIndex, 0, len(duties.CurrentEpochDuties)+len(duties.NextEpochDuties))
 	subscribeIsAggregator := make([]bool, 0, len(duties.CurrentEpochDuties)+len(duties.NextEpochDuties))
@@ -813,7 +816,16 @@ func (v *validator) Keymanager() (keymanager.IKeymanager, error) {
 
 // isAggregator checks if a validator is an aggregator of a given slot and committee,
 // it uses a modulo calculated by validator count in committee and samples randomness around it.
-func (v *validator) isAggregator(ctx context.Context, committeeIndex []primitives.ValidatorIndex, slot primitives.Slot, pubKey [fieldparams.BLSPubkeyLength]byte, validatorIndex primitives.ValidatorIndex) (bool, error) {
+func (v *validator) isAggregator(
+	ctx context.Context,
+	committeeIndex []primitives.ValidatorIndex,
+	slot primitives.Slot,
+	pubKey [fieldparams.BLSPubkeyLength]byte,
+	validatorIndex primitives.ValidatorIndex,
+	) (bool, error) {
+	ctx, span := trace.StartSpan(ctx, "validator.isAggregator")
+	defer span.End()
+
 	modulo := uint64(1)
 	if len(committeeIndex)/int(params.BeaconConfig().TargetAggregatorsPerCommittee) > 1 {
 		modulo = uint64(len(committeeIndex)) / params.BeaconConfig().TargetAggregatorsPerCommittee

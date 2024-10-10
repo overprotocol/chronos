@@ -106,7 +106,7 @@ var electraFields = append(
 	types.NextWithdrawalIndex,
 	types.NextWithdrawalValidatorIndex,
 	types.HistoricalSummaries,
-	types.LatestExecutionPayloadHeaderElectra,
+	types.LatestExecutionPayloadHeaderDeneb,
 	types.DepositRequestsStartIndex,
 	types.DepositBalanceToConsume,
 	types.ExitBalanceToConsume,
@@ -125,7 +125,6 @@ const (
 	capellaSharedFieldRefCount   = 14
 	denebSharedFieldRefCount     = 14
 	electraSharedFieldRefCount   = 17
-
 	experimentalStatePhase0SharedFieldRefCount    = 5
 	experimentalStateAltairSharedFieldRefCount    = 5
 	experimentalStateBellatrixSharedFieldRefCount = 6
@@ -783,7 +782,7 @@ func InitializeFromProtoUnsafeElectra(st *ethpb.BeaconStateElectra) (state.Beaco
 		finalizedCheckpoint:                 st.FinalizedCheckpoint,
 		currentSyncCommittee:                st.CurrentSyncCommittee,
 		nextSyncCommittee:                   st.NextSyncCommittee,
-		latestExecutionPayloadHeaderElectra: st.LatestExecutionPayloadHeader,
+		latestExecutionPayloadHeaderDeneb: st.LatestExecutionPayloadHeader,
 		nextWithdrawalIndex:                 st.NextWithdrawalIndex,
 		nextWithdrawalValidatorIndex:        st.NextWithdrawalValidatorIndex,
 		historicalSummaries:                 st.HistoricalSummaries,
@@ -858,11 +857,11 @@ func InitializeFromProtoUnsafeElectra(st *ethpb.BeaconStateElectra) (state.Beaco
 	b.sharedFieldReferences[types.Slashings] = stateutil.NewRef(1)
 	b.sharedFieldReferences[types.PreviousEpochParticipationBits] = stateutil.NewRef(1)
 	b.sharedFieldReferences[types.CurrentEpochParticipationBits] = stateutil.NewRef(1)
-	b.sharedFieldReferences[types.LatestExecutionPayloadHeaderElectra] = stateutil.NewRef(1) // New in Electra.
-	b.sharedFieldReferences[types.HistoricalSummaries] = stateutil.NewRef(1)                 // New in Capella.
-	b.sharedFieldReferences[types.PendingBalanceDeposits] = stateutil.NewRef(1)              // New in Electra.
-	b.sharedFieldReferences[types.PendingPartialWithdrawals] = stateutil.NewRef(1)           // New in Electra.
-	b.sharedFieldReferences[types.PendingConsolidations] = stateutil.NewRef(1)               // New in Electra.
+	b.sharedFieldReferences[types.LatestExecutionPayloadHeaderDeneb] = stateutil.NewRef(1) // New in Electra.
+	b.sharedFieldReferences[types.HistoricalSummaries] = stateutil.NewRef(1)               // New in Capella.
+	b.sharedFieldReferences[types.PendingBalanceDeposits] = stateutil.NewRef(1)            // New in Electra.
+	b.sharedFieldReferences[types.PendingPartialWithdrawals] = stateutil.NewRef(1)         // New in Electra.
+	b.sharedFieldReferences[types.PendingConsolidations] = stateutil.NewRef(1)             // New in Electra.
 	if !features.Get().EnableExperimentalState {
 		b.sharedFieldReferences[types.BlockRoots] = stateutil.NewRef(1)
 		b.sharedFieldReferences[types.StateRoots] = stateutil.NewRef(1)
@@ -962,7 +961,6 @@ func (b *BeaconState) Copy() state.BeaconState {
 		latestExecutionPayloadHeader:        b.latestExecutionPayloadHeader.Copy(),
 		latestExecutionPayloadHeaderCapella: b.latestExecutionPayloadHeaderCapella.Copy(),
 		latestExecutionPayloadHeaderDeneb:   b.latestExecutionPayloadHeaderDeneb.Copy(),
-		latestExecutionPayloadHeaderElectra: b.latestExecutionPayloadHeaderElectra.Copy(),
 
 		id: types.Enumerator.Inc(),
 
@@ -1236,7 +1234,7 @@ func (b *BeaconState) IsNil() bool {
 func (b *BeaconState) rootSelector(ctx context.Context, field types.FieldIndex) ([32]byte, error) {
 	_, span := trace.StartSpan(ctx, "beaconState.rootSelector")
 	defer span.End()
-	span.AddAttributes(trace.StringAttribute("field", field.String()))
+	span.SetAttributes(trace.StringAttribute("field", field.String()))
 
 	switch field {
 	case types.GenesisTime:
@@ -1353,8 +1351,6 @@ func (b *BeaconState) rootSelector(ctx context.Context, field types.FieldIndex) 
 		return b.latestExecutionPayloadHeaderCapella.HashTreeRoot()
 	case types.LatestExecutionPayloadHeaderDeneb:
 		return b.latestExecutionPayloadHeaderDeneb.HashTreeRoot()
-	case types.LatestExecutionPayloadHeaderElectra:
-		return b.latestExecutionPayloadHeaderElectra.HashTreeRoot()
 	case types.NextWithdrawalIndex:
 		return ssz.Uint64Root(b.nextWithdrawalIndex), nil
 	case types.NextWithdrawalValidatorIndex:

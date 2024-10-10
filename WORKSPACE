@@ -227,7 +227,7 @@ filegroup(
     url = "https://github.com/ethereum/EIPs/archive/5480440fe51742ed23342b68cf106cefd427e39d.tar.gz",
 )
 
-consensus_spec_version = "v1.5.0-alpha.5"
+consensus_spec_version = "v1.5.0-alpha.6"
 
 bls_test_version = "v0.1.1"
 
@@ -243,7 +243,7 @@ filegroup(
     visibility = ["//visibility:public"],
 )
     """,
-    integrity = "sha256-R9vG5HEL5eGMOAmbkKfJ2jfelNqL5V0xBUPiXOiGM6U=",
+    integrity = "sha256-M7u/Ot/Vzorww+dFbHp0cxLyM2mezJjijCzq+LY3uvs=",
     url = "https://github.com/ethereum/consensus-spec-tests/releases/download/%s/general.tar.gz" % consensus_spec_version,
 )
 
@@ -259,7 +259,7 @@ filegroup(
     visibility = ["//visibility:public"],
 )
     """,
-    integrity = "sha256-AEIiEOlf1XuxoRMCsN+kgJMo4LrS05+biTA1p/7Ro00=",
+    integrity = "sha256-deOSeLRsmHXvkRp8n2bs3HXdkGUJWWqu8KFM/QABbZg=",
     url = "https://github.com/ethereum/consensus-spec-tests/releases/download/%s/minimal.tar.gz" % consensus_spec_version,
 )
 
@@ -275,7 +275,7 @@ filegroup(
     visibility = ["//visibility:public"],
 )
     """,
-    integrity = "sha256-LH/Xr20yrJRYnbpjRGupMWTIOWt3cpxZJWXgThwVDsk=",
+    integrity = "sha256-Zz7YCf6XVf57nzSEGq9ToflJFHM0lAGwhd18l9Rf3hA=",
     url = "https://github.com/ethereum/consensus-spec-tests/releases/download/%s/mainnet.tar.gz" % consensus_spec_version,
 )
 
@@ -290,7 +290,7 @@ filegroup(
     visibility = ["//visibility:public"],
 )
     """,
-    integrity = "sha256-mlytz4MPjKh0DwV7FMiAtnRbJw9B6o78/x66/vmnYc8=",
+    integrity = "sha256-BoXckDxXnDcEmAjg/dQgf/tLiJsb6CT0aZvmWHFijrY=",
     strip_prefix = "consensus-specs-" + consensus_spec_version[1:],
     url = "https://github.com/ethereum/consensus-specs/archive/refs/tags/%s.tar.gz" % consensus_spec_version,
 )
@@ -385,7 +385,63 @@ load("@com_github_atlassian_bazel_tools//gometalinter:deps.bzl", "gometalinter_d
 
 gometalinter_dependencies()
 
-load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
+load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies", "go_repository")
+
+go_repository(
+    name = "com_github_cockroachdb_fifo",
+    importpath = "github.com/cockroachdb/fifo",
+    sum = "h1:giXvy4KSc/6g/esnpM7Geqxka4WSqI1SZc7sMJFd3y4=",
+    version = "v0.0.0-20240606204812-0bbfbd93a7ce",
+)
+
+go_repository(
+    name = "com_github_donovanhide_eventsource",
+    importpath = "github.com/donovanhide/eventsource",
+    sum = "h1:C7t6eeMaEQVy6e8CarIhscYQlNmw5e3G36y7l7Y21Ao=",
+    version = "v0.0.0-20210830082556-c59027999da0",
+)
+
+go_repository(
+    name = "com_github_ethereum_go_verkle",
+    importpath = "github.com/ethereum/go-verkle",
+    sum = "h1:8NfxH2iXvJ60YRB8ChToFTUzl8awsc3cJ8CbLjGIl/A=",
+    version = "v0.1.1-0.20240829091221-dffa7562dbe9",
+)
+
+go_repository(
+    name = "com_github_karalabe_hid",
+    importpath = "github.com/karalabe/hid",
+    sum = "h1:msKODTL1m0wigztaqILOtla9HeW1ciscYG4xjLtvk5I=",
+    version = "v1.0.1-0.20240306101548-573246063e52",
+)
+
+go_repository(
+    name = "com_github_moby_spdystream",
+    importpath = "github.com/moby/spdystream",
+    sum = "h1:cjW1zVyyoiM0T7b6UoySUFqzXMoqRckQtXwGPiBhOM8=",
+    version = "v0.2.0",
+)
+
+go_repository(
+    name = "com_github_protolambda_zrnt",
+    importpath = "github.com/protolambda/zrnt",
+    sum = "h1:KZ48T+3UhsPXNdtE/5QEvGc9DGjUaRI17nJaoznoIaM=",
+    version = "v0.32.2",
+)
+
+go_repository(
+    name = "com_github_protolambda_ztyp",
+    importpath = "github.com/protolambda/ztyp",
+    sum = "h1:rVcL3vBu9W/aV646zF6caLS/dyn9BN8NYiuJzicLNyY=",
+    version = "v0.2.2",
+)
+
+go_repository(
+    name = "com_github_crate_crypto_go_ipa",
+    importpath = "github.com/crate-crypto/go-ipa",
+    sum = "h1:DuBDHVjgGMPki7bAyh91+3cF1Vh34sAEdH8JQgbc2R0=",
+    version = "v0.0.0-20230601170251-1830d0757c80",
+)
 
 gazelle_dependencies()
 

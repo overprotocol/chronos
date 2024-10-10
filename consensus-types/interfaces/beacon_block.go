@@ -70,6 +70,7 @@ type ReadOnlyBeaconBlockBody interface {
 	Execution() (ExecutionData, error)
 	BLSToExecutionChanges() ([]*ethpb.SignedBLSToExecutionChange, error)
 	BlobKzgCommitments() ([][]byte, error)
+	ExecutionRequests() (*enginev1.ExecutionRequests, error)
 }
 
 type SignedBeaconBlock interface {
@@ -123,11 +124,4 @@ type ExecutionData interface {
 	TransactionsRoot() ([]byte, error)
 	Withdrawals() ([]*enginev1.Withdrawal, error)
 	WithdrawalsRoot() ([]byte, error)
-}
-
-type ExecutionDataElectra interface {
-	ExecutionData
-	DepositRequests() []*enginev1.DepositRequest
-	WithdrawalRequests() []*enginev1.WithdrawalRequest
-	ConsolidationRequests() []*enginev1.ConsolidationRequest
 }

@@ -4,10 +4,11 @@ package rpc
 
 import (
 	"context"
+	"fmt"
 	"net"
+	"net/http"
 	"sync"
 
-	"github.com/gorilla/mux"
 	middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	grpcopentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
@@ -138,7 +139,7 @@ type Config struct {
 	ExecutionEngineCaller         execution.EngineCaller
 	OptimisticModeFetcher         blockchain.OptimisticModeFetcher
 	BlockBuilder                  builder.BlockBuilder
-	Router                        *mux.Router
+	Router                        *http.ServeMux
 	ClockWaiter                   startup.ClockWaiter
 	BlobStorage                   *filesystem.BlobStorage
 	TrackedValidatorsCache        *cache.TrackedValidatorsCache
@@ -315,10 +316,12 @@ func NewService(ctx context.Context, cfg *Config) *Service {
 
 	endpoints := s.endpoints(s.cfg.EnableDebugRPCEndpoints, s.cfg.EnableOverNodeRPCEndpoints, blocker, stater, rewardFetcher, validatorServer, coreService, ch, s.cfg.CloseHandler)
 	for _, e := range endpoints {
-		s.cfg.Router.HandleFunc(
-			e.template,
-			e.handlerWithMiddleware(),
-		).Methods(e.methods...)
+		for i := range e.methods {
+			s.cfg.Router.HandleFunc(
+				fmt.Sprintf("%s %s", e.methods[i], e.template),
+				e.handlerWithMiddleware(),
+			)
+		}
 	}
 
 	ethpbv1alpha1.RegisterNodeServer(s.grpcServer, nodeServer)
@@ -350,7 +353,6 @@ var _ stategen.CurrentSlotter = blockchain.ChainInfoFetcher(nil)
 // Start the gRPC server.
 func (s *Service) Start() {
 	grpcprometheus.EnableHandlingTimeHistogram()
-	s.validatorServer.PruneBlobsBundleCacheRoutine()
 	go func() {
 		if s.listener != nil {
 			if err := s.grpcServer.Serve(s.listener); err != nil {

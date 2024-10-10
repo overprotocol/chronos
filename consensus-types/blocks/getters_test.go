@@ -639,15 +639,11 @@ func hydrateBeaconBlockBodyElectra() *eth.BeaconBlockBodyElectra {
 			BlockHash:             make([]byte, fieldparams.RootLength),
 			Transactions:          make([][]byte, 0),
 			Withdrawals:           make([]*pb.Withdrawal, 0),
-			DepositRequests:       make([]*pb.DepositRequest, 0),
-			WithdrawalRequests:    make([]*pb.WithdrawalRequest, 0),
-			ConsolidationRequests: make([]*pb.ConsolidationRequest, 0),
+		},
+		ExecutionRequests: &pb.ExecutionRequests{
+			Deposits:       make([]*pb.DepositRequest, 0),
+			Withdrawals:    make([]*pb.WithdrawalRequest, 0),
+			Consolidations: make([]*pb.ConsolidationRequest, 0),
 		},
 	}
-}
-
-func TestPreElectraFailsInterfaceAssertion(t *testing.T) {
-	var epd interfaces.ExecutionData = &executionPayloadDeneb{}
-	_, ok := epd.(interfaces.ExecutionDataElectra)
-	require.Equal(t, false, ok)
 }

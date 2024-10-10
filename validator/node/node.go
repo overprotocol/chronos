@@ -6,6 +6,7 @@ package node
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 	"os"
 	"os/signal"
@@ -17,7 +18,6 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 	"github.com/prysmaticlabs/prysm/v5/api"
 	"github.com/prysmaticlabs/prysm/v5/api/server/middleware"
@@ -31,7 +31,7 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/io/file"
 	"github.com/prysmaticlabs/prysm/v5/monitoring/backup"
 	"github.com/prysmaticlabs/prysm/v5/monitoring/prometheus"
-	tracing2 "github.com/prysmaticlabs/prysm/v5/monitoring/tracing"
+	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing"
 	"github.com/prysmaticlabs/prysm/v5/runtime"
 	"github.com/prysmaticlabs/prysm/v5/runtime/debug"
 	"github.com/prysmaticlabs/prysm/v5/runtime/prereqs"
@@ -48,7 +48,7 @@ import (
 	closehandler "github.com/prysmaticlabs/prysm/v5/validator/node/close-handler"
 	"github.com/prysmaticlabs/prysm/v5/validator/rpc"
 	"github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
+	cli "github.com/urfave/cli/v2"
 )
 
 // ValidatorClient defines an instance of an Ethereum validator that manages
@@ -69,7 +69,7 @@ type ValidatorClient struct {
 // NewValidatorClient creates a new instance of the Prysm validator client.
 func NewValidatorClient(cliCtx *cli.Context) (*ValidatorClient, error) {
 	// TODO(#9883) - Maybe we can pass in a new validator client config instead of the cliCTX to abstract away the use of flags here .
-	if err := tracing2.Setup(
+	if err := tracing.Setup(
 		"validator", // service name
 		cliCtx.String(cmd.TracingProcessNameFlag.Name),
 		cliCtx.String(cmd.TracingEndpointFlag.Name),
@@ -115,7 +115,7 @@ func NewValidatorClient(cliCtx *cli.Context) (*ValidatorClient, error) {
 	}
 
 	// initialize router used for endpoints
-	router := newRouter(cliCtx)
+	router := http.NewServeMux()
 
 	// If the --over-node flag is enabled to administer the validator
 	// client via OverNode, we start the validator client in a different way.
@@ -132,19 +132,6 @@ func NewValidatorClient(cliCtx *cli.Context) (*ValidatorClient, error) {
 	}
 
 	return validatorClient, nil
-}
-
-func newRouter(cliCtx *cli.Context) *mux.Router {
-	var allowedOrigins []string
-	if cliCtx.IsSet(flags.HTTPServerCorsDomain.Name) {
-		allowedOrigins = strings.Split(cliCtx.String(flags.HTTPServerCorsDomain.Name), ",")
-	} else {
-		allowedOrigins = strings.Split(flags.HTTPServerCorsDomain.Value, ",")
-	}
-	r := mux.NewRouter()
-	r.Use(middleware.NormalizeQueryValuesHandler)
-	r.Use(middleware.CorsHandler(allowedOrigins))
-	return r
 }
 
 // Start every service in the validator client.
@@ -242,7 +229,7 @@ func (c *ValidatorClient) getLegacyDatabaseLocation(
 	return dataDir, dataFile, nil
 }
 
-func (c *ValidatorClient) initializeForOverNode(cliCtx *cli.Context, router *mux.Router) error {
+func (c *ValidatorClient) initializeForOverNode(cliCtx *cli.Context, router *http.ServeMux) error {
 	// Read cipher key from stdin.
 	cipherKey, err := readCipherKey()
 	if err != nil {
@@ -271,7 +258,7 @@ func (c *ValidatorClient) initializeForOverNode(cliCtx *cli.Context, router *mux
 	return nil
 }
 
-func (c *ValidatorClient) initializeFromCLI(cliCtx *cli.Context, router *mux.Router) error {
+func (c *ValidatorClient) initializeFromCLI(cliCtx *cli.Context, router *http.ServeMux) error {
 	isInteropNumValidatorsSet := cliCtx.IsSet(flags.InteropNumValidators.Name)
 	isWeb3SignerURLFlagSet := cliCtx.IsSet(flags.Web3SignerURLFlag.Name)
 
@@ -564,7 +551,7 @@ func proposerSettings(cliCtx *cli.Context, db iface.ValidatorDB) (*proposer.Sett
 	return l.Load(cliCtx)
 }
 
-func (c *ValidatorClient) registerRPCService(router *mux.Router) error {
+func (c *ValidatorClient) registerRPCService(router *http.ServeMux) error {
 	var vs *client.ValidatorService
 	if err := c.services.FetchService(&vs); err != nil {
 		return err
@@ -593,7 +580,17 @@ func (c *ValidatorClient) registerRPCService(router *mux.Router) error {
 		)
 	}
 	port := c.cliCtx.Int(flags.HTTPServerPort.Name)
+	var allowedOrigins []string
+	if c.cliCtx.IsSet(flags.HTTPServerCorsDomain.Name) {
+		allowedOrigins = strings.Split(c.cliCtx.String(flags.HTTPServerCorsDomain.Name), ",")
+	} else {
+		allowedOrigins = strings.Split(flags.HTTPServerCorsDomain.Value, ",")
+	}
 
+	middlewares := []middleware.Middleware{
+		middleware.NormalizeQueryValuesHandler,
+		middleware.CorsHandler(allowedOrigins),
+	}
 	s := rpc.NewServer(c.cliCtx.Context, &rpc.Config{
 		HTTPHost:               host,
 		HTTPPort:               port,
@@ -611,6 +608,7 @@ func (c *ValidatorClient) registerRPCService(router *mux.Router) error {
 		WalletInitializedFeed:  c.walletInitializedFeed,
 		ValidatorService:       vs,
 		AuthTokenPath:          authTokenPath,
+		Middlewares:            middlewares,
 		Router:                 router,
 		CloseHandler:           closeHandler,
 		UseOverNode:            c.cliCtx.Bool(flags.EnableOverNodeFlag.Name),

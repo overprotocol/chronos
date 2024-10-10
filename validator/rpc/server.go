@@ -10,10 +10,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 	"github.com/prysmaticlabs/prysm/v5/api"
 	"github.com/prysmaticlabs/prysm/v5/api/server/httprest"
+	"github.com/prysmaticlabs/prysm/v5/api/server/middleware"
 	"github.com/prysmaticlabs/prysm/v5/async/event"
 	"github.com/prysmaticlabs/prysm/v5/io/logs"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
@@ -42,7 +42,8 @@ type Config struct {
 	WalletInitializedFeed  *event.Feed
 	ValidatorService       *client.ValidatorService
 	AuthTokenPath          string
-	Router                 *mux.Router
+	Middlewares            []middleware.Middleware
+	Router                 *http.ServeMux
 	CloseHandler           *closehandler.CloseHandler
 	UseOverNode            bool
 	CipherKey              []byte
@@ -77,7 +78,7 @@ type Server struct {
 	walletInitialized         bool
 	useOverNode               bool
 	validatorService          *client.ValidatorService
-	router                    *mux.Router
+	router                    *http.ServeMux
 	logStreamer               logs.Streamer
 	logStreamerBufferSize     int
 	closeHandler              *closehandler.CloseHandler
@@ -134,6 +135,14 @@ func NewServer(ctx context.Context, cfg *Config) *Server {
 		log.WithError(err).Fatal("Could not register beacon chain gRPC or HTTP client")
 	}
 
+	// Adding AuthTokenHandler to the list of middlewares
+	cfg.Middlewares = append(cfg.Middlewares, server.AuthTokenHandler)
+	opts := []httprest.Option{
+		httprest.WithRouter(cfg.Router),
+		httprest.WithHTTPAddr(net.JoinHostPort(server.httpHost, fmt.Sprintf("%d", server.httpPort))),
+		httprest.WithMiddlewares(cfg.Middlewares),
+	}
+
 	// register OverNode API routes
 	if server.useOverNode {
 		if err := server.InitializeOverNodeRoutes(); err != nil {
@@ -143,11 +152,6 @@ func NewServer(ctx context.Context, cfg *Config) *Server {
 
 	if err := server.InitializeRoutesWithWebHandler(); err != nil {
 		log.WithError(err).Fatal("Could not initialize routes with web handler")
-	}
-
-	opts := []httprest.Option{
-		httprest.WithRouter(cfg.Router),
-		httprest.WithHTTPAddr(net.JoinHostPort(server.httpHost, fmt.Sprintf("%d", server.httpPort))),
 	}
 	// create and set a new http server
 	s, err := httprest.New(server.ctx, opts...)
@@ -169,7 +173,7 @@ func (s *Server) InitializeRoutesWithWebHandler() error {
 	if err := s.InitializeRoutes(); err != nil {
 		return err
 	}
-	s.router.PathPrefix("/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	s.router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, "/api") {
 			r.URL.Path = strings.Replace(r.URL.Path, "/api", "", 1) // used to redirect apis to standard rest APIs
 			s.router.ServeHTTP(w, r)
@@ -184,51 +188,49 @@ func (s *Server) InitializeRoutes() error {
 	if s.router == nil {
 		return errors.New("no router found on server")
 	}
-	// Adding Auth Interceptor for the routes below
-	s.router.Use(s.AuthTokenHandler)
 	// Register all services, HandleFunc calls, etc.
 	// ...
-	s.router.HandleFunc("/eth/v1/keystores", s.ListKeystores).Methods(http.MethodGet)
-	s.router.HandleFunc("/eth/v1/keystores", s.ImportKeystores).Methods(http.MethodPost)
-	s.router.HandleFunc("/eth/v1/keystores", s.DeleteKeystores).Methods(http.MethodDelete)
-	s.router.HandleFunc("/eth/v1/remotekeys", s.ListRemoteKeys).Methods(http.MethodGet)
-	s.router.HandleFunc("/eth/v1/remotekeys", s.ImportRemoteKeys).Methods(http.MethodPost)
-	s.router.HandleFunc("/eth/v1/remotekeys", s.DeleteRemoteKeys).Methods(http.MethodDelete)
-	s.router.HandleFunc("/eth/v1/validator/{pubkey}/gas_limit", s.GetGasLimit).Methods(http.MethodGet)
-	s.router.HandleFunc("/eth/v1/validator/{pubkey}/gas_limit", s.SetGasLimit).Methods(http.MethodPost)
-	s.router.HandleFunc("/eth/v1/validator/{pubkey}/gas_limit", s.DeleteGasLimit).Methods(http.MethodDelete)
-	s.router.HandleFunc("/eth/v1/validator/{pubkey}/feerecipient", s.ListFeeRecipientByPubkey).Methods(http.MethodGet)
-	s.router.HandleFunc("/eth/v1/validator/{pubkey}/feerecipient", s.SetFeeRecipientByPubkey).Methods(http.MethodPost)
-	s.router.HandleFunc("/eth/v1/validator/{pubkey}/feerecipient", s.DeleteFeeRecipientByPubkey).Methods(http.MethodDelete)
-	s.router.HandleFunc("/eth/v1/validator/{pubkey}/voluntary_exit", s.SetVoluntaryExit).Methods(http.MethodPost)
-	s.router.HandleFunc("/eth/v1/validator/{pubkey}/graffiti", s.GetGraffiti).Methods(http.MethodGet)
-	s.router.HandleFunc("/eth/v1/validator/{pubkey}/graffiti", s.SetGraffiti).Methods(http.MethodPost)
-	s.router.HandleFunc("/eth/v1/validator/{pubkey}/graffiti", s.DeleteGraffiti).Methods(http.MethodDelete)
+	s.router.HandleFunc("GET /eth/v1/keystores", s.ListKeystores)
+	s.router.HandleFunc("POST /eth/v1/keystores", s.ImportKeystores)
+	s.router.HandleFunc("DELETE /eth/v1/keystores", s.DeleteKeystores)
+	s.router.HandleFunc("GET /eth/v1/remotekeys", s.ListRemoteKeys)
+	s.router.HandleFunc("POST /eth/v1/remotekeys", s.ImportRemoteKeys)
+	s.router.HandleFunc("DELETE /eth/v1/remotekeys", s.DeleteRemoteKeys)
+	s.router.HandleFunc("GET /eth/v1/validator/{pubkey}/gas_limit", s.GetGasLimit)
+	s.router.HandleFunc("POST /eth/v1/validator/{pubkey}/gas_limit", s.SetGasLimit)
+	s.router.HandleFunc("DELETE /eth/v1/validator/{pubkey}/gas_limit", s.DeleteGasLimit)
+	s.router.HandleFunc("GET /eth/v1/validator/{pubkey}/feerecipient", s.ListFeeRecipientByPubkey)
+	s.router.HandleFunc("POST /eth/v1/validator/{pubkey}/feerecipient", s.SetFeeRecipientByPubkey)
+	s.router.HandleFunc("DELETE /eth/v1/validator/{pubkey}/feerecipient", s.DeleteFeeRecipientByPubkey)
+	s.router.HandleFunc("POST /eth/v1/validator/{pubkey}/voluntary_exit", s.SetVoluntaryExit)
+	s.router.HandleFunc("GET /eth/v1/validator/{pubkey}/graffiti", s.GetGraffiti)
+	s.router.HandleFunc("POST /eth/v1/validator/{pubkey}/graffiti", s.SetGraffiti)
+	s.router.HandleFunc("DELETE /eth/v1/validator/{pubkey}/graffiti", s.DeleteGraffiti)
 
 	// auth endpoint
-	s.router.HandleFunc(api.WebUrlPrefix+"initialize", s.Initialize).Methods(http.MethodGet)
+	s.router.HandleFunc("GET "+api.WebUrlPrefix+"initialize", s.Initialize)
 	// accounts endpoints
-	s.router.HandleFunc(api.WebUrlPrefix+"accounts", s.ListAccounts).Methods(http.MethodGet)
-	s.router.HandleFunc(api.WebUrlPrefix+"accounts/backup", s.BackupAccounts).Methods(http.MethodPost)
-	s.router.HandleFunc(api.WebUrlPrefix+"accounts/voluntary-exit", s.VoluntaryExit).Methods(http.MethodPost)
+	s.router.HandleFunc("GET "+api.WebUrlPrefix+"accounts", s.ListAccounts)
+	s.router.HandleFunc("POST "+api.WebUrlPrefix+"accounts/backup", s.BackupAccounts)
+	s.router.HandleFunc("POST "+api.WebUrlPrefix+"accounts/voluntary-exit", s.VoluntaryExit)
 	// web health endpoints
-	s.router.HandleFunc(api.WebUrlPrefix+"health/version", s.GetVersion).Methods(http.MethodGet)
-	s.router.HandleFunc(api.WebUrlPrefix+"health/logs/validator/stream", s.StreamValidatorLogs).Methods(http.MethodGet)
-	s.router.HandleFunc(api.WebUrlPrefix+"health/logs/beacon/stream", s.StreamBeaconLogs).Methods(http.MethodGet)
+	s.router.HandleFunc("GET "+api.WebUrlPrefix+"health/version", s.GetVersion)
+	s.router.HandleFunc("GET "+api.WebUrlPrefix+"health/logs/validator/stream", s.StreamValidatorLogs)
+	s.router.HandleFunc("GET "+api.WebUrlPrefix+"health/logs/beacon/stream", s.StreamBeaconLogs)
 	// Beacon calls
-	s.router.HandleFunc(api.WebUrlPrefix+"beacon/status", s.GetBeaconStatus).Methods(http.MethodGet)
-	s.router.HandleFunc(api.WebUrlPrefix+"beacon/summary", s.GetValidatorPerformance).Methods(http.MethodGet)
-	s.router.HandleFunc(api.WebUrlPrefix+"beacon/validators", s.GetValidators).Methods(http.MethodGet)
-	s.router.HandleFunc(api.WebUrlPrefix+"beacon/balances", s.GetValidatorBalances).Methods(http.MethodGet)
-	s.router.HandleFunc(api.WebUrlPrefix+"beacon/peers", s.GetPeers).Methods(http.MethodGet)
+	s.router.HandleFunc("GET "+api.WebUrlPrefix+"beacon/status", s.GetBeaconStatus)
+	s.router.HandleFunc("GET "+api.WebUrlPrefix+"beacon/summary", s.GetValidatorPerformance)
+	s.router.HandleFunc("GET "+api.WebUrlPrefix+"beacon/validators", s.GetValidators)
+	s.router.HandleFunc("GET "+api.WebUrlPrefix+"beacon/balances", s.GetValidatorBalances)
+	s.router.HandleFunc("GET "+api.WebUrlPrefix+"beacon/peers", s.GetPeers)
 	// web wallet endpoints
-	s.router.HandleFunc(api.WebUrlPrefix+"wallet", s.WalletConfig).Methods(http.MethodGet)
-	s.router.HandleFunc(api.WebUrlPrefix+"wallet/create", s.CreateWallet).Methods(http.MethodPost)
-	s.router.HandleFunc(api.WebUrlPrefix+"wallet/keystores/validate", s.ValidateKeystores).Methods(http.MethodPost)
-	s.router.HandleFunc(api.WebUrlPrefix+"wallet/recover", s.RecoverWallet).Methods(http.MethodPost)
+	s.router.HandleFunc("GET "+api.WebUrlPrefix+"wallet", s.WalletConfig)
+	s.router.HandleFunc("POST "+api.WebUrlPrefix+"wallet/create", s.CreateWallet)
+	s.router.HandleFunc("POST "+api.WebUrlPrefix+"wallet/keystores/validate", s.ValidateKeystores)
+	s.router.HandleFunc("POST "+api.WebUrlPrefix+"wallet/recover", s.RecoverWallet)
 	// slashing protection endpoints
-	s.router.HandleFunc(api.WebUrlPrefix+"slashing-protection/export", s.ExportSlashingProtection).Methods(http.MethodGet)
-	s.router.HandleFunc(api.WebUrlPrefix+"slashing-protection/import", s.ImportSlashingProtection).Methods(http.MethodPost)
+	s.router.HandleFunc("GET "+api.WebUrlPrefix+"slashing-protection/export", s.ExportSlashingProtection)
+	s.router.HandleFunc("POST "+api.WebUrlPrefix+"slashing-protection/import", s.ImportSlashingProtection)
 
 	log.Info("Initialized REST API routes")
 	return nil
@@ -242,16 +244,16 @@ func (s *Server) InitializeOverNodeRoutes() error {
 	}
 
 	// OverNode API endpoints
-	s.router.HandleFunc(api.OverNodeApiPrefix+"close", s.CloseClient).Methods(http.MethodPost)
+	s.router.HandleFunc("POST "+api.OverNodeApiPrefix+"close", s.CloseClient)
 
 	// health check
-	s.router.HandleFunc(api.OverNodeValidatorApiPrefix+"health/status", s.GetStatus).Methods(http.MethodPost)
+	s.router.HandleFunc("POST "+api.OverNodeValidatorApiPrefix+"health/status", s.GetStatus)
 	// wallet management
-	s.router.HandleFunc(api.OverNodeValidatorApiPrefix+"wallet/initialize-wallet", s.InitializeWallet).Methods(http.MethodPost)
-	s.router.HandleFunc(api.OverNodeValidatorApiPrefix+"wallet/change-password", s.ChangePassword).Methods(http.MethodPost)
+	s.router.HandleFunc("POST "+api.OverNodeValidatorApiPrefix+"wallet/initialize-wallet", s.InitializeWallet)
+	s.router.HandleFunc("POST "+api.OverNodeValidatorApiPrefix+"wallet/change-password", s.ChangePassword)
 	// account management
-	s.router.HandleFunc(api.OverNodeValidatorApiPrefix+"accounts/create-deposit-data-list", s.CreateDepositDataList).Methods(http.MethodPost)
-	s.router.HandleFunc(api.OverNodeValidatorApiPrefix+"accounts/import", s.ImportAccountsWithPrivateKey).Methods(http.MethodPost)
+	s.router.HandleFunc("POST "+api.OverNodeValidatorApiPrefix+"accounts/create-deposit-data-list", s.CreateDepositDataList)
+	s.router.HandleFunc("POST "+api.OverNodeValidatorApiPrefix+"accounts/import", s.ImportAccountsWithPrivateKey)
 
 	log.Info("Initialized OverNode REST API routes")
 	return nil

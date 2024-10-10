@@ -170,7 +170,6 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	DomainApplicationMask:             bytesutil.Uint32ToBytes4(0x00000001),
 	DomainApplicationBuilder:          bytesutil.Uint32ToBytes4(0x00000001),
 	DomainBLSToExecutionChange:        bytesutil.Uint32ToBytes4(0x0A000000),
-	DomainConsolidation:               bytesutil.Uint32ToBytes4(0x0B000000),
 
 	// Prysm constants.
 	GenesisValidatorsRoot:          [32]byte{99, 42, 118, 239, 199, 87, 26, 107, 33, 162, 145, 86, 222, 195, 237, 225, 100, 124, 246, 131, 47, 17, 180, 161, 75, 90, 31, 0, 178, 164, 214, 126},

@@ -12,8 +12,8 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/container/trie"
 	"github.com/prysmaticlabs/prysm/v5/crypto/hash/htr"
 	"github.com/prysmaticlabs/prysm/v5/encoding/ssz"
+	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing/trace"
 	"github.com/prysmaticlabs/prysm/v5/runtime/version"
-	"go.opencensus.io/trace"
 )
 
 const (
@@ -42,7 +42,7 @@ func ComputeBlockBodyFieldRoots(ctx context.Context, blockBody *BeaconBlockBody)
 	case version.Deneb:
 		fieldRoots = make([][]byte, 13)
 	case version.Electra:
-		fieldRoots = make([][]byte, 13)
+		fieldRoots = make([][]byte, 14)
 	default:
 		return nil, fmt.Errorf("unknown block body version %s", version.String(blockBody.version))
 	}
@@ -190,6 +190,18 @@ func ComputeBlockBodyFieldRoots(ctx context.Context, blockBody *BeaconBlockBody)
 		copy(fieldRoots[12], root[:])
 	}
 
+	if blockBody.version >= version.Electra {
+		// Execution Requests
+		er, err := blockBody.ExecutionRequests()
+		if err != nil {
+			return nil, err
+		}
+		root, err := er.HashTreeRoot()
+		if err != nil {
+			return nil, err
+		}
+		copy(fieldRoots[13], root[:])
+	}
 	return fieldRoots, nil
 }
 

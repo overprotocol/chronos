@@ -411,7 +411,7 @@ message BeaconStateElectra {
   repeated uint64 bail_out_scores = 9004 [(ethereum.eth.ext.ssz_max) = "1099511627776"]; // [New in Altair]
 
   // Fields introduced in Bellatrix fork [10001-11000]
-  ethereum.engine.v1.ExecutionPayloadHeaderElectra latest_execution_payload_header = 10001; // [New in Electra]
+  ethereum.engine.v1.ExecutionPayloadHeaderDeneb latest_execution_payload_header = 10001; // [New in Electra]
 
   // Fields introduced in Capella fork [11001-12000]
   uint64 next_withdrawal_index = 11001;
@@ -734,7 +734,7 @@ message BeaconStateOldElectra {
   SyncCommittee next_sync_committee = 9003;
 
   // Fields introduced in Bellatrix fork [10001-11000]
-  ethereum.engine.v1.ExecutionPayloadHeaderElectra latest_execution_payload_header = 10001; // [New in Electra]
+  ethereum.engine.v1.ExecutionPayloadHeaderDeneb latest_execution_payload_header = 10001;
 
   // Fields introduced in Capella fork [11001-12000]
   uint64 next_withdrawal_index = 11001;

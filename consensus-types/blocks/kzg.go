@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	bodyLength    = 13 // The number of elements in the BeaconBlockBody Container
+	bodyLength    = 13 // The number of elements in the BeaconBlockBody Container for Electra
 	logBodyLength = 4  // The log 2 of bodyLength
 	kzgPosition   = 12 // The index of the KZG commitment list in the Body
 	kzgRootIndex  = 56 // The Merkle index of the KZG commitment list's root in the Body's Merkle tree
@@ -239,5 +239,18 @@ func topLevelRoots(body interfaces.ReadOnlyBeaconBlockBody) ([][]byte, error) {
 	copy(layer[11], root[:])
 
 	// KZG commitments is not needed
+
+	// Execution requests
+	if body.Version() >= version.Electra {
+		er, err := body.ExecutionRequests()
+		if err != nil {
+			return nil, err
+		}
+		root, err = er.HashTreeRoot()
+		if err != nil {
+			return nil, err
+		}
+		copy(layer[13], root[:])
+	}
 	return layer, nil
 }
