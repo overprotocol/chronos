@@ -787,8 +787,10 @@ func InitializeFromProtoUnsafeElectra(st *ethpb.BeaconStateElectra) (state.Beaco
 		depositBalanceToConsume:           st.DepositBalanceToConsume,
 		exitBalanceToConsume:              st.ExitBalanceToConsume,
 		earliestExitEpoch:                 st.EarliestExitEpoch,
-		pendingBalanceDeposits:              st.PendingBalanceDeposits,
-		pendingPartialWithdrawals:           st.PendingPartialWithdrawals,
+
+		pendingBalanceDeposits:            st.PendingBalanceDeposits,
+		pendingPartialWithdrawals:         st.PendingPartialWithdrawals,
+
 
 		dirtyFields:         make(map[types.FieldIndex]bool, fieldCount),
 		dirtyIndices:        make(map[types.FieldIndex][]uint64, fieldCount),
