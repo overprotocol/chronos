@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/MariusVanDerWijden/FuzzyVM/filler"
-	//txfuzz "github.com/MariusVanDerWijden/tx-fuzz"
+	txfuzz "github.com/MariusVanDerWijden/tx-fuzz"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -170,30 +170,30 @@ func SendTransaction(client *rpc.Client, key *ecdsa.PrivateKey, f *filler.Filler
 	}
 
 	txs = make([]*types.Transaction, N)
-	//for i := uint64(0); i < N; i++ {
-	//	index := i
-	//	g.Go(func() error {
-	//		tx, err := txfuzz.RandomValidTx(client, f, sender, nonce+index, gasPrice, chainid, al)
-	//		if err != nil {
-	//			// In the event the transaction constructed is not valid, we continue with the routine
-	//			// rather than complete stop it.
-	//			//nolint:nilerr
-	//			return nil
-	//		}
-	//		signedTx, err := types.SignTx(tx, types.NewLondonSigner(chainid), key)
-	//		if err != nil {
-	//			// We continue on in the event there is a reason we can't sign this
-	//			// transaction(unlikely).
-	//			//nolint:nilerr
-	//			return nil
-	//		}
-	//		txs[index] = signedTx
-	//		return nil
-	//	})
-	//}
-	//if err := g.Wait(); err != nil {
-	//	return err
-	//}
+	for i := uint64(0); i < N; i++ {
+		index := i
+		g.Go(func() error {
+			tx, err := txfuzz.RandomValidTx(client, f, sender, nonce+index, gasPrice, chainid, al)
+			if err != nil {
+				// In the event the transaction constructed is not valid, we continue with the routine
+				// rather than complete stop it.
+				//nolint:nilerr
+				return nil
+			}
+			signedTx, err := types.SignTx(tx, types.NewLondonSigner(chainid), key)
+			if err != nil {
+				// We continue on in the event there is a reason we can't sign this
+				// transaction(unlikely).
+				//nolint:nilerr
+				return nil
+			}
+			txs[index] = signedTx
+			return nil
+		})
+	}
+	if err := g.Wait(); err != nil {
+		return err
+	}
 	for _, tx := range txs {
 		if tx == nil {
 			continue
@@ -241,46 +241,46 @@ func RandomBlobTx(rpc *rpc.Client, f *filler.Filler, sender common.Address, nonc
 			}
 		}
 	}
-	//gas := uint64(100000)
-	//to := randomAddress()
-	//code := txfuzz.RandomCode(f)
-	//value := big.NewInt(0)
-	//if len(code) > 128 {
-	//	code = code[:128]
-	//}
-	//mod := 2
-	//if al {
-	//	mod = 1
-	//}
-	//switch f.Byte() % byte(mod) {
-	//case 0:
-	//	// 4844 transaction without AL
-	//	tip, feecap, err := getCaps(rpc, gasPrice)
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//	data, err := randomBlobData()
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//	return New4844Tx(nonce, &to, gas, chainID, tip, feecap, value, code, big.NewInt(1000000), data, make(types.AccessList, 0)), nil
-	//case 1:
-	//	// 4844 transaction with AL
-	//	tx := types.NewTransaction(nonce, to, value, gas, gasPrice, code)
-	//	//al, err := txfuzz.CreateAccessList(rpc, tx, sender)
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//	tip, feecap, err := getCaps(rpc, gasPrice)
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//	data, err := randomBlobData()
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//	return New4844Tx(nonce, &to, gas, chainID, tip, feecap, value, code, big.NewInt(1000000), data, *al), nil
-	//}
+	gas := uint64(100000)
+	to := randomAddress()
+	code := txfuzz.RandomCode(f)
+	value := big.NewInt(0)
+	if len(code) > 128 {
+		code = code[:128]
+	}
+	mod := 2
+	if al {
+		mod = 1
+	}
+	switch f.Byte() % byte(mod) {
+	case 0:
+		// 4844 transaction without AL
+		tip, feecap, err := getCaps(rpc, gasPrice)
+		if err != nil {
+			return nil, err
+		}
+		data, err := randomBlobData()
+		if err != nil {
+			return nil, err
+		}
+		return New4844Tx(nonce, &to, gas, chainID, tip, feecap, value, code, big.NewInt(1000000), data, make(types.AccessList, 0)), nil
+	case 1:
+		// 4844 transaction with AL
+		tx := types.NewTransaction(nonce, to, value, gas, gasPrice, code)
+		al, err := txfuzz.CreateAccessList(rpc, tx, sender)
+		if err != nil {
+			return nil, err
+		}
+		tip, feecap, err := getCaps(rpc, gasPrice)
+		if err != nil {
+			return nil, err
+		}
+		data, err := randomBlobData()
+		if err != nil {
+			return nil, err
+		}
+		return New4844Tx(nonce, &to, gas, chainID, tip, feecap, value, code, big.NewInt(1000000), data, *al), nil
+	}
 	return nil, errors.New("asdf")
 }
 

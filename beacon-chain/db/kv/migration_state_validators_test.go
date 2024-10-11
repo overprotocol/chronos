@@ -187,12 +187,10 @@ func Test_migrateStateValidators(t *testing.T) {
 			// add a state with the given validators
 			vals := validators(10)
 			blockRoot := [32]byte{'A'}
-			st, err := util.NewBeaconState()
-			assert.NoError(t, err)
+			st, _ := util.DeterministicGenesisState(t, 10)
 			assert.NoError(t, st.SetSlot(100))
 			assert.NoError(t, st.SetValidators(vals))
 			assert.NoError(t, dbStore.SaveState(context.Background(), st, blockRoot))
-			assert.NoError(t, err)
 
 			// enable historical state representation flag to test this
 			resetCfg := features.InitWithReset(&features.Flags{

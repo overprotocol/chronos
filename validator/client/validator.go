@@ -822,7 +822,7 @@ func (v *validator) isAggregator(
 	slot primitives.Slot,
 	pubKey [fieldparams.BLSPubkeyLength]byte,
 	validatorIndex primitives.ValidatorIndex,
-	) (bool, error) {
+) (bool, error) {
 	ctx, span := trace.StartSpan(ctx, "validator.isAggregator")
 	defer span.End()
 

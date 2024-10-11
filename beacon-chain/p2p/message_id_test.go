@@ -17,6 +17,7 @@ import (
 )
 
 func TestMsgID_HashesCorrectly(t *testing.T) {
+	params.SetupForkEpochConfigForTest()
 	params.SetupTestConfigCleanup(t)
 	genesisValidatorsRoot := bytesutil.PadTo([]byte{'A'}, 32)
 	d, err := forks.CreateForkDigest(time.Now(), genesisValidatorsRoot)

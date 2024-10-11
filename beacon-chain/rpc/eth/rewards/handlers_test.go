@@ -77,6 +77,7 @@ func BlockRewardTestSetup(t *testing.T, forkName string) (state.BeaconState, int
 	require.NoError(t, err)
 	validators := make([]*eth.Validator, 0, valCount)
 	balances := make([]uint64, 0, valCount)
+	bailOuts := make([]uint64, 0, valCount)
 	secretKeys := make([]bls.SecretKey, 0, valCount)
 	for i := 0; i < valCount; i++ {
 		blsKey, err := bls.RandKey()
@@ -89,9 +90,11 @@ func BlockRewardTestSetup(t *testing.T, forkName string) (state.BeaconState, int
 			EffectiveBalance:  params.BeaconConfig().MaxEffectiveBalance,
 		})
 		balances = append(balances, params.BeaconConfig().MaxEffectiveBalance)
+		bailOuts = append(bailOuts, 0)
 	}
 	require.NoError(t, st.SetValidators(validators))
 	require.NoError(t, st.SetBalances(balances))
+	require.NoError(t, st.SetBailOutScores(bailOuts))
 	require.NoError(t, st.SetCurrentParticipationBits(make([]byte, valCount)))
 	syncCommittee, err := altair.NextSyncCommittee(context.Background(), st)
 	require.NoError(t, err)
@@ -245,11 +248,11 @@ func TestBlockRewards(t *testing.T) {
 		resp := &structs.BlockRewardsResponse{}
 		require.NoError(t, json.Unmarshal(writer.Body.Bytes(), resp))
 		assert.Equal(t, "12", resp.Data.ProposerIndex)
-		assert.Equal(t, "125089490", resp.Data.Total)
-		assert.Equal(t, "89442", resp.Data.Attestations)
-		assert.Equal(t, "48", resp.Data.SyncAggregate)
-		assert.Equal(t, "62500000", resp.Data.AttesterSlashings)
-		assert.Equal(t, "62500000", resp.Data.ProposerSlashings)
+		assert.Equal(t, "1237823438", resp.Data.Total)
+		assert.Equal(t, "237823438", resp.Data.Attestations)
+		assert.Equal(t, "0", resp.Data.SyncAggregate)
+		assert.Equal(t, "500000000", resp.Data.AttesterSlashings)
+		assert.Equal(t, "500000000", resp.Data.ProposerSlashings)
 		assert.Equal(t, true, resp.ExecutionOptimistic)
 		assert.Equal(t, false, resp.Finalized)
 	})
@@ -281,11 +284,11 @@ func TestBlockRewards(t *testing.T) {
 		resp := &structs.BlockRewardsResponse{}
 		require.NoError(t, json.Unmarshal(writer.Body.Bytes(), resp))
 		assert.Equal(t, "12", resp.Data.ProposerIndex)
-		assert.Equal(t, "125089490", resp.Data.Total)
-		assert.Equal(t, "89442", resp.Data.Attestations)
-		assert.Equal(t, "48", resp.Data.SyncAggregate)
-		assert.Equal(t, "62500000", resp.Data.AttesterSlashings)
-		assert.Equal(t, "62500000", resp.Data.ProposerSlashings)
+		assert.Equal(t, "1237823438", resp.Data.Total)
+		assert.Equal(t, "237823438", resp.Data.Attestations)
+		assert.Equal(t, "0", resp.Data.SyncAggregate)
+		assert.Equal(t, "500000000", resp.Data.AttesterSlashings)
+		assert.Equal(t, "500000000", resp.Data.ProposerSlashings)
 		assert.Equal(t, true, resp.ExecutionOptimistic)
 		assert.Equal(t, false, resp.Finalized)
 	})
@@ -317,11 +320,11 @@ func TestBlockRewards(t *testing.T) {
 		resp := &structs.BlockRewardsResponse{}
 		require.NoError(t, json.Unmarshal(writer.Body.Bytes(), resp))
 		assert.Equal(t, "12", resp.Data.ProposerIndex)
-		assert.Equal(t, "125089490", resp.Data.Total)
-		assert.Equal(t, "89442", resp.Data.Attestations)
-		assert.Equal(t, "48", resp.Data.SyncAggregate)
-		assert.Equal(t, "62500000", resp.Data.AttesterSlashings)
-		assert.Equal(t, "62500000", resp.Data.ProposerSlashings)
+		assert.Equal(t, "1237823438", resp.Data.Total)
+		assert.Equal(t, "237823438", resp.Data.Attestations)
+		assert.Equal(t, "0", resp.Data.SyncAggregate)
+		assert.Equal(t, "500000000", resp.Data.AttesterSlashings)
+		assert.Equal(t, "500000000", resp.Data.ProposerSlashings)
 		assert.Equal(t, true, resp.ExecutionOptimistic)
 		assert.Equal(t, false, resp.Finalized)
 	})
@@ -353,11 +356,11 @@ func TestBlockRewards(t *testing.T) {
 		resp := &structs.BlockRewardsResponse{}
 		require.NoError(t, json.Unmarshal(writer.Body.Bytes(), resp))
 		assert.Equal(t, "12", resp.Data.ProposerIndex)
-		assert.Equal(t, "125089490", resp.Data.Total)
-		assert.Equal(t, "89442", resp.Data.Attestations)
-		assert.Equal(t, "48", resp.Data.SyncAggregate)
-		assert.Equal(t, "62500000", resp.Data.AttesterSlashings)
-		assert.Equal(t, "62500000", resp.Data.ProposerSlashings)
+		assert.Equal(t, "1237823438", resp.Data.Total)
+		assert.Equal(t, "237823438", resp.Data.Attestations)
+		assert.Equal(t, "0", resp.Data.SyncAggregate)
+		assert.Equal(t, "500000000", resp.Data.AttesterSlashings)
+		assert.Equal(t, "500000000", resp.Data.ProposerSlashings)
 		assert.Equal(t, true, resp.ExecutionOptimistic)
 		assert.Equal(t, false, resp.Finalized)
 	})
@@ -377,6 +380,7 @@ func TestAttestationRewards(t *testing.T) {
 	require.NoError(t, st.SetSlot(params.BeaconConfig().SlotsPerEpoch*3-1))
 	validators := make([]*eth.Validator, 0, valCount)
 	balances := make([]uint64, 0, valCount)
+	bailOuts := make([]uint64, 0, valCount)
 	secretKeys := make([]bls.SecretKey, 0, valCount)
 	for i := 0; i < valCount; i++ {
 		blsKey, err := bls.RandKey()
@@ -389,9 +393,11 @@ func TestAttestationRewards(t *testing.T) {
 			EffectiveBalance:  params.BeaconConfig().MaxEffectiveBalance / 64 * uint64(i+1),
 		})
 		balances = append(balances, params.BeaconConfig().MaxEffectiveBalance/64*uint64(i+1))
+		bailOuts = append(bailOuts, 0)
 	}
 	require.NoError(t, st.SetValidators(validators))
 	require.NoError(t, st.SetBalances(balances))
+	require.NoError(t, st.SetBailOutScores(bailOuts))
 	require.NoError(t, st.SetInactivityScores(make([]uint64, len(validators))))
 	participation := make([]byte, len(validators))
 	for i := range participation {
@@ -432,7 +438,7 @@ func TestAttestationRewards(t *testing.T) {
 			require.NoError(t, err)
 			sum += hr + sr + tr
 		}
-		assert.Equal(t, uint64(98124339180), sum)
+		assert.Equal(t, uint64(80318463609), sum)
 	})
 	t.Run("filtered vals", func(t *testing.T) {
 		url := "http://only.the.epoch.number.at.the.end.is.important/1"
@@ -461,7 +467,7 @@ func TestAttestationRewards(t *testing.T) {
 			require.NoError(t, err)
 			sum += hr + sr + tr
 		}
-		assert.Equal(t, uint64(2023182249), sum)
+		assert.Equal(t, uint64(3073410595), sum)
 	})
 	t.Run("all vals", func(t *testing.T) {
 		url := "http://only.the.epoch.number.at.the.end.is.important/1"
@@ -484,7 +490,7 @@ func TestAttestationRewards(t *testing.T) {
 			require.NoError(t, err)
 			sum += hr + sr + tr
 		}
-		assert.Equal(t, uint64(2023182249), sum)
+		assert.Equal(t, uint64(209811496744), sum)
 	})
 	t.Run("penalty", func(t *testing.T) {
 		st := st.Copy()
@@ -516,8 +522,8 @@ func TestAttestationRewards(t *testing.T) {
 		resp := &structs.AttestationRewardsResponse{}
 		require.NoError(t, json.Unmarshal(writer.Body.Bytes(), resp))
 		assert.Equal(t, "0", resp.Data.TotalRewards[0].Head)
-		assert.Equal(t, "-1065448999", resp.Data.TotalRewards[0].Source)
-		assert.Equal(t, "-1978690998", resp.Data.TotalRewards[0].Target)
+		assert.Equal(t, "-1404987702", resp.Data.TotalRewards[0].Source)
+		assert.Equal(t, "-2809975404", resp.Data.TotalRewards[0].Target)
 		assert.Equal(t, "0", resp.Data.TotalRewards[0].Inactivity)
 	})
 	t.Run("inactivity", func(t *testing.T) {
@@ -553,7 +559,7 @@ func TestAttestationRewards(t *testing.T) {
 		assert.Equal(t, http.StatusOK, writer.Code)
 		resp := &structs.AttestationRewardsResponse{}
 		require.NoError(t, json.Unmarshal(writer.Body.Bytes(), resp))
-		assert.Equal(t, "-4768", resp.Data.TotalRewards[0].Inactivity)
+		assert.Equal(t, "-38146", resp.Data.TotalRewards[0].Inactivity)
 	})
 	t.Run("invalid validator index/pubkey", func(t *testing.T) {
 		url := "http://only.the.epoch.number.at.the.end.is.important/1"
@@ -668,6 +674,7 @@ func TestSyncCommiteeRewards(t *testing.T) {
 	require.NoError(t, err)
 	require.NoError(t, st.SetSlot(params.BeaconConfig().SlotsPerEpoch-1))
 	validators := make([]*eth.Validator, 0, valCount)
+	bailOuts := make([]uint64, 0, valCount)
 	secretKeys := make([]bls.SecretKey, 0, valCount)
 	for i := 0; i < valCount; i++ {
 		blsKey, err := bls.RandKey()
@@ -679,8 +686,10 @@ func TestSyncCommiteeRewards(t *testing.T) {
 			WithdrawableEpoch: params.BeaconConfig().FarFutureEpoch,
 			EffectiveBalance:  params.BeaconConfig().MaxEffectiveBalance,
 		})
+		bailOuts = append(bailOuts, 0)
 	}
 	require.NoError(t, st.SetValidators(validators))
+	require.NoError(t, st.SetBailOutScores(bailOuts))
 	require.NoError(t, st.SetInactivityScores(make([]uint64, len(validators))))
 	syncCommitteePubkeys := make([][]byte, fieldparams.SyncCommitteeLength)
 	for i := 0; i < fieldparams.SyncCommitteeLength; i++ {
@@ -740,6 +749,7 @@ func TestSyncCommiteeRewards(t *testing.T) {
 			balances = append(balances, params.BeaconConfig().MaxEffectiveBalance)
 		}
 		require.NoError(t, st.SetBalances(balances))
+		require.NoError(t, st.SetBailOutScores(bailOuts))
 
 		url := "http://only.the.slot.number.at.the.end.is.important/32"
 		var body bytes.Buffer
@@ -763,7 +773,7 @@ func TestSyncCommiteeRewards(t *testing.T) {
 			require.NoError(t, err)
 			sum += r
 		}
-		assert.Equal(t, uint64(1396), sum)
+		assert.Equal(t, uint64(0), sum)
 		assert.Equal(t, true, resp.ExecutionOptimistic)
 		assert.Equal(t, false, resp.Finalized)
 	})
@@ -773,6 +783,7 @@ func TestSyncCommiteeRewards(t *testing.T) {
 			balances = append(balances, params.BeaconConfig().MaxEffectiveBalance)
 		}
 		require.NoError(t, st.SetBalances(balances))
+		require.NoError(t, st.SetBailOutScores(bailOuts))
 
 		url := "http://only.the.slot.number.at.the.end.is.important/32"
 		request := httptest.NewRequest("POST", url, nil)
@@ -790,7 +801,7 @@ func TestSyncCommiteeRewards(t *testing.T) {
 			require.NoError(t, err)
 			sum += r
 		}
-		assert.Equal(t, 343416, sum)
+		assert.Equal(t, 0, sum)
 	})
 	t.Run("ok - validator outside sync committee is ignored", func(t *testing.T) {
 		balances := make([]uint64, 0, valCount)
@@ -798,6 +809,7 @@ func TestSyncCommiteeRewards(t *testing.T) {
 			balances = append(balances, params.BeaconConfig().MaxEffectiveBalance)
 		}
 		require.NoError(t, st.SetBalances(balances))
+		require.NoError(t, st.SetBailOutScores(bailOuts))
 
 		url := "http://only.the.slot.number.at.the.end.is.important/32"
 		var body bytes.Buffer
@@ -821,7 +833,7 @@ func TestSyncCommiteeRewards(t *testing.T) {
 			require.NoError(t, err)
 			sum += r
 		}
-		assert.Equal(t, 1396, sum)
+		assert.Equal(t, 0, sum)
 	})
 	t.Run("ok - proposer reward is deducted", func(t *testing.T) {
 		balances := make([]uint64, 0, valCount)
@@ -829,6 +841,7 @@ func TestSyncCommiteeRewards(t *testing.T) {
 			balances = append(balances, params.BeaconConfig().MaxEffectiveBalance)
 		}
 		require.NoError(t, st.SetBalances(balances))
+		require.NoError(t, st.SetBailOutScores(bailOuts))
 
 		url := "http://only.the.slot.number.at.the.end.is.important/32"
 		var body bytes.Buffer
@@ -852,7 +865,7 @@ func TestSyncCommiteeRewards(t *testing.T) {
 			require.NoError(t, err)
 			sum += r
 		}
-		assert.Equal(t, 2094, sum)
+		assert.Equal(t, 0, sum)
 	})
 	t.Run("invalid validator index/pubkey", func(t *testing.T) {
 		balances := make([]uint64, 0, valCount)
@@ -860,6 +873,7 @@ func TestSyncCommiteeRewards(t *testing.T) {
 			balances = append(balances, params.BeaconConfig().MaxEffectiveBalance)
 		}
 		require.NoError(t, st.SetBalances(balances))
+		require.NoError(t, st.SetBailOutScores(bailOuts))
 
 		url := "http://only.the.slot.number.at.the.end.is.important/32"
 		var body bytes.Buffer
@@ -884,6 +898,7 @@ func TestSyncCommiteeRewards(t *testing.T) {
 			balances = append(balances, params.BeaconConfig().MaxEffectiveBalance)
 		}
 		require.NoError(t, st.SetBalances(balances))
+		require.NoError(t, st.SetBailOutScores(bailOuts))
 
 		url := "http://only.the.slot.number.at.the.end.is.important/32"
 		var body bytes.Buffer
@@ -911,6 +926,7 @@ func TestSyncCommiteeRewards(t *testing.T) {
 			balances = append(balances, params.BeaconConfig().MaxEffectiveBalance)
 		}
 		require.NoError(t, st.SetBalances(balances))
+		require.NoError(t, st.SetBailOutScores(bailOuts))
 
 		url := "http://only.the.slot.number.at.the.end.is.important/32"
 		var body bytes.Buffer
@@ -935,6 +951,7 @@ func TestSyncCommiteeRewards(t *testing.T) {
 			balances = append(balances, params.BeaconConfig().MaxEffectiveBalance)
 		}
 		require.NoError(t, st.SetBalances(balances))
+		require.NoError(t, st.SetBailOutScores(bailOuts))
 
 		url := "http://only.the.slot.number.at.the.end.is.important/0"
 		request := httptest.NewRequest("POST", url, nil)

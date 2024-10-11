@@ -656,32 +656,30 @@ func TestDecayBadIps(t *testing.T) {
 			ColocationLimit:  5,
 		},
 	})
+
 	// Add Peers
 	normalIP := "211.227.218.115"
-	var normalPeers []peer.ID
 
 	for i := 0; i < 151; i++ {
-		//for i := 0; i < 2; i++ {
 		port := strconv.Itoa(3000 + i)
 		addr, err := ma.NewMultiaddr("/ip4/" + normalIP + "/tcp/" + port)
 		if err != nil {
 			t.Fatal(err)
 		}
-		normalPeers = append(normalPeers, createPeer(t, p, addr, network.DirUnknown, peerdata.PeerConnectionState(ethpb.ConnectionState_CONNECTED)))
+		createPeer(t, p, addr, network.DirUnknown, peerdata.PeerConnectionState(ethpb.ConnectionState_CONNECTED))
 	}
 
 	smallCntIP := "211.227.218.116"
-	var smallCntPeers []peer.ID
 
 	for i := 0; i < 1; i++ {
-		//for i := 0; i < 2; i++ {
 		port := strconv.Itoa(3000 + i)
 		addr, err := ma.NewMultiaddr("/ip4/" + smallCntIP + "/tcp/" + port)
 		if err != nil {
 			t.Fatal(err)
 		}
-		smallCntPeers = append(smallCntPeers, createPeer(t, p, addr, network.DirUnknown, peerdata.PeerConnectionState(ethpb.ConnectionState_CONNECTED)))
+		createPeer(t, p, addr, network.DirUnknown, peerdata.PeerConnectionState(ethpb.ConnectionState_CONNECTED))
 	}
+
 	// wait 5 seconds
 	time.Sleep(2 * time.Second)
 

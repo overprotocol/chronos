@@ -472,6 +472,6 @@ data: {"version":"deneb","data":{"proposer_index":"0","proposal_slot":"1","paren
 const payloadAttributesElectraResultWithTVC = `:
 
 event: payload_attributes
-data: {"version":"electra","data":{"proposer_index":"0","proposal_slot":"1","parent_block_number":"0","parent_block_root":"0x0000000000000000000000000000000000000000000000000000000000000000","parent_block_hash":"0x0000000000000000000000000000000000000000000000000000000000000000","payload_attributes":{"timestamp":"12","prev_randao":"0x0000000000000000000000000000000000000000000000000000000000000000","suggested_fee_recipient":"0xd2dbd02e4efe087d7d195de828b9dd25f19a89c9","withdrawals":[],"parent_beacon_block_root":"0x3aea49748f54aace5c932f4430268396717bd78cdf3cc5d27fab5904c65a6f0d"}}}
+data: {"version":"electra","data":{"proposer_index":"0","proposal_slot":"1","parent_block_number":"0","parent_block_root":"0x0000000000000000000000000000000000000000000000000000000000000000","parent_block_hash":"0x0000000000000000000000000000000000000000000000000000000000000000","payload_attributes":{"timestamp":"12","prev_randao":"0x0000000000000000000000000000000000000000000000000000000000000000","suggested_fee_recipient":"0xd2dbd02e4efe087d7d195de828b9dd25f19a89c9","withdrawals":[],"parent_beacon_block_root":"0xe9ade8620aa78b0a68b40eea32bcc20e621f61ab50d270bdf06435f8c5f65be5"}}}
 
 `

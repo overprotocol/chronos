@@ -212,7 +212,7 @@ func TestDiscv5_AddRetrieveForkEntryENR(t *testing.T) {
 	params.SetupTestConfigCleanup(t)
 	c := params.BeaconConfig().Copy()
 	c.ForkVersionSchedule = map[[4]byte]primitives.Epoch{
-		bytesutil.ToBytes4(params.BeaconConfig().GenesisForkVersion): 0,
+		{0, 0, 0, 0}: 0,
 		{0, 0, 0, 1}: 1,
 	}
 	nextForkEpoch := primitives.Epoch(1)

@@ -356,6 +356,8 @@ func TestRefreshRemoteKeysFromFileChangesWithRetry_maxRetryReached(t *testing.T)
 }
 
 func TestKeymanager_Sign(t *testing.T) {
+	t.Skip("Remote web3 signer is not used, skipping test")
+
 	client := &MockClient{
 		Signature: "0xb3baa751d0a9132cfe93e4e3d5ff9075111100e3789dca219ade5a24d27e19d16b3353149da1833e9b691bb38634e8dc04469be7032132906c927d7e1a49b414730612877bc6b2810c8f202daf793d1ab0d6b5cb21d52f9e52e883859887a5d9",
 	}

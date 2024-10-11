@@ -26,6 +26,8 @@ import (
 )
 
 func TestSendRequest_SendBeaconBlocksByRangeRequest(t *testing.T) {
+	params.SetupForkEpochConfigForTest()
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	pcl := fmt.Sprintf("%s/ssz_snappy", p2p.RPCBlocksByRangeTopicV1)

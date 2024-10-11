@@ -151,6 +151,8 @@ func TestSaveHead_Different_Reorg(t *testing.T) {
 }
 
 func Test_notifyNewHeadEvent(t *testing.T) {
+	params.SetupForkEpochConfigForTest()
+
 	t.Run("genesis_state_root", func(t *testing.T) {
 		bState, _ := util.DeterministicGenesisState(t, 10)
 		notifier := &mock.MockStateNotifier{RecordEvents: true}
