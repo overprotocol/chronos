@@ -2215,8 +2215,8 @@ func (b *BeaconBlockElectra) ToConsensus() (*eth.BeaconBlockElectra, error) {
 			BlsToExecutionChanges: blsChanges,
 			BlobKzgCommitments:    blobKzgCommitments,
 			ExecutionRequests: &enginev1.ExecutionRequests{
-				Deposits:       depositRequests,
-				Withdrawals:    withdrawalRequests,
+				Deposits:    depositRequests,
+				Withdrawals: withdrawalRequests,
 			},
 		},
 	}, nil
@@ -2512,8 +2512,8 @@ func (b *BlindedBeaconBlockElectra) ToConsensus() (*eth.BlindedBeaconBlockElectr
 			BlsToExecutionChanges: blsChanges,
 			BlobKzgCommitments:    blobKzgCommitments,
 			ExecutionRequests: &enginev1.ExecutionRequests{
-				Deposits:       depositRequests,
-				Withdrawals:    withdrawalRequests,
+				Deposits:    depositRequests,
+				Withdrawals: withdrawalRequests,
 			},
 		},
 	}, nil
@@ -3036,8 +3036,8 @@ func BlindedBeaconBlockElectraFromConsensus(b *eth.BlindedBeaconBlockElectra) (*
 
 func ExecutionRequestsFromConsensus(er *enginev1.ExecutionRequests) *ExecutionRequests {
 	return &ExecutionRequests{
-		Deposits:       DepositRequestsFromConsensus(er.Deposits),
-		Withdrawals:    WithdrawalRequestsFromConsensus(er.Withdrawals),
+		Deposits:    DepositRequestsFromConsensus(er.Deposits),
+		Withdrawals: WithdrawalRequestsFromConsensus(er.Withdrawals),
 	}
 }
 
