@@ -14,11 +14,15 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Light client support: Add light client database changes.
 - Light client support: Implement capella and deneb changes.
 - Light client support: Implement `BlockToLightClientHeader` function.
+- Light client support: Consensus types.
 - GetBeaconStateV2: add Electra case.
 - Implement [consensus-specs/3875](https://github.com/ethereum/consensus-specs/pull/3875)
 - Tests to ensure sepolia config matches the official upstream yaml
 - HTTP endpoint for PublishBlobs
 - GetBlockV2, GetBlindedBlock, ProduceBlockV2, ProduceBlockV3: add Electra case.
+- Add Electra support and tests for light client functions
+- fastssz version bump (better error messages).
+- SSE implementation that sheds stuck clients. [pr](https://github.com/prysmaticlabs/prysm/pull/14413)
 
 ### Changed
 
@@ -46,6 +50,8 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Update light client helper functions to reference `dev` branch of CL specs
 - Updated Libp2p Dependencies to allow prysm to use gossipsub v1.2 .
 - Updated Sepolia bootnodes.
+- Make committee aware packing the default by deprecating `--enable-committee-aware-packing`.
+- Moved `ConvertKzgCommitmentToVersionedHash` to the `primitives` package.
 
 ### Deprecated
 - `--disable-grpc-gateway` flag is deprecated due to grpc gateway removal.
