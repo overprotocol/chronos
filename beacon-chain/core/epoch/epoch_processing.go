@@ -18,7 +18,6 @@ import (
 	fieldparams "github.com/prysmaticlabs/prysm/v5/config/fieldparams"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
-	"github.com/prysmaticlabs/prysm/v5/math"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	"github.com/prysmaticlabs/prysm/v5/runtime/version"
 )
@@ -135,84 +134,6 @@ func ProcessRegistryUpdates(ctx context.Context, st state.BeaconState) (state.Be
 		}
 		validator.ActivationEpoch = activationExitEpoch
 		if err := st.UpdateValidatorAtIndex(index, validator); err != nil {
-			return nil, err
-		}
-	}
-	return st, nil
-}
-
-// ProcessSlashings processes the slashed validators during epoch processing,
-//
-//	def process_slashings(state: BeaconState) -> None:
-//	  epoch = get_current_epoch(state)
-//	  total_balance = get_total_active_balance(state)
-//	  adjusted_total_slashing_balance = min(sum(state.slashings) * PROPORTIONAL_SLASHING_MULTIPLIER, total_balance)
-//	  if state.version == electra:
-//		 increment = EFFECTIVE_BALANCE_INCREMENT  # Factored out from total balance to avoid uint64 overflow
-//	  penalty_per_effective_balance_increment = adjusted_total_slashing_balance // (total_balance // increment)
-//	  for index, validator in enumerate(state.validators):
-//	      if validator.slashed and epoch + EPOCHS_PER_SLASHINGS_VECTOR // 2 == validator.withdrawable_epoch:
-//	          increment = EFFECTIVE_BALANCE_INCREMENT  # Factored out from penalty numerator to avoid uint64 overflow
-//	          penalty_numerator = validator.effective_balance // increment * adjusted_total_slashing_balance
-//	          penalty = penalty_numerator // total_balance * increment
-//	          if state.version == electra:
-//	            effective_balance_increments = validator.effective_balance // increment
-//	            penalty = penalty_per_effective_balance_increment * effective_balance_increments
-//	          decrease_balance(state, ValidatorIndex(index), penalty)
-func ProcessSlashings(st state.BeaconState, slashingMultiplier uint64) (state.BeaconState, error) {
-	currentEpoch := time.CurrentEpoch(st)
-	totalBalance, err := helpers.TotalActiveBalance(st)
-	if err != nil {
-		return nil, errors.Wrap(err, "could not get total active balance")
-	}
-
-	// Compute slashed balances in the current epoch
-	exitLength := params.BeaconConfig().EpochsPerSlashingsVector
-
-	// Compute the sum of state slashings
-	slashings := st.Slashings()
-	totalSlashing := uint64(0)
-	for _, slashing := range slashings {
-		totalSlashing, err = math.Add64(totalSlashing, slashing)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	// a callback is used here to apply the following actions to all validators
-	// below equally.
-	increment := params.BeaconConfig().EffectiveBalanceIncrement
-	minSlashing := math.Min(totalSlashing*slashingMultiplier, totalBalance)
-
-	// Modified in Electra:EIP7251
-	var penaltyPerEffectiveBalanceIncrement uint64
-	if st.Version() >= version.Electra {
-		penaltyPerEffectiveBalanceIncrement = minSlashing / (totalBalance / increment)
-	}
-
-	bals := st.Balances()
-	changed := false
-	err = st.ReadFromEveryValidator(func(idx int, val state.ReadOnlyValidator) error {
-		correctEpoch := (currentEpoch + exitLength/2) == val.WithdrawableEpoch()
-		if val.Slashed() && correctEpoch {
-			var penalty uint64
-			if st.Version() >= version.Electra {
-				effectiveBalanceIncrements := val.EffectiveBalance() / increment
-				penalty = penaltyPerEffectiveBalanceIncrement * effectiveBalanceIncrements
-			} else {
-				penaltyNumerator := val.EffectiveBalance() / increment * minSlashing
-				penalty = penaltyNumerator / totalBalance * increment
-			}
-			bals[idx] = helpers.DecreaseBalanceWithVal(bals[idx], penalty)
-			changed = true
-		}
-		return nil
-	})
-	if err != nil {
-		return nil, err
-	}
-	if changed {
-		if err := st.SetBalances(bals); err != nil {
 			return nil, err
 		}
 	}

@@ -22,7 +22,6 @@ var (
 	ProcessEpochParticipation            = altair.ProcessEpochParticipation
 	ProcessInactivityScores              = altair.ProcessInactivityScores
 	ProcessRewardsAndPenaltiesPrecompute = altair.ProcessRewardsAndPenaltiesPrecompute
-	ProcessSlashings                     = e.ProcessSlashings
 	ProcessEth1DataReset                 = e.ProcessEth1DataReset
 	ProcessRandaoMixesReset              = e.ProcessRandaoMixesReset
 	ProcessHistoricalDataUpdate          = e.ProcessHistoricalDataUpdate
@@ -42,7 +41,6 @@ var (
 //	    process_inactivity_updates(state)
 //	    process_rewards_and_penalties(state)
 //	    process_registry_updates(state)
-//	    process_slashings(state)
 //	    process_eth1_data_reset(state)
 //	    process_pending_deposits(state)  # New in EIP7251
 //	    process_effective_balance_updates(state)
@@ -84,14 +82,6 @@ func ProcessEpoch(ctx context.Context, state state.BeaconState) error {
 		return errors.Wrap(err, "could not update reserve and reward factor")
 	}
 
-	proportionalSlashingMultiplier, err := state.ProportionalSlashingMultiplier()
-	if err != nil {
-		return err
-	}
-	state, err = ProcessSlashings(state, proportionalSlashingMultiplier)
-	if err != nil {
-		return err
-	}
 	state, err = ProcessEth1DataReset(state)
 	if err != nil {
 		return err
