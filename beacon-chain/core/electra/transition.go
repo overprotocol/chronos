@@ -24,7 +24,6 @@ var (
 	ProcessRewardsAndPenaltiesPrecompute = altair.ProcessRewardsAndPenaltiesPrecompute
 	ProcessSlashings                     = e.ProcessSlashings
 	ProcessEth1DataReset                 = e.ProcessEth1DataReset
-	ProcessSlashingsReset                = e.ProcessSlashingsReset
 	ProcessRandaoMixesReset              = e.ProcessRandaoMixesReset
 	ProcessHistoricalDataUpdate          = e.ProcessHistoricalDataUpdate
 	ProcessParticipationFlagUpdates      = altair.ProcessParticipationFlagUpdates
@@ -47,7 +46,6 @@ var (
 //	    process_eth1_data_reset(state)
 //	    process_pending_deposits(state)  # New in EIP7251
 //	    process_effective_balance_updates(state)
-//	    process_slashings_reset(state)
 //	    process_randao_mixes_reset(state)
 func ProcessEpoch(ctx context.Context, state state.BeaconState) error {
 	_, span := trace.StartSpan(ctx, "electra.ProcessEpoch")
@@ -106,10 +104,6 @@ func ProcessEpoch(ctx context.Context, state state.BeaconState) error {
 		return err
 	}
 
-	state, err = ProcessSlashingsReset(state)
-	if err != nil {
-		return err
-	}
 	state, err = ProcessRandaoMixesReset(state)
 	if err != nil {
 		return err

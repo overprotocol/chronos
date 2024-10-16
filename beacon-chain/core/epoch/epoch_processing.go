@@ -297,36 +297,6 @@ func ProcessEffectiveBalanceUpdates(st state.BeaconState) (state.BeaconState, er
 	return st, nil
 }
 
-// ProcessSlashingsReset processes the total slashing balances updates during epoch processing.
-//
-// Spec pseudocode definition:
-//
-//	def process_slashings_reset(state: BeaconState) -> None:
-//	  next_epoch = Epoch(get_current_epoch(state) + 1)
-//	  # Reset slashings
-//	  state.slashings[next_epoch % EPOCHS_PER_SLASHINGS_VECTOR] = Gwei(0)
-func ProcessSlashingsReset(state state.BeaconState) (state.BeaconState, error) {
-	currentEpoch := time.CurrentEpoch(state)
-	nextEpoch := currentEpoch + 1
-
-	// Set total slashed balances.
-	slashedExitLength := params.BeaconConfig().EpochsPerSlashingsVector
-	slashedEpoch := nextEpoch % slashedExitLength
-	slashings := state.Slashings()
-	if uint64(len(slashings)) != uint64(slashedExitLength) {
-		return nil, fmt.Errorf(
-			"state slashing length %d different than EpochsPerHistoricalVector %d",
-			len(slashings),
-			slashedExitLength,
-		)
-	}
-	if err := state.UpdateSlashingsAtIndex(uint64(slashedEpoch) /* index */, 0 /* value */); err != nil {
-		return nil, err
-	}
-
-	return state, nil
-}
-
 // ProcessRandaoMixesReset processes the final updates to RANDAO mix during epoch processing.
 //
 // Spec pseudocode definition:
@@ -427,12 +397,6 @@ func ProcessFinalUpdates(state state.BeaconState) (state.BeaconState, error) {
 
 	// Update effective balances with hysteresis.
 	state, err = ProcessEffectiveBalanceUpdates(state)
-	if err != nil {
-		return nil, err
-	}
-
-	// Set total slashed balances.
-	state, err = ProcessSlashingsReset(state)
 	if err != nil {
 		return nil, err
 	}

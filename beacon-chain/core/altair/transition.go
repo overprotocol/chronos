@@ -24,7 +24,6 @@ import (
 //	process_slashings(state)  # [Modified in Altair]
 //	process_eth1_data_reset(state)
 //	process_effective_balance_updates(state)
-//	process_slashings_reset(state)
 //	process_randao_mixes_reset(state)
 //	process_historical_roots_update(state)
 //	process_participation_flag_updates(state)  # [New in Altair]
@@ -88,10 +87,6 @@ func ProcessEpoch(ctx context.Context, state state.BeaconState) error {
 		return err
 	}
 	state, err = e.ProcessEffectiveBalanceUpdates(state)
-	if err != nil {
-		return err
-	}
-	state, err = e.ProcessSlashingsReset(state)
 	if err != nil {
 		return err
 	}
