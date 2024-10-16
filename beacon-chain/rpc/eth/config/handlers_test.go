@@ -101,7 +101,6 @@ func TestGetSpec(t *testing.T) {
 	config.ProposerRewardQuotient = 41
 	config.InactivityPenaltyQuotient = 42
 	config.MinSlashingPenaltyQuotient = 44
-	config.ProportionalSlashingMultiplier = 46
 	config.MaxProposerSlashings = 48
 	config.MaxAttesterSlashings = 49
 	config.MaxAttestations = 50
@@ -122,7 +121,6 @@ func TestGetSpec(t *testing.T) {
 	config.EpochsPerSyncCommitteePeriod = 66
 	config.InactivityPenaltyQuotientAltair = 67
 	config.MinSlashingPenaltyQuotientAltair = 68
-	config.ProportionalSlashingMultiplierAltair = 69
 	config.InactivityScoreRecoveryRate = 70
 	config.MinSyncCommitteeParticipants = 71
 	config.TerminalBlockHash = common.HexToHash("TerminalBlockHash")
@@ -333,8 +331,6 @@ func TestGetSpec(t *testing.T) {
 				assert.Equal(t, "44", v)
 			case "HF1_MIN_SLASHING_PENALTY_QUOTIENT":
 				assert.Equal(t, "45", v)
-			case "PROPORTIONAL_SLASHING_MULTIPLIER":
-				assert.Equal(t, "46", v)
 			case "HF1_PROPORTIONAL_SLASHING_MULTIPLIER":
 				assert.Equal(t, "47", v)
 			case "MAX_PROPOSER_SLASHINGS":
@@ -381,8 +377,6 @@ func TestGetSpec(t *testing.T) {
 				assert.Equal(t, "67", v)
 			case "MIN_SLASHING_PENALTY_QUOTIENT_ALTAIR":
 				assert.Equal(t, "68", v)
-			case "PROPORTIONAL_SLASHING_MULTIPLIER_ALTAIR":
-				assert.Equal(t, "69", v)
 			case "INACTIVITY_SCORE_RECOVERY_RATE":
 				assert.Equal(t, "70", v)
 			case "MIN_SYNC_COMMITTEE_PARTICIPANTS":
@@ -429,8 +423,6 @@ func TestGetSpec(t *testing.T) {
 				assert.Equal(t, "73", v)
 			case "DefaultFeeRecipient":
 				assert.Equal(t, common.HexToAddress("DefaultFeeRecipient"), v)
-			case "PROPORTIONAL_SLASHING_MULTIPLIER_BELLATRIX":
-				assert.Equal(t, "3", v)
 			case "MIN_SLASHING_PENALTY_QUOTIENT_BELLATRIX":
 				assert.Equal(t, "32", v)
 			case "INACTIVITY_PENALTY_QUOTIENT_BELLATRIX":

@@ -136,12 +136,11 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	ValidatorRegistryLimit:    1099511627776,
 
 	// Reward and penalty quotients constants.
-	BaseRewardFactor:               64,
-	WhistleBlowerRewardQuotient:    512,
-	ProposerRewardQuotient:         8,
-	InactivityPenaltyQuotient:      67108864,
-	MinSlashingPenaltyQuotient:     128,
-	ProportionalSlashingMultiplier: 1,
+	BaseRewardFactor:            64,
+	WhistleBlowerRewardQuotient: 512,
+	ProposerRewardQuotient:      8,
+	InactivityPenaltyQuotient:   67108864,
+	MinSlashingPenaltyQuotient:  128,
 
 	// Max operations per block constants.
 	MaxProposerSlashings:             16,
@@ -241,12 +240,10 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	EpochsPerSyncCommitteePeriod: 256,
 
 	// Updated penalty values.
-	InactivityPenaltyQuotientAltair:         3 * 1 << 24, // 50331648
-	MinSlashingPenaltyQuotientAltair:        64,
-	ProportionalSlashingMultiplierAltair:    2,
-	MinSlashingPenaltyQuotientBellatrix:     32,
-	ProportionalSlashingMultiplierBellatrix: 3,
-	InactivityPenaltyQuotientBellatrix:      1 << 24,
+	InactivityPenaltyQuotientAltair:     3 * 1 << 24, // 50331648
+	MinSlashingPenaltyQuotientAltair:    64,
+	MinSlashingPenaltyQuotientBellatrix: 32,
+	InactivityPenaltyQuotientBellatrix:  1 << 24,
 
 	// Light client
 	MinSyncCommitteeParticipants: 1,

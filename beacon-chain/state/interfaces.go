@@ -33,7 +33,6 @@ type BeaconState interface {
 // defined in the consensus specification for the beacon chain.
 type SpecParametersProvider interface {
 	InactivityPenaltyQuotient() (uint64, error)
-	ProportionalSlashingMultiplier() (uint64, error)
 }
 
 // StateProver defines the ability to create Merkle proofs for beacon state fields.

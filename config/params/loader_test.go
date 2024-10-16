@@ -129,8 +129,6 @@ func assertEqualConfigs(t *testing.T, name string, fields []string, expected, ac
 	assert.Equal(t, expected.InactivityPenaltyQuotientAltair, actual.InactivityPenaltyQuotientAltair, "%s: InactivityPenaltyQuotientAltair", name)
 	assert.Equal(t, expected.MinSlashingPenaltyQuotient, actual.MinSlashingPenaltyQuotient, "%s: MinSlashingPenaltyQuotient", name)
 	assert.Equal(t, expected.MinSlashingPenaltyQuotientAltair, actual.MinSlashingPenaltyQuotientAltair, "%s: MinSlashingPenaltyQuotientAltair", name)
-	assert.Equal(t, expected.ProportionalSlashingMultiplier, actual.ProportionalSlashingMultiplier, "%s: ProportionalSlashingMultiplier", name)
-	assert.Equal(t, expected.ProportionalSlashingMultiplierAltair, actual.ProportionalSlashingMultiplierAltair, "%s: ProportionalSlashingMultiplierAltair", name)
 
 	// Max operations per block.
 	assert.Equal(t, expected.MaxProposerSlashings, actual.MaxProposerSlashings, "%s: MaxProposerSlashings", name)
