@@ -98,9 +98,8 @@ func emptyGenesisStateElectra() (state.BeaconState, error) {
 
 		LatestExecutionPayloadHeader: &enginev1.ExecutionPayloadHeaderElectra{},
 
-		DepositBalanceToConsume:       primitives.Gwei(0),
-		ExitBalanceToConsume:          primitives.Gwei(0),
-		ConsolidationBalanceToConsume: primitives.Gwei(0),
+		DepositBalanceToConsume: primitives.Gwei(0),
+		ExitBalanceToConsume:    primitives.Gwei(0),
 	}
 	return state_native.InitializeFromProtoElectra(st)
 }
@@ -242,9 +241,8 @@ func buildGenesisBeaconStateElectra(genesisTime uint64, preState state.BeaconSta
 			Transactions:  make([][]byte, 0),
 		},
 		ExecutionRequests: &enginev1.ExecutionRequests{
-			Deposits:       make([]*enginev1.DepositRequest, 0),
-			Withdrawals:    make([]*enginev1.WithdrawalRequest, 0),
-			Consolidations: make([]*enginev1.ConsolidationRequest, 0),
+			Deposits:    make([]*enginev1.DepositRequest, 0),
+			Withdrawals: make([]*enginev1.WithdrawalRequest, 0),
 		},
 	}).HashTreeRoot()
 	if err != nil {

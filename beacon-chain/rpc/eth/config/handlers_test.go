@@ -161,10 +161,8 @@ func TestGetSpec(t *testing.T) {
 	config.MinActivationBalance = 102
 	config.PendingBalanceDepositLimit = 103
 	config.MaxPendingPartialsPerWithdrawalsSweep = 104
-	config.PendingConsolidationsLimit = 105
 	config.MaxPartialWithdrawalsPerPayload = 106
 	config.FullExitRequestAmount = 107
-	config.MaxConsolidationsRequestsPerPayload = 108
 	config.MaxAttesterSlashingsElectra = 109
 	config.MaxAttestationsElectra = 110
 	config.MaxWithdrawalRequestsPerPayload = 111

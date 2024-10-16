@@ -1119,9 +1119,8 @@ func genBeaconBlockBodyElectra() *v1alpha1.BeaconBlockBodyElectra {
 
 func genExecutionRequests() *enginev1.ExecutionRequests {
 	return &enginev1.ExecutionRequests{
-		Deposits:       genDepositRequests(10),
-		Withdrawals:    genWithdrawalRequests(10),
-		Consolidations: genConsolidationRequests(10),
+		Deposits:    genDepositRequests(10),
+		Withdrawals: genWithdrawalRequests(10),
 	}
 }
 
@@ -1156,67 +1155,5 @@ func genWithdrawalRequest() *enginev1.WithdrawalRequest {
 		SourceAddress:   bytes(20),
 		ValidatorPubkey: bytes(48),
 		Amount:          55555,
-	}
-}
-
-func genConsolidationRequests(num int) []*enginev1.ConsolidationRequest {
-	crs := make([]*enginev1.ConsolidationRequest, num)
-	for i := 0; i < num; i++ {
-		crs[i] = genConsolidationRequest()
-	}
-	return crs
-}
-
-func genConsolidationRequest() *enginev1.ConsolidationRequest {
-	return &enginev1.ConsolidationRequest{
-		SourceAddress: bytes(20),
-		SourcePubkey:  bytes(48),
-		TargetPubkey:  bytes(48),
-	}
-}
-
-func genPendingPartialWithdrawals(num int) []*v1alpha1.PendingPartialWithdrawal {
-	ppws := make([]*v1alpha1.PendingPartialWithdrawal, num)
-	for i := 0; i < num; i++ {
-		ppws[i] = genPendingPartialWithdrawal()
-	}
-	return ppws
-}
-
-func genPendingPartialWithdrawal() *v1alpha1.PendingPartialWithdrawal {
-	return &v1alpha1.PendingPartialWithdrawal{
-		Index:             123456,
-		Amount:            55555,
-		WithdrawableEpoch: 444444,
-	}
-}
-
-func genPendingConsolidations(num int) []*v1alpha1.PendingConsolidation {
-	pcs := make([]*v1alpha1.PendingConsolidation, num)
-	for i := 0; i < num; i++ {
-		pcs[i] = genPendingConsolidation()
-	}
-	return pcs
-}
-
-func genPendingConsolidation() *v1alpha1.PendingConsolidation {
-	return &v1alpha1.PendingConsolidation{
-		SourceIndex: 1,
-		TargetIndex: 2,
-	}
-}
-
-func genPendingBalanceDeposits(num int) []*v1alpha1.PendingBalanceDeposit {
-	pbds := make([]*v1alpha1.PendingBalanceDeposit, num)
-	for i := 0; i < num; i++ {
-		pbds[i] = genPendingBalanceDeposit()
-	}
-	return pbds
-}
-
-func genPendingBalanceDeposit() *v1alpha1.PendingBalanceDeposit {
-	return &v1alpha1.PendingBalanceDeposit{
-		Index:  123456,
-		Amount: 55555,
 	}
 }

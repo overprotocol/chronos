@@ -65,16 +65,6 @@ func TestProcessEpoch_CanProcessElectra(t *testing.T) {
 		}
 	}
 	require.NoError(t, st.SetPendingBalanceDeposits(deps))
-	require.NoError(t, st.SetPendingConsolidations([]*ethpb.PendingConsolidation{
-		{
-			SourceIndex: 2,
-			TargetIndex: 3,
-		},
-		{
-			SourceIndex: 0,
-			TargetIndex: 1,
-		},
-	}))
 	err := electra.ProcessEpoch(context.Background(), st)
 	require.NoError(t, err)
 	require.Equal(t, uint64(0), st.Slashings()[2], "Unexpected slashed balance")
@@ -111,8 +101,4 @@ func TestProcessEpoch_CanProcessElectra(t *testing.T) {
 	remaining, err := st.PendingBalanceDeposits()
 	require.NoError(t, err)
 	require.Equal(t, 10, len(remaining))
-
-	num, err := st.NumPendingConsolidations()
-	require.NoError(t, err)
-	require.Equal(t, uint64(2), num)
 }

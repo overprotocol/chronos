@@ -601,13 +601,6 @@ func TestServer_GetBeaconBlock_Electra(t *testing.T) {
 			Amount:          789,
 		},
 	}
-	cr := []*enginev1.ConsolidationRequest{
-		{
-			SourceAddress: bytesutil.PadTo([]byte("sa"), 20),
-			SourcePubkey:  bytesutil.PadTo(privKeys[1].PublicKey().Marshal(), 48),
-			TargetPubkey:  bytesutil.PadTo(privKeys[2].PublicKey().Marshal(), 48),
-		},
-	}
 	blk := &ethpb.SignedBeaconBlockElectra{
 		Block: &ethpb.BeaconBlockElectra{
 			Slot:       electraSlot + 1,
@@ -629,9 +622,8 @@ func TestServer_GetBeaconBlock_Electra(t *testing.T) {
 					BlockHash:     make([]byte, fieldparams.RootLength),
 				},
 				ExecutionRequests: &enginev1.ExecutionRequests{
-					Withdrawals:    wr,
-					Deposits:       dr,
-					Consolidations: cr,
+					Withdrawals: wr,
+					Deposits:    dr,
 				},
 			},
 		},

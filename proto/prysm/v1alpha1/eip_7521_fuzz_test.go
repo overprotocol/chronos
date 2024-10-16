@@ -8,5 +8,4 @@ import (
 
 func TestCopyEip7521Types_Fuzz(t *testing.T) {
 	fuzzCopies(t, &eth.PendingPartialWithdrawal{})
-	fuzzCopies(t, &eth.PendingConsolidation{})
 }
