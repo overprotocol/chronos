@@ -14,7 +14,6 @@ var migrations = []migration{
 	migrateArchivedIndex,
 	migrateBlockSlotIndex,
 	migrateStateValidators,
-	migrateFinalizedParent,
 }
 
 // RunMigrations defined in the migrations array.
