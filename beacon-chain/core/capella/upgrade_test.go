@@ -66,9 +66,6 @@ func TestUpgradeToCapella(t *testing.T) {
 	psc, err = preForkState.NextSyncCommittee()
 	require.NoError(t, err)
 	require.DeepSSZEqual(t, psc, nsc)
-	bo, err := mSt.BailOutScores()
-	require.NoError(t, err)
-	require.DeepSSZEqual(t, make([]uint64, numValidators), bo)
 
 	header, err := mSt.LatestExecutionPayloadHeader()
 	require.NoError(t, err)

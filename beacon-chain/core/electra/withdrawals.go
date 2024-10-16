@@ -148,7 +148,7 @@ func ProcessWithdrawalRequests(ctx context.Context, st state.BeaconState, wrs []
 			if pendingBalanceToWithdraw == 0 {
 				maxExitEpoch, churn := validators.MaxExitEpochAndChurn(st)
 				var err error
-				st, _, err = validators.InitiateValidatorExit(ctx, st, vIdx, maxExitEpoch, churn, false)
+				st, _, err = validators.InitiateValidatorExit(ctx, st, vIdx, maxExitEpoch, churn)
 				if err != nil {
 					return nil, err
 				}

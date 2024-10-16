@@ -209,11 +209,3 @@ message SyncAggregate {
     // BLS aggregated signature of the sync committee for the ones that voted.
     bytes sync_committee_signature = 2 [(ethereum.eth.ext.ssz_size) = "96"];
 }
-
-// A message that represents a validator which should be kicked out
-// from the active validator set. The message does not contain a
-// validator signature.
-message BailOut {
-    // Index of the exiting validator.
-    uint64 validator_index = 1 [(ethereum.eth.ext.cast_type) = "github.com/prysmaticlabs/prysm/v5/consensus-types/primitives.ValidatorIndex"];
-}

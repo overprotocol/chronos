@@ -97,7 +97,7 @@ func Test_logStateTransitionData(t *testing.T) {
 		},
 		{name: "has payload",
 			b:    func() interfaces.ReadOnlyBeaconBlock { return wrappedPayloadBlk },
-			want: "\"Finished applying state transition\" bailOuts=0 payloadHash=0x010203 prefix=blockchain slot=0 syncBitsCount=0 txCount=2",
+			want: "\"Finished applying state transition\" payloadHash=0x010203 prefix=blockchain slot=0 syncBitsCount=0 txCount=2",
 		},
 	}
 	for _, tt := range tests {

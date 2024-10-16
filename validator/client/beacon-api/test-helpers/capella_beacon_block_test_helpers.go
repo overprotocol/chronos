@@ -217,14 +217,6 @@ func GenerateProtoCapellaBeaconBlock() *ethpb.BeaconBlockCapella {
 				SyncCommitteeBits:      FillByteSlice(64, 110),
 				SyncCommitteeSignature: FillByteSlice(96, 111),
 			},
-			BailOuts: []*ethpb.BailOut{
-				{
-					ValidatorIndex: 128,
-				},
-				{
-					ValidatorIndex: 129,
-				},
-			},
 			ExecutionPayload: &enginev1.ExecutionPayloadCapella{
 				ParentHash:    FillByteSlice(32, 112),
 				FeeRecipient:  FillByteSlice(20, 113),
@@ -490,14 +482,6 @@ func GenerateProtoBlindedCapellaBeaconBlock() *ethpb.BlindedBeaconBlockCapella {
 				SyncCommitteeBits:      FillByteSlice(64, 110),
 				SyncCommitteeSignature: FillByteSlice(96, 111),
 			},
-			BailOuts: []*ethpb.BailOut{
-				{
-					ValidatorIndex: 128,
-				},
-				{
-					ValidatorIndex: 129,
-				},
-			},
 			ExecutionPayloadHeader: &enginev1.ExecutionPayloadHeaderCapella{
 				ParentHash:       FillByteSlice(32, 112),
 				FeeRecipient:     FillByteSlice(20, 113),
@@ -746,14 +730,6 @@ func GenerateJsonCapellaBeaconBlock() *structs.BeaconBlockCapella {
 			SyncAggregate: &structs.SyncAggregate{
 				SyncCommitteeBits:      FillEncodedByteSlice(64, 110),
 				SyncCommitteeSignature: FillEncodedByteSlice(96, 111),
-			},
-			BailOuts: []*structs.BailOut{
-				{
-					ValidatorIndex: "128",
-				},
-				{
-					ValidatorIndex: "129",
-				},
 			},
 			ExecutionPayload: &structs.ExecutionPayloadCapella{
 				ParentHash:    FillEncodedByteSlice(32, 112),
@@ -1019,14 +995,6 @@ func GenerateJsonBlindedCapellaBeaconBlock() *structs.BlindedBeaconBlockCapella 
 			SyncAggregate: &structs.SyncAggregate{
 				SyncCommitteeBits:      FillEncodedByteSlice(64, 110),
 				SyncCommitteeSignature: FillEncodedByteSlice(96, 111),
-			},
-			BailOuts: []*structs.BailOut{
-				{
-					ValidatorIndex: "128",
-				},
-				{
-					ValidatorIndex: "129",
-				},
 			},
 			ExecutionPayloadHeader: &structs.ExecutionPayloadHeaderCapella{
 				ParentHash:       FillEncodedByteSlice(32, 112),

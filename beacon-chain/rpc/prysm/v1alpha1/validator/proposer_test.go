@@ -25,7 +25,6 @@ import (
 	mockExecution "github.com/prysmaticlabs/prysm/v5/beacon-chain/execution/testing"
 	doublylinkedtree "github.com/prysmaticlabs/prysm/v5/beacon-chain/forkchoice/doubly-linked-tree"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/attestations"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/bailout"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/blstoexec"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/slashings"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/synccommittee"
@@ -726,7 +725,6 @@ func getProposerServer(db db.HeadAccessDatabase, headState state.BeaconState, he
 		ExitPool:              voluntaryexits.NewPool(),
 		StateGen:              stategen.New(db, doublylinkedtree.New()),
 		SyncCommitteePool:     synccommittee.NewStore(),
-		BailoutPool:           bailout.NewPool(),
 		OptimisticModeFetcher: &mock.ChainService{},
 		TimeFetcher: &testutil.MockGenesisTimeFetcher{
 			Genesis: time.Now(),

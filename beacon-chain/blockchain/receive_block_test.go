@@ -9,10 +9,8 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	blockchainTesting "github.com/prysmaticlabs/prysm/v5/beacon-chain/blockchain/testing"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/cache"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/altair"
 	statefeed "github.com/prysmaticlabs/prysm/v5/beacon-chain/core/feed/state"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/das"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/bailout"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/voluntaryexits"
 	fieldparams "github.com/prysmaticlabs/prysm/v5/config/fieldparams"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
@@ -161,103 +159,6 @@ func TestService_ReceiveBlock(t *testing.T) {
 				require.NoError(t, err)
 				tt.check(t, s)
 			}
-		})
-	}
-	wg.Wait()
-}
-
-func TestService_ReceiveBlockWithBailOut(t *testing.T) {
-	ctx := context.Background()
-
-	genesis, keys := util.DeterministicGenesisStateAltair(t, 64)
-	sCom, err := altair.NextSyncCommittee(ctx, genesis)
-	assert.NoError(t, err)
-	assert.NoError(t, genesis.SetCurrentSyncCommittee(sCom))
-
-	scores, err := genesis.BailOutScores()
-	require.NoError(t, err)
-	for i := range scores {
-		scores[i] = params.BeaconConfig().BailOutScoreThreshold + 1
-	}
-	err = genesis.SetBailOutScores(scores)
-	require.NoError(t, err)
-
-	genFullBlockAltair := func(t *testing.T, conf *util.BlockGenConfig, slot primitives.Slot) *ethpb.SignedBeaconBlockAltair {
-		blk, err := util.GenerateFullBlockAltair(genesis, keys, conf, slot)
-		assert.NoError(t, err)
-		return blk
-	}
-	//params.SetupTestConfigCleanupWithLock(t)
-	bc := params.BeaconConfig().Copy()
-	bc.ShardCommitteePeriod = 0 // Required for voluntary exits test in reasonable time.
-	params.OverrideBeaconConfig(bc)
-
-	type args struct {
-		block *ethpb.SignedBeaconBlockAltair
-	}
-	tests := []struct {
-		name      string
-		args      args
-		wantedErr string
-		check     func(*testing.T, *Service)
-	}{
-		{
-			name: "updates bailout pool",
-			args: args{
-				block: genFullBlockAltair(t, &util.BlockGenConfig{
-					NumProposerSlashings: 0,
-					NumAttesterSlashings: 0,
-					NumAttestations:      0,
-					NumDeposits:          0,
-					NumVoluntaryExits:    0,
-					NumBailOuts:          3,
-				},
-					1, /*slot*/
-				),
-			},
-			check: func(t *testing.T, s *Service) {
-				pending, err := s.cfg.BailoutPool.PendingBailOuts()
-				require.NoError(t, err)
-				if len(pending) != 0 {
-					t.Errorf(
-						"Did not mark the correct number of exits. Got %d pending but wanted %d",
-						len(pending),
-						0,
-					)
-				}
-			},
-		},
-	}
-
-	wg := new(sync.WaitGroup)
-	for _, tt := range tests {
-		wg.Add(1)
-		t.Run(tt.name, func(t *testing.T) {
-			s, tr := minimalTestService(t,
-				WithFinalizedStateAtStartUp(genesis),
-				WithExitPool(voluntaryexits.NewPool()),
-				WithBailoutPool(bailout.NewPool()),
-				WithStateNotifier(&blockchainTesting.MockStateNotifier{RecordEvents: true}))
-
-			beaconDB := tr.db
-			genesisBlockRoot := bytesutil.ToBytes32(nil)
-			require.NoError(t, beaconDB.SaveState(ctx, genesis, genesisBlockRoot))
-
-			// Initialize it here.
-			_ = s.cfg.StateNotifier.StateFeed()
-			require.NoError(t, s.saveGenesisData(ctx, genesis))
-			root, err := tt.args.block.Block.HashTreeRoot()
-			require.NoError(t, err)
-			wsb, err := blocks.NewSignedBeaconBlock(tt.args.block)
-			require.NoError(t, err)
-			err = s.ReceiveBlock(ctx, wsb, root, nil)
-			if tt.wantedErr != "" {
-				assert.ErrorContains(t, tt.wantedErr, err)
-			} else {
-				assert.NoError(t, err)
-				tt.check(t, s)
-			}
-			wg.Done()
 		})
 	}
 	wg.Wait()

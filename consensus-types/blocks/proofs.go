@@ -34,15 +34,15 @@ func ComputeBlockBodyFieldRoots(ctx context.Context, blockBody *BeaconBlockBody)
 	case version.Phase0:
 		fieldRoots = make([][]byte, 8)
 	case version.Altair:
-		fieldRoots = make([][]byte, 10)
+		fieldRoots = make([][]byte, 9)
 	case version.Bellatrix:
-		fieldRoots = make([][]byte, 11)
+		fieldRoots = make([][]byte, 10)
 	case version.Capella:
-		fieldRoots = make([][]byte, 12)
+		fieldRoots = make([][]byte, 11)
 	case version.Deneb:
-		fieldRoots = make([][]byte, 13)
+		fieldRoots = make([][]byte, 12)
 	case version.Electra:
-		fieldRoots = make([][]byte, 14)
+		fieldRoots = make([][]byte, 13)
 	default:
 		return nil, fmt.Errorf("unknown block body version %s", version.String(blockBody.version))
 	}
@@ -131,17 +131,6 @@ func ComputeBlockBodyFieldRoots(ctx context.Context, blockBody *BeaconBlockBody)
 			return nil, err
 		}
 		copy(fieldRoots[8], root[:])
-
-		// Bail Outs
-		bo, err := blockBody.BailOuts()
-		if err != nil {
-			return nil, err
-		}
-		root, err = ssz.MerkleizeListSSZ(bo, params.BeaconConfig().MaxBailOuts)
-		if err != nil {
-			return nil, err
-		}
-		copy(fieldRoots[9], root[:])
 	}
 
 	if blockBody.version >= version.Bellatrix {
@@ -154,7 +143,7 @@ func ComputeBlockBodyFieldRoots(ctx context.Context, blockBody *BeaconBlockBody)
 		if err != nil {
 			return nil, err
 		}
-		copy(fieldRoots[10], root[:])
+		copy(fieldRoots[9], root[:])
 	}
 
 	if blockBody.version >= version.Capella {
@@ -167,7 +156,7 @@ func ComputeBlockBodyFieldRoots(ctx context.Context, blockBody *BeaconBlockBody)
 		if err != nil {
 			return nil, err
 		}
-		copy(fieldRoots[11], root[:])
+		copy(fieldRoots[10], root[:])
 	}
 
 	if blockBody.version >= version.Deneb {
@@ -187,7 +176,7 @@ func ComputeBlockBodyFieldRoots(ctx context.Context, blockBody *BeaconBlockBody)
 		length := make([]byte, 32)
 		binary.LittleEndian.PutUint64(length[:8], uint64(len(roots)))
 		root = ssz.MixInLength(commitmentsRoot, length)
-		copy(fieldRoots[12], root[:])
+		copy(fieldRoots[11], root[:])
 	}
 
 	if blockBody.version >= version.Electra {
@@ -200,7 +189,7 @@ func ComputeBlockBodyFieldRoots(ctx context.Context, blockBody *BeaconBlockBody)
 		if err != nil {
 			return nil, err
 		}
-		copy(fieldRoots[13], root[:])
+		copy(fieldRoots[12], root[:])
 	}
 	return fieldRoots, nil
 }

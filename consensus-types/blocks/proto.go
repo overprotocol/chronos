@@ -372,7 +372,6 @@ func (b *BeaconBlockBody) Proto() (proto.Message, error) {
 			Deposits:          b.deposits,
 			VoluntaryExits:    b.voluntaryExits,
 			SyncAggregate:     b.syncAggregate,
-			BailOuts:          b.bailOuts,
 		}, nil
 	case version.Bellatrix:
 		if b.IsBlinded() {
@@ -394,7 +393,6 @@ func (b *BeaconBlockBody) Proto() (proto.Message, error) {
 				Deposits:               b.deposits,
 				VoluntaryExits:         b.voluntaryExits,
 				SyncAggregate:          b.syncAggregate,
-				BailOuts:               b.bailOuts,
 				ExecutionPayloadHeader: ph,
 			}, nil
 		}
@@ -416,7 +414,6 @@ func (b *BeaconBlockBody) Proto() (proto.Message, error) {
 			Deposits:          b.deposits,
 			VoluntaryExits:    b.voluntaryExits,
 			SyncAggregate:     b.syncAggregate,
-			BailOuts:          b.bailOuts,
 			ExecutionPayload:  p,
 		}, nil
 	case version.Capella:
@@ -439,7 +436,6 @@ func (b *BeaconBlockBody) Proto() (proto.Message, error) {
 				Deposits:               b.deposits,
 				VoluntaryExits:         b.voluntaryExits,
 				SyncAggregate:          b.syncAggregate,
-				BailOuts:               b.bailOuts,
 				ExecutionPayloadHeader: ph,
 				BlsToExecutionChanges:  b.blsToExecutionChanges,
 			}, nil
@@ -462,7 +458,6 @@ func (b *BeaconBlockBody) Proto() (proto.Message, error) {
 			Deposits:              b.deposits,
 			VoluntaryExits:        b.voluntaryExits,
 			SyncAggregate:         b.syncAggregate,
-			BailOuts:              b.bailOuts,
 			ExecutionPayload:      p,
 			BlsToExecutionChanges: b.blsToExecutionChanges,
 		}, nil
@@ -486,7 +481,6 @@ func (b *BeaconBlockBody) Proto() (proto.Message, error) {
 				Deposits:               b.deposits,
 				VoluntaryExits:         b.voluntaryExits,
 				SyncAggregate:          b.syncAggregate,
-				BailOuts:               b.bailOuts,
 				ExecutionPayloadHeader: ph,
 				BlsToExecutionChanges:  b.blsToExecutionChanges,
 				BlobKzgCommitments:     b.blobKzgCommitments,
@@ -510,7 +504,6 @@ func (b *BeaconBlockBody) Proto() (proto.Message, error) {
 			Deposits:              b.deposits,
 			VoluntaryExits:        b.voluntaryExits,
 			SyncAggregate:         b.syncAggregate,
-			BailOuts:              b.bailOuts,
 			ExecutionPayload:      p,
 			BlsToExecutionChanges: b.blsToExecutionChanges,
 			BlobKzgCommitments:    b.blobKzgCommitments,
@@ -975,7 +968,6 @@ func initBlockBodyFromProtoAltair(pb *eth.BeaconBlockBodyAltair) (*BeaconBlockBo
 		deposits:          pb.Deposits,
 		voluntaryExits:    pb.VoluntaryExits,
 		syncAggregate:     pb.SyncAggregate,
-		bailOuts:          pb.BailOuts,
 	}
 	return b, nil
 }
@@ -1001,7 +993,6 @@ func initBlockBodyFromProtoBellatrix(pb *eth.BeaconBlockBodyBellatrix) (*BeaconB
 		deposits:          pb.Deposits,
 		voluntaryExits:    pb.VoluntaryExits,
 		syncAggregate:     pb.SyncAggregate,
-		bailOuts:          pb.BailOuts,
 		executionPayload:  p,
 	}
 	return b, nil
@@ -1028,7 +1019,6 @@ func initBlindedBlockBodyFromProtoBellatrix(pb *eth.BlindedBeaconBlockBodyBellat
 		deposits:               pb.Deposits,
 		voluntaryExits:         pb.VoluntaryExits,
 		syncAggregate:          pb.SyncAggregate,
-		bailOuts:               pb.BailOuts,
 		executionPayloadHeader: ph,
 	}
 	return b, nil
@@ -1055,7 +1045,6 @@ func initBlockBodyFromProtoCapella(pb *eth.BeaconBlockBodyCapella) (*BeaconBlock
 		deposits:              pb.Deposits,
 		voluntaryExits:        pb.VoluntaryExits,
 		syncAggregate:         pb.SyncAggregate,
-		bailOuts:              pb.BailOuts,
 		executionPayload:      p,
 		blsToExecutionChanges: pb.BlsToExecutionChanges,
 	}
@@ -1083,7 +1072,6 @@ func initBlindedBlockBodyFromProtoCapella(pb *eth.BlindedBeaconBlockBodyCapella)
 		deposits:               pb.Deposits,
 		voluntaryExits:         pb.VoluntaryExits,
 		syncAggregate:          pb.SyncAggregate,
-		bailOuts:               pb.BailOuts,
 		executionPayloadHeader: ph,
 		blsToExecutionChanges:  pb.BlsToExecutionChanges,
 	}
@@ -1111,7 +1099,6 @@ func initBlockBodyFromProtoDeneb(pb *eth.BeaconBlockBodyDeneb) (*BeaconBlockBody
 		deposits:              pb.Deposits,
 		voluntaryExits:        pb.VoluntaryExits,
 		syncAggregate:         pb.SyncAggregate,
-		bailOuts:              pb.BailOuts,
 		executionPayload:      p,
 		blsToExecutionChanges: pb.BlsToExecutionChanges,
 		blobKzgCommitments:    pb.BlobKzgCommitments,
@@ -1140,7 +1127,6 @@ func initBlindedBlockBodyFromProtoDeneb(pb *eth.BlindedBeaconBlockBodyDeneb) (*B
 		deposits:               pb.Deposits,
 		voluntaryExits:         pb.VoluntaryExits,
 		syncAggregate:          pb.SyncAggregate,
-		bailOuts:               pb.BailOuts,
 		executionPayloadHeader: ph,
 		blsToExecutionChanges:  pb.BlsToExecutionChanges,
 		blobKzgCommitments:     pb.BlobKzgCommitments,
@@ -1173,7 +1159,6 @@ func initBlockBodyFromProtoElectra(pb *eth.BeaconBlockBodyElectra) (*BeaconBlock
 		deposits:                 pb.Deposits,
 		voluntaryExits:           pb.VoluntaryExits,
 		syncAggregate:            pb.SyncAggregate,
-		bailOuts:                 pb.BailOuts,
 		executionPayload:         p,
 		blsToExecutionChanges:    pb.BlsToExecutionChanges,
 		blobKzgCommitments:       pb.BlobKzgCommitments,
@@ -1207,7 +1192,6 @@ func initBlindedBlockBodyFromProtoElectra(pb *eth.BlindedBeaconBlockBodyElectra)
 		deposits:                 pb.Deposits,
 		voluntaryExits:           pb.VoluntaryExits,
 		syncAggregate:            pb.SyncAggregate,
-		bailOuts:                 pb.BailOuts,
 		executionPayloadHeader:   ph,
 		blsToExecutionChanges:    pb.BlsToExecutionChanges,
 		blobKzgCommitments:       pb.BlobKzgCommitments,

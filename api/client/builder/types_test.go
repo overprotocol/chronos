@@ -1319,20 +1319,6 @@ func TestSyncAggregate_MarshalJSON(t *testing.T) {
 	require.Equal(t, expected, string(b))
 }
 
-func pbBailOut() *eth.BailOut {
-	return &eth.BailOut{
-		ValidatorIndex: 1,
-	}
-}
-
-func TestBailOut_MarshalJSON(t *testing.T) {
-	bo := &BailOut{pbBailOut()}
-	b, err := json.Marshal(bo)
-	require.NoError(t, err)
-	expected := `{"validator_index":"1"}`
-	require.Equal(t, expected, string(b))
-}
-
 func pbDeposit(t *testing.T) *eth.Deposit {
 	return &eth.Deposit{
 		Proof: [][]byte{ezDecode(t, "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2")},
@@ -1749,7 +1735,6 @@ func TestMarshalBlindedBeaconBlockBodyBellatrix(t *testing.T) {
 			Deposits:               []*eth.Deposit{pbDeposit(t)},
 			VoluntaryExits:         []*eth.SignedVoluntaryExit{pbSignedVoluntaryExit(t)},
 			SyncAggregate:          pbSyncAggregate(),
-			BailOuts:               []*eth.BailOut{pbBailOut()},
 			ExecutionPayloadHeader: pbExecutionPayloadHeader(t),
 		},
 	})
@@ -1780,7 +1765,6 @@ func TestMarshalBlindedBeaconBlockBodyCapella(t *testing.T) {
 			Deposits:               []*eth.Deposit{pbDeposit(t)},
 			VoluntaryExits:         []*eth.SignedVoluntaryExit{pbSignedVoluntaryExit(t)},
 			SyncAggregate:          pbSyncAggregate(),
-			BailOuts:               []*eth.BailOut{pbBailOut()},
 			ExecutionPayloadHeader: pbExecutionPayloadHeaderCapella(t),
 		},
 	})

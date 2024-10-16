@@ -269,10 +269,6 @@ func (b *BeaconBlockBody) SetBLSToExecutionChanges([]*eth.SignedBLSToExecutionCh
 	panic("implement me")
 }
 
-func (b *BeaconBlockBody) BailOuts() ([]*eth.BailOut, error) {
-	panic("implement me")
-}
-
 // BlobKzgCommitments returns the blob kzg commitments in the block.
 func (b *BeaconBlockBody) BlobKzgCommitments() ([][]byte, error) {
 	panic("implement me")

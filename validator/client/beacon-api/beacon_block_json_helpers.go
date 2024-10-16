@@ -113,18 +113,6 @@ func JsonifySignedVoluntaryExits(voluntaryExits []*ethpb.SignedVoluntaryExit) []
 	return jsonSignedVoluntaryExits
 }
 
-// JsonifyBailOuts converts an array of bail out structs to a JSON hex string compatible format.
-func JsonifyBailOuts(bailOuts []*ethpb.BailOut) []*structs.BailOut {
-	jsonBailOuts := make([]*structs.BailOut, len(bailOuts))
-	for index, bailOuts := range bailOuts {
-		jsonBailOut := &structs.BailOut{
-			ValidatorIndex: uint64ToString(bailOuts.ValidatorIndex),
-		}
-		jsonBailOuts[index] = jsonBailOut
-	}
-	return jsonBailOuts
-}
-
 func jsonifySignedBeaconBlockHeader(signedBeaconBlockHeader *ethpb.SignedBeaconBlockHeader) *structs.SignedBeaconBlockHeader {
 	return &structs.SignedBeaconBlockHeader{
 		Message: &structs.BeaconBlockHeader{

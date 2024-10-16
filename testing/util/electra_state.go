@@ -85,7 +85,6 @@ func emptyGenesisStateElectra() (state.BeaconState, error) {
 		Validators:       []*ethpb.Validator{},
 		Balances:         []uint64{},
 		InactivityScores: []uint64{},
-		BailOutScores:    []uint64{},
 
 		JustificationBits:          []byte{0},
 		HistoricalRoots:            [][]byte{},
@@ -154,10 +153,6 @@ func buildGenesisBeaconStateElectra(genesisTime uint64, preState state.BeaconSta
 	if err != nil {
 		return nil, err
 	}
-	bscores, err := preState.BailOutScores()
-	if err != nil {
-		return nil, err
-	}
 	tab, err := helpers.TotalActiveBalance(preState)
 	if err != nil {
 		return nil, err
@@ -180,7 +175,6 @@ func buildGenesisBeaconStateElectra(genesisTime uint64, preState state.BeaconSta
 		PreviousEpochParticipation: prevEpochParticipation,
 		CurrentEpochParticipation:  currEpochParticipation,
 		InactivityScores:           scores,
-		BailOutScores:              bscores,
 
 		// Randomness and committees.
 		RandaoMixes: randaoMixes,
@@ -232,7 +226,6 @@ func buildGenesisBeaconStateElectra(genesisTime uint64, preState state.BeaconSta
 			SyncCommitteeBits:      scBits[:],
 			SyncCommitteeSignature: make([]byte, 96),
 		},
-		BailOuts: make([]*ethpb.BailOut, 0),
 		ExecutionPayload: &enginev1.ExecutionPayloadElectra{
 			ParentHash:    make([]byte, 32),
 			FeeRecipient:  make([]byte, 20),

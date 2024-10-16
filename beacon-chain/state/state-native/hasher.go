@@ -235,13 +235,6 @@ func ComputeFieldRootsWithHasher(ctx context.Context, state *BeaconState) ([][]b
 			return nil, errors.Wrap(err, "could not compute sync committee merkleization")
 		}
 		fieldRoots[types.NextSyncCommittee.RealPosition()] = nextSyncCommitteeRoot[:]
-
-		// Bail out scores root.
-		bailOutScoresRoot, err := stateutil.Uint64ListRootWithRegistryLimit(state.bailoutScoresVal())
-		if err != nil {
-			return nil, errors.Wrap(err, "could not compute bailOutScoresRoot")
-		}
-		fieldRoots[types.BailOutScores.RealPosition()] = bailOutScoresRoot[:]
 	}
 
 	if state.version == version.Bellatrix {

@@ -124,7 +124,6 @@ func TestExpectedWithdrawals(t *testing.T) {
 		valCount := 17000
 		validators := make([]*eth.Validator, 0, valCount)
 		balances := make([]uint64, 0, valCount)
-		bailOuts := make([]uint64, 0, valCount)
 		for i := 0; i < valCount; i++ {
 			blsKey, err := bls.RandKey()
 			require.NoError(t, err)
@@ -138,7 +137,6 @@ func TestExpectedWithdrawals(t *testing.T) {
 			val.WithdrawalCredentials[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
 			validators = append(validators, val)
 			balances = append(balances, params.BeaconConfig().MaxEffectiveBalance)
-			bailOuts = append(bailOuts, 0)
 		}
 
 		epoch := slots.ToEpoch(st.Slot())
@@ -159,7 +157,6 @@ func TestExpectedWithdrawals(t *testing.T) {
 
 		require.NoError(t, st.SetValidators(validators))
 		require.NoError(t, st.SetBalances(balances))
-		require.NoError(t, st.SetBailOutScores(bailOuts))
 		inactivityScores := make([]uint64, valCount)
 		for i := range inactivityScores {
 			inactivityScores[i] = 10

@@ -404,15 +404,6 @@ func Test_BeaconBlockBody_SyncAggregate(t *testing.T) {
 	assert.DeepEqual(t, result, sa)
 }
 
-func Test_BeaconBlockBody_BailOuts(t *testing.T) {
-	bo := make([]*eth.BailOut, 0)
-	bb := &SignedBeaconBlock{version: version.Altair, block: &BeaconBlock{version: version.Altair, body: &BeaconBlockBody{version: version.Altair}}}
-	require.NoError(t, bb.SetBailOuts(bo))
-	result, err := bb.Block().Body().BailOuts()
-	require.NoError(t, err)
-	assert.DeepSSZEqual(t, bo, result)
-}
-
 func Test_BeaconBlockBody_BLSToExecutionChanges(t *testing.T) {
 	changes := []*eth.SignedBLSToExecutionChange{{Message: &eth.BLSToExecutionChange{ToExecutionAddress: []byte("address")}}}
 	bb := &SignedBeaconBlock{version: version.Capella, block: &BeaconBlock{body: &BeaconBlockBody{version: version.Capella}}}
@@ -524,7 +515,6 @@ func hydrateBeaconBlockBodyAltair() *eth.BeaconBlockBodyAltair {
 			SyncCommitteeBits:      make([]byte, 64),
 			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
 		},
-		BailOuts: make([]*eth.BailOut, 0),
 	}
 }
 
@@ -540,7 +530,6 @@ func hydrateBeaconBlockBodyBellatrix() *eth.BeaconBlockBodyBellatrix {
 			SyncCommitteeBits:      make([]byte, 64),
 			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
 		},
-		BailOuts: make([]*eth.BailOut, 0),
 		ExecutionPayload: &pb.ExecutionPayload{
 			ParentHash:    make([]byte, fieldparams.RootLength),
 			FeeRecipient:  make([]byte, 20),
@@ -568,7 +557,6 @@ func hydrateBeaconBlockBodyCapella() *eth.BeaconBlockBodyCapella {
 			SyncCommitteeBits:      make([]byte, fieldparams.SyncAggregateSyncCommitteeBytesLength),
 			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
 		},
-		BailOuts: make([]*eth.BailOut, 0),
 		ExecutionPayload: &pb.ExecutionPayloadCapella{
 			ParentHash:    make([]byte, fieldparams.RootLength),
 			FeeRecipient:  make([]byte, 20),
@@ -597,7 +585,6 @@ func hydrateBeaconBlockBodyDeneb() *eth.BeaconBlockBodyDeneb {
 			SyncCommitteeBits:      make([]byte, fieldparams.SyncAggregateSyncCommitteeBytesLength),
 			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
 		},
-		BailOuts: make([]*eth.BailOut, 0),
 		ExecutionPayload: &pb.ExecutionPayloadDeneb{
 			ParentHash:    make([]byte, fieldparams.RootLength),
 			FeeRecipient:  make([]byte, 20),
@@ -626,19 +613,18 @@ func hydrateBeaconBlockBodyElectra() *eth.BeaconBlockBodyElectra {
 			SyncCommitteeBits:      make([]byte, fieldparams.SyncAggregateSyncCommitteeBytesLength),
 			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
 		},
-		BailOuts: make([]*eth.BailOut, 0),
 		ExecutionPayload: &pb.ExecutionPayloadElectra{
-			ParentHash:            make([]byte, fieldparams.RootLength),
-			FeeRecipient:          make([]byte, 20),
-			StateRoot:             make([]byte, fieldparams.RootLength),
-			ReceiptsRoot:          make([]byte, fieldparams.RootLength),
-			LogsBloom:             make([]byte, 256),
-			PrevRandao:            make([]byte, fieldparams.RootLength),
-			ExtraData:             make([]byte, 0),
-			BaseFeePerGas:         make([]byte, fieldparams.RootLength),
-			BlockHash:             make([]byte, fieldparams.RootLength),
-			Transactions:          make([][]byte, 0),
-			Withdrawals:           make([]*pb.Withdrawal, 0),
+			ParentHash:    make([]byte, fieldparams.RootLength),
+			FeeRecipient:  make([]byte, 20),
+			StateRoot:     make([]byte, fieldparams.RootLength),
+			ReceiptsRoot:  make([]byte, fieldparams.RootLength),
+			LogsBloom:     make([]byte, 256),
+			PrevRandao:    make([]byte, fieldparams.RootLength),
+			ExtraData:     make([]byte, 0),
+			BaseFeePerGas: make([]byte, fieldparams.RootLength),
+			BlockHash:     make([]byte, fieldparams.RootLength),
+			Transactions:  make([][]byte, 0),
+			Withdrawals:   make([]*pb.Withdrawal, 0),
 		},
 		ExecutionRequests: &pb.ExecutionRequests{
 			Deposits:       make([]*pb.DepositRequest, 0),

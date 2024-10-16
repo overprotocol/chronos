@@ -712,8 +712,6 @@ message ValidatorPerformanceResponse {
     repeated bytes public_keys = 11 [(ethereum.eth.ext.ssz_size) = "?,48"];
     // The inactivity score of the validator tracks validator participation. [New in Altair]
     repeated uint64 inactivity_scores = 12;
-    // The bail out score of the validator tracks validator participation. [New in Altair]
-    repeated string bail_out_scores = 13;
 }
 
 // DEPRECATED: Prysm Web UI and associated endpoints will be fully removed in a future hard fork.
@@ -919,7 +917,6 @@ message IndividualVotesRespond {
         uint64 inclusion_distance = 15 [(ethereum.eth.ext.cast_type) = "github.com/prysmaticlabs/prysm/v5/consensus-types/primitives.Slot", deprecated = true];
         // The inactivity score of the validator tracks validator participation. [New in Altair]
         uint64 inactivity_score = 16;
-        uint64 bail_out_score = 17;
     }
 
     repeated IndividualVote individual_votes = 1;

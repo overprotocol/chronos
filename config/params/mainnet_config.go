@@ -151,7 +151,6 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	MaxAttestationsElectra:           8,
 	MaxDeposits:                      16,
 	MaxVoluntaryExits:                16,
-	MaxBailOuts:                      16,
 	MaxWithdrawalsPerPayload:         16,
 	MaxBlsToExecutionChanges:         16,
 	MaxValidatorsPerWithdrawalsSweep: 16384,
@@ -188,11 +187,11 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	ConfigName:                     MainnetName,
 	PresetBase:                     "mainnet",
 	BeaconStateFieldCount:          24,
-	BeaconStateAltairFieldCount:    28,
-	BeaconStateBellatrixFieldCount: 29,
-	BeaconStateCapellaFieldCount:   32,
-	BeaconStateDenebFieldCount:     32,
-	BeaconStateElectraFieldCount:   41,
+	BeaconStateAltairFieldCount:    27,
+	BeaconStateBellatrixFieldCount: 28,
+	BeaconStateCapellaFieldCount:   31,
+	BeaconStateDenebFieldCount:     31,
+	BeaconStateElectraFieldCount:   40,
 
 	// Slasher related values.
 	WeakSubjectivityPeriod:          54000,
@@ -239,8 +238,6 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	SyncCommitteeSize:            512,
 	InactivityScoreBias:          4,
 	InactivityScoreRecoveryRate:  16,
-	BailOutScoreBias:             1000000000000000,
-	BailOutScoreThreshold:        1575000000000000000,
 	EpochsPerSyncCommitteePeriod: 256,
 
 	// Updated penalty values.

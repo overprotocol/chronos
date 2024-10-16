@@ -137,10 +137,6 @@ type VoluntaryExit struct {
 	ValidatorIndex string `json:"validator_index"`
 }
 
-type BailOut struct {
-	ValidatorIndex string `json:"validator_index"`
-}
-
 type Fork struct {
 	PreviousVersion string `json:"previous_version"`
 	CurrentVersion  string `json:"current_version"`

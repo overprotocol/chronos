@@ -54,8 +54,6 @@ import (
 //	    finalized_checkpoint=pre.finalized_checkpoint,
 //	    # Inactivity
 //	    inactivity_scores=[uint64(0) for _ in range(len(pre.validators))],
-//		# Bailout
-//		bailout_scores=[uint64(0) for _ in range(len(pre.validators))],
 //	)
 //	# Fill in previous epoch participation from the pre state's pending attestations
 //	translate_participation(post, pre.previous_epoch_attestations)
@@ -103,7 +101,6 @@ func UpgradeToAltair(ctx context.Context, state state.BeaconState) (state.Beacon
 		CurrentJustifiedCheckpoint:  state.CurrentJustifiedCheckpoint(),
 		FinalizedCheckpoint:         state.FinalizedCheckpoint(),
 		InactivityScores:            make([]uint64, numValidators),
-		BailOutScores:               make([]uint64, numValidators),
 	}
 
 	newState, err := state_native.InitializeFromProtoUnsafeAltair(s)
