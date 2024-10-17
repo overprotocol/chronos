@@ -93,7 +93,7 @@ func TestGetSpec(t *testing.T) {
 	config.ShardCommitteePeriod = 33
 	config.MinEpochsToInactivityPenalty = 34
 	config.EpochsPerHistoricalVector = 35
-	config.EpochsPerSlashingsVector = 36
+	config.MinSlashingWithdrawableDelay = 36
 	config.HistoricalRootsLimit = 37
 	config.ValidatorRegistryLimit = 38
 	config.BaseRewardFactor = 39
@@ -311,7 +311,7 @@ func TestGetSpec(t *testing.T) {
 				assert.Equal(t, "34", v)
 			case "EPOCHS_PER_HISTORICAL_VECTOR":
 				assert.Equal(t, "35", v)
-			case "EPOCHS_PER_SLASHINGS_VECTOR":
+			case "MIN_SLASHING_WITHDRAWABLE_DELAY":
 				assert.Equal(t, "36", v)
 			case "HISTORICAL_ROOTS_LIMIT":
 				assert.Equal(t, "37", v)

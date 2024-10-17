@@ -13,7 +13,7 @@ mainnet = {
     "randao_mixes.size": "65536,32",  # EPOCHS_PER_HISTORICAL_VECTOR, [32]byte
     "previous_epoch_attestations.max": "4096",  # MAX_ATTESTATIONS * SLOTS_PER_EPOCH
     "current_epoch_attestations.max": "4096",  # MAX_ATTESTATIONS * SLOTS_PER_EPOCH
-    "slashings.size": "8192",  # EPOCHS_PER_SLASHINGS_VECTOR
+    "slashings.size": "8192",  # MIN_SLASHING_WITHDRAWABLE_DELAY
     "sync_committee_bits.size": "512",  # SYNC_COMMITTEE_SIZE
     "sync_committee_bytes.size": "64",
     "sync_committee_bits.type": "github.com/prysmaticlabs/go-bitfield.Bitvector512",

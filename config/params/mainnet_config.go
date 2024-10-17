@@ -120,6 +120,7 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	// Validator params.
 	RandomSubnetsPerValidator:         1 << 0,
 	EpochsPerRandomSubnetSubscription: 1 << 8,
+	MinSlashingWithdrawableDelay:      8192,
 
 	// While eth1 mainnet block times are closer to 13s, we must conform with other clients in
 	// order to vote on the correct eth1 blocks.
@@ -131,7 +132,6 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 
 	// State list length constants.
 	EpochsPerHistoricalVector: 65536,
-	EpochsPerSlashingsVector:  8192,
 	HistoricalRootsLimit:      16777216,
 	ValidatorRegistryLimit:    1099511627776,
 

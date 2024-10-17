@@ -77,7 +77,7 @@ func compareConfigs(t *testing.T, expected, actual *params.BeaconChainConfig) {
 	require.DeepEqual(t, expected.RandomSubnetsPerValidator, actual.RandomSubnetsPerValidator)
 	require.DeepEqual(t, expected.EpochsPerRandomSubnetSubscription, actual.EpochsPerRandomSubnetSubscription)
 	require.DeepEqual(t, expected.EpochsPerHistoricalVector, actual.EpochsPerHistoricalVector)
-	require.DeepEqual(t, expected.EpochsPerSlashingsVector, actual.EpochsPerSlashingsVector)
+	require.DeepEqual(t, expected.MinSlashingWithdrawableDelay, actual.MinSlashingWithdrawableDelay)
 	require.DeepEqual(t, expected.HistoricalRootsLimit, actual.HistoricalRootsLimit)
 	require.DeepEqual(t, expected.ValidatorRegistryLimit, actual.ValidatorRegistryLimit)
 	require.DeepEqual(t, expected.BaseRewardFactor, actual.BaseRewardFactor)

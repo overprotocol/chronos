@@ -85,6 +85,7 @@ func assertEqualConfigs(t *testing.T, name string, fields []string, expected, ac
 	assert.Equal(t, expected.RandomSubnetsPerValidator, actual.RandomSubnetsPerValidator, "%s: RandomSubnetsPerValidator", name)
 	assert.Equal(t, expected.EpochsPerRandomSubnetSubscription, actual.EpochsPerRandomSubnetSubscription, "%s: EpochsPerRandomSubnetSubscription", name)
 	assert.Equal(t, expected.SecondsPerETH1Block, actual.SecondsPerETH1Block, "%s: SecondsPerETH1Block", name)
+	assert.Equal(t, expected.MinSlashingWithdrawableDelay, actual.MinSlashingWithdrawableDelay, "%s: MinSlashingWithdrawableDelay", name)
 
 	// Deposit contract.
 	assert.Equal(t, expected.DepositChainID, actual.DepositChainID, "%s: DepositChainID", name)
@@ -117,7 +118,6 @@ func assertEqualConfigs(t *testing.T, name string, fields []string, expected, ac
 
 	// State vector lengths.
 	assert.Equal(t, expected.EpochsPerHistoricalVector, actual.EpochsPerHistoricalVector, "%s: EpochsPerHistoricalVector", name)
-	assert.Equal(t, expected.EpochsPerSlashingsVector, actual.EpochsPerSlashingsVector, "%s: EpochsPerSlashingsVector", name)
 	assert.Equal(t, expected.HistoricalRootsLimit, actual.HistoricalRootsLimit, "%s: HistoricalRootsLimit", name)
 	assert.Equal(t, expected.ValidatorRegistryLimit, actual.ValidatorRegistryLimit, "%s: ValidatorRegistryLimit", name)
 

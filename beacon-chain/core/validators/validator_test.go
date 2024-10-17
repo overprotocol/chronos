@@ -224,7 +224,7 @@ func TestSlashValidator_OK(t *testing.T) {
 	v, err := state.ValidatorAtIndex(slashedIdx)
 	require.NoError(t, err)
 	assert.Equal(t, true, v.Slashed, "Validator not slashed despite supposed to being slashed")
-	assert.Equal(t, time.CurrentEpoch(state)+params.BeaconConfig().EpochsPerSlashingsVector, v.WithdrawableEpoch, "Withdrawable epoch not the expected value")
+	assert.Equal(t, time.CurrentEpoch(state)+params.BeaconConfig().MinSlashingWithdrawableDelay, v.WithdrawableEpoch, "Withdrawable epoch not the expected value")
 
 	maxBalance := params.BeaconConfig().MaxEffectiveBalance
 
@@ -274,7 +274,7 @@ func TestSlashValidator_Electra(t *testing.T) {
 	v, err := state.ValidatorAtIndex(slashedIdx)
 	require.NoError(t, err)
 	assert.Equal(t, true, v.Slashed, "Validator not slashed despite supposed to being slashed")
-	assert.Equal(t, time.CurrentEpoch(state)+params.BeaconConfig().EpochsPerSlashingsVector, v.WithdrawableEpoch, "Withdrawable epoch not the expected value")
+	assert.Equal(t, time.CurrentEpoch(state)+params.BeaconConfig().MinSlashingWithdrawableDelay, v.WithdrawableEpoch, "Withdrawable epoch not the expected value")
 
 	maxBalance := params.BeaconConfig().MaxEffectiveBalance
 
@@ -356,15 +356,15 @@ func TestSlashedValidatorIndices(t *testing.T) {
 			state: &ethpb.BeaconState{
 				Validators: []*ethpb.Validator{
 					{
-						WithdrawableEpoch: params.BeaconConfig().EpochsPerSlashingsVector,
+						WithdrawableEpoch: params.BeaconConfig().MinSlashingWithdrawableDelay,
 						Slashed:           true,
 					},
 					{
-						WithdrawableEpoch: params.BeaconConfig().EpochsPerSlashingsVector,
+						WithdrawableEpoch: params.BeaconConfig().MinSlashingWithdrawableDelay,
 						Slashed:           false,
 					},
 					{
-						WithdrawableEpoch: params.BeaconConfig().EpochsPerSlashingsVector,
+						WithdrawableEpoch: params.BeaconConfig().MinSlashingWithdrawableDelay,
 						Slashed:           true,
 					},
 				},
@@ -375,7 +375,7 @@ func TestSlashedValidatorIndices(t *testing.T) {
 			state: &ethpb.BeaconState{
 				Validators: []*ethpb.Validator{
 					{
-						WithdrawableEpoch: params.BeaconConfig().EpochsPerSlashingsVector,
+						WithdrawableEpoch: params.BeaconConfig().MinSlashingWithdrawableDelay,
 					},
 				},
 			},
@@ -385,7 +385,7 @@ func TestSlashedValidatorIndices(t *testing.T) {
 			state: &ethpb.BeaconState{
 				Validators: []*ethpb.Validator{
 					{
-						WithdrawableEpoch: params.BeaconConfig().EpochsPerSlashingsVector,
+						WithdrawableEpoch: params.BeaconConfig().MinSlashingWithdrawableDelay,
 						Slashed:           true,
 					},
 				},
