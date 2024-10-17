@@ -17,7 +17,7 @@ var (
 	wrSize    = wrExample.SizeSSZ()
 )
 
-const LenExecutionRequestsElectra = 3
+const LenExecutionRequestsElectra = 2
 
 func (ebe *ExecutionBundleElectra) GetDecodedExecutionRequests() (*ExecutionRequests, error) {
 	requests := &ExecutionRequests{}
