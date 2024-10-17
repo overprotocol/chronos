@@ -98,6 +98,44 @@ func (s *ChainService) BlockNotifier() blockfeed.Notifier {
 	return s.blockNotifier
 }
 
+type EventFeedWrapper struct {
+	feed       *event.Feed
+	subscribed chan struct{} // this channel is closed once a subscription is made
+}
+
+func (w *EventFeedWrapper) Subscribe(channel interface{}) event.Subscription {
+	select {
+	case <-w.subscribed:
+		break // already closed
+	default:
+		close(w.subscribed)
+	}
+	return w.feed.Subscribe(channel)
+}
+
+func (w *EventFeedWrapper) Send(value interface{}) int {
+	return w.feed.Send(value)
+}
+
+// WaitForSubscription allows test to wait for the feed to have a subscription before beginning to send events.
+func (w *EventFeedWrapper) WaitForSubscription(ctx context.Context) error {
+	select {
+	case <-w.subscribed:
+		return nil
+	case <-ctx.Done():
+		return ctx.Err()
+	}
+}
+
+var _ event.SubscriberSender = &EventFeedWrapper{}
+
+func NewEventFeedWrapper() *EventFeedWrapper {
+	return &EventFeedWrapper{
+		feed:       new(event.Feed),
+		subscribed: make(chan struct{}),
+	}
+}
+
 // MockBlockNotifier mocks the block notifier.
 type MockBlockNotifier struct {
 	feed *event.Feed
@@ -131,7 +169,7 @@ func (msn *MockStateNotifier) ReceivedEvents() []*feed.Event {
 }
 
 // StateFeed returns a state feed.
-func (msn *MockStateNotifier) StateFeed() *event.Feed {
+func (msn *MockStateNotifier) StateFeed() event.SubscriberSender {
 	msn.feedLock.Lock()
 	defer msn.feedLock.Unlock()
 
@@ -159,6 +197,23 @@ func (msn *MockStateNotifier) StateFeed() *event.Feed {
 	return msn.feed
 }
 
+// NewSimpleStateNotifier makes a state feed without the custom mock feed machinery.
+func NewSimpleStateNotifier() *MockStateNotifier {
+	return &MockStateNotifier{feed: new(event.Feed)}
+}
+
+type SimpleNotifier struct {
+	Feed event.SubscriberSender
+}
+
+func (n *SimpleNotifier) StateFeed() event.SubscriberSender {
+	return n.Feed
+}
+
+func (n *SimpleNotifier) OperationFeed() event.SubscriberSender {
+	return n.Feed
+}
+
 // OperationNotifier mocks the same method in the chain service.
 func (s *ChainService) OperationNotifier() opfeed.Notifier {
 	if s.opNotifier == nil {
@@ -173,7 +228,7 @@ type MockOperationNotifier struct {
 }
 
 // OperationFeed returns an operation feed.
-func (mon *MockOperationNotifier) OperationFeed() *event.Feed {
+func (mon *MockOperationNotifier) OperationFeed() event.SubscriberSender {
 	if mon.feed == nil {
 		mon.feed = new(event.Feed)
 	}
@@ -414,8 +469,8 @@ func (*ChainService) HeadGenesisValidatorsRoot() [32]byte {
 }
 
 // VerifyLmdFfgConsistency mocks VerifyLmdFfgConsistency and always returns nil.
-func (*ChainService) VerifyLmdFfgConsistency(_ context.Context, a *ethpb.Attestation) error {
-	if !bytes.Equal(a.Data.BeaconBlockRoot, a.Data.Target.Root) {
+func (*ChainService) VerifyLmdFfgConsistency(_ context.Context, a ethpb.Att) error {
+	if !bytes.Equal(a.GetData().BeaconBlockRoot, a.GetData().Target.Root) {
 		return errors.New("LMD and FFG miss matched")
 	}
 	return nil
@@ -495,7 +550,7 @@ func (s *ChainService) UpdateHead(ctx context.Context, slot primitives.Slot) {
 }
 
 // ReceiveAttesterSlashing mocks the same method in the chain service.
-func (*ChainService) ReceiveAttesterSlashing(context.Context, *ethpb.AttesterSlashing) {}
+func (*ChainService) ReceiveAttesterSlashing(context.Context, ethpb.AttSlashing) {}
 
 // IsFinalized mocks the same method in the chain service.
 func (s *ChainService) IsFinalized(_ context.Context, blockRoot [32]byte) bool {

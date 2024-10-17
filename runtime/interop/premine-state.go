@@ -2,12 +2,10 @@ package interop
 
 import (
 	"context"
-	"math/big"
 
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/pkg/errors"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/altair"
-	b "github.com/prysmaticlabs/prysm/v5/beacon-chain/core/blocks"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
 	state_native "github.com/prysmaticlabs/prysm/v5/beacon-chain/state/state-native"
@@ -68,7 +66,7 @@ func NewPreminedGenesis(ctx context.Context, t, nvals, pCreds uint64, version in
 
 func (s *PremineGenesisConfig) prepare(ctx context.Context) (state.BeaconState, error) {
 	switch s.Version {
-	case version.Phase0, version.Altair, version.Bellatrix, version.Capella, version.Deneb:
+	case version.Phase0, version.Altair, version.Bellatrix, version.Capella, version.Deneb, version.Electra:
 	default:
 		return nil, errors.Wrapf(errUnsupportedVersion, "version=%s", version.String(s.Version))
 	}
@@ -160,6 +158,11 @@ func (s *PremineGenesisConfig) empty() (state.BeaconState, error) {
 		if err != nil {
 			return nil, err
 		}
+	case version.Electra:
+		e, err = state_native.InitializeFromProtoElectra(&ethpb.BeaconStateElectra{})
+		if err != nil {
+			return nil, err
+		}
 	default:
 		return nil, errUnsupportedVersion
 	}
@@ -219,7 +222,9 @@ func (s *PremineGenesisConfig) processDeposits(ctx context.Context, g state.Beac
 	if _, err = helpers.UpdateGenesisEth1Data(g, deposits, g.Eth1Data()); err != nil {
 		return err
 	}
-	_, err = b.ProcessPreGenesisDeposits(ctx, g, deposits)
+
+	// TODO: should be updated when electra E2E is updated
+	_, err = altair.ProcessPreGenesisDeposits(ctx, g, deposits)
 	if err != nil {
 		return errors.Wrap(err, "could not process validator deposits")
 	}
@@ -351,6 +356,8 @@ func (s *PremineGenesisConfig) setFork(g state.BeaconState) error {
 		pv, cv = params.BeaconConfig().BellatrixForkVersion, params.BeaconConfig().CapellaForkVersion
 	case version.Deneb:
 		pv, cv = params.BeaconConfig().CapellaForkVersion, params.BeaconConfig().DenebForkVersion
+	case version.Electra:
+		pv, cv = params.BeaconConfig().ElectraForkVersion, params.BeaconConfig().ElectraForkVersion
 	default:
 		return errUnsupportedVersion
 	}
@@ -557,6 +564,39 @@ func (s *PremineGenesisConfig) setLatestBlockHeader(g state.BeaconState) error {
 			BlsToExecutionChanges: make([]*ethpb.SignedBLSToExecutionChange, 0),
 			BlobKzgCommitments:    make([][]byte, 0),
 		}
+	case version.Electra:
+		body = &ethpb.BeaconBlockBodyElectra{
+			RandaoReveal: make([]byte, 96),
+			Eth1Data: &ethpb.Eth1Data{
+				DepositRoot: make([]byte, 32),
+				BlockHash:   make([]byte, 32),
+			},
+			Graffiti: make([]byte, 32),
+			SyncAggregate: &ethpb.SyncAggregate{
+				SyncCommitteeBits:      make([]byte, fieldparams.SyncCommitteeLength/8),
+				SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
+			},
+			ExecutionPayload: &enginev1.ExecutionPayloadElectra{
+				ParentHash:    make([]byte, 32),
+				FeeRecipient:  make([]byte, 20),
+				StateRoot:     make([]byte, 32),
+				ReceiptsRoot:  make([]byte, 32),
+				LogsBloom:     make([]byte, 256),
+				PrevRandao:    make([]byte, 32),
+				ExtraData:     make([]byte, 0),
+				BaseFeePerGas: make([]byte, 32),
+				BlockHash:     make([]byte, 32),
+				Transactions:  make([][]byte, 0),
+				Withdrawals:   make([]*enginev1.Withdrawal, 0),
+			},
+			BlsToExecutionChanges: make([]*ethpb.SignedBLSToExecutionChange, 0),
+			BlobKzgCommitments:    make([][]byte, 0),
+			ExecutionRequests: &enginev1.ExecutionRequests{
+				Deposits:       make([]*enginev1.DepositRequest, 0),
+				Withdrawals:    make([]*enginev1.WithdrawalRequest, 0),
+				Consolidations: make([]*enginev1.ConsolidationRequest, 0),
+			},
+		}
 	default:
 		return errUnsupportedVersion
 	}
@@ -629,7 +669,7 @@ func (s *PremineGenesisConfig) setExecutionPayload(g state.BeaconState) error {
 			Transactions:  make([][]byte, 0),
 			Withdrawals:   make([]*enginev1.Withdrawal, 0),
 		}
-		wep, err := blocks.WrappedExecutionPayloadCapella(payload, big.NewInt(0))
+		wep, err := blocks.WrappedExecutionPayloadCapella(payload)
 		if err != nil {
 			return err
 		}
@@ -637,7 +677,7 @@ func (s *PremineGenesisConfig) setExecutionPayload(g state.BeaconState) error {
 		if err != nil {
 			return err
 		}
-		ed, err = blocks.WrappedExecutionPayloadHeaderCapella(eph, big.NewInt(0))
+		ed, err = blocks.WrappedExecutionPayloadHeaderCapella(eph)
 		if err != nil {
 			return err
 		}
@@ -661,7 +701,7 @@ func (s *PremineGenesisConfig) setExecutionPayload(g state.BeaconState) error {
 			ExcessBlobGas: *gb.ExcessBlobGas(),
 			BlobGasUsed:   *gb.BlobGasUsed(),
 		}
-		wep, err := blocks.WrappedExecutionPayloadDeneb(payload, big.NewInt(0))
+		wep, err := blocks.WrappedExecutionPayloadDeneb(payload)
 		if err != nil {
 			return err
 		}
@@ -669,7 +709,39 @@ func (s *PremineGenesisConfig) setExecutionPayload(g state.BeaconState) error {
 		if err != nil {
 			return err
 		}
-		ed, err = blocks.WrappedExecutionPayloadHeaderDeneb(eph, big.NewInt(0))
+		ed, err = blocks.WrappedExecutionPayloadHeaderDeneb(eph)
+		if err != nil {
+			return err
+		}
+	case version.Electra:
+		payload := &enginev1.ExecutionPayloadElectra{
+			ParentHash:    gb.ParentHash().Bytes(),
+			FeeRecipient:  gb.Coinbase().Bytes(),
+			StateRoot:     gb.Root().Bytes(),
+			ReceiptsRoot:  gb.ReceiptHash().Bytes(),
+			LogsBloom:     gb.Bloom().Bytes(),
+			PrevRandao:    params.BeaconConfig().ZeroHash[:],
+			BlockNumber:   gb.NumberU64(),
+			GasLimit:      gb.GasLimit(),
+			GasUsed:       gb.GasUsed(),
+			Timestamp:     gb.Time(),
+			ExtraData:     gb.Extra()[:32],
+			BaseFeePerGas: bytesutil.PadTo(bytesutil.ReverseByteOrder(gb.BaseFee().Bytes()), fieldparams.RootLength),
+			BlockHash:     gb.Hash().Bytes(),
+			Transactions:  make([][]byte, 0),
+			Withdrawals:   make([]*enginev1.Withdrawal, 0),
+			ExcessBlobGas: *gb.ExcessBlobGas(),
+			BlobGasUsed:   *gb.BlobGasUsed(),
+		}
+		wep, err := blocks.WrappedExecutionPayloadElectra(payload)
+		if err != nil {
+			return err
+		}
+		eph, err := blocks.PayloadToHeaderElectra(wep)
+		if err != nil {
+			return err
+		}
+		ed, err = blocks.WrappedExecutionPayloadHeaderElectra(eph)
 		if err != nil {
 			return err
 		}

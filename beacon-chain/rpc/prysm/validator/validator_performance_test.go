@@ -36,13 +36,13 @@ func TestServer_GetValidatorPerformance(t *testing.T) {
 			},
 		}
 
-		srv := httptest.NewServer(http.HandlerFunc(vs.GetValidatorPerformance))
+		srv := httptest.NewServer(http.HandlerFunc(vs.GetPerformance))
 		req := httptest.NewRequest("POST", "/foo", nil)
 
 		client := &http.Client{}
 		rawResp, err := client.Post(srv.URL, "application/json", req.Body)
 		require.NoError(t, err)
-		require.Equal(t, http.StatusServiceUnavailable, rawResp.StatusCode)
+		require.Equal(t, http.StatusBadRequest, rawResp.StatusCode)
 	})
 	t.Run("OK", func(t *testing.T) {
 		helpers.ClearCache()
@@ -88,7 +88,7 @@ func TestServer_GetValidatorPerformance(t *testing.T) {
 		err = json.NewEncoder(&buf).Encode(request)
 		require.NoError(t, err)
 
-		srv := httptest.NewServer(http.HandlerFunc(vs.GetValidatorPerformance))
+		srv := httptest.NewServer(http.HandlerFunc(vs.GetPerformance))
 		req := httptest.NewRequest("POST", "/foo", &buf)
 		client := &http.Client{}
 		rawResp, err := client.Post(srv.URL, "application/json", req.Body)
@@ -154,7 +154,7 @@ func TestServer_GetValidatorPerformance(t *testing.T) {
 		err = json.NewEncoder(&buf).Encode(request)
 		require.NoError(t, err)
 
-		srv := httptest.NewServer(http.HandlerFunc(vs.GetValidatorPerformance))
+		srv := httptest.NewServer(http.HandlerFunc(vs.GetPerformance))
 		req := httptest.NewRequest("POST", "/foo", &buf)
 		client := &http.Client{}
 		rawResp, err := client.Post(srv.URL, "application/json", req.Body)
@@ -220,7 +220,7 @@ func TestServer_GetValidatorPerformance(t *testing.T) {
 		err = json.NewEncoder(&buf).Encode(request)
 		require.NoError(t, err)
 
-		srv := httptest.NewServer(http.HandlerFunc(vs.GetValidatorPerformance))
+		srv := httptest.NewServer(http.HandlerFunc(vs.GetPerformance))
 		req := httptest.NewRequest("POST", "/foo", &buf)
 		client := &http.Client{}
 		rawResp, err := client.Post(srv.URL, "application/json", req.Body)
@@ -284,7 +284,7 @@ func TestServer_GetValidatorPerformance(t *testing.T) {
 		err := json.NewEncoder(&buf).Encode(request)
 		require.NoError(t, err)
 
-		srv := httptest.NewServer(http.HandlerFunc(vs.GetValidatorPerformance))
+		srv := httptest.NewServer(http.HandlerFunc(vs.GetPerformance))
 		req := httptest.NewRequest("POST", "/foo", &buf)
 		client := &http.Client{}
 		rawResp, err := client.Post(srv.URL, "application/json", req.Body)
@@ -348,7 +348,7 @@ func TestServer_GetValidatorPerformance(t *testing.T) {
 		err := json.NewEncoder(&buf).Encode(request)
 		require.NoError(t, err)
 
-		srv := httptest.NewServer(http.HandlerFunc(vs.GetValidatorPerformance))
+		srv := httptest.NewServer(http.HandlerFunc(vs.GetPerformance))
 		req := httptest.NewRequest("POST", "/foo", &buf)
 		client := &http.Client{}
 		rawResp, err := client.Post(srv.URL, "application/json", req.Body)
@@ -412,7 +412,7 @@ func TestServer_GetValidatorPerformance(t *testing.T) {
 		err := json.NewEncoder(&buf).Encode(request)
 		require.NoError(t, err)
 
-		srv := httptest.NewServer(http.HandlerFunc(vs.GetValidatorPerformance))
+		srv := httptest.NewServer(http.HandlerFunc(vs.GetPerformance))
 		req := httptest.NewRequest("POST", "/foo", &buf)
 		client := &http.Client{}
 		rawResp, err := client.Post(srv.URL, "application/json", req.Body)

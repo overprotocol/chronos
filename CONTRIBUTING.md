@@ -104,7 +104,7 @@ Your version of the conflicting code
 
 The code from the Chronos repo is inserted between <<< and === while the change you have made is inserted between === and >>>>. Remove everything between <<<< and >>> and replace it with code that resolves the conflict. Repeat the process for all files listed by git status that have conflicts.
 
-**14. Push your changes to your fork of the Prysm repo.**
+**14. Push your changes to your fork of the Chronos repo.**
 
 Use git push to move your changes to your fork of the repo.
 
@@ -112,13 +112,13 @@ Use git push to move your changes to your fork of the repo.
 $ git push myrepo feature-in-progress-branch
 ```
 
-**15. Check to be sure your fork of the Prysm repo contains your feature branch with the latest edits.**
+**15. Check to be sure your fork of the Chronos repo contains your feature branch with the latest edits.**
 
 Navigate to your fork of the repo on GitHub. On the upper left where the current branch is listed, change the branch to your feature-in-progress-branch. Open the files that you have worked on and check to make sure they include your changes.
 
 **16. Create a pull request.**
 
-Navigate your browser to https://github.com/overprotocol/chronos and click on the new pull request button. In the “base” box on the left, leave the default selection “base master”, the branch that you want your changes to be applied to. In the “compare” box on the right, select feature-in-progress-branch, the branch containing the changes you want to apply. You will then be asked to answer a few questions about your pull request. After you complete the questionnaire, the pull request will appear in the list of pull requests at https://github.com/prysmaticlabs/prysm/pulls.
+Navigate your browser to https://github.com/overprotocol/chronos and click on the new pull request button. In the “base” box on the left, leave the default selection “base master”, the branch that you want your changes to be applied to. In the “compare” box on the right, select feature-in-progress-branch, the branch containing the changes you want to apply. You will then be asked to answer a few questions about your pull request. After you complete the questionnaire, the pull request will appear in the list of pull requests at https://github.com/overprotocol/chronos/pulls.
 
 **17. Respond to comments by Core Contributors.**
 

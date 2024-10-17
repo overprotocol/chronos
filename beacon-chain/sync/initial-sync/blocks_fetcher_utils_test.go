@@ -29,6 +29,8 @@ import (
 )
 
 func TestBlocksFetcher_nonSkippedSlotAfter(t *testing.T) {
+	params.SetupForkEpochConfigForTest()
+
 	peersGen := func(size int) []*peerData {
 		blocks := append(makeSequence(1, 64), makeSequence(500, 640)...)
 		blocks = append(blocks, makeSequence(51200, 51264)...)

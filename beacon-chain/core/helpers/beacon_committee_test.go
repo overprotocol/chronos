@@ -18,6 +18,7 @@ import (
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	"github.com/prysmaticlabs/prysm/v5/testing/assert"
 	"github.com/prysmaticlabs/prysm/v5/testing/require"
+	"github.com/prysmaticlabs/prysm/v5/testing/util"
 	"github.com/prysmaticlabs/prysm/v5/time/slots"
 )
 
@@ -402,7 +403,12 @@ func TestVerifyAttestationBitfieldLengths_OK(t *testing.T) {
 		helpers.ClearCache()
 
 		require.NoError(t, state.SetSlot(tt.stateSlot))
-		err := helpers.VerifyAttestationBitfieldLengths(context.Background(), state, tt.attestation)
+		att := tt.attestation
+		// Verify attesting indices are correct.
+		committee, err := helpers.BeaconCommitteeFromState(context.Background(), state, att.GetData().Slot, att.GetData().CommitteeIndex)
+		require.NoError(t, err)
+		require.NotNil(t, committee)
+		err = helpers.VerifyBitfieldLength(att.GetAggregationBits(), uint64(len(committee)))
 		if tt.verificationFailure {
 			assert.NotNil(t, err, "Verification succeeded when it was supposed to fail")
 		} else {
@@ -705,4 +711,71 @@ func TestPrecomputeProposerIndices_Ok(t *testing.T) {
 		wantedProposerIndices = append(wantedProposerIndices, index)
 	}
 	assert.DeepEqual(t, wantedProposerIndices, proposerIndices, "Did not precompute proposer indices correctly")
+}
+
+func TestCommitteeIndices(t *testing.T) {
+	bitfield := bitfield.NewBitvector4()
+	bitfield.SetBitAt(0, true)
+	bitfield.SetBitAt(1, true)
+	bitfield.SetBitAt(3, true)
+	indices := helpers.CommitteeIndices(bitfield)
+	assert.DeepEqual(t, []primitives.CommitteeIndex{0, 1, 3}, indices)
+}
+
+func TestAttestationCommittees(t *testing.T) {
+	validators := make([]*ethpb.Validator, params.BeaconConfig().SlotsPerEpoch.Mul(params.BeaconConfig().TargetCommitteeSize))
+	for i := 0; i < len(validators); i++ {
+		validators[i] = &ethpb.Validator{
+			ExitEpoch: params.BeaconConfig().FarFutureEpoch,
+		}
+	}
+
+	state, err := state_native.InitializeFromProtoPhase0(&ethpb.BeaconState{
+		Validators:  validators,
+		RandaoMixes: make([][]byte, params.BeaconConfig().EpochsPerHistoricalVector),
+	})
+	require.NoError(t, err)
+
+	t.Run("pre-Electra", func(t *testing.T) {
+		att := &ethpb.Attestation{Data: &ethpb.AttestationData{CommitteeIndex: 0}}
+		committees, err := helpers.AttestationCommittees(context.Background(), state, att)
+		require.NoError(t, err)
+		require.Equal(t, 1, len(committees))
+		assert.Equal(t, params.BeaconConfig().TargetCommitteeSize, uint64(len(committees[0])))
+	})
+	t.Run("post-Electra", func(t *testing.T) {
+		bits := primitives.NewAttestationCommitteeBits()
+		bits.SetBitAt(0, true)
+		bits.SetBitAt(1, true)
+		att := &ethpb.AttestationElectra{CommitteeBits: bits, Data: &ethpb.AttestationData{}}
+		committees, err := helpers.AttestationCommittees(context.Background(), state, att)
+		require.NoError(t, err)
+		require.Equal(t, 2, len(committees))
+		assert.Equal(t, params.BeaconConfig().TargetCommitteeSize, uint64(len(committees[0])))
+		assert.Equal(t, params.BeaconConfig().TargetCommitteeSize, uint64(len(committees[1])))
+	})
+}
+
+func TestBeaconCommittees(t *testing.T) {
+	prevConfig := params.BeaconConfig().Copy()
+	defer params.OverrideBeaconConfig(prevConfig)
+	c := params.BeaconConfig().Copy()
+	c.MinGenesisActiveValidatorCount = 128
+	c.SlotsPerEpoch = 4
+	c.TargetCommitteeSize = 16
+	params.OverrideBeaconConfig(c)
+
+	state, _ := util.DeterministicGenesisState(t, 256)
+
+	activeCount, err := helpers.ActiveValidatorCount(context.Background(), state, 0)
+	require.NoError(t, err)
+	committeesPerSlot := helpers.SlotCommitteeCount(activeCount)
+	committees, err := helpers.BeaconCommittees(context.Background(), state, 0)
+	require.NoError(t, err)
+	require.Equal(t, committeesPerSlot, uint64(len(committees)))
+	for idx := primitives.CommitteeIndex(0); idx < primitives.CommitteeIndex(len(committees)); idx++ {
+		committee, err := helpers.BeaconCommitteeFromState(context.Background(), state, 0, idx)
+		require.NoError(t, err)
+		require.DeepEqual(t, committees[idx], committee)
+	}
 }

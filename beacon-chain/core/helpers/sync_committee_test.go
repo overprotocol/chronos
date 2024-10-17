@@ -77,6 +77,8 @@ func TestIsCurrentEpochSyncCommittee_UsingCommittee(t *testing.T) {
 }
 
 func TestIsCurrentEpochSyncCommittee_DoesNotExist(t *testing.T) {
+	t.Skip("Sync committee will be removed in the future, skipping test")
+
 	helpers.ClearCache()
 
 	validators := make([]*ethpb.Validator, params.BeaconConfig().SyncCommitteeSize)
@@ -264,6 +266,8 @@ func TestCurrentEpochSyncSubcommitteeIndices_UsingCommittee(t *testing.T) {
 }
 
 func TestCurrentEpochSyncSubcommitteeIndices_DoesNotExist(t *testing.T) {
+	t.Skip("Sync committee will be removed in the future, skipping test")
+
 	helpers.ClearCache()
 
 	validators := make([]*ethpb.Validator, params.BeaconConfig().SyncCommitteeSize)

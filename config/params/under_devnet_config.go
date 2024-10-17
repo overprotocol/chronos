@@ -3,7 +3,6 @@ package params
 import (
 	"math"
 
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/prysmaticlabs/prysm/v5/encoding/bytesutil"
 )
 
@@ -16,25 +15,27 @@ func UnderDevnetSpecConfig() *BeaconChainConfig {
 	underConfig.DomainBeaconProposer = bytesutil.ToBytes4(bytesutil.Bytes4(0))
 	underConfig.DomainBeaconAttester = bytesutil.ToBytes4(bytesutil.Bytes4(1))
 	underConfig.DomainRandao = bytesutil.ToBytes4(bytesutil.Bytes4(2))
-	underConfig.DomainDeposit = bytesutil.ToBytes4(hexutil.MustDecode("0x03000000"))
+	underConfig.DomainDeposit = bytesutil.ToBytes4(bytesutil.Bytes4(3))
 	underConfig.DomainVoluntaryExit = bytesutil.ToBytes4(bytesutil.Bytes4(4))
 	// underConfig.GenesisForkVersion = []byte{0, 0, 0, 4}
-	underConfig.GenesisForkVersion = (hexutil.MustDecode("0x20000089"))
+	underConfig.GenesisForkVersion = []byte{0x20, 0x00, 0x00, 0x89}
 	underConfig.DepositContractTreeDepth = 32
 	underConfig.FarFutureEpoch = math.MaxUint64
 	underConfig.FarFutureSlot = math.MaxUint64
 	// New Altair params
 	// underConfig.AltairForkVersion = []byte{1, 0, 0, 4} // Highest byte set to 0x01 to avoid collisions with mainnet versioning
-	underConfig.AltairForkVersion = (hexutil.MustDecode("0x20000090"))
+	underConfig.AltairForkVersion = []byte{0x20, 0x00, 0x00, 0x90}
 	underConfig.AltairForkEpoch = math.MaxUint64 - 1
 	// underConfig.BellatrixForkVersion = []byte{2, 0, 0, 4}
-	underConfig.BellatrixForkVersion = (hexutil.MustDecode("0x20000091"))
+	underConfig.BellatrixForkVersion = []byte{0x20, 0x00, 0x00, 0x91}
 	underConfig.BellatrixForkEpoch = math.MaxUint64 - 1
 	// underConfig.CapellaForkVersion = []byte{3, 0, 0, 4}
-	underConfig.CapellaForkVersion = (hexutil.MustDecode("0x20000092"))
+	underConfig.CapellaForkVersion = []byte{0x20, 0x00, 0x00, 0x92}
 	underConfig.CapellaForkEpoch = math.MaxUint64 - 1
-	underConfig.DenebForkVersion = (hexutil.MustDecode("0x20000093"))
+	underConfig.DenebForkVersion = []byte{0x20, 0x00, 0x00, 0x93}
 	underConfig.DenebForkEpoch = math.MaxUint64 - 1
+	underConfig.ElectraForkVersion = []byte{0x20, 0x00, 0x00, 0x94}
+	underConfig.ElectraForkEpoch = math.MaxUint64 - 1
 	// Ethereum PoW parameters.
 	underConfig.DepositChainID = 181818   // Chain ID of eth1 under.
 	underConfig.DepositNetworkID = 181818 // Network ID of eth1 under.

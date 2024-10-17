@@ -1,6 +1,8 @@
 package types
 
 import (
+	"fmt"
+
 	"github.com/pkg/errors"
 	consensus_types "github.com/prysmaticlabs/prysm/v5/consensus-types"
 )
@@ -91,15 +93,35 @@ func (f FieldIndex) String() string {
 	case LatestExecutionPayloadHeader:
 		return "latestExecutionPayloadHeader"
 	case LatestExecutionPayloadHeaderCapella:
-		return "LatestExecutionPayloadHeaderCapella"
+		return "latestExecutionPayloadHeaderCapella"
+	case LatestExecutionPayloadHeaderDeneb:
+		return "latestExecutionPayloadHeaderDeneb"
 	case NextWithdrawalIndex:
-		return "NextWithdrawalIndex"
+		return "nextWithdrawalIndex"
 	case NextWithdrawalValidatorIndex:
-		return "NextWithdrawalValidatorIndex"
+		return "nextWithdrawalValidatorIndex"
 	case HistoricalSummaries:
-		return "HistoricalSummaries"
+		return "historicalSummaries"
+	case DepositRequestsStartIndex:
+		return "depositRequestsStartIndex"
+	case DepositBalanceToConsume:
+		return "depositBalanceToConsume"
+	case ExitBalanceToConsume:
+		return "exitBalanceToConsume"
+	case EarliestExitEpoch:
+		return "earliestExitEpoch"
+	case ConsolidationBalanceToConsume:
+		return "consolidationBalanceToConsume"
+	case EarliestConsolidationEpoch:
+		return "earliestConsolidationEpoch"
+	case PendingDeposits:
+		return "pendingDeposits"
+	case PendingPartialWithdrawals:
+		return "pendingPartialWithdrawals"
+	case PendingConsolidations:
+		return "pendingConsolidations"
 	default:
-		return ""
+		return fmt.Sprintf("unknown field index number: %d", f)
 	}
 }
 
@@ -171,6 +193,24 @@ func (f FieldIndex) RealPosition() int {
 		return 30
 	case HistoricalSummaries:
 		return 31
+	case DepositRequestsStartIndex:
+		return 32
+	case DepositBalanceToConsume:
+		return 33
+	case ExitBalanceToConsume:
+		return 34
+	case EarliestExitEpoch:
+		return 35
+	case ConsolidationBalanceToConsume:
+		return 36
+	case EarliestConsolidationEpoch:
+		return 37
+	case PendingDeposits:
+		return 38
+	case PendingPartialWithdrawals:
+		return 39
+	case PendingConsolidations:
+		return 40
 	default:
 		return -1
 	}
@@ -230,6 +270,15 @@ const (
 	NextWithdrawalIndex
 	NextWithdrawalValidatorIndex
 	HistoricalSummaries
+	DepositRequestsStartIndex     // Electra: EIP-6110
+	DepositBalanceToConsume       // Electra: EIP-7251
+	ExitBalanceToConsume          // Electra: EIP-7251
+	EarliestExitEpoch             // Electra: EIP-7251
+	ConsolidationBalanceToConsume // Electra: EIP-7251
+	EarliestConsolidationEpoch    // Electra: EIP-7251
+	PendingDeposits               // Electra: EIP-7251
+	PendingPartialWithdrawals     // Electra: EIP-7251
+	PendingConsolidations         // Electra: EIP-7251
 )
 
 // Enumerator keeps track of the number of states created since the node's start.

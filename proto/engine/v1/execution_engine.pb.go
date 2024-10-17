@@ -78,7 +78,7 @@ func (x PayloadStatus_Status) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use PayloadStatus_Status.Descriptor instead.
 func (PayloadStatus_Status) EnumDescriptor() ([]byte, []int) {
-	return file_proto_engine_v1_execution_engine_proto_rawDescGZIP(), []int{12, 0}
+	return file_proto_engine_v1_execution_engine_proto_rawDescGZIP(), []int{11, 0}
 }
 
 type ExecutionPayload struct {
@@ -232,61 +232,6 @@ func (x *ExecutionPayload) GetTransactions() [][]byte {
 	return nil
 }
 
-type ExecutionPayloadBodyV1 struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	Transactions [][]byte      `protobuf:"bytes,1,rep,name=transactions,proto3" json:"transactions,omitempty"`
-	Withdrawals  []*Withdrawal `protobuf:"bytes,2,rep,name=withdrawals,proto3" json:"withdrawals,omitempty"`
-}
-
-func (x *ExecutionPayloadBodyV1) Reset() {
-	*x = ExecutionPayloadBodyV1{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[1]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *ExecutionPayloadBodyV1) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ExecutionPayloadBodyV1) ProtoMessage() {}
-
-func (x *ExecutionPayloadBodyV1) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[1]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ExecutionPayloadBodyV1.ProtoReflect.Descriptor instead.
-func (*ExecutionPayloadBodyV1) Descriptor() ([]byte, []int) {
-	return file_proto_engine_v1_execution_engine_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *ExecutionPayloadBodyV1) GetTransactions() [][]byte {
-	if x != nil {
-		return x.Transactions
-	}
-	return nil
-}
-
-func (x *ExecutionPayloadBodyV1) GetWithdrawals() []*Withdrawal {
-	if x != nil {
-		return x.Withdrawals
-	}
-	return nil
-}
-
 type ExecutionPayloadCapella struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -312,7 +257,7 @@ type ExecutionPayloadCapella struct {
 func (x *ExecutionPayloadCapella) Reset() {
 	*x = ExecutionPayloadCapella{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[2]
+		mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -325,7 +270,7 @@ func (x *ExecutionPayloadCapella) String() string {
 func (*ExecutionPayloadCapella) ProtoMessage() {}
 
 func (x *ExecutionPayloadCapella) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[2]
+	mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -338,7 +283,7 @@ func (x *ExecutionPayloadCapella) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExecutionPayloadCapella.ProtoReflect.Descriptor instead.
 func (*ExecutionPayloadCapella) Descriptor() ([]byte, []int) {
-	return file_proto_engine_v1_execution_engine_proto_rawDescGZIP(), []int{2}
+	return file_proto_engine_v1_execution_engine_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *ExecutionPayloadCapella) GetParentHash() []byte {
@@ -473,7 +418,7 @@ type ExecutionPayloadDeneb struct {
 func (x *ExecutionPayloadDeneb) Reset() {
 	*x = ExecutionPayloadDeneb{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[3]
+		mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -486,7 +431,7 @@ func (x *ExecutionPayloadDeneb) String() string {
 func (*ExecutionPayloadDeneb) ProtoMessage() {}
 
 func (x *ExecutionPayloadDeneb) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[3]
+	mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -499,7 +444,7 @@ func (x *ExecutionPayloadDeneb) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExecutionPayloadDeneb.ProtoReflect.Descriptor instead.
 func (*ExecutionPayloadDeneb) Descriptor() ([]byte, []int) {
-	return file_proto_engine_v1_execution_engine_proto_rawDescGZIP(), []int{3}
+	return file_proto_engine_v1_execution_engine_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *ExecutionPayloadDeneb) GetParentHash() []byte {
@@ -633,7 +578,7 @@ type ExecutionPayloadCapellaWithValue struct {
 func (x *ExecutionPayloadCapellaWithValue) Reset() {
 	*x = ExecutionPayloadCapellaWithValue{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[4]
+		mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -646,7 +591,7 @@ func (x *ExecutionPayloadCapellaWithValue) String() string {
 func (*ExecutionPayloadCapellaWithValue) ProtoMessage() {}
 
 func (x *ExecutionPayloadCapellaWithValue) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[4]
+	mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -659,7 +604,7 @@ func (x *ExecutionPayloadCapellaWithValue) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExecutionPayloadCapellaWithValue.ProtoReflect.Descriptor instead.
 func (*ExecutionPayloadCapellaWithValue) Descriptor() ([]byte, []int) {
-	return file_proto_engine_v1_execution_engine_proto_rawDescGZIP(), []int{4}
+	return file_proto_engine_v1_execution_engine_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *ExecutionPayloadCapellaWithValue) GetPayload() *ExecutionPayloadCapella {
@@ -690,7 +635,7 @@ type ExecutionPayloadDenebWithValueAndBlobsBundle struct {
 func (x *ExecutionPayloadDenebWithValueAndBlobsBundle) Reset() {
 	*x = ExecutionPayloadDenebWithValueAndBlobsBundle{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[5]
+		mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -703,7 +648,7 @@ func (x *ExecutionPayloadDenebWithValueAndBlobsBundle) String() string {
 func (*ExecutionPayloadDenebWithValueAndBlobsBundle) ProtoMessage() {}
 
 func (x *ExecutionPayloadDenebWithValueAndBlobsBundle) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[5]
+	mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -716,7 +661,7 @@ func (x *ExecutionPayloadDenebWithValueAndBlobsBundle) ProtoReflect() protorefle
 
 // Deprecated: Use ExecutionPayloadDenebWithValueAndBlobsBundle.ProtoReflect.Descriptor instead.
 func (*ExecutionPayloadDenebWithValueAndBlobsBundle) Descriptor() ([]byte, []int) {
-	return file_proto_engine_v1_execution_engine_proto_rawDescGZIP(), []int{5}
+	return file_proto_engine_v1_execution_engine_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ExecutionPayloadDenebWithValueAndBlobsBundle) GetPayload() *ExecutionPayloadDeneb {
@@ -771,7 +716,7 @@ type ExecutionPayloadHeader struct {
 func (x *ExecutionPayloadHeader) Reset() {
 	*x = ExecutionPayloadHeader{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[6]
+		mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -784,7 +729,7 @@ func (x *ExecutionPayloadHeader) String() string {
 func (*ExecutionPayloadHeader) ProtoMessage() {}
 
 func (x *ExecutionPayloadHeader) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[6]
+	mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -797,7 +742,7 @@ func (x *ExecutionPayloadHeader) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExecutionPayloadHeader.ProtoReflect.Descriptor instead.
 func (*ExecutionPayloadHeader) Descriptor() ([]byte, []int) {
-	return file_proto_engine_v1_execution_engine_proto_rawDescGZIP(), []int{6}
+	return file_proto_engine_v1_execution_engine_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ExecutionPayloadHeader) GetParentHash() []byte {
@@ -923,7 +868,7 @@ type ExecutionPayloadHeaderCapella struct {
 func (x *ExecutionPayloadHeaderCapella) Reset() {
 	*x = ExecutionPayloadHeaderCapella{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[7]
+		mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[6]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -936,7 +881,7 @@ func (x *ExecutionPayloadHeaderCapella) String() string {
 func (*ExecutionPayloadHeaderCapella) ProtoMessage() {}
 
 func (x *ExecutionPayloadHeaderCapella) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[7]
+	mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -949,7 +894,7 @@ func (x *ExecutionPayloadHeaderCapella) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExecutionPayloadHeaderCapella.ProtoReflect.Descriptor instead.
 func (*ExecutionPayloadHeaderCapella) Descriptor() ([]byte, []int) {
-	return file_proto_engine_v1_execution_engine_proto_rawDescGZIP(), []int{7}
+	return file_proto_engine_v1_execution_engine_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ExecutionPayloadHeaderCapella) GetParentHash() []byte {
@@ -1084,7 +1029,7 @@ type ExecutionPayloadHeaderDeneb struct {
 func (x *ExecutionPayloadHeaderDeneb) Reset() {
 	*x = ExecutionPayloadHeaderDeneb{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[8]
+		mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[7]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1097,7 +1042,7 @@ func (x *ExecutionPayloadHeaderDeneb) String() string {
 func (*ExecutionPayloadHeaderDeneb) ProtoMessage() {}
 
 func (x *ExecutionPayloadHeaderDeneb) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[8]
+	mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1110,7 +1055,7 @@ func (x *ExecutionPayloadHeaderDeneb) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExecutionPayloadHeaderDeneb.ProtoReflect.Descriptor instead.
 func (*ExecutionPayloadHeaderDeneb) Descriptor() ([]byte, []int) {
-	return file_proto_engine_v1_execution_engine_proto_rawDescGZIP(), []int{8}
+	return file_proto_engine_v1_execution_engine_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ExecutionPayloadHeaderDeneb) GetParentHash() []byte {
@@ -1245,7 +1190,7 @@ type PayloadAttributes struct {
 func (x *PayloadAttributes) Reset() {
 	*x = PayloadAttributes{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[9]
+		mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[8]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1258,7 +1203,7 @@ func (x *PayloadAttributes) String() string {
 func (*PayloadAttributes) ProtoMessage() {}
 
 func (x *PayloadAttributes) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[9]
+	mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[8]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1271,7 +1216,7 @@ func (x *PayloadAttributes) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PayloadAttributes.ProtoReflect.Descriptor instead.
 func (*PayloadAttributes) Descriptor() ([]byte, []int) {
-	return file_proto_engine_v1_execution_engine_proto_rawDescGZIP(), []int{9}
+	return file_proto_engine_v1_execution_engine_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *PayloadAttributes) GetTimestamp() uint64 {
@@ -1309,7 +1254,7 @@ type PayloadAttributesV2 struct {
 func (x *PayloadAttributesV2) Reset() {
 	*x = PayloadAttributesV2{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[10]
+		mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[9]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1322,7 +1267,7 @@ func (x *PayloadAttributesV2) String() string {
 func (*PayloadAttributesV2) ProtoMessage() {}
 
 func (x *PayloadAttributesV2) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[10]
+	mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[9]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1335,7 +1280,7 @@ func (x *PayloadAttributesV2) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PayloadAttributesV2.ProtoReflect.Descriptor instead.
 func (*PayloadAttributesV2) Descriptor() ([]byte, []int) {
-	return file_proto_engine_v1_execution_engine_proto_rawDescGZIP(), []int{10}
+	return file_proto_engine_v1_execution_engine_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *PayloadAttributesV2) GetTimestamp() uint64 {
@@ -1381,7 +1326,7 @@ type PayloadAttributesV3 struct {
 func (x *PayloadAttributesV3) Reset() {
 	*x = PayloadAttributesV3{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[11]
+		mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[10]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1394,7 +1339,7 @@ func (x *PayloadAttributesV3) String() string {
 func (*PayloadAttributesV3) ProtoMessage() {}
 
 func (x *PayloadAttributesV3) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[11]
+	mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[10]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1407,7 +1352,7 @@ func (x *PayloadAttributesV3) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PayloadAttributesV3.ProtoReflect.Descriptor instead.
 func (*PayloadAttributesV3) Descriptor() ([]byte, []int) {
-	return file_proto_engine_v1_execution_engine_proto_rawDescGZIP(), []int{11}
+	return file_proto_engine_v1_execution_engine_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *PayloadAttributesV3) GetTimestamp() uint64 {
@@ -1458,7 +1403,7 @@ type PayloadStatus struct {
 func (x *PayloadStatus) Reset() {
 	*x = PayloadStatus{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[12]
+		mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[11]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1471,7 +1416,7 @@ func (x *PayloadStatus) String() string {
 func (*PayloadStatus) ProtoMessage() {}
 
 func (x *PayloadStatus) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[12]
+	mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[11]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1484,7 +1429,7 @@ func (x *PayloadStatus) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PayloadStatus.ProtoReflect.Descriptor instead.
 func (*PayloadStatus) Descriptor() ([]byte, []int) {
-	return file_proto_engine_v1_execution_engine_proto_rawDescGZIP(), []int{12}
+	return file_proto_engine_v1_execution_engine_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *PayloadStatus) GetStatus() PayloadStatus_Status {
@@ -1521,7 +1466,7 @@ type ForkchoiceState struct {
 func (x *ForkchoiceState) Reset() {
 	*x = ForkchoiceState{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[13]
+		mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[12]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1534,7 +1479,7 @@ func (x *ForkchoiceState) String() string {
 func (*ForkchoiceState) ProtoMessage() {}
 
 func (x *ForkchoiceState) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[13]
+	mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[12]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1547,7 +1492,7 @@ func (x *ForkchoiceState) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ForkchoiceState.ProtoReflect.Descriptor instead.
 func (*ForkchoiceState) Descriptor() ([]byte, []int) {
-	return file_proto_engine_v1_execution_engine_proto_rawDescGZIP(), []int{13}
+	return file_proto_engine_v1_execution_engine_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ForkchoiceState) GetHeadBlockHash() []byte {
@@ -1585,7 +1530,7 @@ type Withdrawal struct {
 func (x *Withdrawal) Reset() {
 	*x = Withdrawal{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[14]
+		mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[13]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1598,7 +1543,7 @@ func (x *Withdrawal) String() string {
 func (*Withdrawal) ProtoMessage() {}
 
 func (x *Withdrawal) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[14]
+	mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[13]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1611,7 +1556,7 @@ func (x *Withdrawal) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Withdrawal.ProtoReflect.Descriptor instead.
 func (*Withdrawal) Descriptor() ([]byte, []int) {
-	return file_proto_engine_v1_execution_engine_proto_rawDescGZIP(), []int{14}
+	return file_proto_engine_v1_execution_engine_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *Withdrawal) GetIndex() uint64 {
@@ -1655,7 +1600,7 @@ type BlobsBundle struct {
 func (x *BlobsBundle) Reset() {
 	*x = BlobsBundle{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[15]
+		mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[14]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1668,7 +1613,7 @@ func (x *BlobsBundle) String() string {
 func (*BlobsBundle) ProtoMessage() {}
 
 func (x *BlobsBundle) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[15]
+	mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[14]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1681,7 +1626,7 @@ func (x *BlobsBundle) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BlobsBundle.ProtoReflect.Descriptor instead.
 func (*BlobsBundle) Descriptor() ([]byte, []int) {
-	return file_proto_engine_v1_execution_engine_proto_rawDescGZIP(), []int{15}
+	return file_proto_engine_v1_execution_engine_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *BlobsBundle) GetKzgCommitments() [][]byte {
@@ -1716,7 +1661,7 @@ type Blob struct {
 func (x *Blob) Reset() {
 	*x = Blob{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[16]
+		mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[15]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1729,7 +1674,7 @@ func (x *Blob) String() string {
 func (*Blob) ProtoMessage() {}
 
 func (x *Blob) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[16]
+	mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[15]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1742,59 +1687,12 @@ func (x *Blob) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Blob.ProtoReflect.Descriptor instead.
 func (*Blob) Descriptor() ([]byte, []int) {
-	return file_proto_engine_v1_execution_engine_proto_rawDescGZIP(), []int{16}
+	return file_proto_engine_v1_execution_engine_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *Blob) GetData() []byte {
 	if x != nil {
 		return x.Data
-	}
-	return nil
-}
-
-type ExchangeCapabilities struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	SupportedMethods []string `protobuf:"bytes,1,rep,name=supported_methods,json=supportedMethods,proto3" json:"supported_methods,omitempty"`
-}
-
-func (x *ExchangeCapabilities) Reset() {
-	*x = ExchangeCapabilities{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[17]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *ExchangeCapabilities) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ExchangeCapabilities) ProtoMessage() {}
-
-func (x *ExchangeCapabilities) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_engine_v1_execution_engine_proto_msgTypes[17]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ExchangeCapabilities.ProtoReflect.Descriptor instead.
-func (*ExchangeCapabilities) Descriptor() ([]byte, []int) {
-	return file_proto_engine_v1_execution_engine_proto_rawDescGZIP(), []int{17}
-}
-
-func (x *ExchangeCapabilities) GetSupportedMethods() []string {
-	if x != nil {
-		return x.SupportedMethods
 	}
 	return nil
 }
@@ -1844,15 +1742,7 @@ var file_proto_engine_v1_execution_engine_proto_rawDesc = []byte{
 	0x73, 0x18, 0x0e, 0x20, 0x03, 0x28, 0x0c, 0x42, 0x1d, 0x8a, 0xb5, 0x18, 0x03, 0x3f, 0x2c, 0x3f,
 	0x92, 0xb5, 0x18, 0x12, 0x31, 0x30, 0x34, 0x38, 0x35, 0x37, 0x36, 0x2c, 0x31, 0x30, 0x37, 0x33,
 	0x37, 0x34, 0x31, 0x38, 0x32, 0x34, 0x52, 0x0c, 0x74, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74,
-	0x69, 0x6f, 0x6e, 0x73, 0x22, 0x7e, 0x0a, 0x16, 0x45, 0x78, 0x65, 0x63, 0x75, 0x74, 0x69, 0x6f,
-	0x6e, 0x50, 0x61, 0x79, 0x6c, 0x6f, 0x61, 0x64, 0x42, 0x6f, 0x64, 0x79, 0x56, 0x31, 0x12, 0x22,
-	0x0a, 0x0c, 0x74, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x18, 0x01,
-	0x20, 0x03, 0x28, 0x0c, 0x52, 0x0c, 0x74, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f,
-	0x6e, 0x73, 0x12, 0x40, 0x0a, 0x0b, 0x77, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c,
-	0x73, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x1e, 0x2e, 0x65, 0x74, 0x68, 0x65, 0x72, 0x65,
-	0x75, 0x6d, 0x2e, 0x65, 0x6e, 0x67, 0x69, 0x6e, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x57, 0x69, 0x74,
-	0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x52, 0x0b, 0x77, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61,
-	0x77, 0x61, 0x6c, 0x73, 0x22, 0x99, 0x05, 0x0a, 0x17, 0x45, 0x78, 0x65, 0x63, 0x75, 0x74, 0x69,
+	0x69, 0x6f, 0x6e, 0x73, 0x22, 0x99, 0x05, 0x0a, 0x17, 0x45, 0x78, 0x65, 0x63, 0x75, 0x74, 0x69,
 	0x6f, 0x6e, 0x50, 0x61, 0x79, 0x6c, 0x6f, 0x61, 0x64, 0x43, 0x61, 0x70, 0x65, 0x6c, 0x6c, 0x61,
 	0x12, 0x27, 0x0a, 0x0b, 0x70, 0x61, 0x72, 0x65, 0x6e, 0x74, 0x5f, 0x68, 0x61, 0x73, 0x68, 0x18,
 	0x01, 0x20, 0x01, 0x28, 0x0c, 0x42, 0x06, 0x8a, 0xb5, 0x18, 0x02, 0x33, 0x32, 0x52, 0x0a, 0x70,
@@ -2182,22 +2072,17 @@ var file_proto_engine_v1_execution_engine_proto_rawDesc = []byte{
 	0x31, 0x30, 0x37, 0x32, 0x92, 0xb5, 0x18, 0x04, 0x34, 0x30, 0x39, 0x36, 0x52, 0x05, 0x62, 0x6c,
 	0x6f, 0x62, 0x73, 0x22, 0x26, 0x0a, 0x04, 0x42, 0x6c, 0x6f, 0x62, 0x12, 0x1e, 0x0a, 0x04, 0x64,
 	0x61, 0x74, 0x61, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0c, 0x42, 0x0a, 0x8a, 0xb5, 0x18, 0x06, 0x31,
-	0x33, 0x31, 0x30, 0x37, 0x32, 0x52, 0x04, 0x64, 0x61, 0x74, 0x61, 0x22, 0x43, 0x0a, 0x14, 0x45,
-	0x78, 0x63, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x43, 0x61, 0x70, 0x61, 0x62, 0x69, 0x6c, 0x69, 0x74,
-	0x69, 0x65, 0x73, 0x12, 0x2b, 0x0a, 0x11, 0x73, 0x75, 0x70, 0x70, 0x6f, 0x72, 0x74, 0x65, 0x64,
-	0x5f, 0x6d, 0x65, 0x74, 0x68, 0x6f, 0x64, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x09, 0x52, 0x10,
-	0x73, 0x75, 0x70, 0x70, 0x6f, 0x72, 0x74, 0x65, 0x64, 0x4d, 0x65, 0x74, 0x68, 0x6f, 0x64, 0x73,
-	0x42, 0x96, 0x01, 0x0a, 0x16, 0x6f, 0x72, 0x67, 0x2e, 0x65, 0x74, 0x68, 0x65, 0x72, 0x65, 0x75,
-	0x6d, 0x2e, 0x65, 0x6e, 0x67, 0x69, 0x6e, 0x65, 0x2e, 0x76, 0x31, 0x42, 0x14, 0x45, 0x78, 0x65,
-	0x63, 0x75, 0x74, 0x69, 0x6f, 0x6e, 0x45, 0x6e, 0x67, 0x69, 0x6e, 0x65, 0x50, 0x72, 0x6f, 0x74,
-	0x6f, 0x50, 0x01, 0x5a, 0x3a, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f,
-	0x70, 0x72, 0x79, 0x73, 0x6d, 0x61, 0x74, 0x69, 0x63, 0x6c, 0x61, 0x62, 0x73, 0x2f, 0x70, 0x72,
-	0x79, 0x73, 0x6d, 0x2f, 0x76, 0x35, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x65, 0x6e, 0x67,
-	0x69, 0x6e, 0x65, 0x2f, 0x76, 0x31, 0x3b, 0x65, 0x6e, 0x67, 0x69, 0x6e, 0x65, 0x76, 0x31, 0xaa,
-	0x02, 0x12, 0x45, 0x74, 0x68, 0x65, 0x72, 0x65, 0x75, 0x6d, 0x2e, 0x45, 0x6e, 0x67, 0x69, 0x6e,
-	0x65, 0x2e, 0x56, 0x31, 0xca, 0x02, 0x12, 0x45, 0x74, 0x68, 0x65, 0x72, 0x65, 0x75, 0x6d, 0x5c,
-	0x45, 0x6e, 0x67, 0x69, 0x6e, 0x65, 0x5c, 0x76, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f,
-	0x33,
+	0x33, 0x31, 0x30, 0x37, 0x32, 0x52, 0x04, 0x64, 0x61, 0x74, 0x61, 0x42, 0x96, 0x01, 0x0a, 0x16,
+	0x6f, 0x72, 0x67, 0x2e, 0x65, 0x74, 0x68, 0x65, 0x72, 0x65, 0x75, 0x6d, 0x2e, 0x65, 0x6e, 0x67,
+	0x69, 0x6e, 0x65, 0x2e, 0x76, 0x31, 0x42, 0x14, 0x45, 0x78, 0x65, 0x63, 0x75, 0x74, 0x69, 0x6f,
+	0x6e, 0x45, 0x6e, 0x67, 0x69, 0x6e, 0x65, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x3a,
+	0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x70, 0x72, 0x79, 0x73, 0x6d,
+	0x61, 0x74, 0x69, 0x63, 0x6c, 0x61, 0x62, 0x73, 0x2f, 0x70, 0x72, 0x79, 0x73, 0x6d, 0x2f, 0x76,
+	0x35, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x65, 0x6e, 0x67, 0x69, 0x6e, 0x65, 0x2f, 0x76,
+	0x31, 0x3b, 0x65, 0x6e, 0x67, 0x69, 0x6e, 0x65, 0x76, 0x31, 0xaa, 0x02, 0x12, 0x45, 0x74, 0x68,
+	0x65, 0x72, 0x65, 0x75, 0x6d, 0x2e, 0x45, 0x6e, 0x67, 0x69, 0x6e, 0x65, 0x2e, 0x56, 0x31, 0xca,
+	0x02, 0x12, 0x45, 0x74, 0x68, 0x65, 0x72, 0x65, 0x75, 0x6d, 0x5c, 0x45, 0x6e, 0x67, 0x69, 0x6e,
+	0x65, 0x5c, 0x76, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -2213,43 +2098,40 @@ func file_proto_engine_v1_execution_engine_proto_rawDescGZIP() []byte {
 }
 
 var file_proto_engine_v1_execution_engine_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_proto_engine_v1_execution_engine_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_proto_engine_v1_execution_engine_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_proto_engine_v1_execution_engine_proto_goTypes = []interface{}{
 	(PayloadStatus_Status)(0),                            // 0: ethereum.engine.v1.PayloadStatus.Status
 	(*ExecutionPayload)(nil),                             // 1: ethereum.engine.v1.ExecutionPayload
-	(*ExecutionPayloadBodyV1)(nil),                       // 2: ethereum.engine.v1.ExecutionPayloadBodyV1
-	(*ExecutionPayloadCapella)(nil),                      // 3: ethereum.engine.v1.ExecutionPayloadCapella
-	(*ExecutionPayloadDeneb)(nil),                        // 4: ethereum.engine.v1.ExecutionPayloadDeneb
-	(*ExecutionPayloadCapellaWithValue)(nil),             // 5: ethereum.engine.v1.ExecutionPayloadCapellaWithValue
-	(*ExecutionPayloadDenebWithValueAndBlobsBundle)(nil), // 6: ethereum.engine.v1.ExecutionPayloadDenebWithValueAndBlobsBundle
-	(*ExecutionPayloadHeader)(nil),                       // 7: ethereum.engine.v1.ExecutionPayloadHeader
-	(*ExecutionPayloadHeaderCapella)(nil),                // 8: ethereum.engine.v1.ExecutionPayloadHeaderCapella
-	(*ExecutionPayloadHeaderDeneb)(nil),                  // 9: ethereum.engine.v1.ExecutionPayloadHeaderDeneb
-	(*PayloadAttributes)(nil),                            // 10: ethereum.engine.v1.PayloadAttributes
-	(*PayloadAttributesV2)(nil),                          // 11: ethereum.engine.v1.PayloadAttributesV2
-	(*PayloadAttributesV3)(nil),                          // 12: ethereum.engine.v1.PayloadAttributesV3
-	(*PayloadStatus)(nil),                                // 13: ethereum.engine.v1.PayloadStatus
-	(*ForkchoiceState)(nil),                              // 14: ethereum.engine.v1.ForkchoiceState
-	(*Withdrawal)(nil),                                   // 15: ethereum.engine.v1.Withdrawal
-	(*BlobsBundle)(nil),                                  // 16: ethereum.engine.v1.BlobsBundle
-	(*Blob)(nil),                                         // 17: ethereum.engine.v1.Blob
-	(*ExchangeCapabilities)(nil),                         // 18: ethereum.engine.v1.ExchangeCapabilities
+	(*ExecutionPayloadCapella)(nil),                      // 2: ethereum.engine.v1.ExecutionPayloadCapella
+	(*ExecutionPayloadDeneb)(nil),                        // 3: ethereum.engine.v1.ExecutionPayloadDeneb
+	(*ExecutionPayloadCapellaWithValue)(nil),             // 4: ethereum.engine.v1.ExecutionPayloadCapellaWithValue
+	(*ExecutionPayloadDenebWithValueAndBlobsBundle)(nil), // 5: ethereum.engine.v1.ExecutionPayloadDenebWithValueAndBlobsBundle
+	(*ExecutionPayloadHeader)(nil),                       // 6: ethereum.engine.v1.ExecutionPayloadHeader
+	(*ExecutionPayloadHeaderCapella)(nil),                // 7: ethereum.engine.v1.ExecutionPayloadHeaderCapella
+	(*ExecutionPayloadHeaderDeneb)(nil),                  // 8: ethereum.engine.v1.ExecutionPayloadHeaderDeneb
+	(*PayloadAttributes)(nil),                            // 9: ethereum.engine.v1.PayloadAttributes
+	(*PayloadAttributesV2)(nil),                          // 10: ethereum.engine.v1.PayloadAttributesV2
+	(*PayloadAttributesV3)(nil),                          // 11: ethereum.engine.v1.PayloadAttributesV3
+	(*PayloadStatus)(nil),                                // 12: ethereum.engine.v1.PayloadStatus
+	(*ForkchoiceState)(nil),                              // 13: ethereum.engine.v1.ForkchoiceState
+	(*Withdrawal)(nil),                                   // 14: ethereum.engine.v1.Withdrawal
+	(*BlobsBundle)(nil),                                  // 15: ethereum.engine.v1.BlobsBundle
+	(*Blob)(nil),                                         // 16: ethereum.engine.v1.Blob
 }
 var file_proto_engine_v1_execution_engine_proto_depIdxs = []int32{
-	15, // 0: ethereum.engine.v1.ExecutionPayloadBodyV1.withdrawals:type_name -> ethereum.engine.v1.Withdrawal
-	15, // 1: ethereum.engine.v1.ExecutionPayloadCapella.withdrawals:type_name -> ethereum.engine.v1.Withdrawal
-	15, // 2: ethereum.engine.v1.ExecutionPayloadDeneb.withdrawals:type_name -> ethereum.engine.v1.Withdrawal
-	3,  // 3: ethereum.engine.v1.ExecutionPayloadCapellaWithValue.payload:type_name -> ethereum.engine.v1.ExecutionPayloadCapella
-	4,  // 4: ethereum.engine.v1.ExecutionPayloadDenebWithValueAndBlobsBundle.payload:type_name -> ethereum.engine.v1.ExecutionPayloadDeneb
-	16, // 5: ethereum.engine.v1.ExecutionPayloadDenebWithValueAndBlobsBundle.blobs_bundle:type_name -> ethereum.engine.v1.BlobsBundle
-	15, // 6: ethereum.engine.v1.PayloadAttributesV2.withdrawals:type_name -> ethereum.engine.v1.Withdrawal
-	15, // 7: ethereum.engine.v1.PayloadAttributesV3.withdrawals:type_name -> ethereum.engine.v1.Withdrawal
-	0,  // 8: ethereum.engine.v1.PayloadStatus.status:type_name -> ethereum.engine.v1.PayloadStatus.Status
-	9,  // [9:9] is the sub-list for method output_type
-	9,  // [9:9] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	14, // 0: ethereum.engine.v1.ExecutionPayloadCapella.withdrawals:type_name -> ethereum.engine.v1.Withdrawal
+	14, // 1: ethereum.engine.v1.ExecutionPayloadDeneb.withdrawals:type_name -> ethereum.engine.v1.Withdrawal
+	2,  // 2: ethereum.engine.v1.ExecutionPayloadCapellaWithValue.payload:type_name -> ethereum.engine.v1.ExecutionPayloadCapella
+	3,  // 3: ethereum.engine.v1.ExecutionPayloadDenebWithValueAndBlobsBundle.payload:type_name -> ethereum.engine.v1.ExecutionPayloadDeneb
+	15, // 4: ethereum.engine.v1.ExecutionPayloadDenebWithValueAndBlobsBundle.blobs_bundle:type_name -> ethereum.engine.v1.BlobsBundle
+	14, // 5: ethereum.engine.v1.PayloadAttributesV2.withdrawals:type_name -> ethereum.engine.v1.Withdrawal
+	14, // 6: ethereum.engine.v1.PayloadAttributesV3.withdrawals:type_name -> ethereum.engine.v1.Withdrawal
+	0,  // 7: ethereum.engine.v1.PayloadStatus.status:type_name -> ethereum.engine.v1.PayloadStatus.Status
+	8,  // [8:8] is the sub-list for method output_type
+	8,  // [8:8] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_proto_engine_v1_execution_engine_proto_init() }
@@ -2271,18 +2153,6 @@ func file_proto_engine_v1_execution_engine_proto_init() {
 			}
 		}
 		file_proto_engine_v1_execution_engine_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ExecutionPayloadBodyV1); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_proto_engine_v1_execution_engine_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ExecutionPayloadCapella); i {
 			case 0:
 				return &v.state
@@ -2294,7 +2164,7 @@ func file_proto_engine_v1_execution_engine_proto_init() {
 				return nil
 			}
 		}
-		file_proto_engine_v1_execution_engine_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_proto_engine_v1_execution_engine_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ExecutionPayloadDeneb); i {
 			case 0:
 				return &v.state
@@ -2306,7 +2176,7 @@ func file_proto_engine_v1_execution_engine_proto_init() {
 				return nil
 			}
 		}
-		file_proto_engine_v1_execution_engine_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+		file_proto_engine_v1_execution_engine_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ExecutionPayloadCapellaWithValue); i {
 			case 0:
 				return &v.state
@@ -2318,7 +2188,7 @@ func file_proto_engine_v1_execution_engine_proto_init() {
 				return nil
 			}
 		}
-		file_proto_engine_v1_execution_engine_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+		file_proto_engine_v1_execution_engine_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ExecutionPayloadDenebWithValueAndBlobsBundle); i {
 			case 0:
 				return &v.state
@@ -2330,7 +2200,7 @@ func file_proto_engine_v1_execution_engine_proto_init() {
 				return nil
 			}
 		}
-		file_proto_engine_v1_execution_engine_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+		file_proto_engine_v1_execution_engine_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ExecutionPayloadHeader); i {
 			case 0:
 				return &v.state
@@ -2342,7 +2212,7 @@ func file_proto_engine_v1_execution_engine_proto_init() {
 				return nil
 			}
 		}
-		file_proto_engine_v1_execution_engine_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+		file_proto_engine_v1_execution_engine_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ExecutionPayloadHeaderCapella); i {
 			case 0:
 				return &v.state
@@ -2354,7 +2224,7 @@ func file_proto_engine_v1_execution_engine_proto_init() {
 				return nil
 			}
 		}
-		file_proto_engine_v1_execution_engine_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+		file_proto_engine_v1_execution_engine_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ExecutionPayloadHeaderDeneb); i {
 			case 0:
 				return &v.state
@@ -2366,7 +2236,7 @@ func file_proto_engine_v1_execution_engine_proto_init() {
 				return nil
 			}
 		}
-		file_proto_engine_v1_execution_engine_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+		file_proto_engine_v1_execution_engine_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*PayloadAttributes); i {
 			case 0:
 				return &v.state
@@ -2378,7 +2248,7 @@ func file_proto_engine_v1_execution_engine_proto_init() {
 				return nil
 			}
 		}
-		file_proto_engine_v1_execution_engine_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+		file_proto_engine_v1_execution_engine_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*PayloadAttributesV2); i {
 			case 0:
 				return &v.state
@@ -2390,7 +2260,7 @@ func file_proto_engine_v1_execution_engine_proto_init() {
 				return nil
 			}
 		}
-		file_proto_engine_v1_execution_engine_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+		file_proto_engine_v1_execution_engine_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*PayloadAttributesV3); i {
 			case 0:
 				return &v.state
@@ -2402,7 +2272,7 @@ func file_proto_engine_v1_execution_engine_proto_init() {
 				return nil
 			}
 		}
-		file_proto_engine_v1_execution_engine_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
+		file_proto_engine_v1_execution_engine_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*PayloadStatus); i {
 			case 0:
 				return &v.state
@@ -2414,7 +2284,7 @@ func file_proto_engine_v1_execution_engine_proto_init() {
 				return nil
 			}
 		}
-		file_proto_engine_v1_execution_engine_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
+		file_proto_engine_v1_execution_engine_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ForkchoiceState); i {
 			case 0:
 				return &v.state
@@ -2426,7 +2296,7 @@ func file_proto_engine_v1_execution_engine_proto_init() {
 				return nil
 			}
 		}
-		file_proto_engine_v1_execution_engine_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
+		file_proto_engine_v1_execution_engine_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*Withdrawal); i {
 			case 0:
 				return &v.state
@@ -2438,7 +2308,7 @@ func file_proto_engine_v1_execution_engine_proto_init() {
 				return nil
 			}
 		}
-		file_proto_engine_v1_execution_engine_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
+		file_proto_engine_v1_execution_engine_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*BlobsBundle); i {
 			case 0:
 				return &v.state
@@ -2450,20 +2320,8 @@ func file_proto_engine_v1_execution_engine_proto_init() {
 				return nil
 			}
 		}
-		file_proto_engine_v1_execution_engine_proto_msgTypes[16].Exporter = func(v interface{}, i int) interface{} {
+		file_proto_engine_v1_execution_engine_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*Blob); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_proto_engine_v1_execution_engine_proto_msgTypes[17].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ExchangeCapabilities); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2481,7 +2339,7 @@ func file_proto_engine_v1_execution_engine_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_proto_engine_v1_execution_engine_proto_rawDesc,
 			NumEnums:      1,
-			NumMessages:   18,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

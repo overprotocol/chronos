@@ -12,10 +12,11 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
 	"github.com/prysmaticlabs/prysm/v5/encoding/bytesutil"
+	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing/trace"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
+	"github.com/prysmaticlabs/prysm/v5/runtime/version"
 	"github.com/prysmaticlabs/prysm/v5/time/slots"
 	"github.com/sirupsen/logrus"
-	"go.opencensus.io/trace"
 )
 
 // reorgLateBlockCountAttestations is the time until the end of the slot in which we count
@@ -31,7 +32,7 @@ type AttestationStateFetcher interface {
 // AttestationReceiver interface defines the methods of chain service receive and processing new attestations.
 type AttestationReceiver interface {
 	AttestationStateFetcher
-	VerifyLmdFfgConsistency(ctx context.Context, att *ethpb.Attestation) error
+	VerifyLmdFfgConsistency(ctx context.Context, att ethpb.Att) error
 	InForkchoice([32]byte) bool
 }
 
@@ -51,13 +52,13 @@ func (s *Service) AttestationTargetState(ctx context.Context, target *ethpb.Chec
 }
 
 // VerifyLmdFfgConsistency verifies that attestation's LMD and FFG votes are consistency to each other.
-func (s *Service) VerifyLmdFfgConsistency(ctx context.Context, a *ethpb.Attestation) error {
-	r, err := s.TargetRootForEpoch([32]byte(a.Data.BeaconBlockRoot), a.Data.Target.Epoch)
+func (s *Service) VerifyLmdFfgConsistency(ctx context.Context, a ethpb.Att) error {
+	r, err := s.TargetRootForEpoch([32]byte(a.GetData().BeaconBlockRoot), a.GetData().Target.Epoch)
 	if err != nil {
 		return err
 	}
-	if !bytes.Equal(a.Data.Target.Root, r[:]) {
-		return fmt.Errorf("FFG and LMD votes are not consistent, block root: %#x, target root: %#x, canonical target root: %#x", a.Data.BeaconBlockRoot, a.Data.Target.Root, r)
+	if !bytes.Equal(a.GetData().Target.Root, r[:]) {
+		return fmt.Errorf("FFG and LMD votes are not consistent, block root: %#x, target root: %#x, canonical target root: %#x", a.GetData().BeaconBlockRoot, a.GetData().Target.Root, r)
 	}
 	return nil
 }
@@ -170,13 +171,13 @@ func (s *Service) processAttestations(ctx context.Context, disparity time.Durati
 		// Based on the spec, don't process the attestation until the subsequent slot.
 		// This delays consideration in the fork choice until their slot is in the past.
 		// https://github.com/ethereum/consensus-specs/blob/dev/specs/phase0/fork-choice.md#validate_on_attestation
-		nextSlot := a.Data.Slot + 1
+		nextSlot := a.GetData().Slot + 1
 		if err := slots.VerifyTime(uint64(s.genesisTime.Unix()), nextSlot, disparity); err != nil {
 			continue
 		}
 
-		hasState := s.cfg.BeaconDB.HasStateSummary(ctx, bytesutil.ToBytes32(a.Data.BeaconBlockRoot))
-		hasBlock := s.hasBlock(ctx, bytesutil.ToBytes32(a.Data.BeaconBlockRoot))
+		hasState := s.cfg.BeaconDB.HasStateSummary(ctx, bytesutil.ToBytes32(a.GetData().BeaconBlockRoot))
+		hasBlock := s.hasBlock(ctx, bytesutil.ToBytes32(a.GetData().BeaconBlockRoot))
 		if !(hasState && hasBlock) {
 			continue
 		}
@@ -185,18 +186,31 @@ func (s *Service) processAttestations(ctx context.Context, disparity time.Durati
 			log.WithError(err).Error("Could not delete fork choice attestation in pool")
 		}
 
-		if !helpers.VerifyCheckpointEpoch(a.Data.Target, s.genesisTime) {
+		if !helpers.VerifyCheckpointEpoch(a.GetData().Target, s.genesisTime) {
 			continue
 		}
 
 		if err := s.receiveAttestationNoPubsub(ctx, a, disparity); err != nil {
-			log.WithFields(logrus.Fields{
-				"slot":             a.Data.Slot,
-				"committeeIndex":   a.Data.CommitteeIndex,
-				"beaconBlockRoot":  fmt.Sprintf("%#x", bytesutil.Trunc(a.Data.BeaconBlockRoot)),
-				"targetRoot":       fmt.Sprintf("%#x", bytesutil.Trunc(a.Data.Target.Root)),
-				"aggregationCount": a.AggregationBits.Count(),
-			}).WithError(err).Warn("Could not process attestation for fork choice")
+			var fields logrus.Fields
+			if a.Version() >= version.Electra {
+				fields = logrus.Fields{
+					"slot":             a.GetData().Slot,
+					"committeeCount":   a.CommitteeBitsVal().Count(),
+					"committeeIndices": a.CommitteeBitsVal().BitIndices(),
+					"beaconBlockRoot":  fmt.Sprintf("%#x", bytesutil.Trunc(a.GetData().BeaconBlockRoot)),
+					"targetRoot":       fmt.Sprintf("%#x", bytesutil.Trunc(a.GetData().Target.Root)),
+					"aggregatedCount":  a.GetAggregationBits().Count(),
+				}
+			} else {
+				fields = logrus.Fields{
+					"slot":            a.GetData().Slot,
+					"committeeIndex":  a.GetData().CommitteeIndex,
+					"beaconBlockRoot": fmt.Sprintf("%#x", bytesutil.Trunc(a.GetData().BeaconBlockRoot)),
+					"targetRoot":      fmt.Sprintf("%#x", bytesutil.Trunc(a.GetData().Target.Root)),
+					"aggregatedCount": a.GetAggregationBits().Count(),
+				}
+			}
+			log.WithFields(fields).WithError(err).Warn("Could not process attestation for fork choice")
 		}
 	}
 }
@@ -206,7 +220,7 @@ func (s *Service) processAttestations(ctx context.Context, disparity time.Durati
 //  1. Validate attestation, update validator's latest vote
 //  2. Apply fork choice to the processed attestation
 //  3. Save latest head info
-func (s *Service) receiveAttestationNoPubsub(ctx context.Context, att *ethpb.Attestation, disparity time.Duration) error {
+func (s *Service) receiveAttestationNoPubsub(ctx context.Context, att ethpb.Att, disparity time.Duration) error {
 	ctx, span := trace.StartSpan(ctx, "beacon-chain.blockchain.receiveAttestationNoPubsub")
 	defer span.End()
 

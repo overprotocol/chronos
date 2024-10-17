@@ -1,8 +1,32 @@
 package structs
 
+import "encoding/json"
+
+// MessageJsoner describes a signed consensus type wrapper that can return the `.Message` field in a json envelope
+// encoded as a []byte, for use as a json.RawMessage value when encoding the outer envelope.
+type MessageJsoner interface {
+	MessageRawJson() ([]byte, error)
+}
+
+// SignedMessageJsoner embeds MessageJsoner and adds a method to also retrieve the Signature field as a string.
+type SignedMessageJsoner interface {
+	MessageJsoner
+	SigString() string
+}
+
 type SignedBeaconBlock struct {
 	Message   *BeaconBlock `json:"message"`
 	Signature string       `json:"signature"`
+}
+
+var _ SignedMessageJsoner = &SignedBeaconBlock{}
+
+func (s *SignedBeaconBlock) MessageRawJson() ([]byte, error) {
+	return json.Marshal(s.Message)
+}
+
+func (s *SignedBeaconBlock) SigString() string {
+	return s.Signature
 }
 
 type BeaconBlock struct {
@@ -29,6 +53,16 @@ type SignedBeaconBlockAltair struct {
 	Signature string             `json:"signature"`
 }
 
+var _ SignedMessageJsoner = &SignedBeaconBlockAltair{}
+
+func (s *SignedBeaconBlockAltair) MessageRawJson() ([]byte, error) {
+	return json.Marshal(s.Message)
+}
+
+func (s *SignedBeaconBlockAltair) SigString() string {
+	return s.Signature
+}
+
 type BeaconBlockAltair struct {
 	Slot          string                 `json:"slot"`
 	ProposerIndex string                 `json:"proposer_index"`
@@ -53,6 +87,16 @@ type BeaconBlockBodyAltair struct {
 type SignedBeaconBlockBellatrix struct {
 	Message   *BeaconBlockBellatrix `json:"message"`
 	Signature string                `json:"signature"`
+}
+
+var _ SignedMessageJsoner = &SignedBeaconBlockBellatrix{}
+
+func (s *SignedBeaconBlockBellatrix) MessageRawJson() ([]byte, error) {
+	return json.Marshal(s.Message)
+}
+
+func (s *SignedBeaconBlockBellatrix) SigString() string {
+	return s.Signature
 }
 
 type BeaconBlockBellatrix struct {
@@ -82,6 +126,16 @@ type SignedBlindedBeaconBlockBellatrix struct {
 	Signature string                       `json:"signature"`
 }
 
+var _ SignedMessageJsoner = &SignedBlindedBeaconBlockBellatrix{}
+
+func (s *SignedBlindedBeaconBlockBellatrix) MessageRawJson() ([]byte, error) {
+	return json.Marshal(s.Message)
+}
+
+func (s *SignedBlindedBeaconBlockBellatrix) SigString() string {
+	return s.Signature
+}
+
 type BlindedBeaconBlockBellatrix struct {
 	Slot          string                           `json:"slot"`
 	ProposerIndex string                           `json:"proposer_index"`
@@ -107,6 +161,16 @@ type BlindedBeaconBlockBodyBellatrix struct {
 type SignedBeaconBlockCapella struct {
 	Message   *BeaconBlockCapella `json:"message"`
 	Signature string              `json:"signature"`
+}
+
+var _ SignedMessageJsoner = &SignedBeaconBlockCapella{}
+
+func (s *SignedBeaconBlockCapella) MessageRawJson() ([]byte, error) {
+	return json.Marshal(s.Message)
+}
+
+func (s *SignedBeaconBlockCapella) SigString() string {
+	return s.Signature
 }
 
 type BeaconBlockCapella struct {
@@ -135,6 +199,16 @@ type BeaconBlockBodyCapella struct {
 type SignedBlindedBeaconBlockCapella struct {
 	Message   *BlindedBeaconBlockCapella `json:"message"`
 	Signature string                     `json:"signature"`
+}
+
+var _ SignedMessageJsoner = &SignedBlindedBeaconBlockCapella{}
+
+func (s *SignedBlindedBeaconBlockCapella) MessageRawJson() ([]byte, error) {
+	return json.Marshal(s.Message)
+}
+
+func (s *SignedBlindedBeaconBlockCapella) SigString() string {
+	return s.Signature
 }
 
 type BlindedBeaconBlockCapella struct {
@@ -177,6 +251,16 @@ type SignedBeaconBlockDeneb struct {
 	Signature string            `json:"signature"`
 }
 
+var _ SignedMessageJsoner = &SignedBeaconBlockDeneb{}
+
+func (s *SignedBeaconBlockDeneb) MessageRawJson() ([]byte, error) {
+	return json.Marshal(s.Message)
+}
+
+func (s *SignedBeaconBlockDeneb) SigString() string {
+	return s.Signature
+}
+
 type BeaconBlockDeneb struct {
 	Slot          string                `json:"slot"`
 	ProposerIndex string                `json:"proposer_index"`
@@ -214,6 +298,16 @@ type SignedBlindedBeaconBlockDeneb struct {
 	Signature string                   `json:"signature"`
 }
 
+var _ SignedMessageJsoner = &SignedBlindedBeaconBlockDeneb{}
+
+func (s *SignedBlindedBeaconBlockDeneb) MessageRawJson() ([]byte, error) {
+	return json.Marshal(s.Message)
+}
+
+func (s *SignedBlindedBeaconBlockDeneb) SigString() string {
+	return s.Signature
+}
+
 type BlindedBeaconBlockBodyDeneb struct {
 	RandaoReveal           string                        `json:"randao_reveal"`
 	Eth1Data               *Eth1Data                     `json:"eth1_data"`
@@ -228,6 +322,98 @@ type BlindedBeaconBlockBodyDeneb struct {
 	ExecutionPayloadHeader *ExecutionPayloadHeaderDeneb  `json:"execution_payload_header"`
 	BLSToExecutionChanges  []*SignedBLSToExecutionChange `json:"bls_to_execution_changes"`
 	BlobKzgCommitments     []string                      `json:"blob_kzg_commitments"`
+}
+
+type SignedBeaconBlockContentsElectra struct {
+	SignedBlock *SignedBeaconBlockElectra `json:"signed_block"`
+	KzgProofs   []string                  `json:"kzg_proofs"`
+	Blobs       []string                  `json:"blobs"`
+}
+
+type BeaconBlockContentsElectra struct {
+	Block     *BeaconBlockElectra `json:"block"`
+	KzgProofs []string            `json:"kzg_proofs"`
+	Blobs     []string            `json:"blobs"`
+}
+
+type SignedBeaconBlockElectra struct {
+	Message   *BeaconBlockElectra `json:"message"`
+	Signature string              `json:"signature"`
+}
+
+var _ SignedMessageJsoner = &SignedBeaconBlockElectra{}
+
+func (s *SignedBeaconBlockElectra) MessageRawJson() ([]byte, error) {
+	return json.Marshal(s.Message)
+}
+
+func (s *SignedBeaconBlockElectra) SigString() string {
+	return s.Signature
+}
+
+type BeaconBlockElectra struct {
+	Slot          string                  `json:"slot"`
+	ProposerIndex string                  `json:"proposer_index"`
+	ParentRoot    string                  `json:"parent_root"`
+	StateRoot     string                  `json:"state_root"`
+	Body          *BeaconBlockBodyElectra `json:"body"`
+}
+
+type BeaconBlockBodyElectra struct {
+	RandaoReveal          string                        `json:"randao_reveal"`
+	Eth1Data              *Eth1Data                     `json:"eth1_data"`
+	Graffiti              string                        `json:"graffiti"`
+	ProposerSlashings     []*ProposerSlashing           `json:"proposer_slashings"`
+	AttesterSlashings     []*AttesterSlashingElectra    `json:"attester_slashings"`
+	Attestations          []*AttestationElectra         `json:"attestations"`
+	Deposits              []*Deposit                    `json:"deposits"`
+	VoluntaryExits        []*SignedVoluntaryExit        `json:"voluntary_exits"`
+	SyncAggregate         *SyncAggregate                `json:"sync_aggregate"`
+	BailOuts              []*BailOut                    `json:"bail_outs"`
+	ExecutionPayload      *ExecutionPayloadElectra      `json:"execution_payload"`
+	BLSToExecutionChanges []*SignedBLSToExecutionChange `json:"bls_to_execution_changes"`
+	BlobKzgCommitments    []string                      `json:"blob_kzg_commitments"`
+	ExecutionRequests     *ExecutionRequests            `json:"execution_requests"`
+}
+
+type BlindedBeaconBlockElectra struct {
+	Slot          string                         `json:"slot"`
+	ProposerIndex string                         `json:"proposer_index"`
+	ParentRoot    string                         `json:"parent_root"`
+	StateRoot     string                         `json:"state_root"`
+	Body          *BlindedBeaconBlockBodyElectra `json:"body"`
+}
+
+type SignedBlindedBeaconBlockElectra struct {
+	Message   *BlindedBeaconBlockElectra `json:"message"`
+	Signature string                     `json:"signature"`
+}
+
+var _ SignedMessageJsoner = &SignedBlindedBeaconBlockElectra{}
+
+func (s *SignedBlindedBeaconBlockElectra) MessageRawJson() ([]byte, error) {
+	return json.Marshal(s.Message)
+}
+
+func (s *SignedBlindedBeaconBlockElectra) SigString() string {
+	return s.Signature
+}
+
+type BlindedBeaconBlockBodyElectra struct {
+	RandaoReveal           string                         `json:"randao_reveal"`
+	Eth1Data               *Eth1Data                      `json:"eth1_data"`
+	Graffiti               string                         `json:"graffiti"`
+	ProposerSlashings      []*ProposerSlashing            `json:"proposer_slashings"`
+	AttesterSlashings      []*AttesterSlashingElectra     `json:"attester_slashings"`
+	Attestations           []*AttestationElectra          `json:"attestations"`
+	Deposits               []*Deposit                     `json:"deposits"`
+	VoluntaryExits         []*SignedVoluntaryExit         `json:"voluntary_exits"`
+	SyncAggregate          *SyncAggregate                 `json:"sync_aggregate"`
+	BailOuts               []*BailOut                     `json:"bail_outs"`
+	ExecutionPayloadHeader *ExecutionPayloadHeaderElectra `json:"execution_payload_header"`
+	BLSToExecutionChanges  []*SignedBLSToExecutionChange  `json:"bls_to_execution_changes"`
+	BlobKzgCommitments     []string                       `json:"blob_kzg_commitments"`
+	ExecutionRequests      *ExecutionRequests             `json:"execution_requests"`
 }
 
 type SignedBeaconBlockHeaderContainer struct {
@@ -339,6 +525,8 @@ type ExecutionPayloadDeneb struct {
 	ExcessBlobGas string        `json:"excess_blob_gas"`
 }
 
+type ExecutionPayloadElectra = ExecutionPayloadDeneb
+
 type ExecutionPayloadHeaderDeneb struct {
 	ParentHash       string `json:"parent_hash"`
 	FeeRecipient     string `json:"fee_recipient"`
@@ -357,4 +545,12 @@ type ExecutionPayloadHeaderDeneb struct {
 	WithdrawalsRoot  string `json:"withdrawals_root"`
 	BlobGasUsed      string `json:"blob_gas_used"`
 	ExcessBlobGas    string `json:"excess_blob_gas"`
+}
+
+type ExecutionPayloadHeaderElectra = ExecutionPayloadHeaderDeneb
+
+type ExecutionRequests struct {
+	Deposits       []*DepositRequest       `json:"deposits"`
+	Withdrawals    []*WithdrawalRequest    `json:"withdrawals"`
+	Consolidations []*ConsolidationRequest `json:"consolidations"`
 }

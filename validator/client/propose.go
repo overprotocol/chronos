@@ -20,6 +20,7 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/crypto/bls"
 	"github.com/prysmaticlabs/prysm/v5/crypto/rand"
 	"github.com/prysmaticlabs/prysm/v5/encoding/bytesutil"
+	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing/trace"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	validatorpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1/validator-client"
 	"github.com/prysmaticlabs/prysm/v5/runtime/version"
@@ -27,7 +28,7 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/time/slots"
 	"github.com/prysmaticlabs/prysm/v5/validator/client/iface"
 	"github.com/sirupsen/logrus"
-	"go.opencensus.io/trace"
+	"google.golang.org/protobuf/proto"
 )
 
 const (
@@ -55,7 +56,7 @@ func (v *validator) ProposeBlock(ctx context.Context, slot primitives.Slot, pubK
 	defer lock.Unlock()
 
 	fmtKey := fmt.Sprintf("%#x", pubKey[:])
-	span.AddAttributes(trace.StringAttribute("validator", fmtKey))
+	span.SetAttributes(trace.StringAttribute("validator", fmtKey))
 	log := log.WithField("pubkey", fmt.Sprintf("%#x", bytesutil.Trunc(pubKey[:])))
 
 	// Sign randao reveal, it's used to request block from beacon node
@@ -69,7 +70,7 @@ func (v *validator) ProposeBlock(ctx context.Context, slot primitives.Slot, pubK
 		return
 	}
 
-	g, err := v.GetGraffiti(ctx, pubKey)
+	g, err := v.Graffiti(ctx, pubKey)
 	if err != nil {
 		// Graffiti is not a critical enough to fail block production and cause
 		// validator to miss block reward. When failed, validator should continue
@@ -78,7 +79,7 @@ func (v *validator) ProposeBlock(ctx context.Context, slot primitives.Slot, pubK
 	}
 
 	// Request block from beacon node
-	b, err := v.validatorClient.GetBeaconBlock(ctx, &ethpb.BlockRequest{
+	b, err := v.validatorClient.BeaconBlock(ctx, &ethpb.BlockRequest{
 		Slot:         slot,
 		RandaoReveal: randaoReveal,
 		Graffiti:     g,
@@ -127,20 +128,28 @@ func (v *validator) ProposeBlock(ctx context.Context, slot primitives.Slot, pubK
 	}
 
 	var genericSignedBlock *ethpb.GenericSignedBeaconBlock
+	// Special handling for Deneb blocks and later version because of blob side cars.
 	if blk.Version() >= version.Deneb && !blk.IsBlinded() {
-		denebBlock, err := blk.PbDenebBlock()
+		pb, err := blk.Proto()
 		if err != nil {
 			log.WithError(err).Error("Failed to get deneb block")
 			return
 		}
-		genericSignedBlock = &ethpb.GenericSignedBeaconBlock{
-			Block: &ethpb.GenericSignedBeaconBlock_Deneb{
-				Deneb: &ethpb.SignedBeaconBlockContentsDeneb{
-					Block:     denebBlock,
-					KzgProofs: b.GetDeneb().KzgProofs,
-					Blobs:     b.GetDeneb().Blobs,
-				},
-			},
+		switch blk.Version() {
+		case version.Deneb:
+			genericSignedBlock, err = buildGenericSignedBlockDenebWithBlobs(pb, b)
+			if err != nil {
+				log.WithError(err).Error("Failed to build generic signed block")
+				return
+			}
+		case version.Electra:
+			genericSignedBlock, err = buildGenericSignedBlockElectraWithBlobs(pb, b)
+			if err != nil {
+				log.WithError(err).Error("Failed to build generic signed block")
+				return
+			}
+		default:
+			log.Errorf("Unsupported block version %s", version.String(blk.Version()))
 		}
 	} else {
 		genericSignedBlock, err = blk.PbGenericBlock()
@@ -162,17 +171,26 @@ func (v *validator) ProposeBlock(ctx context.Context, slot primitives.Slot, pubK
 		return
 	}
 
-	span.AddAttributes(
+	span.SetAttributes(
 		trace.StringAttribute("blockRoot", fmt.Sprintf("%#x", blkResp.BlockRoot)),
 		trace.Int64Attribute("numDeposits", int64(len(blk.Block().Body().Deposits()))),
 		trace.Int64Attribute("numAttestations", int64(len(blk.Block().Body().Attestations()))),
 	)
 
+	if err := logProposedBlock(log, blk, blkResp.BlockRoot); err != nil {
+		log.WithError(err).Error("Failed to log proposed block")
+	}
+
+	if v.emitAccountMetrics {
+		ValidatorProposeSuccessVec.WithLabelValues(fmtKey).Inc()
+	}
+}
+
+func logProposedBlock(log *logrus.Entry, blk interfaces.SignedBeaconBlock, blkRoot []byte) error {
 	if blk.Version() >= version.Bellatrix {
 		p, err := blk.Block().Body().Execution()
 		if err != nil {
-			log.WithError(err).Error("Failed to get execution payload")
-			return
+			return errors.Wrap(err, "failed to get execution payload")
 		}
 		log = log.WithFields(logrus.Fields{
 			"payloadHash": fmt.Sprintf("%#x", bytesutil.Trunc(p.BlockHash())),
@@ -182,8 +200,7 @@ func (v *validator) ProposeBlock(ctx context.Context, slot primitives.Slot, pubK
 		if !blk.IsBlinded() {
 			txs, err := p.Transactions()
 			if err != nil {
-				log.WithError(err).Error("Failed to get execution payload transactions")
-				return
+				return errors.Wrap(err, "failed to get execution payload transactions")
 			}
 			log = log.WithField("txCount", len(txs))
 		}
@@ -193,36 +210,64 @@ func (v *validator) ProposeBlock(ctx context.Context, slot primitives.Slot, pubK
 		if blk.Version() >= version.Capella && !blk.IsBlinded() {
 			withdrawals, err := p.Withdrawals()
 			if err != nil {
-				log.WithError(err).Error("Failed to get execution payload withdrawals")
-				return
+				return errors.Wrap(err, "failed to get execution payload withdrawals")
 			}
 			log = log.WithField("withdrawalCount", len(withdrawals))
 		}
 		if blk.Version() >= version.Deneb {
 			kzgs, err := blk.Block().Body().BlobKzgCommitments()
 			if err != nil {
-				log.WithError(err).Error("Failed to get blob KZG commitments")
-				return
+				return errors.Wrap(err, "failed to get kzg commitments")
 			} else if len(kzgs) != 0 {
 				log = log.WithField("kzgCommitmentCount", len(kzgs))
 			}
 		}
 	}
 
-	blkRoot := fmt.Sprintf("%#x", bytesutil.Trunc(blkResp.BlockRoot))
+	br := fmt.Sprintf("%#x", bytesutil.Trunc(blkRoot))
 	graffiti := blk.Block().Body().Graffiti()
 	log.WithFields(logrus.Fields{
 		"slot":             blk.Block().Slot(),
-		"blockRoot":        blkRoot,
+		"blockRoot":        br,
 		"attestationCount": len(blk.Block().Body().Attestations()),
 		"depositCount":     len(blk.Block().Body().Deposits()),
 		"graffiti":         string(graffiti[:]),
 		"fork":             version.String(blk.Block().Version()),
 	}).Info("Submitted new block")
 
-	if v.emitAccountMetrics {
-		ValidatorProposeSuccessVec.WithLabelValues(fmtKey).Inc()
+	return nil
+}
+
+func buildGenericSignedBlockDenebWithBlobs(pb proto.Message, b *ethpb.GenericBeaconBlock) (*ethpb.GenericSignedBeaconBlock, error) {
+	denebBlock, ok := pb.(*ethpb.SignedBeaconBlockDeneb)
+	if !ok {
+		return nil, errors.New("could cast to deneb block")
 	}
+	return &ethpb.GenericSignedBeaconBlock{
+		Block: &ethpb.GenericSignedBeaconBlock_Deneb{
+			Deneb: &ethpb.SignedBeaconBlockContentsDeneb{
+				Block:     denebBlock,
+				KzgProofs: b.GetDeneb().KzgProofs,
+				Blobs:     b.GetDeneb().Blobs,
+			},
+		},
+	}, nil
+}
+
+func buildGenericSignedBlockElectraWithBlobs(pb proto.Message, b *ethpb.GenericBeaconBlock) (*ethpb.GenericSignedBeaconBlock, error) {
+	electraBlock, ok := pb.(*ethpb.SignedBeaconBlockElectra)
+	if !ok {
+		return nil, errors.New("could cast to electra block")
+	}
+	return &ethpb.GenericSignedBeaconBlock{
+		Block: &ethpb.GenericSignedBeaconBlock_Electra{
+			Electra: &ethpb.SignedBeaconBlockContentsElectra{
+				Block:     electraBlock,
+				KzgProofs: b.GetElectra().KzgProofs,
+				Blobs:     b.GetElectra().Blobs,
+			},
+		},
+	}, nil
 }
 
 // ProposeExit performs a voluntary exit on a validator.
@@ -246,7 +291,7 @@ func ProposeExit(
 		return errors.Wrap(err, "failed to propose voluntary exit")
 	}
 
-	span.AddAttributes(
+	span.SetAttributes(
 		trace.StringAttribute("exitRoot", fmt.Sprintf("%#x", exitResp.ExitRoot)),
 	)
 	return nil
@@ -288,6 +333,9 @@ func CreateSignedVoluntaryExit(
 
 // Sign randao reveal with randao domain and private key.
 func (v *validator) signRandaoReveal(ctx context.Context, pubKey [fieldparams.BLSPubkeyLength]byte, epoch primitives.Epoch, slot primitives.Slot) ([]byte, error) {
+	ctx, span := trace.StartSpan(ctx, "validator.signRandaoReveal")
+	defer span.End()
+
 	domain, err := v.domainData(ctx, epoch, params.BeaconConfig().DomainRandao[:])
 	if err != nil {
 		return nil, errors.Wrap(err, domainDataErr)
@@ -318,6 +366,9 @@ func (v *validator) signRandaoReveal(ctx context.Context, pubKey [fieldparams.BL
 // Sign block with proposer domain and private key.
 // Returns the signature, block signing root, and any error.
 func (v *validator) signBlock(ctx context.Context, pubKey [fieldparams.BLSPubkeyLength]byte, epoch primitives.Epoch, slot primitives.Slot, b interfaces.ReadOnlyBeaconBlock) ([]byte, [32]byte, error) {
+	ctx, span := trace.StartSpan(ctx, "validator.signBlock")
+	defer span.End()
+
 	domain, err := v.domainData(ctx, epoch, params.BeaconConfig().DomainBeaconProposer[:])
 	if err != nil {
 		return nil, [32]byte{}, errors.Wrap(err, domainDataErr)
@@ -356,6 +407,9 @@ func signVoluntaryExit(
 	exit *ethpb.VoluntaryExit,
 	slot primitives.Slot,
 ) ([]byte, error) {
+	ctx, span := trace.StartSpan(ctx, "validator.signVoluntaryExit")
+	defer span.End()
+
 	req := &ethpb.DomainRequest{
 		Epoch:  exit.Epoch,
 		Domain: params.BeaconConfig().DomainVoluntaryExit[:],
@@ -387,8 +441,11 @@ func signVoluntaryExit(
 	return sig.Marshal(), nil
 }
 
-// GetGraffiti gets the graffiti from cli or file for the validator public key.
-func (v *validator) GetGraffiti(ctx context.Context, pubKey [fieldparams.BLSPubkeyLength]byte) ([]byte, error) {
+// Graffiti gets the graffiti from cli or file for the validator public key.
+func (v *validator) Graffiti(ctx context.Context, pubKey [fieldparams.BLSPubkeyLength]byte) ([]byte, error) {
+	ctx, span := trace.StartSpan(ctx, "validator.Graffiti")
+	defer span.End()
+
 	if v.proposerSettings != nil {
 		// Check proposer settings for specific key first
 		if v.proposerSettings.ProposeConfig != nil {
@@ -452,6 +509,9 @@ func (v *validator) GetGraffiti(ctx context.Context, pubKey [fieldparams.BLSPubk
 }
 
 func (v *validator) SetGraffiti(ctx context.Context, pubkey [fieldparams.BLSPubkeyLength]byte, graffiti []byte) error {
+	ctx, span := trace.StartSpan(ctx, "validator.SetGraffiti")
+	defer span.End()
+
 	if graffiti == nil {
 		return nil
 	}
@@ -477,6 +537,9 @@ func (v *validator) SetGraffiti(ctx context.Context, pubkey [fieldparams.BLSPubk
 }
 
 func (v *validator) DeleteGraffiti(ctx context.Context, pubKey [fieldparams.BLSPubkeyLength]byte) error {
+	ctx, span := trace.StartSpan(ctx, "validator.DeleteGraffiti")
+	defer span.End()
+
 	if v.proposerSettings == nil || v.proposerSettings.ProposeConfig == nil {
 		return errors.New("attempted to delete graffiti without proposer settings, graffiti will default to flag options")
 	}

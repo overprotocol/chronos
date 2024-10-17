@@ -1,7 +1,6 @@
 package blocks
 
 import (
-	"math/big"
 	"testing"
 
 	ssz "github.com/prysmaticlabs/fastssz"
@@ -215,9 +214,9 @@ func Test_BeaconBlock_Copy(t *testing.T) {
 
 	payload := &pb.ExecutionPayloadDeneb{ExcessBlobGas: 123}
 	header := &pb.ExecutionPayloadHeaderDeneb{ExcessBlobGas: 223}
-	payloadInterface, err := WrappedExecutionPayloadDeneb(payload, big.NewInt(123))
+	payloadInterface, err := WrappedExecutionPayloadDeneb(payload)
 	require.NoError(t, err)
-	headerInterface, err := WrappedExecutionPayloadHeaderDeneb(header, big.NewInt(123))
+	headerInterface, err := WrappedExecutionPayloadHeaderDeneb(header)
 	require.NoError(t, err)
 	bb = &BeaconBlockBody{executionPayload: payloadInterface, executionPayloadHeader: headerInterface, randaoReveal: bytesutil.ToBytes96([]byte{246}), graffiti: bytesutil.ToBytes32([]byte("graffiti"))}
 	b = &BeaconBlock{body: bb, slot: 123, proposerIndex: 456, parentRoot: bytesutil.ToBytes32([]byte("parentroot")), stateRoot: bytesutil.ToBytes32([]byte("stateroot"))}
@@ -356,17 +355,30 @@ func Test_BeaconBlockBody_ProposerSlashings(t *testing.T) {
 }
 
 func Test_BeaconBlockBody_AttesterSlashings(t *testing.T) {
-	as := make([]*eth.AttesterSlashing, 0)
+	as := make([]eth.AttSlashing, 0)
 	bb := &SignedBeaconBlock{block: &BeaconBlock{body: &BeaconBlockBody{}}}
-	bb.SetAttesterSlashings(as)
+	require.NoError(t, bb.SetAttesterSlashings(as))
 	assert.DeepSSZEqual(t, as, bb.Block().Body().AttesterSlashings())
 }
 
 func Test_BeaconBlockBody_Attestations(t *testing.T) {
-	a := make([]*eth.Attestation, 0)
+	a := make([]eth.Att, 0)
 	bb := &SignedBeaconBlock{block: &BeaconBlock{body: &BeaconBlockBody{}}}
-	bb.SetAttestations(a)
+	require.NoError(t, bb.SetAttestations(a))
 	assert.DeepSSZEqual(t, a, bb.Block().Body().Attestations())
+}
+
+func Test_BeaconBlockBody_ElectraAttestations(t *testing.T) {
+	bb := &SignedBeaconBlock{
+		block: &BeaconBlock{body: &BeaconBlockBody{
+			version: version.Electra,
+			attestationsElectra: []*eth.AttestationElectra{{
+				Signature: []byte("electra"),
+			}},
+		}}}
+	a := bb.Block().Body().Attestations()
+	require.Equal(t, 1, len(a))
+	require.DeepEqual(t, a[0].GetSignature(), []byte("electra"))
 }
 
 func Test_BeaconBlockBody_Deposits(t *testing.T) {
@@ -421,7 +433,7 @@ func Test_BeaconBlockBody_Execution(t *testing.T) {
 	assert.DeepEqual(t, result, e)
 
 	executionCapella := &pb.ExecutionPayloadCapella{BlockNumber: 1}
-	eCapella, err := WrappedExecutionPayloadCapella(executionCapella, big.NewInt(0))
+	eCapella, err := WrappedExecutionPayloadCapella(executionCapella)
 	require.NoError(t, err)
 	bb = &SignedBeaconBlock{version: version.Capella, block: &BeaconBlock{body: &BeaconBlockBody{version: version.Capella}}}
 	require.NoError(t, bb.SetExecution(eCapella))
@@ -430,7 +442,7 @@ func Test_BeaconBlockBody_Execution(t *testing.T) {
 	assert.DeepEqual(t, result, eCapella)
 
 	executionCapellaHeader := &pb.ExecutionPayloadHeaderCapella{BlockNumber: 1}
-	eCapellaHeader, err := WrappedExecutionPayloadHeaderCapella(executionCapellaHeader, big.NewInt(0))
+	eCapellaHeader, err := WrappedExecutionPayloadHeaderCapella(executionCapellaHeader)
 	require.NoError(t, err)
 	bb = &SignedBeaconBlock{version: version.Capella, block: &BeaconBlock{version: version.Capella, body: &BeaconBlockBody{version: version.Capella}}}
 	require.NoError(t, bb.SetExecution(eCapellaHeader))
@@ -439,7 +451,7 @@ func Test_BeaconBlockBody_Execution(t *testing.T) {
 	assert.DeepEqual(t, result, eCapellaHeader)
 
 	executionDeneb := &pb.ExecutionPayloadDeneb{BlockNumber: 1, ExcessBlobGas: 123}
-	eDeneb, err := WrappedExecutionPayloadDeneb(executionDeneb, big.NewInt(0))
+	eDeneb, err := WrappedExecutionPayloadDeneb(executionDeneb)
 	require.NoError(t, err)
 	bb = &SignedBeaconBlock{version: version.Deneb, block: &BeaconBlock{body: &BeaconBlockBody{version: version.Deneb}}}
 	require.NoError(t, bb.SetExecution(eDeneb))
@@ -451,7 +463,7 @@ func Test_BeaconBlockBody_Execution(t *testing.T) {
 	require.DeepEqual(t, gas, uint64(123))
 
 	executionDenebHeader := &pb.ExecutionPayloadHeaderDeneb{BlockNumber: 1, ExcessBlobGas: 223}
-	eDenebHeader, err := WrappedExecutionPayloadHeaderDeneb(executionDenebHeader, big.NewInt(0))
+	eDenebHeader, err := WrappedExecutionPayloadHeaderDeneb(executionDenebHeader)
 	require.NoError(t, err)
 	bb = &SignedBeaconBlock{version: version.Deneb, block: &BeaconBlock{version: version.Deneb, body: &BeaconBlockBody{version: version.Deneb}}}
 	require.NoError(t, bb.SetExecution(eDenebHeader))
@@ -496,6 +508,142 @@ func hydrateBeaconBlockBody() *eth.BeaconBlockBody {
 		Eth1Data: &eth.Eth1Data{
 			DepositRoot: make([]byte, fieldparams.RootLength),
 			BlockHash:   make([]byte, fieldparams.RootLength),
+		},
+	}
+}
+
+func hydrateBeaconBlockBodyAltair() *eth.BeaconBlockBodyAltair {
+	return &eth.BeaconBlockBodyAltair{
+		RandaoReveal: make([]byte, fieldparams.BLSSignatureLength),
+		Graffiti:     make([]byte, fieldparams.RootLength),
+		Eth1Data: &eth.Eth1Data{
+			DepositRoot: make([]byte, fieldparams.RootLength),
+			BlockHash:   make([]byte, fieldparams.RootLength),
+		},
+		SyncAggregate: &eth.SyncAggregate{
+			SyncCommitteeBits:      make([]byte, 64),
+			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
+		},
+		BailOuts: make([]*eth.BailOut, 0),
+	}
+}
+
+func hydrateBeaconBlockBodyBellatrix() *eth.BeaconBlockBodyBellatrix {
+	return &eth.BeaconBlockBodyBellatrix{
+		RandaoReveal: make([]byte, fieldparams.BLSSignatureLength),
+		Graffiti:     make([]byte, fieldparams.RootLength),
+		Eth1Data: &eth.Eth1Data{
+			DepositRoot: make([]byte, fieldparams.RootLength),
+			BlockHash:   make([]byte, fieldparams.RootLength),
+		},
+		SyncAggregate: &eth.SyncAggregate{
+			SyncCommitteeBits:      make([]byte, 64),
+			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
+		},
+		BailOuts: make([]*eth.BailOut, 0),
+		ExecutionPayload: &pb.ExecutionPayload{
+			ParentHash:    make([]byte, fieldparams.RootLength),
+			FeeRecipient:  make([]byte, 20),
+			StateRoot:     make([]byte, fieldparams.RootLength),
+			ReceiptsRoot:  make([]byte, fieldparams.RootLength),
+			LogsBloom:     make([]byte, 256),
+			PrevRandao:    make([]byte, fieldparams.RootLength),
+			ExtraData:     make([]byte, 0),
+			BaseFeePerGas: make([]byte, fieldparams.RootLength),
+			BlockHash:     make([]byte, fieldparams.RootLength),
+			Transactions:  make([][]byte, 0),
+		},
+	}
+}
+
+func hydrateBeaconBlockBodyCapella() *eth.BeaconBlockBodyCapella {
+	return &eth.BeaconBlockBodyCapella{
+		RandaoReveal: make([]byte, fieldparams.BLSSignatureLength),
+		Graffiti:     make([]byte, fieldparams.RootLength),
+		Eth1Data: &eth.Eth1Data{
+			DepositRoot: make([]byte, fieldparams.RootLength),
+			BlockHash:   make([]byte, fieldparams.RootLength),
+		},
+		SyncAggregate: &eth.SyncAggregate{
+			SyncCommitteeBits:      make([]byte, fieldparams.SyncAggregateSyncCommitteeBytesLength),
+			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
+		},
+		BailOuts: make([]*eth.BailOut, 0),
+		ExecutionPayload: &pb.ExecutionPayloadCapella{
+			ParentHash:    make([]byte, fieldparams.RootLength),
+			FeeRecipient:  make([]byte, 20),
+			StateRoot:     make([]byte, fieldparams.RootLength),
+			ReceiptsRoot:  make([]byte, fieldparams.RootLength),
+			LogsBloom:     make([]byte, 256),
+			PrevRandao:    make([]byte, fieldparams.RootLength),
+			ExtraData:     make([]byte, 0),
+			BaseFeePerGas: make([]byte, fieldparams.RootLength),
+			BlockHash:     make([]byte, fieldparams.RootLength),
+			Transactions:  make([][]byte, 0),
+			Withdrawals:   make([]*pb.Withdrawal, 0),
+		},
+	}
+}
+
+func hydrateBeaconBlockBodyDeneb() *eth.BeaconBlockBodyDeneb {
+	return &eth.BeaconBlockBodyDeneb{
+		RandaoReveal: make([]byte, fieldparams.BLSSignatureLength),
+		Graffiti:     make([]byte, fieldparams.RootLength),
+		Eth1Data: &eth.Eth1Data{
+			DepositRoot: make([]byte, fieldparams.RootLength),
+			BlockHash:   make([]byte, fieldparams.RootLength),
+		},
+		SyncAggregate: &eth.SyncAggregate{
+			SyncCommitteeBits:      make([]byte, fieldparams.SyncAggregateSyncCommitteeBytesLength),
+			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
+		},
+		BailOuts: make([]*eth.BailOut, 0),
+		ExecutionPayload: &pb.ExecutionPayloadDeneb{
+			ParentHash:    make([]byte, fieldparams.RootLength),
+			FeeRecipient:  make([]byte, 20),
+			StateRoot:     make([]byte, fieldparams.RootLength),
+			ReceiptsRoot:  make([]byte, fieldparams.RootLength),
+			LogsBloom:     make([]byte, 256),
+			PrevRandao:    make([]byte, fieldparams.RootLength),
+			ExtraData:     make([]byte, 0),
+			BaseFeePerGas: make([]byte, fieldparams.RootLength),
+			BlockHash:     make([]byte, fieldparams.RootLength),
+			Transactions:  make([][]byte, 0),
+			Withdrawals:   make([]*pb.Withdrawal, 0),
+		},
+	}
+}
+
+func hydrateBeaconBlockBodyElectra() *eth.BeaconBlockBodyElectra {
+	return &eth.BeaconBlockBodyElectra{
+		RandaoReveal: make([]byte, fieldparams.BLSSignatureLength),
+		Graffiti:     make([]byte, fieldparams.RootLength),
+		Eth1Data: &eth.Eth1Data{
+			DepositRoot: make([]byte, fieldparams.RootLength),
+			BlockHash:   make([]byte, fieldparams.RootLength),
+		},
+		SyncAggregate: &eth.SyncAggregate{
+			SyncCommitteeBits:      make([]byte, fieldparams.SyncAggregateSyncCommitteeBytesLength),
+			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
+		},
+		BailOuts: make([]*eth.BailOut, 0),
+		ExecutionPayload: &pb.ExecutionPayloadElectra{
+			ParentHash:            make([]byte, fieldparams.RootLength),
+			FeeRecipient:          make([]byte, 20),
+			StateRoot:             make([]byte, fieldparams.RootLength),
+			ReceiptsRoot:          make([]byte, fieldparams.RootLength),
+			LogsBloom:             make([]byte, 256),
+			PrevRandao:            make([]byte, fieldparams.RootLength),
+			ExtraData:             make([]byte, 0),
+			BaseFeePerGas:         make([]byte, fieldparams.RootLength),
+			BlockHash:             make([]byte, fieldparams.RootLength),
+			Transactions:          make([][]byte, 0),
+			Withdrawals:           make([]*pb.Withdrawal, 0),
+		},
+		ExecutionRequests: &pb.ExecutionRequests{
+			Deposits:       make([]*pb.DepositRequest, 0),
+			Withdrawals:    make([]*pb.WithdrawalRequest, 0),
+			Consolidations: make([]*pb.ConsolidationRequest, 0),
 		},
 	}
 }

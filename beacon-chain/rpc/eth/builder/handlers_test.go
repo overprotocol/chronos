@@ -9,7 +9,6 @@ import (
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/gorilla/mux"
 	"github.com/prysmaticlabs/prysm/v5/api/server/structs"
 	mock "github.com/prysmaticlabs/prysm/v5/beacon-chain/blockchain/testing"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/rpc/testutil"
@@ -91,7 +90,7 @@ func TestExpectedWithdrawals_BadRequest(t *testing.T) {
 				Stater:                &testutil.MockStater{BeaconState: testCase.state},
 			}
 			request := httptest.NewRequest("GET", testCase.path, nil)
-			request = mux.SetURLVars(request, testCase.urlParams)
+			request.SetPathValue("state_id", testCase.urlParams["state_id"])
 			writer := httptest.NewRecorder()
 			writer.Body = &bytes.Buffer{}
 
@@ -125,6 +124,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 		valCount := 17000
 		validators := make([]*eth.Validator, 0, valCount)
 		balances := make([]uint64, 0, valCount)
+		bailOuts := make([]uint64, 0, valCount)
 		for i := 0; i < valCount; i++ {
 			blsKey, err := bls.RandKey()
 			require.NoError(t, err)
@@ -138,6 +138,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 			val.WithdrawalCredentials[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
 			validators = append(validators, val)
 			balances = append(balances, params.BeaconConfig().MaxEffectiveBalance)
+			bailOuts = append(bailOuts, 0)
 		}
 
 		epoch := slots.ToEpoch(st.Slot())
@@ -158,6 +159,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 
 		require.NoError(t, st.SetValidators(validators))
 		require.NoError(t, st.SetBalances(balances))
+		require.NoError(t, st.SetBailOutScores(bailOuts))
 		inactivityScores := make([]uint64, valCount)
 		for i := range inactivityScores {
 			inactivityScores[i] = 10
@@ -172,7 +174,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 		request := httptest.NewRequest(
 			"GET", "/eth/v1/builder/states/{state_id}/expected_withdrawals?proposal_slot="+
 				strconv.FormatUint(uint64(currentSlot+params.BeaconConfig().SlotsPerEpoch), 10), nil)
-		request = mux.SetURLVars(request, map[string]string{"state_id": "head"})
+		request.SetPathValue("state_id", "head")
 		writer := httptest.NewRecorder()
 		writer.Body = &bytes.Buffer{}
 
@@ -188,21 +190,21 @@ func TestExpectedWithdrawals(t *testing.T) {
 			ValidatorIndex: strconv.FormatUint(5, 10),
 			Address:        hexutil.Encode(validators[5].WithdrawalCredentials[12:]),
 			// Decreased due to epoch processing when state advanced forward
-			Amount: strconv.FormatUint(255966371555, 10),
+			Amount: strconv.FormatUint(255991888589, 10),
 		}
 		expectedWithdrawal2 := &structs.ExpectedWithdrawal{
 			Index:          strconv.FormatUint(1, 10),
 			ValidatorIndex: strconv.FormatUint(14, 10),
 			Address:        hexutil.Encode(validators[14].WithdrawalCredentials[12:]),
 			// MaxEffectiveBalance + MinDepositAmount + decrease after epoch processing
-			Amount: strconv.FormatUint(256966371555, 10),
+			Amount: strconv.FormatUint(256991888589, 10),
 		}
 		expectedWithdrawal3 := &structs.ExpectedWithdrawal{
 			Index:          strconv.FormatUint(2, 10),
 			ValidatorIndex: strconv.FormatUint(15, 10),
 			Address:        hexutil.Encode(validators[15].WithdrawalCredentials[12:]),
 			// MinDepositAmount + decrease after epoch processing
-			Amount: strconv.FormatUint(966371555, 10),
+			Amount: strconv.FormatUint(991888589, 10),
 		}
 		require.DeepEqual(t, expectedWithdrawal1, resp.Data[0])
 		require.DeepEqual(t, expectedWithdrawal2, resp.Data[1])

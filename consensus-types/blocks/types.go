@@ -5,6 +5,7 @@ import (
 	field_params "github.com/prysmaticlabs/prysm/v5/config/fieldparams"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/interfaces"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
+	enginev1 "github.com/prysmaticlabs/prysm/v5/proto/engine/v1"
 	eth "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 )
 
@@ -38,22 +39,27 @@ var (
 
 // BeaconBlockBody is the main beacon block body structure. It can represent any block type.
 type BeaconBlockBody struct {
-	version                int
-	randaoReveal           [field_params.BLSSignatureLength]byte
-	eth1Data               *eth.Eth1Data
-	graffiti               [field_params.RootLength]byte
-	proposerSlashings      []*eth.ProposerSlashing
-	attesterSlashings      []*eth.AttesterSlashing
-	attestations           []*eth.Attestation
-	deposits               []*eth.Deposit
-	voluntaryExits         []*eth.SignedVoluntaryExit
-	syncAggregate          *eth.SyncAggregate
-	bailOuts               []*eth.BailOut
-	executionPayload       interfaces.ExecutionData
-	executionPayloadHeader interfaces.ExecutionData
-	blsToExecutionChanges  []*eth.SignedBLSToExecutionChange
-	blobKzgCommitments     [][]byte
+	version                  int
+	randaoReveal             [field_params.BLSSignatureLength]byte
+	eth1Data                 *eth.Eth1Data
+	graffiti                 [field_params.RootLength]byte
+	proposerSlashings        []*eth.ProposerSlashing
+	attesterSlashings        []*eth.AttesterSlashing
+	attesterSlashingsElectra []*eth.AttesterSlashingElectra
+	attestations             []*eth.Attestation
+	attestationsElectra      []*eth.AttestationElectra
+	deposits                 []*eth.Deposit
+	voluntaryExits           []*eth.SignedVoluntaryExit
+	syncAggregate            *eth.SyncAggregate
+	bailOuts                 []*eth.BailOut
+	executionPayload         interfaces.ExecutionData
+	executionPayloadHeader   interfaces.ExecutionData
+	blsToExecutionChanges    []*eth.SignedBLSToExecutionChange
+	blobKzgCommitments       [][]byte
+	executionRequests        *enginev1.ExecutionRequests
 }
+
+var _ interfaces.ReadOnlyBeaconBlockBody = &BeaconBlockBody{}
 
 // BeaconBlock is the main beacon block structure. It can represent any block type.
 type BeaconBlock struct {

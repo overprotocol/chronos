@@ -308,10 +308,10 @@ var (
 		Value: DefaultDataDir(),
 	}
 	// ApiTimeoutFlag specifies the timeout value for API requests in seconds. A timeout of zero means no timeout.
-	ApiTimeoutFlag = &cli.IntFlag{
+	ApiTimeoutFlag = &cli.DurationFlag{
 		Name:  "api-timeout",
 		Usage: "Specifies the timeout value for API requests in seconds.",
-		Value: 120,
+		Value: 10 * time.Second,
 	}
 	// JwtOutputFileFlag specifies the JWT file path that gets generated into when invoked by generate-jwt-secret.
 	JwtOutputFileFlag = &cli.StringFlag{

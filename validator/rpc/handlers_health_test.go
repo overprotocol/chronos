@@ -174,7 +174,7 @@ func TestServer_GetVersion(t *testing.T) {
 		ctx:        ctx,
 		nodeClient: mockNodeClient,
 	}
-	mockNodeClient.EXPECT().GetVersion(gomock.Any(), gomock.Any()).Return(&eth.Version{
+	mockNodeClient.EXPECT().Version(gomock.Any(), gomock.Any()).Return(&eth.Version{
 		Version:  "4.10.1",
 		Metadata: "beacon node",
 	}, nil)
@@ -203,7 +203,7 @@ func TestServer_GetStatus(t *testing.T) {
 		validatorService: &client.ValidatorService{},
 		useOverNode:      true,
 	}
-	mockNodeClient.EXPECT().GetSyncStatus(gomock.Any(), gomock.Any()).Return(&eth.SyncStatus{
+	mockNodeClient.EXPECT().SyncStatus(gomock.Any(), gomock.Any()).Return(&eth.SyncStatus{
 		Syncing: false,
 	}, nil)
 	r := httptest.NewRequest("GET", "/v2/validator/health/status", nil)
