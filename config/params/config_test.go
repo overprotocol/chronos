@@ -2,6 +2,7 @@ package params_test
 
 import (
 	"bytes"
+	"fmt"
 	"sync"
 	"testing"
 
@@ -100,7 +101,7 @@ func TestConfigGenesisValidatorRoot(t *testing.T) {
 	require.NoError(t, err)
 
 	gvr := g.GenesisValidatorsRoot()
-
+	fmt.Println(gvr)
 	if !bytes.Equal(gvr, params.BeaconConfig().GenesisValidatorsRoot[:]) {
 		t.Fatal("mainnet params genesis validator root does not match the mainnet genesis state value")
 	}

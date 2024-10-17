@@ -22,7 +22,7 @@ func State(name string) (state.BeaconState, error) {
 
 // load a compressed ssz state file into a beacon state struct.
 func load(b []byte) (state.BeaconState, error) {
-	st := &ethpb.BeaconStateBellatrix{}
+	st := &ethpb.BeaconStateDeneb{}
 	b, err := snappy.Decode(nil /*dst*/, b)
 	if err != nil {
 		return nil, err
@@ -30,5 +30,5 @@ func load(b []byte) (state.BeaconState, error) {
 	if err := st.UnmarshalSSZ(b); err != nil {
 		return nil, err
 	}
-	return state_native.InitializeFromProtoUnsafeBellatrix(st)
+	return state_native.InitializeFromProtoUnsafeDeneb(st)
 }
