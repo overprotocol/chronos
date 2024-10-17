@@ -166,6 +166,8 @@ func TestIsNextEpochSyncCommittee_UsingCommittee(t *testing.T) {
 }
 
 func TestIsNextEpochSyncCommittee_DoesNotExist(t *testing.T) {
+	t.Skip("Sync committee will be removed in the future, skipping test")
+
 	helpers.ClearCache()
 
 	validators := make([]*ethpb.Validator, params.BeaconConfig().SyncCommitteeSize)

@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	finalizedRootIndex = uint64(111) // Precomputed value.
+	finalizedRootIndex = uint64(109) // Precomputed value.
 )
 
 // FinalizedRootGeneralizedIndex for the beacon state.
