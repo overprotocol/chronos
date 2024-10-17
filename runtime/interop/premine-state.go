@@ -302,9 +302,6 @@ func (s *PremineGenesisConfig) populate(g state.BeaconState) error {
 	if err := g.SetStateRoots(nZeroRoots(uint64(params.BeaconConfig().SlotsPerHistoricalRoot))); err != nil {
 		return err
 	}
-	if err := g.SetSlashings(make([]uint64, params.BeaconConfig().EpochsPerSlashingsVector)); err != nil {
-		return err
-	}
 	if err := s.setLatestBlockHeader(g); err != nil {
 		return err
 	}

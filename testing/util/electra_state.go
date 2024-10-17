@@ -132,8 +132,6 @@ func buildGenesisBeaconStateElectra(genesisTime uint64, preState state.BeaconSta
 		stateRoots[i] = zeroHash
 	}
 
-	slashings := make([]uint64, params.BeaconConfig().EpochsPerSlashingsVector)
-
 	genesisValidatorsRoot, err := stateutil.ValidatorRegistryRoot(preState.Validators())
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not hash tree root genesis validators %v", err)
@@ -195,7 +193,6 @@ func buildGenesisBeaconStateElectra(genesisTime uint64, preState state.BeaconSta
 		HistoricalRoots: [][]byte{},
 		BlockRoots:      blockRoots,
 		StateRoots:      stateRoots,
-		Slashings:       slashings,
 
 		// Eth1 data.
 		Eth1Data:         eth1Data,

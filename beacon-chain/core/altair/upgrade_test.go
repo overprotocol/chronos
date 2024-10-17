@@ -96,7 +96,6 @@ func TestUpgradeToAltair(t *testing.T) {
 	require.Equal(t, preForkState.PreviousEpochReserve(), aState.PreviousEpochReserve())
 	require.Equal(t, preForkState.CurrentEpochReserve(), aState.CurrentEpochReserve())
 	require.DeepSSZEqual(t, preForkState.RandaoMixes(), aState.RandaoMixes())
-	require.DeepSSZEqual(t, preForkState.Slashings(), aState.Slashings())
 	require.DeepSSZEqual(t, preForkState.JustificationBits(), aState.JustificationBits())
 	require.DeepSSZEqual(t, preForkState.PreviousJustifiedCheckpoint(), aState.PreviousJustifiedCheckpoint())
 	require.DeepSSZEqual(t, preForkState.CurrentJustifiedCheckpoint(), aState.CurrentJustifiedCheckpoint())

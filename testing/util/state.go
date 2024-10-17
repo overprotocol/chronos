@@ -91,7 +91,6 @@ func NewBeaconState(options ...NewBeaconStateOption) (state.BeaconState, error) 
 	seed := &ethpb.BeaconState{
 		BlockRoots:                 filledByteSlice2D(uint64(params.BeaconConfig().SlotsPerHistoricalRoot), 32),
 		StateRoots:                 filledByteSlice2D(uint64(params.BeaconConfig().SlotsPerHistoricalRoot), 32),
-		Slashings:                  make([]uint64, params.BeaconConfig().EpochsPerSlashingsVector),
 		RandaoMixes:                filledByteSlice2D(uint64(params.BeaconConfig().EpochsPerHistoricalVector), 32),
 		Validators:                 make([]*ethpb.Validator, 0),
 		CurrentJustifiedCheckpoint: &ethpb.Checkpoint{Root: make([]byte, fieldparams.RootLength)},
@@ -141,7 +140,6 @@ func NewBeaconStateAltair(options ...func(state *ethpb.BeaconStateAltair) error)
 	seed := &ethpb.BeaconStateAltair{
 		BlockRoots:                 filledByteSlice2D(uint64(params.BeaconConfig().SlotsPerHistoricalRoot), 32),
 		StateRoots:                 filledByteSlice2D(uint64(params.BeaconConfig().SlotsPerHistoricalRoot), 32),
-		Slashings:                  make([]uint64, params.BeaconConfig().EpochsPerSlashingsVector),
 		RandaoMixes:                filledByteSlice2D(uint64(params.BeaconConfig().EpochsPerHistoricalVector), 32),
 		Validators:                 make([]*ethpb.Validator, 0),
 		CurrentJustifiedCheckpoint: &ethpb.Checkpoint{Root: make([]byte, fieldparams.RootLength)},
@@ -199,7 +197,6 @@ func NewBeaconStateBellatrix(options ...func(state *ethpb.BeaconStateBellatrix) 
 	seed := &ethpb.BeaconStateBellatrix{
 		BlockRoots:                 filledByteSlice2D(uint64(params.BeaconConfig().SlotsPerHistoricalRoot), 32),
 		StateRoots:                 filledByteSlice2D(uint64(params.BeaconConfig().SlotsPerHistoricalRoot), 32),
-		Slashings:                  make([]uint64, params.BeaconConfig().EpochsPerSlashingsVector),
 		RandaoMixes:                filledByteSlice2D(uint64(params.BeaconConfig().EpochsPerHistoricalVector), 32),
 		Validators:                 make([]*ethpb.Validator, 0),
 		CurrentJustifiedCheckpoint: &ethpb.Checkpoint{Root: make([]byte, fieldparams.RootLength)},
@@ -269,7 +266,6 @@ func NewBeaconStateCapella(options ...func(state *ethpb.BeaconStateCapella) erro
 	seed := &ethpb.BeaconStateCapella{
 		BlockRoots:                 filledByteSlice2D(uint64(params.BeaconConfig().SlotsPerHistoricalRoot), 32),
 		StateRoots:                 filledByteSlice2D(uint64(params.BeaconConfig().SlotsPerHistoricalRoot), 32),
-		Slashings:                  make([]uint64, params.BeaconConfig().EpochsPerSlashingsVector),
 		RandaoMixes:                filledByteSlice2D(uint64(params.BeaconConfig().EpochsPerHistoricalVector), 32),
 		Validators:                 make([]*ethpb.Validator, 0),
 		CurrentJustifiedCheckpoint: &ethpb.Checkpoint{Root: make([]byte, fieldparams.RootLength)},
@@ -340,7 +336,6 @@ func NewBeaconStateDeneb(options ...func(state *ethpb.BeaconStateDeneb) error) (
 	seed := &ethpb.BeaconStateDeneb{
 		BlockRoots:                 filledByteSlice2D(uint64(params.BeaconConfig().SlotsPerHistoricalRoot), 32),
 		StateRoots:                 filledByteSlice2D(uint64(params.BeaconConfig().SlotsPerHistoricalRoot), 32),
-		Slashings:                  make([]uint64, params.BeaconConfig().EpochsPerSlashingsVector),
 		RandaoMixes:                filledByteSlice2D(uint64(params.BeaconConfig().EpochsPerHistoricalVector), 32),
 		Validators:                 make([]*ethpb.Validator, 0),
 		CurrentJustifiedCheckpoint: &ethpb.Checkpoint{Root: make([]byte, fieldparams.RootLength)},
@@ -411,7 +406,6 @@ func NewBeaconStateElectra(options ...func(state *ethpb.BeaconStateElectra) erro
 	seed := &ethpb.BeaconStateElectra{
 		BlockRoots:                 filledByteSlice2D(uint64(params.BeaconConfig().SlotsPerHistoricalRoot), 32),
 		StateRoots:                 filledByteSlice2D(uint64(params.BeaconConfig().SlotsPerHistoricalRoot), 32),
-		Slashings:                  make([]uint64, params.BeaconConfig().EpochsPerSlashingsVector),
 		RandaoMixes:                filledByteSlice2D(uint64(params.BeaconConfig().EpochsPerHistoricalVector), 32),
 		Validators:                 make([]*ethpb.Validator, 0),
 		CurrentJustifiedCheckpoint: &ethpb.Checkpoint{Root: make([]byte, fieldparams.RootLength)},

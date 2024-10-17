@@ -39,7 +39,6 @@ func TestReplayBlocks_AllSkipSlots(t *testing.T) {
 		BodyRoot:   bodyRoot[:],
 	})
 	require.NoError(t, err)
-	require.NoError(t, beaconState.SetSlashings(make([]uint64, params.BeaconConfig().EpochsPerSlashingsVector)))
 	cp := beaconState.CurrentJustifiedCheckpoint()
 	var mockRoot [32]byte
 	copy(mockRoot[:], "hello-world")
@@ -68,7 +67,6 @@ func TestReplayBlocks_SameSlot(t *testing.T) {
 		BodyRoot:   bodyRoot[:],
 	})
 	require.NoError(t, err)
-	require.NoError(t, beaconState.SetSlashings(make([]uint64, params.BeaconConfig().EpochsPerSlashingsVector)))
 	cp := beaconState.CurrentJustifiedCheckpoint()
 	var mockRoot [32]byte
 	copy(mockRoot[:], "hello-world")
@@ -98,7 +96,6 @@ func TestReplayBlocks_LowerSlotBlock(t *testing.T) {
 		BodyRoot:   bodyRoot[:],
 	})
 	require.NoError(t, err)
-	require.NoError(t, beaconState.SetSlashings(make([]uint64, params.BeaconConfig().EpochsPerSlashingsVector)))
 	cp := beaconState.CurrentJustifiedCheckpoint()
 	var mockRoot [32]byte
 	copy(mockRoot[:], "hello-world")

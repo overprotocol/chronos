@@ -102,7 +102,6 @@ func main() {
 		newSt.Validators = st.Validators
 		newSt.Balances = st.Balances
 		newSt.RandaoMixes = st.RandaoMixes
-		newSt.Slashings = st.Slashings
 		newSt.PreviousEpochAttestations = st.PreviousEpochAttestations
 		newSt.CurrentEpochAttestations = st.CurrentEpochAttestations
 		newSt.JustificationBits = st.JustificationBits
@@ -143,7 +142,6 @@ func main() {
 		newSt.Validators = st.Validators
 		newSt.Balances = st.Balances
 		newSt.RandaoMixes = st.RandaoMixes
-		newSt.Slashings = st.Slashings
 		newSt.JustificationBits = st.JustificationBits
 		newSt.PreviousJustifiedCheckpoint = st.PreviousJustifiedCheckpoint
 		newSt.CurrentJustifiedCheckpoint = st.CurrentJustifiedCheckpoint
@@ -182,7 +180,6 @@ func main() {
 		newSt.Validators = st.Validators
 		newSt.Balances = st.Balances
 		newSt.RandaoMixes = st.RandaoMixes
-		newSt.Slashings = st.Slashings
 		newSt.JustificationBits = st.JustificationBits
 		newSt.PreviousJustifiedCheckpoint = st.PreviousJustifiedCheckpoint
 		newSt.CurrentJustifiedCheckpoint = st.CurrentJustifiedCheckpoint
@@ -221,7 +218,6 @@ func main() {
 		newSt.Validators = st.Validators
 		newSt.Balances = st.Balances
 		newSt.RandaoMixes = st.RandaoMixes
-		newSt.Slashings = st.Slashings
 		newSt.JustificationBits = st.JustificationBits
 		newSt.PreviousJustifiedCheckpoint = st.PreviousJustifiedCheckpoint
 		newSt.CurrentJustifiedCheckpoint = st.CurrentJustifiedCheckpoint
@@ -261,7 +257,6 @@ func main() {
 		newSt.Validators = st.Validators
 		newSt.Balances = st.Balances
 		newSt.RandaoMixes = st.RandaoMixes
-		newSt.Slashings = st.Slashings
 		newSt.JustificationBits = st.JustificationBits
 		newSt.PreviousJustifiedCheckpoint = st.PreviousJustifiedCheckpoint
 		newSt.CurrentJustifiedCheckpoint = st.CurrentJustifiedCheckpoint
@@ -300,7 +295,6 @@ func main() {
 		newSt.Validators = st.Validators
 		newSt.Balances = st.Balances
 		newSt.RandaoMixes = st.RandaoMixes
-		newSt.Slashings = st.Slashings
 		newSt.JustificationBits = st.JustificationBits
 		newSt.PreviousJustifiedCheckpoint = st.PreviousJustifiedCheckpoint
 		newSt.CurrentJustifiedCheckpoint = st.CurrentJustifiedCheckpoint

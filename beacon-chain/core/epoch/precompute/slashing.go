@@ -14,14 +14,8 @@ func ProcessSlashingsPrecompute(s state.BeaconState, pBal *Balance) error {
 	currentEpoch := time.CurrentEpoch(s)
 	exitLength := params.BeaconConfig().EpochsPerSlashingsVector
 
-	// Compute the sum of state slashings
-	slashings := s.Slashings()
-	totalSlashing := uint64(0)
-	for _, slashing := range slashings {
-		totalSlashing += slashing
-	}
-
-	psm := uint64(1) // TODO: ProportionalSlashingMultiplier is deprecated
+	totalSlashing := uint64(0) // Field `Slashings` is deprecated
+	psm := uint64(1)           // TODO: ProportionalSlashingMultiplier is deprecated
 	minSlashing := math.Min(totalSlashing*psm, pBal.ActiveCurrentEpoch)
 	epochToWithdraw := currentEpoch + exitLength/2
 

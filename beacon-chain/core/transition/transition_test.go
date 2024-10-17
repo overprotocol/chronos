@@ -209,8 +209,6 @@ func createFullBlockWithOperations(t *testing.T) (state.BeaconState,
 		BodyRoot:   bodyRoot[:],
 	})
 	require.NoError(t, err)
-	err = beaconState.SetSlashings(make([]uint64, params.BeaconConfig().EpochsPerSlashingsVector))
-	require.NoError(t, err)
 	cp := beaconState.CurrentJustifiedCheckpoint()
 	var mockRoot [32]byte
 	copy(mockRoot[:], "hello-world")
@@ -372,11 +370,9 @@ func TestProcessEpochPrecompute_CanProcess(t *testing.T) {
 	epoch := primitives.Epoch(1)
 
 	atts := []*ethpb.PendingAttestation{{Data: &ethpb.AttestationData{Target: &ethpb.Checkpoint{Root: make([]byte, 32)}}, InclusionDelay: 1}}
-	slashing := make([]uint64, params.BeaconConfig().EpochsPerSlashingsVector)
 	base := &ethpb.BeaconState{
 		Slot:                       params.BeaconConfig().SlotsPerEpoch.Mul(uint64(epoch)) + 1,
 		BlockRoots:                 make([][]byte, 128),
-		Slashings:                  slashing,
 		RandaoMixes:                make([][]byte, params.BeaconConfig().EpochsPerHistoricalVector),
 		CurrentEpochAttestations:   atts,
 		FinalizedCheckpoint:        &ethpb.Checkpoint{Root: make([]byte, fieldparams.RootLength)},
@@ -396,7 +392,6 @@ func TestProcessEpochPrecompute_CanProcess(t *testing.T) {
 	require.NoError(t, err)
 	newState, err := transition.ProcessEpochPrecompute(context.Background(), s)
 	require.NoError(t, err)
-	assert.Equal(t, uint64(0), newState.Slashings()[2], "Unexpected slashed balance")
 }
 
 func TestProcessBlock_OverMaxProposerSlashings(t *testing.T) {

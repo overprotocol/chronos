@@ -42,8 +42,6 @@ import (
 //	    balances=pre.balances,
 //	    # Randomness
 //	    randao_mixes=pre.randao_mixes,
-//	    # Slashings
-//	    slashings=pre.slashings,
 //	    # Participation
 //	    previous_epoch_participation=[ParticipationFlags(0b0000_0000) for _ in range(len(pre.validators))],
 //	    current_epoch_participation=[ParticipationFlags(0b0000_0000) for _ in range(len(pre.validators))],
@@ -93,7 +91,6 @@ func UpgradeToAltair(ctx context.Context, state state.BeaconState) (state.Beacon
 		PreviousEpochReserve:        state.PreviousEpochReserve(),
 		CurrentEpochReserve:         state.CurrentEpochReserve(),
 		RandaoMixes:                 state.RandaoMixes(),
-		Slashings:                   state.Slashings(),
 		PreviousEpochParticipation:  make([]byte, numValidators),
 		CurrentEpochParticipation:   make([]byte, numValidators),
 		JustificationBits:           state.JustificationBits(),

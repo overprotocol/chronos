@@ -41,7 +41,6 @@ func TestUpgradeToElectra(t *testing.T) {
 	require.DeepSSZEqual(t, preForkState.Eth1DataVotes(), mSt.Eth1DataVotes())
 	require.DeepSSZEqual(t, preForkState.Eth1DepositIndex(), mSt.Eth1DepositIndex())
 	require.DeepSSZEqual(t, preForkState.RandaoMixes(), mSt.RandaoMixes())
-	require.DeepSSZEqual(t, preForkState.Slashings(), mSt.Slashings())
 	require.DeepSSZEqual(t, preForkState.JustificationBits(), mSt.JustificationBits())
 	require.DeepSSZEqual(t, preForkState.PreviousJustifiedCheckpoint(), mSt.PreviousJustifiedCheckpoint())
 	require.DeepSSZEqual(t, preForkState.CurrentJustifiedCheckpoint(), mSt.CurrentJustifiedCheckpoint())

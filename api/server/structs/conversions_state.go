@@ -50,11 +50,6 @@ func BeaconStateFromConsensus(st beaconState.BeaconState) (*BeaconState, error) 
 	for i, m := range srcRm {
 		rm[i] = hexutil.Encode(m)
 	}
-	srcSlashings := st.Slashings()
-	slashings := make([]string, len(srcSlashings))
-	for i, s := range srcSlashings {
-		slashings[i] = fmt.Sprintf("%d", s)
-	}
 	srcPrevAtts, err := st.PreviousEpochAttestations()
 	if err != nil {
 		return nil, err
@@ -90,7 +85,6 @@ func BeaconStateFromConsensus(st beaconState.BeaconState) (*BeaconState, error) 
 		PreviousEpochReserve:        st.PreviousEpochReserve(),
 		CurrentEpochReserve:         st.CurrentEpochReserve(),
 		RandaoMixes:                 rm,
-		Slashings:                   slashings,
 		PreviousEpochAttestations:   prevAtts,
 		CurrentEpochAttestations:    currAtts,
 		JustificationBits:           hexutil.Encode(st.JustificationBits()),
@@ -138,11 +132,6 @@ func BeaconStateAltairFromConsensus(st beaconState.BeaconState) (*BeaconStateAlt
 	rm := make([]string, len(srcRm))
 	for i, m := range srcRm {
 		rm[i] = hexutil.Encode(m)
-	}
-	srcSlashings := st.Slashings()
-	slashings := make([]string, len(srcSlashings))
-	for i, s := range srcSlashings {
-		slashings[i] = fmt.Sprintf("%d", s)
 	}
 	srcPrevPart, err := st.PreviousEpochParticipation()
 	if err != nil {
@@ -195,7 +184,6 @@ func BeaconStateAltairFromConsensus(st beaconState.BeaconState) (*BeaconStateAlt
 		PreviousEpochReserve:        st.PreviousEpochReserve(),
 		CurrentEpochReserve:         st.CurrentEpochReserve(),
 		RandaoMixes:                 rm,
-		Slashings:                   slashings,
 		PreviousEpochParticipation:  prevPart,
 		CurrentEpochParticipation:   currPart,
 		JustificationBits:           hexutil.Encode(st.JustificationBits()),
@@ -246,11 +234,6 @@ func BeaconStateBellatrixFromConsensus(st beaconState.BeaconState) (*BeaconState
 	rm := make([]string, len(srcRm))
 	for i, m := range srcRm {
 		rm[i] = hexutil.Encode(m)
-	}
-	srcSlashings := st.Slashings()
-	slashings := make([]string, len(srcSlashings))
-	for i, s := range srcSlashings {
-		slashings[i] = fmt.Sprintf("%d", s)
 	}
 	srcPrevPart, err := st.PreviousEpochParticipation()
 	if err != nil {
@@ -315,7 +298,6 @@ func BeaconStateBellatrixFromConsensus(st beaconState.BeaconState) (*BeaconState
 		PreviousEpochReserve:         st.PreviousEpochReserve(),
 		CurrentEpochReserve:          st.CurrentEpochReserve(),
 		RandaoMixes:                  rm,
-		Slashings:                    slashings,
 		PreviousEpochParticipation:   prevPart,
 		CurrentEpochParticipation:    currPart,
 		JustificationBits:            hexutil.Encode(st.JustificationBits()),
@@ -367,11 +349,6 @@ func BeaconStateCapellaFromConsensus(st beaconState.BeaconState) (*BeaconStateCa
 	rm := make([]string, len(srcRm))
 	for i, m := range srcRm {
 		rm[i] = hexutil.Encode(m)
-	}
-	srcSlashings := st.Slashings()
-	slashings := make([]string, len(srcSlashings))
-	for i, s := range srcSlashings {
-		slashings[i] = fmt.Sprintf("%d", s)
 	}
 	srcPrevPart, err := st.PreviousEpochParticipation()
 	if err != nil {
@@ -452,7 +429,6 @@ func BeaconStateCapellaFromConsensus(st beaconState.BeaconState) (*BeaconStateCa
 		PreviousEpochReserve:         st.PreviousEpochReserve(),
 		CurrentEpochReserve:          st.CurrentEpochReserve(),
 		RandaoMixes:                  rm,
-		Slashings:                    slashings,
 		PreviousEpochParticipation:   prevPart,
 		CurrentEpochParticipation:    currPart,
 		JustificationBits:            hexutil.Encode(st.JustificationBits()),
@@ -507,11 +483,6 @@ func BeaconStateDenebFromConsensus(st beaconState.BeaconState) (*BeaconStateDene
 	rm := make([]string, len(srcRm))
 	for i, m := range srcRm {
 		rm[i] = hexutil.Encode(m)
-	}
-	srcSlashings := st.Slashings()
-	slashings := make([]string, len(srcSlashings))
-	for i, s := range srcSlashings {
-		slashings[i] = fmt.Sprintf("%d", s)
 	}
 	srcPrevPart, err := st.PreviousEpochParticipation()
 	if err != nil {
@@ -592,7 +563,6 @@ func BeaconStateDenebFromConsensus(st beaconState.BeaconState) (*BeaconStateDene
 		PreviousEpochReserve:         st.PreviousEpochReserve(),
 		CurrentEpochReserve:          st.CurrentEpochReserve(),
 		RandaoMixes:                  rm,
-		Slashings:                    slashings,
 		PreviousEpochParticipation:   prevPart,
 		CurrentEpochParticipation:    currPart,
 		JustificationBits:            hexutil.Encode(st.JustificationBits()),
@@ -647,11 +617,6 @@ func BeaconStateElectraFromConsensus(st beaconState.BeaconState) (*BeaconStateEl
 	rm := make([]string, len(srcRm))
 	for i, m := range srcRm {
 		rm[i] = hexutil.Encode(m)
-	}
-	srcSlashings := st.Slashings()
-	slashings := make([]string, len(srcSlashings))
-	for i, s := range srcSlashings {
-		slashings[i] = fmt.Sprintf("%d", s)
 	}
 	srcPrevPart, err := st.PreviousEpochParticipation()
 	if err != nil {
@@ -756,7 +721,6 @@ func BeaconStateElectraFromConsensus(st beaconState.BeaconState) (*BeaconStateEl
 		PreviousEpochReserve:         st.PreviousEpochReserve(),
 		CurrentEpochReserve:          st.CurrentEpochReserve(),
 		RandaoMixes:                  rm,
-		Slashings:                    slashings,
 		PreviousEpochParticipation:   prevPart,
 		CurrentEpochParticipation:    currPart,
 		JustificationBits:            hexutil.Encode(st.JustificationBits()),

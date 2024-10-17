@@ -69,8 +69,6 @@ import (
 //	    balances=pre.balances,
 //	    # Randomness
 //	    randao_mixes=pre.randao_mixes,
-//	    # Slashings
-//	    slashings=pre.slashings,
 //	    # Participation
 //	    previous_epoch_participation=pre.previous_epoch_participation,
 //	    current_epoch_participation=pre.current_epoch_participation,
@@ -230,7 +228,6 @@ func UpgradeToElectra(beaconState state.BeaconState) (state.BeaconState, error) 
 		PreviousEpochReserve:        beaconState.PreviousEpochReserve(),
 		CurrentEpochReserve:         beaconState.CurrentEpochReserve(),
 		RandaoMixes:                 beaconState.RandaoMixes(),
-		Slashings:                   beaconState.Slashings(),
 		PreviousEpochParticipation:  prevEpochParticipation,
 		CurrentEpochParticipation:   currentEpochParticipation,
 		JustificationBits:           beaconState.JustificationBits(),

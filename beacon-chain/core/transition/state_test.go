@@ -72,7 +72,6 @@ func TestGenesisBeaconState_OK(t *testing.T) {
 	assert.Equal(t, uint8(0x00), newState.JustificationBits()[0], "JustificationBits was not correctly initialized")
 
 	// Recent state checks.
-	assert.DeepEqual(t, make([]uint64, params.BeaconConfig().EpochsPerSlashingsVector), newState.Slashings(), "Slashings was not correctly initialized")
 	currAtt, err := newState.CurrentEpochAttestations()
 	require.NoError(t, err)
 	assert.DeepSSZEqual(t, []*ethpb.PendingAttestation{}, currAtt, "CurrentEpochAttestations was not correctly initialized")

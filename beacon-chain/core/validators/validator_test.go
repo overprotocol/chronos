@@ -205,7 +205,6 @@ func TestSlashValidator_OK(t *testing.T) {
 
 	base := &ethpb.BeaconState{
 		Validators:  registry,
-		Slashings:   make([]uint64, params.BeaconConfig().EpochsPerSlashingsVector),
 		RandaoMixes: make([][]byte, params.BeaconConfig().EpochsPerHistoricalVector),
 		Balances:    balances,
 	}
@@ -228,10 +227,8 @@ func TestSlashValidator_OK(t *testing.T) {
 	assert.Equal(t, time.CurrentEpoch(state)+params.BeaconConfig().EpochsPerSlashingsVector, v.WithdrawableEpoch, "Withdrawable epoch not the expected value")
 
 	maxBalance := params.BeaconConfig().MaxEffectiveBalance
-	slashedBalance := state.Slashings()[state.Slot().Mod(uint64(params.BeaconConfig().EpochsPerSlashingsVector))]
-	assert.Equal(t, maxBalance, slashedBalance, "Slashed balance isn't the expected amount")
 
-	whistleblowerReward := slashedBalance / params.BeaconConfig().WhistleBlowerRewardQuotient
+	whistleblowerReward := maxBalance / params.BeaconConfig().WhistleBlowerRewardQuotient
 	bal, err := state.BalanceAtIndex(proposer)
 	require.NoError(t, err)
 	// The proposer is the whistleblower in phase 0.
@@ -258,7 +255,6 @@ func TestSlashValidator_Electra(t *testing.T) {
 
 	base := &ethpb.BeaconStateElectra{
 		Validators:  registry,
-		Slashings:   make([]uint64, params.BeaconConfig().EpochsPerSlashingsVector),
 		RandaoMixes: make([][]byte, params.BeaconConfig().EpochsPerHistoricalVector),
 		Balances:    balances,
 	}
@@ -281,10 +277,8 @@ func TestSlashValidator_Electra(t *testing.T) {
 	assert.Equal(t, time.CurrentEpoch(state)+params.BeaconConfig().EpochsPerSlashingsVector, v.WithdrawableEpoch, "Withdrawable epoch not the expected value")
 
 	maxBalance := params.BeaconConfig().MaxEffectiveBalance
-	slashedBalance := state.Slashings()[state.Slot().Mod(uint64(params.BeaconConfig().EpochsPerSlashingsVector))]
-	assert.Equal(t, maxBalance, slashedBalance, "Slashed balance isn't the expected amount")
 
-	whistleblowerReward := slashedBalance / params.BeaconConfig().WhistleBlowerRewardQuotientElectra
+	whistleblowerReward := maxBalance / params.BeaconConfig().WhistleBlowerRewardQuotientElectra
 	bal, err := state.BalanceAtIndex(proposer)
 	require.NoError(t, err)
 	// The proposer is the whistleblower.

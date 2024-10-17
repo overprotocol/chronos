@@ -30,9 +30,6 @@ func TestProcessFinalUpdates_CanProcess(t *testing.T) {
 	balances[1] = 250 * 1e9
 	require.NoError(t, s.SetBalances(balances))
 
-	slashings := s.Slashings()
-	slashings[ce] = 0
-	require.NoError(t, s.SetSlashings(slashings))
 	mixes := s.RandaoMixes()
 	mixes[ce] = []byte{'A'}
 	require.NoError(t, s.SetRandaoMixes(mixes))
@@ -42,9 +39,6 @@ func TestProcessFinalUpdates_CanProcess(t *testing.T) {
 	// Verify effective balance is correctly updated.
 	assert.Equal(t, params.BeaconConfig().MaxEffectiveBalance, newS.Validators()[0].EffectiveBalance, "Effective balance incorrectly updated")
 	assert.Equal(t, uint64(248*1e9), newS.Validators()[1].EffectiveBalance, "Effective balance incorrectly updated")
-
-	// Verify slashed balances correctly updated.
-	assert.Equal(t, newS.Slashings()[ce], newS.Slashings()[ne], "Unexpected slashed balance")
 
 	// Verify randao is correctly updated in the right position.
 	mix, err := newS.RandaoMixAtIndex(uint64(ne))
