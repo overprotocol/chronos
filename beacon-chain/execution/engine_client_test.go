@@ -391,13 +391,6 @@ func TestClient_HTTP(t *testing.T) {
 					Amount:          params.BeaconConfig().MinActivationBalance,
 				},
 			},
-			Consolidations: []*pb.ConsolidationRequest{
-				{
-					SourceAddress: bytesutil.PadTo([]byte{byte('f')}, common.AddressLength),
-					SourcePubkey:  bytesutil.PadTo([]byte{byte('g')}, fieldparams.BLSPubkeyLength),
-					TargetPubkey:  bytesutil.PadTo([]byte{byte('h')}, fieldparams.BLSPubkeyLength),
-				},
-			},
 		}
 
 		require.DeepEqual(t, requests, resp.ExecutionRequests)
@@ -611,13 +604,6 @@ func TestClient_HTTP(t *testing.T) {
 					Amount:          params.BeaconConfig().MinActivationBalance,
 				},
 			},
-			Consolidations: []*pb.ConsolidationRequest{
-				{
-					SourceAddress: bytesutil.PadTo([]byte{byte('f')}, common.AddressLength),
-					SourcePubkey:  bytesutil.PadTo([]byte{byte('g')}, fieldparams.BLSPubkeyLength),
-					TargetPubkey:  bytesutil.PadTo([]byte{byte('h')}, fieldparams.BLSPubkeyLength),
-				},
-			},
 		}
 		client := newPayloadV4Setup(t, want, execPayload, requests)
 		resp, err := client.NewPayload(ctx, wrappedPayload, []common.Hash{}, &common.Hash{'a'}, requests)
@@ -690,13 +676,6 @@ func TestClient_HTTP(t *testing.T) {
 					SourceAddress:   bytesutil.PadTo([]byte{byte('d')}, common.AddressLength),
 					ValidatorPubkey: bytesutil.PadTo([]byte{byte('e')}, fieldparams.BLSPubkeyLength),
 					Amount:          params.BeaconConfig().MinActivationBalance,
-				},
-			},
-			Consolidations: []*pb.ConsolidationRequest{
-				{
-					SourceAddress: bytesutil.PadTo([]byte{byte('f')}, common.AddressLength),
-					SourcePubkey:  bytesutil.PadTo([]byte{byte('g')}, fieldparams.BLSPubkeyLength),
-					TargetPubkey:  bytesutil.PadTo([]byte{byte('h')}, fieldparams.BLSPubkeyLength),
 				},
 			},
 		}
@@ -772,13 +751,6 @@ func TestClient_HTTP(t *testing.T) {
 					Amount:          params.BeaconConfig().MinActivationBalance,
 				},
 			},
-			Consolidations: []*pb.ConsolidationRequest{
-				{
-					SourceAddress: bytesutil.PadTo([]byte{byte('f')}, common.AddressLength),
-					SourcePubkey:  bytesutil.PadTo([]byte{byte('g')}, fieldparams.BLSPubkeyLength),
-					TargetPubkey:  bytesutil.PadTo([]byte{byte('h')}, fieldparams.BLSPubkeyLength),
-				},
-			},
 		}
 		client := newPayloadV4Setup(t, want, execPayload, requests)
 		resp, err := client.NewPayload(ctx, wrappedPayload, []common.Hash{}, &common.Hash{'a'}, requests)
@@ -851,13 +823,6 @@ func TestClient_HTTP(t *testing.T) {
 					SourceAddress:   bytesutil.PadTo([]byte{byte('d')}, common.AddressLength),
 					ValidatorPubkey: bytesutil.PadTo([]byte{byte('e')}, fieldparams.BLSPubkeyLength),
 					Amount:          params.BeaconConfig().MinActivationBalance,
-				},
-			},
-			Consolidations: []*pb.ConsolidationRequest{
-				{
-					SourceAddress: bytesutil.PadTo([]byte{byte('f')}, common.AddressLength),
-					SourcePubkey:  bytesutil.PadTo([]byte{byte('g')}, fieldparams.BLSPubkeyLength),
-					TargetPubkey:  bytesutil.PadTo([]byte{byte('h')}, fieldparams.BLSPubkeyLength),
 				},
 			},
 		}
@@ -1721,12 +1686,6 @@ func fixturesStruct() *payloadFixtures {
 	if err != nil {
 		panic("failed to decode withdrawal request")
 	}
-	consolidationRequestBytes, err := hexutil.Decode("0x6600000000000000000000000000000000000000" +
-		"670000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" +
-		"680000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")
-	if err != nil {
-		panic("failed to decode consolidation request")
-	}
 	executionBundleFixtureElectra := &pb.GetPayloadV4ResponseJson{
 		ShouldOverrideBuilder: true,
 		ExecutionPayload: &pb.ExecutionPayloadDenebJSON{
@@ -1753,7 +1712,7 @@ func fixturesStruct() *payloadFixtures {
 			Proofs:      []hexutil.Bytes{[]byte("proof1"), []byte("proof2")},
 			Blobs:       []hexutil.Bytes{{'a'}, {'b'}},
 		},
-		ExecutionRequests: []hexutil.Bytes{depositRequestBytes, withdrawalRequestBytes, consolidationRequestBytes},
+		ExecutionRequests: []hexutil.Bytes{depositRequestBytes, withdrawalRequestBytes},
 	}
 	parent := bytesutil.PadTo([]byte("parentHash"), fieldparams.RootLength)
 	sha3Uncles := bytesutil.PadTo([]byte("sha3Uncles"), fieldparams.RootLength)
