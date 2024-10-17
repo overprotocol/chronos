@@ -273,12 +273,12 @@ func UpgradeToElectra(beaconState state.BeaconState) (state.BeaconState, error) 
 		NextWithdrawalValidatorIndex: vi,
 		HistoricalSummaries:          summaries,
 
-		DepositRequestsStartIndex:     params.BeaconConfig().UnsetDepositRequestsStartIndex,
-		DepositBalanceToConsume:       0,
-		ExitBalanceToConsume:          helpers.ActivationExitChurnLimit(primitives.Gwei(tab)),
-		EarliestExitEpoch:             earliestExitEpoch,
-		PendingDeposits:               make([]*ethpb.PendingDeposit, 0),
-		PendingPartialWithdrawals:     make([]*ethpb.PendingPartialWithdrawal, 0),
+		DepositRequestsStartIndex: params.BeaconConfig().UnsetDepositRequestsStartIndex,
+		DepositBalanceToConsume:   0,
+		ExitBalanceToConsume:      helpers.ActivationExitChurnLimit(primitives.Gwei(tab)),
+		EarliestExitEpoch:         earliestExitEpoch,
+		PendingDeposits:           make([]*ethpb.PendingDeposit, 0),
+		PendingPartialWithdrawals: make([]*ethpb.PendingPartialWithdrawal, 0),
 	}
 
 	// Sorting preActivationIndices based on a custom criteria

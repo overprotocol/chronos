@@ -64,12 +64,12 @@ type BeaconState struct {
 	nextWithdrawalValidatorIndex        primitives.ValidatorIndex
 
 	// Electra fields
-	depositRequestsStartIndex     uint64
-	depositBalanceToConsume       primitives.Gwei
-	exitBalanceToConsume          primitives.Gwei
-	earliestExitEpoch             primitives.Epoch
-	pendingDeposits               []*ethpb.PendingDeposit           // pending_deposits: List[PendingDeposit, PENDING_DEPOSITS_LIMIT]
-	pendingPartialWithdrawals     []*ethpb.PendingPartialWithdrawal // pending_partial_withdrawals: List[PartialWithdrawal, PENDING_PARTIAL_WITHDRAWALS_LIMIT]
+	depositRequestsStartIndex uint64
+	depositBalanceToConsume   primitives.Gwei
+	exitBalanceToConsume      primitives.Gwei
+	earliestExitEpoch         primitives.Epoch
+	pendingDeposits           []*ethpb.PendingDeposit           // pending_deposits: List[PendingDeposit, PENDING_DEPOSITS_LIMIT]
+	pendingPartialWithdrawals []*ethpb.PendingPartialWithdrawal // pending_partial_withdrawals: List[PartialWithdrawal, PENDING_PARTIAL_WITHDRAWALS_LIMIT]
 
 	id                    uint64
 	lock                  sync.RWMutex
