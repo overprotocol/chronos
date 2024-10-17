@@ -110,7 +110,7 @@ type BeaconStateElectraCreator struct{}
 type PowBlockCreator struct{}
 type HistoricalSummaryCreator struct{}
 type BlobIdentifierCreator struct{}
-type PendingBalanceDepositCreator struct{}
+type PendingDepositCreator struct{}
 type PendingPartialWithdrawalCreator struct{}
 type StatusCreator struct{}
 type BeaconBlocksByRangeRequestCreator struct{}
@@ -278,8 +278,8 @@ func (BeaconStateElectraCreator) Create() MarshalerProtoMessage { return &ethpb.
 func (PowBlockCreator) Create() MarshalerProtoMessage           { return &ethpb.PowBlock{} }
 func (HistoricalSummaryCreator) Create() MarshalerProtoMessage  { return &ethpb.HistoricalSummary{} }
 func (BlobIdentifierCreator) Create() MarshalerProtoMessage     { return &ethpb.BlobIdentifier{} }
-func (PendingBalanceDepositCreator) Create() MarshalerProtoMessage {
-	return &ethpb.PendingBalanceDeposit{}
+func (PendingDepositCreator) Create() MarshalerProtoMessage {
+	return &ethpb.PendingDeposit{}
 }
 func (PendingPartialWithdrawalCreator) Create() MarshalerProtoMessage {
 	return &ethpb.PendingPartialWithdrawal{}
@@ -393,7 +393,7 @@ var creators = []MarshalerProtoCreator{
 	PowBlockCreator{},
 	HistoricalSummaryCreator{},
 	BlobIdentifierCreator{},
-	PendingBalanceDepositCreator{},
+	PendingDepositCreator{},
 	PendingPartialWithdrawalCreator{},
 	StatusCreator{},
 	BeaconBlocksByRangeRequestCreator{},

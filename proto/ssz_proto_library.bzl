@@ -32,7 +32,7 @@ mainnet = {
     "max_committees_per_slot.size": "64",
     "committee_bits.size": "8",
     "committee_bits.type": "github.com/prysmaticlabs/go-bitfield.Bitvector64",
-    "pending_balance_deposits_limit": "134217728",
+    "pending_deposits_limit": "134217728",
     "pending_partial_withdrawals_limit": "134217728",
 }
 
@@ -62,7 +62,7 @@ minimal = {
     "max_committees_per_slot.size": "4",
     "committee_bits.size": "1",
     "committee_bits.type": "github.com/prysmaticlabs/go-bitfield.Bitvector4",
-    "pending_balance_deposits_limit": "134217728",
+    "pending_deposits_limit": "134217728",
     "pending_partial_withdrawals_limit": "64",
 }
 

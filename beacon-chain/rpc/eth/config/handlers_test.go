@@ -159,7 +159,7 @@ func TestGetSpec(t *testing.T) {
 	config.WhistleBlowerRewardQuotientElectra = 100
 	config.PendingPartialWithdrawalsLimit = 101
 	config.MinActivationBalance = 102
-	config.PendingBalanceDepositLimit = 103
+	config.PendingDepositLimit = 103
 	config.MaxPendingPartialsPerWithdrawalsSweep = 104
 	config.MaxPartialWithdrawalsPerPayload = 106
 	config.FullExitRequestAmount = 107
@@ -169,6 +169,7 @@ func TestGetSpec(t *testing.T) {
 	config.MaxCellsInExtendedMatrix = 112
 	config.UnsetDepositRequestsStartIndex = 113
 	config.MaxDepositRequestsPerPayload = 114
+	config.MaxPendingDepositsPerEpoch = 115
 
 	var dbp [4]byte
 	copy(dbp[:], []byte{'0', '0', '0', '1'})
@@ -207,7 +208,7 @@ func TestGetSpec(t *testing.T) {
 	data, ok := resp.Data.(map[string]interface{})
 	require.Equal(t, true, ok)
 
-	assert.Equal(t, 175, len(data))
+	assert.Equal(t, 176, len(data))
 	for k, v := range data {
 		t.Run(k, func(t *testing.T) {
 			switch k {
@@ -560,7 +561,7 @@ func TestGetSpec(t *testing.T) {
 				assert.Equal(t, "101", v)
 			case "MIN_ACTIVATION_BALANCE":
 				assert.Equal(t, "102", v)
-			case "PENDING_BALANCE_DEPOSITS_LIMIT":
+			case "PENDING_DEPOSITS_LIMIT":
 				assert.Equal(t, "103", v)
 			case "MAX_PENDING_PARTIALS_PER_WITHDRAWALS_SWEEP":
 				assert.Equal(t, "104", v)
@@ -584,6 +585,8 @@ func TestGetSpec(t *testing.T) {
 				assert.Equal(t, "113", v)
 			case "MAX_DEPOSIT_REQUESTS_PER_PAYLOAD":
 				assert.Equal(t, "114", v)
+			case "MAX_PENDING_DEPOSITS_PER_EPOCH":
+				assert.Equal(t, "115", v)
 			default:
 				t.Errorf("Incorrect key: %s", k)
 			}

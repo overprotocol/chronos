@@ -160,13 +160,12 @@ func TestUpgradeToElectra(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, primitives.Epoch(1), eee)
 
-	pendingBalanceDeposits, err := mSt.PendingBalanceDeposits()
+	pendingDeposits, err := mSt.PendingDeposits()
 	require.NoError(t, err)
-	require.Equal(t, 2, len(pendingBalanceDeposits))
-	require.Equal(t, uint64(1000), pendingBalanceDeposits[1].Amount)
+	require.Equal(t, 2, len(pendingDeposits))
+	require.Equal(t, uint64(1000), pendingDeposits[1].Amount)
 
 	numPendingPartialWithdrawals, err := mSt.NumPendingPartialWithdrawals()
 	require.NoError(t, err)
 	require.Equal(t, uint64(0), numPendingPartialWithdrawals)
-
 }

@@ -45,7 +45,7 @@ var (
 //	    process_registry_updates(state)
 //	    process_slashings(state)
 //	    process_eth1_data_reset(state)
-//	    process_pending_balance_deposits(state)  # New in EIP7251
+//	    process_pending_deposits(state)  # New in EIP7251
 //	    process_effective_balance_updates(state)
 //	    process_slashings_reset(state)
 //	    process_randao_mixes_reset(state)
@@ -99,7 +99,7 @@ func ProcessEpoch(ctx context.Context, state state.BeaconState) error {
 		return err
 	}
 
-	if err = ProcessPendingBalanceDeposits(ctx, state, primitives.Gwei(bp.ActiveCurrentEpoch)); err != nil {
+	if err = ProcessPendingDeposits(ctx, state, primitives.Gwei(bp.ActiveCurrentEpoch)); err != nil {
 		return err
 	}
 	if err = ProcessEffectiveBalanceUpdates(state); err != nil {

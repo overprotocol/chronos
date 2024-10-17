@@ -423,7 +423,7 @@ message BeaconStateElectra {
   uint64 deposit_balance_to_consume = 12002 [(ethereum.eth.ext.cast_type) = "github.com/prysmaticlabs/prysm/v5/consensus-types/primitives.Gwei"];
   uint64 exit_balance_to_consume = 12003 [(ethereum.eth.ext.cast_type) = "github.com/prysmaticlabs/prysm/v5/consensus-types/primitives.Gwei"];
   uint64 earliest_exit_epoch = 12004 [(ethereum.eth.ext.cast_type) = "github.com/prysmaticlabs/prysm/v5/consensus-types/primitives.Epoch"];
-  repeated PendingBalanceDeposit pending_balance_deposits = 12007 [(ethereum.eth.ext.ssz_max) = "pending_balance_deposits_limit"];
+  repeated PendingDeposit pending_deposits = 12007 [(ethereum.eth.ext.ssz_max) = "pending_deposits_limit"];
   repeated PendingPartialWithdrawal pending_partial_withdrawals = 12008 [(ethereum.eth.ext.ssz_max) = "pending_partial_withdrawals_limit"];
 }
 
@@ -743,6 +743,6 @@ message BeaconStateOldElectra {
   uint64 deposit_balance_to_consume = 12002 [(ethereum.eth.ext.cast_type) = "github.com/prysmaticlabs/prysm/v5/consensus-types/primitives.Gwei"];
   uint64 exit_balance_to_consume = 12003 [(ethereum.eth.ext.cast_type) = "github.com/prysmaticlabs/prysm/v5/consensus-types/primitives.Gwei"];
   uint64 earliest_exit_epoch = 12004 [(ethereum.eth.ext.cast_type) = "github.com/prysmaticlabs/prysm/v5/consensus-types/primitives.Epoch"];
-  repeated PendingBalanceDeposit pending_balance_deposits = 12007 [(ethereum.eth.ext.ssz_max) = "pending_balance_deposits_limit"];
+  repeated PendingDeposit pending_deposits = 12007 [(ethereum.eth.ext.ssz_max) = "pending_deposits_limit"];
   repeated PendingPartialWithdrawal pending_partial_withdrawals = 12008 [(ethereum.eth.ext.ssz_max) = "pending_partial_withdrawals_limit"];
 }

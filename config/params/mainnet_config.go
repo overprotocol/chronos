@@ -284,10 +284,11 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	MaxEffectiveBalanceElectra:            16384_000_000_000,
 	MinSlashingPenaltyQuotientElectra:     4096,
 	WhistleBlowerRewardQuotientElectra:    4096,
-	PendingBalanceDepositLimit:            134_217_728,
+	PendingDepositLimit:                   134_217_728,
 	PendingPartialWithdrawalsLimit:        134_217_728,
 	MinActivationBalance:                  256_000_000_000,
 	MaxPendingPartialsPerWithdrawalsSweep: 8,
+	MaxPendingDepositsPerEpoch:            16,
 	FullExitRequestAmount:                 0,
 	MaxWithdrawalRequestsPerPayload:       16,
 	MaxDepositRequestsPerPayload:          8192, // 2**13 (= 8192)

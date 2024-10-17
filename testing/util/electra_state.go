@@ -209,10 +209,10 @@ func buildGenesisBeaconStateElectra(genesisTime uint64, preState state.BeaconSta
 		Eth1DepositIndex: preState.Eth1DepositIndex(),
 
 		// Electra Data
-		DepositRequestsStartIndex: params.BeaconConfig().UnsetDepositRequestsStartIndex,
-		ExitBalanceToConsume:      helpers.ActivationExitChurnLimit(primitives.Gwei(tab)),
-		PendingBalanceDeposits:    make([]*ethpb.PendingBalanceDeposit, 0),
-		PendingPartialWithdrawals: make([]*ethpb.PendingPartialWithdrawal, 0),
+		DepositRequestsStartIndex:     params.BeaconConfig().UnsetDepositRequestsStartIndex,
+		ExitBalanceToConsume:          helpers.ActivationExitChurnLimit(primitives.Gwei(tab)),
+		PendingDeposits:               make([]*ethpb.PendingDeposit, 0),
+		PendingPartialWithdrawals:     make([]*ethpb.PendingPartialWithdrawal, 0),
 	}
 
 	var scBits [fieldparams.SyncAggregateSyncCommitteeBytesLength]byte
