@@ -154,8 +154,8 @@ func GenerateFullBlockElectra(
 	}
 
 	executionRequests := &v1.ExecutionRequests{
-		Withdrawals:    withdrawalRequests,
-		Deposits:       depositRequests,
+		Withdrawals: withdrawalRequests,
+		Deposits:    depositRequests,
 	}
 
 	parentExecution, err := stCopy.LatestExecutionPayloadHeader()
@@ -345,13 +345,4 @@ func generateDepositRequests(
 		}
 	}
 	return depositRequests, nil
-}
-
-func randomAddress() (common.Address, error) {
-	b := make([]byte, 20)
-	_, err := rand.Read(b)
-	if err != nil {
-		return common.Address{}, err
-	}
-	return common.BytesToAddress(b), nil
 }
