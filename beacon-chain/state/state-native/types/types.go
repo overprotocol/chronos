@@ -196,9 +196,9 @@ func (f FieldIndex) RealPosition() int {
 	case EarliestExitEpoch:
 		return 35
 	case PendingDeposits:
-		return 38
+		return 36
 	case PendingPartialWithdrawals:
-		return 39
+		return 37
 	default:
 		return -1
 	}
