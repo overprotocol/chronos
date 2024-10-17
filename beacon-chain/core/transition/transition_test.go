@@ -390,7 +390,7 @@ func TestProcessEpochPrecompute_CanProcess(t *testing.T) {
 	}
 	s, err := state_native.InitializeFromProtoPhase0(base)
 	require.NoError(t, err)
-	newState, err := transition.ProcessEpochPrecompute(context.Background(), s)
+	_, err = transition.ProcessEpochPrecompute(context.Background(), s)
 	require.NoError(t, err)
 }
 
