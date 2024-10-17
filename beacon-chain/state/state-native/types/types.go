@@ -114,8 +114,8 @@ func (f FieldIndex) String() string {
 		return "consolidationBalanceToConsume"
 	case EarliestConsolidationEpoch:
 		return "earliestConsolidationEpoch"
-	case PendingBalanceDeposits:
-		return "pendingBalanceDeposits"
+	case PendingDeposits:
+		return "pendingDeposits"
 	case PendingPartialWithdrawals:
 		return "pendingPartialWithdrawals"
 	case PendingConsolidations:
@@ -205,7 +205,7 @@ func (f FieldIndex) RealPosition() int {
 		return 36
 	case EarliestConsolidationEpoch:
 		return 37
-	case PendingBalanceDeposits:
+	case PendingDeposits:
 		return 38
 	case PendingPartialWithdrawals:
 		return 39
@@ -276,7 +276,7 @@ const (
 	EarliestExitEpoch             // Electra: EIP-7251
 	ConsolidationBalanceToConsume // Electra: EIP-7251
 	EarliestConsolidationEpoch    // Electra: EIP-7251
-	PendingBalanceDeposits        // Electra: EIP-7251
+	PendingDeposits               // Electra: EIP-7251
 	PendingPartialWithdrawals     // Electra: EIP-7251
 	PendingConsolidations         // Electra: EIP-7251
 )

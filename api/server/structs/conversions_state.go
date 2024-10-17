@@ -782,7 +782,7 @@ func BeaconStateElectraFromConsensus(st beaconState.BeaconState) (*BeaconStateEl
 	if err != nil {
 		return nil, err
 	}
-	pbd, err := st.PendingBalanceDeposits()
+	pbd, err := st.PendingDeposits()
 	if err != nil {
 		return nil, err
 	}
@@ -834,7 +834,7 @@ func BeaconStateElectraFromConsensus(st beaconState.BeaconState) (*BeaconStateEl
 		EarliestExitEpoch:             fmt.Sprintf("%d", eee),
 		ConsolidationBalanceToConsume: fmt.Sprintf("%d", cbtc),
 		EarliestConsolidationEpoch:    fmt.Sprintf("%d", ece),
-		PendingBalanceDeposits:        PendingBalanceDepositsFromConsensus(pbd),
+		PendingDeposits:               PendingDepositsFromConsensus(pbd),
 		PendingPartialWithdrawals:     PendingPartialWithdrawalsFromConsensus(ppw),
 		PendingConsolidations:         PendingConsolidationsFromConsensus(pc),
 	}, nil
