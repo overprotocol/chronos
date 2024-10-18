@@ -164,7 +164,7 @@ func TestGetSpec(t *testing.T) {
 	config.MaxAttestationsElectra = 105
 	config.MaxWithdrawalRequestsPerPayload = 106
 	config.MaxCellsInExtendedMatrix = 107
-	config.UnsetDepositRequestsStartIndex= 108
+	config.UnsetDepositRequestsStartIndex = 108
 	config.MaxDepositRequestsPerPayload = 109
 	config.MaxPendingDepositsPerEpoch = 110
 
