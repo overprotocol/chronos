@@ -38,7 +38,6 @@ import (
 //	    excess_blob_gas=pre.latest_execution_payload_header.excess_blob_gas,
 //	    deposit_requests_root=Root(),  # [New in Electra:EIP6110]
 //	    withdrawal_requests_root=Root(),  # [New in Electra:EIP7002],
-//	    consolidation_requests_root=Root(),  # [New in Electra:EIP7251]
 //	)
 //
 //	exit_epochs = [v.exit_epoch for v in pre.validators if v.exit_epoch != FAR_FUTURE_EPOCH]
@@ -98,15 +97,11 @@ import (
 //	    deposit_balance_to_consume=0,
 //	    exit_balance_to_consume=0,
 //	    earliest_exit_epoch=earliest_exit_epoch,
-//	    consolidation_balance_to_consume=0,
-//	    earliest_consolidation_epoch=compute_activation_exit_epoch(get_current_epoch(pre)),
 //	    pending_deposits=[],
 //	    pending_partial_withdrawals=[],
-//	    pending_consolidations=[],
 //	)
 //
 //	post.exit_balance_to_consume = get_activation_exit_churn_limit(post)
-//	post.consolidation_balance_to_consume = get_consolidation_churn_limit(post)
 //
 //	# [New in Electra:EIP7251]
 //	# add validators that are not yet active to pending balance deposits
