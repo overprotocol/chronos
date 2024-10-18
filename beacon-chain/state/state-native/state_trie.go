@@ -120,7 +120,7 @@ const (
 	bellatrixSharedFieldRefCount                  = 12
 	capellaSharedFieldRefCount                    = 13
 	denebSharedFieldRefCount                      = 13
-	electraSharedFieldRefCount                    = 16
+	electraSharedFieldRefCount                    = 15
 	experimentalStatePhase0SharedFieldRefCount    = 5
 	experimentalStateAltairSharedFieldRefCount    = 5
 	experimentalStateBellatrixSharedFieldRefCount = 6
