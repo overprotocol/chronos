@@ -111,19 +111,6 @@ func NewMultiValueInactivityScores(scores []uint64) *MultiValueInactivityScores 
 	return mv
 }
 
-type MultiValueBailOutScores = multi_value_slice.Slice[uint64]
-
-// NewMultiValueBailOutScores creates a new slice whose shared items will be populated with copies of input values.
-func NewMultiValueBailOutScores(scores []uint64) *MultiValueBailOutScores {
-	items := make([]uint64, len(scores))
-	copy(items, scores)
-	mv := &MultiValueBailOutScores{}
-	mv.Init(items)
-	multiValueCountGauge.WithLabelValues(types.BailOutScores.String()).Inc()
-	runtime.SetFinalizer(mv, bailOutScoresFinalizer)
-	return mv
-}
-
 // MultiValueValidators is a multi-value slice of validator references.
 type MultiValueValidators = multi_value_slice.Slice[*ethpb.Validator]
 
@@ -183,13 +170,6 @@ func (b *BeaconState) Defragment() {
 		multiValueCountGauge.WithLabelValues(types.InactivityScores.String()).Inc()
 		runtime.SetFinalizer(b.inactivityScoresMultiValue, inactivityScoresFinalizer)
 	}
-	if b.bailoutScoresMultiValue != nil && b.bailoutScoresMultiValue.IsFragmented() {
-		initialMVslice := b.bailoutScoresMultiValue
-		b.bailoutScoresMultiValue = b.bailoutScoresMultiValue.Reset(b)
-		initialMVslice.Detach(b)
-		multiValueCountGauge.WithLabelValues(types.BailOutScores.String()).Inc()
-		runtime.SetFinalizer(b.bailoutScoresMultiValue, bailOutScoresFinalizer)
-	}
 }
 
 func randaoMixesFinalizer(m *MultiValueRandaoMixes) {
@@ -214,8 +194,4 @@ func validatorsFinalizer(m *MultiValueValidators) {
 
 func inactivityScoresFinalizer(m *MultiValueInactivityScores) {
 	multiValueCountGauge.WithLabelValues(types.InactivityScores.String()).Dec()
-}
-
-func bailOutScoresFinalizer(m *MultiValueBailOutScores) {
-	multiValueCountGauge.WithLabelValues(types.BailOutScores.String()).Dec()
 }

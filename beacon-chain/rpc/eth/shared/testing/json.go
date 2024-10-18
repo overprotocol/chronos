@@ -316,12 +316,7 @@ const (
       "sync_aggregate": {
         "sync_committee_bits": "0x6451e9f951ebf05edc01de67e593484b672877054f055903ff0df1a1a945cf30ca26bb4d4b154f94a1bc776bcf5d0efb3603e1f9b8ee2499ccdcfe2a18cef458",
         "sync_committee_signature": "0x1b66ac1fb663c9bc59509846d6ec05345bd908eda73e670af888da41af171505cc411d61252fb6cb3fa0017b679f8bb2305b26a285fa2737f175668d0dff91cc1b66ac1fb663c9bc59509846d6ec05345bd908eda73e670af888da41af171505"
-      },
-	  "bail_outs": [
-		{
-		  "validator_index": "1"
-		}
-	  ]
+      }
     }
   },
   "signature": "0x1b66ac1fb663c9bc59509846d6ec05345bd908eda73e670af888da41af171505cc411d61252fb6cb3fa0017b679f8bb2305b26a285fa2737f175668d0dff91cc1b66ac1fb663c9bc59509846d6ec05345bd908eda73e670af888da41af171505"
@@ -483,11 +478,6 @@ const (
         "sync_committee_bits": "0x6451e9f951ebf05edc01de67e593484b672877054f055903ff0df1a1a945cf30ca26bb4d4b154f94a1bc776bcf5d0efb3603e1f9b8ee2499ccdcfe2a18cef458",
         "sync_committee_signature": "0x1b66ac1fb663c9bc59509846d6ec05345bd908eda73e670af888da41af171505cc411d61252fb6cb3fa0017b679f8bb2305b26a285fa2737f175668d0dff91cc1b66ac1fb663c9bc59509846d6ec05345bd908eda73e670af888da41af171505"
       },
-	  "bail_outs": [
-		{
-		  "validator_index": "1"
-		}
-	  ],
       "execution_payload": {
         "parent_hash": "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2",
         "fee_recipient": "0xabcf8e0d4e9587369b2301d0790347320302cc09",
@@ -667,11 +657,6 @@ const (
         "sync_committee_bits": "0x6451e9f951ebf05edc01de67e593484b672877054f055903ff0df1a1a945cf30ca26bb4d4b154f94a1bc776bcf5d0efb3603e1f9b8ee2499ccdcfe2a18cef458",
         "sync_committee_signature": "0x1b66ac1fb663c9bc59509846d6ec05345bd908eda73e670af888da41af171505cc411d61252fb6cb3fa0017b679f8bb2305b26a285fa2737f175668d0dff91cc1b66ac1fb663c9bc59509846d6ec05345bd908eda73e670af888da41af171505"
       },
-	  "bail_outs": [
-		{
-		  "validator_index": "1"
-		}
-	  ],
       "execution_payload_header": {
         "parent_hash": "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2",
         "fee_recipient": "0xabcf8e0d4e9587369b2301d0790347320302cc09",
@@ -854,11 +839,6 @@ const (
         "sync_committee_bits": "0x6451e9f951ebf05edc01de67e593484b672877054f055903ff0df1a1a945cf30ca26bb4d4b154f94a1bc776bcf5d0efb3603e1f9b8ee2499ccdcfe2a18cef458",
         "sync_committee_signature": "0x1b66ac1fb663c9bc59509846d6ec05345bd908eda73e670af888da41af171505cc411d61252fb6cb3fa0017b679f8bb2305b26a285fa2737f175668d0dff91cc1b66ac1fb663c9bc59509846d6ec05345bd908eda73e670af888da41af171505"
       },
-	  "bail_outs": [
-		{
-		  "validator_index": "1"
-		}
-	  ],
       "execution_payload_header": {
         "parent_hash": "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2",
         "fee_recipient": "0xabcf8e0d4e9587369b2301d0790347320302cc09",
@@ -1036,11 +1016,6 @@ const (
         "sync_committee_bits": "0x6451e9f951ebf05edc01de67e593484b672877054f055903ff0df1a1a945cf30ca26bb4d4b154f94a1bc776bcf5d0efb3603e1f9b8ee2499ccdcfe2a18cef458",
         "sync_committee_signature": "0x1b66ac1fb663c9bc59509846d6ec05345bd908eda73e670af888da41af171505cc411d61252fb6cb3fa0017b679f8bb2305b26a285fa2737f175668d0dff91cc1b66ac1fb663c9bc59509846d6ec05345bd908eda73e670af888da41af171505"
       },
-	  "bail_outs": [
-		{
-		  "validator_index": "1"
-		}
-	  ],
       "execution_payload": {
         "parent_hash": "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2",
         "fee_recipient": "0xabcf8e0d4e9587369b2301d0790347320302cc09",
@@ -1243,11 +1218,6 @@ const (
         "sync_committee_bits": "0x6451e9f951ebf05edc01de67e593484b672877054f055903ff0df1a1a945cf30ca26bb4d4b154f94a1bc776bcf5d0efb3603e1f9b8ee2499ccdcfe2a18cef458",
         "sync_committee_signature": "0x1b66ac1fb663c9bc59509846d6ec05345bd908eda73e670af888da41af171505cc411d61252fb6cb3fa0017b679f8bb2305b26a285fa2737f175668d0dff91cc1b66ac1fb663c9bc59509846d6ec05345bd908eda73e670af888da41af171505"
       },
-	  "bail_outs": [
-		{
-		  "validator_index": "1"
-		}
-	  ],
       "execution_payload": {
         "parent_hash": "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2",
         "fee_recipient": "0xabcf8e0d4e9587369b2301d0790347320302cc09",
@@ -1445,11 +1415,6 @@ const (
         "sync_committee_bits": "0x6451e9f951ebf05edc01de67e593484b672877054f055903ff0df1a1a945cf30ca26bb4d4b154f94a1bc776bcf5d0efb3603e1f9b8ee2499ccdcfe2a18cef458",
         "sync_committee_signature": "0x1b66ac1fb663c9bc59509846d6ec05345bd908eda73e670af888da41af171505cc411d61252fb6cb3fa0017b679f8bb2305b26a285fa2737f175668d0dff91cc1b66ac1fb663c9bc59509846d6ec05345bd908eda73e670af888da41af171505"
       },
-	  "bail_outs": [
-		{
-		  "validator_index": "1"
-		}
-	  ],
       "execution_payload_header": {
         "parent_hash": "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2",
         "fee_recipient": "0xabcf8e0d4e9587369b2301d0790347320302cc09",
@@ -1638,11 +1603,6 @@ const (
         "sync_committee_bits": "0x6451e9f951ebf05edc01de67e593484b672877054f055903ff0df1a1a945cf30ca26bb4d4b154f94a1bc776bcf5d0efb3603e1f9b8ee2499ccdcfe2a18cef458",
         "sync_committee_signature": "0x1b66ac1fb663c9bc59509846d6ec05345bd908eda73e670af888da41af171505cc411d61252fb6cb3fa0017b679f8bb2305b26a285fa2737f175668d0dff91cc1b66ac1fb663c9bc59509846d6ec05345bd908eda73e670af888da41af171505"
       },
-	  "bail_outs": [
-		{
-		  "validator_index": "1"
-		}
-	  ],
       "execution_payload_header": {
         "parent_hash": "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2",
         "fee_recipient": "0xabcf8e0d4e9587369b2301d0790347320302cc09",
@@ -1837,11 +1797,6 @@ var BlindedElectraBlock = fmt.Sprintf(`{
         "sync_committee_bits": "0x6451e9f951ebf05edc01de67e593484b672877054f055903ff0df1a1a945cf30ca26bb4d4b154f94a1bc776bcf5d0efb3603e1f9b8ee2499ccdcfe2a18cef458",
         "sync_committee_signature": "0x1b66ac1fb663c9bc59509846d6ec05345bd908eda73e670af888da41af171505cc411d61252fb6cb3fa0017b679f8bb2305b26a285fa2737f175668d0dff91cc1b66ac1fb663c9bc59509846d6ec05345bd908eda73e670af888da41af171505"
       },
-      "bail_outs": [
-		{
-		  "validator_index": "1"
-		}
-	  ],
       "execution_payload_header": {
         "parent_hash": "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2",
         "fee_recipient": "0xabcf8e0d4e9587369b2301d0790347320302cc09",
@@ -2061,11 +2016,6 @@ var DenebBlockContents = fmt.Sprintf(`{
 				"sync_committee_bits": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
 				"sync_committee_signature": "0x1b66ac1fb663c9bc59509846d6ec05345bd908eda73e670af888da41af171505cc411d61252fb6cb3fa0017b679f8bb2305b26a285fa2737f175668d0dff91cc1b66ac1fb663c9bc59509846d6ec05345bd908eda73e670af888da41af171505"
 			  },
-			  "bail_outs": [
-				{
-				  "validator_index": "1"
-				}
-			  ],
 			  "execution_payload": {
 				"parent_hash": "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2",
 				"fee_recipient": "0xabcf8e0d4e9587369b2301d0790347320302cc09",
@@ -2272,11 +2222,6 @@ var ElectraBlockContents = fmt.Sprintf(`{
 				"sync_committee_bits": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
 				"sync_committee_signature": "0x1b66ac1fb663c9bc59509846d6ec05345bd908eda73e670af888da41af171505cc411d61252fb6cb3fa0017b679f8bb2305b26a285fa2737f175668d0dff91cc1b66ac1fb663c9bc59509846d6ec05345bd908eda73e670af888da41af171505"
 			  },
-              "bail_outs": [
-				{
-		  			"validator_index": "1"
-				}
-			  ],
 			  "execution_payload": {
 				"parent_hash": "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2",
 				"fee_recipient": "0xabcf8e0d4e9587369b2301d0790347320302cc09",

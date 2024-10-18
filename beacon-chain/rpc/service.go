@@ -28,7 +28,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/execution"
 	closehandler "github.com/prysmaticlabs/prysm/v5/beacon-chain/node/close-handler"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/attestations"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/bailout"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/blstoexec"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/slashings"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/synccommittee"
@@ -120,7 +119,6 @@ type Config struct {
 	EnableDebugRPCEndpoints       bool
 	AttestationsPool              attestations.Pool
 	ExitPool                      voluntaryexits.PoolManager
-	BailoutPool                   bailout.PoolManager
 	SlashingsPool                 slashings.PoolManager
 	SyncCommitteeObjectPool       synccommittee.Pool
 	BLSChangesPool                blstoexec.PoolManager
@@ -239,7 +237,6 @@ func NewService(ctx context.Context, cfg *Config) *Service {
 		Ctx:                    s.ctx,
 		AttPool:                s.cfg.AttestationsPool,
 		ExitPool:               s.cfg.ExitPool,
-		BailoutPool:            s.cfg.BailoutPool,
 		HeadFetcher:            s.cfg.HeadFetcher,
 		ForkFetcher:            s.cfg.ForkFetcher,
 		ForkchoiceFetcher:      s.cfg.ForkchoiceFetcher,

@@ -66,10 +66,6 @@ func TestUpgradeToBellatrix(t *testing.T) {
 	require.NoError(t, err)
 	require.DeepSSZEqual(t, nsc, csc)
 
-	b, err := mSt.BailOutScores()
-	require.NoError(t, err)
-	require.DeepSSZEqual(t, make([]uint64, numValidators), b)
-
 	header, err := mSt.LatestExecutionPayloadHeader()
 	require.NoError(t, err)
 	protoHeader, ok := header.Proto().(*enginev1.ExecutionPayloadHeader)

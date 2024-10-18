@@ -136,10 +136,6 @@ func buildGenesisBeaconStateDeneb(genesisTime uint64, preState state.BeaconState
 	if err != nil {
 		return nil, err
 	}
-	bscores, err := preState.BailOutScores()
-	if err != nil {
-		return nil, err
-	}
 	st := &ethpb.BeaconStateDeneb{
 		// Misc fields.
 		Slot:                  0,
@@ -158,7 +154,6 @@ func buildGenesisBeaconStateDeneb(genesisTime uint64, preState state.BeaconState
 		PreviousEpochParticipation: prevEpochParticipation,
 		CurrentEpochParticipation:  currEpochParticipation,
 		InactivityScores:           scores,
-		BailOutScores:              bscores,
 
 		// Randomness and committees.
 		RandaoMixes: randaoMixes,

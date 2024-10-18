@@ -35,18 +35,11 @@ func InitializePrecomputeValidators(ctx context.Context, beaconState state.Beaco
 	if err != nil {
 		return nil, nil, err
 	}
-	bailoutScores, err := beaconState.BailOutScores()
-	if err != nil {
-		return nil, nil, err
-	}
 
 	// This shouldn't happen with a correct beacon state,
 	// but rather be safe to defend against index out of bound panics.
 	if beaconState.NumValidators() != len(inactivityScores) {
 		return nil, nil, errors.New("num of validators is different than num of inactivity scores")
-	}
-	if beaconState.NumValidators() != len(bailoutScores) {
-		return nil, nil, errors.New("num of validators is different than num of bail out scores")
 	}
 
 	if err := beaconState.ReadFromEveryValidator(func(idx int, val state.ReadOnlyValidator) error {
@@ -54,10 +47,8 @@ func InitializePrecomputeValidators(ctx context.Context, beaconState state.Beaco
 		v := &precompute.Validator{
 			CurrentEpochEffectiveBalance: val.EffectiveBalance(),
 			InactivityScore:              inactivityScores[idx],
-			BailOutScore:                 bailoutScores[idx],
 			IsSlashed:                    val.Slashed(),
 			IsWithdrawableCurrentEpoch:   currentEpoch >= val.WithdrawableEpoch(),
-			IsWaitingForExit:             val.ExitEpoch() != params.BeaconConfig().FarFutureEpoch && currentEpoch < val.ExitEpoch(),
 		}
 		// Set validator's active status for current epoch.
 		if helpers.IsActiveValidatorUsingTrie(val, currentEpoch) {
@@ -83,7 +74,7 @@ func InitializePrecomputeValidators(ctx context.Context, beaconState state.Beaco
 	return vals, bal, nil
 }
 
-// ProcessInactivityAndBailOutScores of beacon chain. This updates inactivity scores of beacon chain and
+// ProcessInactivityScores of beacon chain. This updates inactivity scores of beacon chain and
 // updates the precompute validator struct for later processing. The inactivity scores work as following:
 // For fully inactive validators and perfect active validators, the effect is the same as before Altair.
 // For a validator is inactive and the chain fails to finalize, the inactivity score increases by a fixed number, the total loss after N epochs is proportional to N**2/2.
@@ -92,12 +83,12 @@ func InitializePrecomputeValidators(ctx context.Context, beaconState state.Beaco
 //	If a validator fails to submit an attestation with the correct target, their inactivity score goes up by 4.
 //	If they successfully submit an attestation with the correct source and target, their inactivity score drops by 1
 //	If the chain has recently finalized, each validator's score drops by 16.
-func ProcessInactivityAndBailOutScores(
+func ProcessInactivityScores(
 	ctx context.Context,
 	beaconState state.BeaconState,
 	vals []*precompute.Validator,
 ) (state.BeaconState, []*precompute.Validator, error) {
-	_, span := trace.StartSpan(ctx, "altair.ProcessInactivityAndBailOutScores")
+	_, span := trace.StartSpan(ctx, "altair.ProcessInactivityScores")
 	defer span.End()
 
 	cfg := params.BeaconConfig()
@@ -109,51 +100,23 @@ func ProcessInactivityAndBailOutScores(
 	if err != nil {
 		return nil, nil, err
 	}
-	bailoutScores, err := beaconState.BailOutScores()
-	if err != nil {
-		return nil, nil, err
-	}
 
 	bias := cfg.InactivityScoreBias
 	recoveryRate := cfg.InactivityScoreRecoveryRate
 	prevEpoch := time.PrevEpoch(beaconState)
 	finalizedEpoch := beaconState.FinalizedCheckpointEpoch()
-	recovery := helpers.BailOutRecoveryScore(len(vals))
 	for i, v := range vals {
 		if !precompute.EligibleForRewards(v) {
 			continue
 		}
 
-		isUpdated := false
 		if v.IsPrevEpochTargetAttester && !v.IsSlashed {
 			// Decrease inactivity score when validator gets target correct.
 			if v.InactivityScore > 0 {
 				v.InactivityScore -= 1
 			}
-			// Decrease bailout score when validator gets target correct.
-			if v.BailOutScore > recovery && v.BailOutScore < cfg.BailOutScoreThreshold &&
-				!v.IsWaitingForExit {
-				v.BailOutScore, err = math.Sub64(v.BailOutScore, recovery)
-				if err != nil {
-					return nil, nil, err
-				}
-			}
 		} else {
 			v.InactivityScore, err = math.Add64(v.InactivityScore, bias)
-			if err != nil {
-				return nil, nil, err
-			}
-			if !v.IsWaitingForExit && v.IsActivePrevEpoch && v.BailOutScore < cfg.BailOutScoreThreshold {
-				v.BailOutScore, err = math.Add64(v.BailOutScore, cfg.BailOutScoreBias)
-				if err != nil {
-					return nil, nil, err
-				}
-				isUpdated = true
-			}
-		}
-
-		if !v.IsWaitingForExit && !isUpdated && v.BailOutScore >= cfg.BailOutScoreThreshold && v.BailOutScore < math.MaxUint64-cfg.BailOutScoreBias {
-			v.BailOutScore, err = math.Add64(v.BailOutScore, cfg.BailOutScoreBias)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -168,13 +131,9 @@ func ProcessInactivityAndBailOutScores(
 			v.InactivityScore -= score
 		}
 		inactivityScores[i] = v.InactivityScore
-		bailoutScores[i] = v.BailOutScore
 	}
 
 	if err := beaconState.SetInactivityScores(inactivityScores); err != nil {
-		return nil, nil, err
-	}
-	if err := beaconState.SetBailOutScores(bailoutScores); err != nil {
 		return nil, nil, err
 	}
 

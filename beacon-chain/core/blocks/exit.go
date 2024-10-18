@@ -68,7 +68,7 @@ func ProcessVoluntaryExits(
 		if err := VerifyExitAndSignature(val, beaconState, exit); err != nil {
 			return nil, errors.Wrapf(err, "could not verify exit %d", idx)
 		}
-		beaconState, exitEpoch, err = v.InitiateValidatorExit(ctx, beaconState, exit.Exit.ValidatorIndex, maxExitEpoch, churn, false)
+		beaconState, exitEpoch, err = v.InitiateValidatorExit(ctx, beaconState, exit.Exit.ValidatorIndex, maxExitEpoch, churn)
 		if err == nil {
 			if exitEpoch > maxExitEpoch {
 				maxExitEpoch = exitEpoch

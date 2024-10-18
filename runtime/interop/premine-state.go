@@ -122,7 +122,6 @@ func (s *PremineGenesisConfig) empty() (state.BeaconState, error) {
 			Balances:         []uint64{},
 			InactivityScores: []uint64{},
 			Validators:       []*ethpb.Validator{},
-			BailOutScores:    []uint64{},
 		})
 		if err != nil {
 			return nil, err
@@ -135,7 +134,6 @@ func (s *PremineGenesisConfig) empty() (state.BeaconState, error) {
 			Balances:         []uint64{},
 			InactivityScores: []uint64{},
 			Validators:       []*ethpb.Validator{},
-			BailOutScores:    []uint64{},
 		})
 		if err != nil {
 			return nil, err
@@ -148,7 +146,6 @@ func (s *PremineGenesisConfig) empty() (state.BeaconState, error) {
 			Balances:         []uint64{},
 			InactivityScores: []uint64{},
 			Validators:       []*ethpb.Validator{},
-			BailOutScores:    []uint64{},
 		})
 		if err != nil {
 			return nil, err
@@ -323,9 +320,6 @@ func (s *PremineGenesisConfig) populate(g state.BeaconState) error {
 	if err := s.setSyncCommittees(g); err != nil {
 		return err
 	}
-	if err := s.setBailOutScores(g); err != nil {
-		return err
-	}
 	if err := s.setExecutionPayload(g); err != nil {
 		return err
 	}
@@ -435,24 +429,6 @@ func (s *PremineGenesisConfig) setSyncCommittees(g state.BeaconState) error {
 		return err
 	}
 	return g.SetCurrentSyncCommittee(sc)
-}
-
-func (s *PremineGenesisConfig) setBailOutScores(g state.BeaconState) error {
-	if s.Version < version.Altair {
-		return nil
-	}
-
-	scores, err := g.BailOutScores()
-	if err != nil {
-		return err
-	}
-	scoresMissing := len(g.Validators()) - len(scores)
-	if scoresMissing > 0 {
-		for i := 0; i < scoresMissing; i++ {
-			scores = append(scores, 0)
-		}
-	}
-	return g.SetBailOutScores(scores)
 }
 
 type rooter interface {

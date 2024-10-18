@@ -34,10 +34,6 @@ func UpgradeToBellatrix(state state.BeaconState) (state.BeaconState, error) {
 	if err != nil {
 		return nil, err
 	}
-	bailoutScores, err := state.BailOutScores()
-	if err != nil {
-		return nil, err
-	}
 
 	hrs, err := state.HistoricalRoots()
 	if err != nil {
@@ -75,7 +71,6 @@ func UpgradeToBellatrix(state state.BeaconState) (state.BeaconState, error) {
 		InactivityScores:            inactivityScores,
 		CurrentSyncCommittee:        currentSyncCommittee,
 		NextSyncCommittee:           nextSyncCommittee,
-		BailOutScores:               bailoutScores,
 		LatestExecutionPayloadHeader: &enginev1.ExecutionPayloadHeader{
 			ParentHash:       make([]byte, 32),
 			FeeRecipient:     make([]byte, 20),

@@ -100,7 +100,6 @@ func TestConfigGenesisValidatorRoot(t *testing.T) {
 	require.NoError(t, err)
 
 	gvr := g.GenesisValidatorsRoot()
-
 	if !bytes.Equal(gvr, params.BeaconConfig().GenesisValidatorsRoot[:]) {
 		t.Fatal("mainnet params genesis validator root does not match the mainnet genesis state value")
 	}

@@ -199,13 +199,6 @@ func (s *Service) validateExecutionAndConsensus(
 		if err != nil {
 			return errors.Wrap(err, "failed to validate consensus state transition function")
 		}
-		// If received block is last block of the epoch, update the bailout pool.
-		if coreTime.CanProcessEpoch(preState) {
-			err = s.updateBailoutPool(postState)
-			if err != nil {
-				return errors.Wrap(err, "failed to update bailout pool")
-			}
-		}
 		return nil
 	})
 	var isValidPayload bool
@@ -573,18 +566,4 @@ func (s *Service) validateExecutionOnBlock(ctx context.Context, ver int, header 
 		}
 	}
 	return isValidPayload, nil
-}
-
-// updateBailoutPool updates the bailout pool with the latest bailouts
-func (s *Service) updateBailoutPool(postState state.BeaconState) error {
-	if postState.Version() < version.Altair {
-		return nil
-	}
-
-	if !s.cfg.BailoutPool.IsInitialized() {
-		s.cfg.BailoutPool.Initialize(postState)
-	} else {
-		s.cfg.BailoutPool.UpdateBailOuts(postState)
-	}
-	return nil
 }

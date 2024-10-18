@@ -36,7 +36,7 @@ func TestBeaconStateMerkleProofs_altair(t *testing.T) {
 	t.Run("current sync committee", func(t *testing.T) {
 		results := []string{
 			"0xacff3e632bf8ff27b783ac48086a544d1e920512add91817790d355e09846cd0",
-			"0x966474d982a6695e57f9cd7dbcd1d646b817acc468c6a9c8fa9da4bd25428d9d",
+			"0xa7953f8b3bcd6511774787b2f5c5173cab1f431b5672dc9d926b84d48276d6db",
 			"0xdb56114e00fdd4c1f85c892bf35ac9a89289aaecb1ebd0a96cde606a748b5d71",
 			"0xd96747cbf167ae33a66b7c32dd372eaba88f4b0d0669f319f06a1f1b193be155",
 			"0x6e84be54558f6577ea6770acf4062accf291b086abdd724025eb92b99095e266",
@@ -50,7 +50,7 @@ func TestBeaconStateMerkleProofs_altair(t *testing.T) {
 	})
 	t.Run("next sync committee", func(t *testing.T) {
 		n_results := []string{
-			"0xacff3e632bf8ff27b783ac48086a544d1e920512add91817790d355e09846cd0",
+			"0x0000000000000000000000000000000000000000000000000000000000000000",
 			"0x1b1897375f88a804a22d60a8855ef68068011015741b2bd91238e7c93fbc9ad9",
 			"0xdb56114e00fdd4c1f85c892bf35ac9a89289aaecb1ebd0a96cde606a748b5d71",
 			"0xd96747cbf167ae33a66b7c32dd372eaba88f4b0d0669f319f06a1f1b193be155",
@@ -112,8 +112,8 @@ func TestBeaconStateMerkleProofs_bellatrix(t *testing.T) {
 	t.Run("current sync committee", func(t *testing.T) {
 		results := []string{
 			"0xacff3e632bf8ff27b783ac48086a544d1e920512add91817790d355e09846cd0",
-			"0x966474d982a6695e57f9cd7dbcd1d646b817acc468c6a9c8fa9da4bd25428d9d",
-			"0xe34ef623d0236bf4ee603009b44b438d0b61ee86a6904cd7fb4a6b0f3526feb2",
+			"0xd7e4f0a0152ab9f03431f9976b7d1634af038541a61e863c1f0c58c50361587b",
+			"0xdb56114e00fdd4c1f85c892bf35ac9a89289aaecb1ebd0a96cde606a748b5d71",
 			"0xd96747cbf167ae33a66b7c32dd372eaba88f4b0d0669f319f06a1f1b193be155",
 			"0x6e84be54558f6577ea6770acf4062accf291b086abdd724025eb92b99095e266",
 		}
@@ -126,9 +126,9 @@ func TestBeaconStateMerkleProofs_bellatrix(t *testing.T) {
 	})
 	t.Run("next sync committee", func(t *testing.T) {
 		n_results := []string{
-			"0xacff3e632bf8ff27b783ac48086a544d1e920512add91817790d355e09846cd0",
+			"0x22216a4a17e55cc41ce454600e5deb8aad32f15580a938b1914f93a9652c0e2c",
 			"0x1b1897375f88a804a22d60a8855ef68068011015741b2bd91238e7c93fbc9ad9",
-			"0xe34ef623d0236bf4ee603009b44b438d0b61ee86a6904cd7fb4a6b0f3526feb2",
+			"0xdb56114e00fdd4c1f85c892bf35ac9a89289aaecb1ebd0a96cde606a748b5d71",
 			"0xd96747cbf167ae33a66b7c32dd372eaba88f4b0d0669f319f06a1f1b193be155",
 			"0x6e84be54558f6577ea6770acf4062accf291b086abdd724025eb92b99095e266",
 		}

@@ -77,7 +77,6 @@ func BlockRewardTestSetup(t *testing.T, forkName string) (state.BeaconState, int
 	require.NoError(t, err)
 	validators := make([]*eth.Validator, 0, valCount)
 	balances := make([]uint64, 0, valCount)
-	bailOuts := make([]uint64, 0, valCount)
 	secretKeys := make([]bls.SecretKey, 0, valCount)
 	for i := 0; i < valCount; i++ {
 		blsKey, err := bls.RandKey()
@@ -90,11 +89,9 @@ func BlockRewardTestSetup(t *testing.T, forkName string) (state.BeaconState, int
 			EffectiveBalance:  params.BeaconConfig().MaxEffectiveBalance,
 		})
 		balances = append(balances, params.BeaconConfig().MaxEffectiveBalance)
-		bailOuts = append(bailOuts, 0)
 	}
 	require.NoError(t, st.SetValidators(validators))
 	require.NoError(t, st.SetBalances(balances))
-	require.NoError(t, st.SetBailOutScores(bailOuts))
 	require.NoError(t, st.SetCurrentParticipationBits(make([]byte, valCount)))
 	syncCommittee, err := altair.NextSyncCommittee(context.Background(), st)
 	require.NoError(t, err)
@@ -380,7 +377,6 @@ func TestAttestationRewards(t *testing.T) {
 	require.NoError(t, st.SetSlot(params.BeaconConfig().SlotsPerEpoch*3-1))
 	validators := make([]*eth.Validator, 0, valCount)
 	balances := make([]uint64, 0, valCount)
-	bailOuts := make([]uint64, 0, valCount)
 	secretKeys := make([]bls.SecretKey, 0, valCount)
 	for i := 0; i < valCount; i++ {
 		blsKey, err := bls.RandKey()
@@ -393,11 +389,9 @@ func TestAttestationRewards(t *testing.T) {
 			EffectiveBalance:  params.BeaconConfig().MaxEffectiveBalance / 64 * uint64(i+1),
 		})
 		balances = append(balances, params.BeaconConfig().MaxEffectiveBalance/64*uint64(i+1))
-		bailOuts = append(bailOuts, 0)
 	}
 	require.NoError(t, st.SetValidators(validators))
 	require.NoError(t, st.SetBalances(balances))
-	require.NoError(t, st.SetBailOutScores(bailOuts))
 	require.NoError(t, st.SetInactivityScores(make([]uint64, len(validators))))
 	participation := make([]byte, len(validators))
 	for i := range participation {
@@ -674,7 +668,6 @@ func TestSyncCommiteeRewards(t *testing.T) {
 	require.NoError(t, err)
 	require.NoError(t, st.SetSlot(params.BeaconConfig().SlotsPerEpoch-1))
 	validators := make([]*eth.Validator, 0, valCount)
-	bailOuts := make([]uint64, 0, valCount)
 	secretKeys := make([]bls.SecretKey, 0, valCount)
 	for i := 0; i < valCount; i++ {
 		blsKey, err := bls.RandKey()
@@ -686,10 +679,8 @@ func TestSyncCommiteeRewards(t *testing.T) {
 			WithdrawableEpoch: params.BeaconConfig().FarFutureEpoch,
 			EffectiveBalance:  params.BeaconConfig().MaxEffectiveBalance,
 		})
-		bailOuts = append(bailOuts, 0)
 	}
 	require.NoError(t, st.SetValidators(validators))
-	require.NoError(t, st.SetBailOutScores(bailOuts))
 	require.NoError(t, st.SetInactivityScores(make([]uint64, len(validators))))
 	syncCommitteePubkeys := make([][]byte, fieldparams.SyncCommitteeLength)
 	for i := 0; i < fieldparams.SyncCommitteeLength; i++ {
@@ -749,7 +740,6 @@ func TestSyncCommiteeRewards(t *testing.T) {
 			balances = append(balances, params.BeaconConfig().MaxEffectiveBalance)
 		}
 		require.NoError(t, st.SetBalances(balances))
-		require.NoError(t, st.SetBailOutScores(bailOuts))
 
 		url := "http://only.the.slot.number.at.the.end.is.important/32"
 		var body bytes.Buffer
@@ -783,7 +773,6 @@ func TestSyncCommiteeRewards(t *testing.T) {
 			balances = append(balances, params.BeaconConfig().MaxEffectiveBalance)
 		}
 		require.NoError(t, st.SetBalances(balances))
-		require.NoError(t, st.SetBailOutScores(bailOuts))
 
 		url := "http://only.the.slot.number.at.the.end.is.important/32"
 		request := httptest.NewRequest("POST", url, nil)
@@ -809,7 +798,6 @@ func TestSyncCommiteeRewards(t *testing.T) {
 			balances = append(balances, params.BeaconConfig().MaxEffectiveBalance)
 		}
 		require.NoError(t, st.SetBalances(balances))
-		require.NoError(t, st.SetBailOutScores(bailOuts))
 
 		url := "http://only.the.slot.number.at.the.end.is.important/32"
 		var body bytes.Buffer
@@ -841,7 +829,6 @@ func TestSyncCommiteeRewards(t *testing.T) {
 			balances = append(balances, params.BeaconConfig().MaxEffectiveBalance)
 		}
 		require.NoError(t, st.SetBalances(balances))
-		require.NoError(t, st.SetBailOutScores(bailOuts))
 
 		url := "http://only.the.slot.number.at.the.end.is.important/32"
 		var body bytes.Buffer
@@ -873,7 +860,6 @@ func TestSyncCommiteeRewards(t *testing.T) {
 			balances = append(balances, params.BeaconConfig().MaxEffectiveBalance)
 		}
 		require.NoError(t, st.SetBalances(balances))
-		require.NoError(t, st.SetBailOutScores(bailOuts))
 
 		url := "http://only.the.slot.number.at.the.end.is.important/32"
 		var body bytes.Buffer
@@ -898,7 +884,6 @@ func TestSyncCommiteeRewards(t *testing.T) {
 			balances = append(balances, params.BeaconConfig().MaxEffectiveBalance)
 		}
 		require.NoError(t, st.SetBalances(balances))
-		require.NoError(t, st.SetBailOutScores(bailOuts))
 
 		url := "http://only.the.slot.number.at.the.end.is.important/32"
 		var body bytes.Buffer
@@ -926,7 +911,6 @@ func TestSyncCommiteeRewards(t *testing.T) {
 			balances = append(balances, params.BeaconConfig().MaxEffectiveBalance)
 		}
 		require.NoError(t, st.SetBalances(balances))
-		require.NoError(t, st.SetBailOutScores(bailOuts))
 
 		url := "http://only.the.slot.number.at.the.end.is.important/32"
 		var body bytes.Buffer
@@ -951,7 +935,6 @@ func TestSyncCommiteeRewards(t *testing.T) {
 			balances = append(balances, params.BeaconConfig().MaxEffectiveBalance)
 		}
 		require.NoError(t, st.SetBalances(balances))
-		require.NoError(t, st.SetBailOutScores(bailOuts))
 
 		url := "http://only.the.slot.number.at.the.end.is.important/0"
 		request := httptest.NewRequest("POST", url, nil)

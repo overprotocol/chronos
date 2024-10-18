@@ -333,11 +333,6 @@ func TestMapBeaconBlockAltair(t *testing.T) {
 							SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
 							SyncCommitteeBits:      mock.SyncComitteeBits(),
 						},
-						BailOuts: []*ethpb.BailOut{
-							{
-								ValidatorIndex: 0,
-							},
-						},
 					},
 				},
 			},

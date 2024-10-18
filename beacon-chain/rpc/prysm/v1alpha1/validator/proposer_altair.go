@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/pkg/errors"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/interfaces"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
@@ -106,24 +105,4 @@ func (vs *Server) getSyncAggregate(ctx context.Context, slot primitives.Slot, ro
 		SyncCommitteeBits:      syncBits,
 		SyncCommitteeSignature: syncSigBytes[:],
 	}, nil
-}
-
-func (vs *Server) SetBailouts(ctx context.Context, state state.ReadOnlyBeaconState, blk interfaces.SignedBeaconBlock) {
-	_, span := trace.StartSpan(ctx, "ProposerServer.getSyncAggregate")
-	defer span.End()
-
-	if blk.Version() < version.Altair {
-		return
-	}
-
-	bailouts, err := vs.BailoutPool.BailoutsForInclusion(state, len(blk.Block().Body().VoluntaryExits()))
-	if err != nil {
-		log.WithError(err).Error("Could not get bailouts from pool: ")
-	}
-
-	// Can not error. We already filter block versioning at the top. Phase 0 is impossible.
-	err = blk.SetBailOuts(bailouts)
-	if err != nil {
-		log.WithError(err).Error("Could not set bailouts to new block: ")
-	}
 }

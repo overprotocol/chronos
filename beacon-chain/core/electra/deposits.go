@@ -484,9 +484,6 @@ func AddValidatorToRegistry(beaconState state.BeaconState, pubKey []byte, withdr
 
 	// only active in altair and only when it's a new validator (after append balance)
 	if beaconState.Version() >= version.Altair {
-		if err := beaconState.AppendBailOutScore(0); err != nil {
-			return err
-		}
 		if err := beaconState.AppendInactivityScore(0); err != nil {
 			return err
 		}

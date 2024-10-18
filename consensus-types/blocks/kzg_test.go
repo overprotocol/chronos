@@ -64,11 +64,6 @@ func Test_MerkleProofKZGCommitment(t *testing.T) {
 			DepositRoot: make([]byte, fieldparams.RootLength),
 			BlockHash:   make([]byte, fieldparams.RootLength),
 		},
-		BailOuts: []*ethpb.BailOut{
-			{
-				ValidatorIndex: 1,
-			},
-		},
 		BlobKzgCommitments: kzgs,
 	}
 

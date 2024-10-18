@@ -9,7 +9,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/execution"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/forkchoice"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/attestations"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/bailout"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/blstoexec"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/slashings"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/voluntaryexits"
@@ -98,14 +97,6 @@ func WithAttestationPool(p attestations.Pool) Option {
 func WithExitPool(p voluntaryexits.PoolManager) Option {
 	return func(s *Service) error {
 		s.cfg.ExitPool = p
-		return nil
-	}
-}
-
-// WithBailoutPool for exits lifecycle after chain inclusion.
-func WithBailoutPool(p bailout.PoolManager) Option {
-	return func(s *Service) error {
-		s.cfg.BailoutPool = p
 		return nil
 	}
 }

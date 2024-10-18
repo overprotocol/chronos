@@ -221,7 +221,6 @@ func TestUnrealizedCheckpoints(t *testing.T) {
 				FinalizedCheckpoint:         fcp,
 				InactivityScores:            make([]uint64, len(validators)),
 				JustificationBits:           make(bitfield.Bitvector4, 1),
-				BailOutScores:               make([]uint64, len(validators)),
 			}
 			for i := 0; i < test.prevVals; i++ {
 				base.PreviousEpochParticipation[i] = 0xFF

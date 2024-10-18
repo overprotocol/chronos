@@ -88,8 +88,6 @@ func (f FieldIndex) String() string {
 		return "currentSyncCommittee"
 	case NextSyncCommittee:
 		return "nextSyncCommittee"
-	case BailOutScores:
-		return "bailoutScores"
 	case LatestExecutionPayloadHeader:
 		return "latestExecutionPayloadHeader"
 	case LatestExecutionPayloadHeaderCapella:
@@ -183,34 +181,32 @@ func (f FieldIndex) RealPosition() int {
 		return 25
 	case NextSyncCommittee:
 		return 26
-	case BailOutScores:
-		return 27
 	case LatestExecutionPayloadHeader, LatestExecutionPayloadHeaderCapella, LatestExecutionPayloadHeaderDeneb:
-		return 28
+		return 27
 	case NextWithdrawalIndex:
-		return 29
+		return 28
 	case NextWithdrawalValidatorIndex:
-		return 30
+		return 29
 	case HistoricalSummaries:
-		return 31
+		return 30
 	case DepositRequestsStartIndex:
-		return 32
+		return 31
 	case DepositBalanceToConsume:
-		return 33
+		return 32
 	case ExitBalanceToConsume:
-		return 34
+		return 33
 	case EarliestExitEpoch:
-		return 35
+		return 34
 	case ConsolidationBalanceToConsume:
-		return 36
+		return 35
 	case EarliestConsolidationEpoch:
-		return 37
+		return 36
 	case PendingDeposits:
-		return 38
+		return 37
 	case PendingPartialWithdrawals:
-		return 39
+		return 38
 	case PendingConsolidations:
-		return 40
+		return 39
 	default:
 		return -1
 	}
@@ -263,7 +259,6 @@ const (
 	InactivityScores
 	CurrentSyncCommittee
 	NextSyncCommittee
-	BailOutScores
 	LatestExecutionPayloadHeader
 	LatestExecutionPayloadHeaderCapella
 	LatestExecutionPayloadHeaderDeneb

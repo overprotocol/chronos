@@ -136,10 +136,6 @@ func buildGenesisBeaconStateCapella(genesisTime uint64, preState state.BeaconSta
 	if err != nil {
 		return nil, err
 	}
-	bscores, err := preState.BailOutScores()
-	if err != nil {
-		return nil, err
-	}
 	st := &ethpb.BeaconStateCapella{
 		// Misc fields.
 		Slot:                  0,
@@ -158,7 +154,6 @@ func buildGenesisBeaconStateCapella(genesisTime uint64, preState state.BeaconSta
 		PreviousEpochParticipation: prevEpochParticipation,
 		CurrentEpochParticipation:  currEpochParticipation,
 		InactivityScores:           scores,
-		BailOutScores:              bscores,
 
 		// Randomness and committees.
 		RandaoMixes: randaoMixes,

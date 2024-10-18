@@ -51,7 +51,6 @@ func (s *Server) GetPerformance(w http.ResponseWriter, r *http.Request) {
 		BalancesAfterEpochTransition:  computed.BalancesAfterEpochTransition,
 		MissingValidators:             computed.MissingValidators,
 		InactivityScores:              computed.InactivityScores, // Only populated in Altair
-		BailOutScores:                 computed.BailOutScores,    // Only populated in Altair
 	}
 	httputil.WriteJson(w, response)
 }
