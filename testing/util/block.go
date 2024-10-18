@@ -33,11 +33,11 @@ import (
 // BlockGenConfig is used to define the requested conditions
 // for block generation.
 type BlockGenConfig struct {
-	NumProposerSlashings  uint64
-	NumAttesterSlashings  uint64
-	NumAttestations       uint64
-	NumDeposits           uint64
-	NumVoluntaryExits     uint64
+	NumProposerSlashings uint64
+	NumAttesterSlashings uint64
+	NumAttestations      uint64
+	NumDeposits          uint64
+	NumVoluntaryExits    uint64
 
 	NumTransactions       uint64 // Only for post Bellatrix blocks
 	FullSyncAggregate     bool
@@ -51,11 +51,11 @@ type BlockGenConfig struct {
 // current params in the beacon config.
 func DefaultBlockGenConfig() *BlockGenConfig {
 	return &BlockGenConfig{
-		NumProposerSlashings:  0,
-		NumAttesterSlashings:  0,
-		NumAttestations:       1,
-		NumDeposits:           0,
-		NumVoluntaryExits:     0,
+		NumProposerSlashings: 0,
+		NumAttesterSlashings: 0,
+		NumAttestations:      1,
+		NumDeposits:          0,
+		NumVoluntaryExits:    0,
 
 		NumTransactions:       0,
 		NumBLSChanges:         0,
@@ -1434,9 +1434,6 @@ func HydrateExecutionRequests(e *enginev1.ExecutionRequests) *enginev1.Execution
 	}
 	if e.Withdrawals == nil {
 		e.Withdrawals = make([]*enginev1.WithdrawalRequest, 0)
-	}
-	if e.Consolidations == nil {
-		e.Consolidations = make([]*enginev1.ConsolidationRequest, 0)
 	}
 	return e
 }
