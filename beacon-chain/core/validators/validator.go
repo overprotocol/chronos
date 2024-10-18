@@ -64,7 +64,7 @@ func MaxExitEpochAndChurn(s state.BeaconState) (maxExitEpoch primitives.Epoch, c
 //	    # Set validator exit epoch and withdrawable epoch
 //	    validator.exit_epoch = exit_queue_epoch
 //	    validator.withdrawable_epoch = Epoch(validator.exit_epoch + MIN_VALIDATOR_WITHDRAWABILITY_DELAY)
-func InitiateValidatorExit(ctx context.Context, s state.BeaconState, idx primitives.ValidatorIndex, exitQueueEpoch primitives.Epoch, churn uint64, isBailOut bool) (state.BeaconState, primitives.Epoch, error) {
+func InitiateValidatorExit(ctx context.Context, s state.BeaconState, idx primitives.ValidatorIndex, exitQueueEpoch primitives.Epoch, churn uint64) (state.BeaconState, primitives.Epoch, error) {
 	validator, err := s.ValidatorAtIndex(idx)
 	if err != nil {
 		return nil, 0, err
@@ -121,22 +121,6 @@ func InitiateValidatorExit(ctx context.Context, s state.BeaconState, idx primiti
 		return nil, 0, err
 	}
 
-	if s.Version() >= version.Altair {
-		bailoutScores, err := s.BailOutScores()
-		if err != nil {
-			return nil, 0, err
-		}
-		if isBailOut {
-			bailoutScores[idx] = math.MaxUint64
-		} else {
-			bailoutScores[idx] = 0
-		}
-
-		if err := s.SetBailOutScores(bailoutScores); err != nil {
-			return nil, 0, err
-		}
-	}
-
 	return s, exitQueueEpoch, nil
 }
 
@@ -175,7 +159,7 @@ func SlashValidator(
 	s state.BeaconState,
 	slashedIdx primitives.ValidatorIndex) (state.BeaconState, error) {
 	maxExitEpoch, churn := MaxExitEpochAndChurn(s)
-	s, _, err := InitiateValidatorExit(ctx, s, slashedIdx, maxExitEpoch, churn, false)
+	s, _, err := InitiateValidatorExit(ctx, s, slashedIdx, maxExitEpoch, churn)
 	if err != nil && !errors.Is(err, ErrValidatorAlreadyExited) {
 		return nil, errors.Wrapf(err, "could not initiate validator %d exit", slashedIdx)
 	}

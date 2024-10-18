@@ -177,15 +177,6 @@ func BeaconStateAltairFromConsensus(st beaconState.BeaconState) (*BeaconStateAlt
 		return nil, err
 	}
 
-	srcBo, err := st.BailOutScores()
-	if err != nil {
-		return nil, err
-	}
-	bo := make([]string, len(srcBo))
-	for i, s := range srcBo {
-		bo[i] = fmt.Sprintf("%d", s)
-	}
-
 	return &BeaconStateAltair{
 		GenesisTime:                 fmt.Sprintf("%d", st.GenesisTime()),
 		GenesisValidatorsRoot:       hexutil.Encode(st.GenesisValidatorsRoot()),
@@ -214,7 +205,6 @@ func BeaconStateAltairFromConsensus(st beaconState.BeaconState) (*BeaconStateAlt
 		InactivityScores:            is,
 		CurrentSyncCommittee:        SyncCommitteeFromConsensus(currSc),
 		NextSyncCommittee:           SyncCommitteeFromConsensus(nextSc),
-		BailOutScores:               bo,
 	}, nil
 }
 
@@ -286,14 +276,6 @@ func BeaconStateBellatrixFromConsensus(st beaconState.BeaconState) (*BeaconState
 	for i, s := range srcIs {
 		is[i] = fmt.Sprintf("%d", s)
 	}
-	srcBo, err := st.BailOutScores()
-	if err != nil {
-		return nil, err
-	}
-	bo := make([]string, len(srcBo))
-	for i, s := range srcBo {
-		bo[i] = fmt.Sprintf("%d", s)
-	}
 	currSc, err := st.CurrentSyncCommittee()
 	if err != nil {
 		return nil, err
@@ -343,7 +325,6 @@ func BeaconStateBellatrixFromConsensus(st beaconState.BeaconState) (*BeaconState
 		InactivityScores:             is,
 		CurrentSyncCommittee:         SyncCommitteeFromConsensus(currSc),
 		NextSyncCommittee:            SyncCommitteeFromConsensus(nextSc),
-		BailOutScores:                bo,
 		LatestExecutionPayloadHeader: payload,
 	}, nil
 }
@@ -416,14 +397,6 @@ func BeaconStateCapellaFromConsensus(st beaconState.BeaconState) (*BeaconStateCa
 	for i, s := range srcIs {
 		is[i] = fmt.Sprintf("%d", s)
 	}
-	srcBo, err := st.BailOutScores()
-	if err != nil {
-		return nil, err
-	}
-	bo := make([]string, len(srcBo))
-	for i, s := range srcBo {
-		bo[i] = fmt.Sprintf("%d", s)
-	}
 	currSc, err := st.CurrentSyncCommittee()
 	if err != nil {
 		return nil, err
@@ -489,7 +462,6 @@ func BeaconStateCapellaFromConsensus(st beaconState.BeaconState) (*BeaconStateCa
 		InactivityScores:             is,
 		CurrentSyncCommittee:         SyncCommitteeFromConsensus(currSc),
 		NextSyncCommittee:            SyncCommitteeFromConsensus(nextSc),
-		BailOutScores:                bo,
 		LatestExecutionPayloadHeader: payload,
 		NextWithdrawalIndex:          fmt.Sprintf("%d", nwi),
 		NextWithdrawalValidatorIndex: fmt.Sprintf("%d", nwvi),
@@ -565,14 +537,6 @@ func BeaconStateDenebFromConsensus(st beaconState.BeaconState) (*BeaconStateDene
 	for i, s := range srcIs {
 		is[i] = fmt.Sprintf("%d", s)
 	}
-	srcBo, err := st.BailOutScores()
-	if err != nil {
-		return nil, err
-	}
-	bo := make([]string, len(srcBo))
-	for i, s := range srcBo {
-		bo[i] = fmt.Sprintf("%d", s)
-	}
 	currSc, err := st.CurrentSyncCommittee()
 	if err != nil {
 		return nil, err
@@ -638,7 +602,6 @@ func BeaconStateDenebFromConsensus(st beaconState.BeaconState) (*BeaconStateDene
 		InactivityScores:             is,
 		CurrentSyncCommittee:         SyncCommitteeFromConsensus(currSc),
 		NextSyncCommittee:            SyncCommitteeFromConsensus(nextSc),
-		BailOutScores:                bo,
 		LatestExecutionPayloadHeader: payload,
 		NextWithdrawalIndex:          fmt.Sprintf("%d", nwi),
 		NextWithdrawalValidatorIndex: fmt.Sprintf("%d", nwvi),
@@ -714,14 +677,6 @@ func BeaconStateElectraFromConsensus(st beaconState.BeaconState) (*BeaconStateEl
 	for i, s := range srcIs {
 		is[i] = fmt.Sprintf("%d", s)
 	}
-	srcBo, err := st.BailOutScores()
-	if err != nil {
-		return nil, err
-	}
-	bo := make([]string, len(srcBo))
-	for i, s := range srcBo {
-		bo[i] = fmt.Sprintf("%d", s)
-	}
 	currSc, err := st.CurrentSyncCommittee()
 	if err != nil {
 		return nil, err
@@ -784,43 +739,42 @@ func BeaconStateElectraFromConsensus(st beaconState.BeaconState) (*BeaconStateEl
 	}
 
 	return &BeaconStateElectra{
-		GenesisTime:                  fmt.Sprintf("%d", st.GenesisTime()),
-		GenesisValidatorsRoot:        hexutil.Encode(st.GenesisValidatorsRoot()),
-		Slot:                         fmt.Sprintf("%d", st.Slot()),
-		Fork:                         ForkFromConsensus(st.Fork()),
-		LatestBlockHeader:            BeaconBlockHeaderFromConsensus(st.LatestBlockHeader()),
-		BlockRoots:                   br,
-		StateRoots:                   sr,
-		HistoricalRoots:              hr,
-		RewardAdjustmentFactor:       st.RewardAdjustmentFactor(),
-		Eth1Data:                     Eth1DataFromConsensus(st.Eth1Data()),
-		Eth1DataVotes:                votes,
-		Eth1DepositIndex:             fmt.Sprintf("%d", st.Eth1DepositIndex()),
-		Validators:                   vals,
-		Balances:                     bals,
-		PreviousEpochReserve:         st.PreviousEpochReserve(),
-		CurrentEpochReserve:          st.CurrentEpochReserve(),
-		RandaoMixes:                  rm,
-		Slashings:                    slashings,
-		PreviousEpochParticipation:   prevPart,
-		CurrentEpochParticipation:    currPart,
-		JustificationBits:            hexutil.Encode(st.JustificationBits()),
-		PreviousJustifiedCheckpoint:  CheckpointFromConsensus(st.PreviousJustifiedCheckpoint()),
-		CurrentJustifiedCheckpoint:   CheckpointFromConsensus(st.CurrentJustifiedCheckpoint()),
-		FinalizedCheckpoint:          CheckpointFromConsensus(st.FinalizedCheckpoint()),
-		InactivityScores:             is,
-		CurrentSyncCommittee:         SyncCommitteeFromConsensus(currSc),
-		NextSyncCommittee:            SyncCommitteeFromConsensus(nextSc),
-		BailOutScores:                bo,
-		LatestExecutionPayloadHeader: payload,
-		NextWithdrawalIndex:          fmt.Sprintf("%d", nwi),
-		NextWithdrawalValidatorIndex: fmt.Sprintf("%d", nwvi),
-		HistoricalSummaries:          hs,
-		DepositRequestsStartIndex:    fmt.Sprintf("%d", drsi),
-		DepositBalanceToConsume:      fmt.Sprintf("%d", dbtc),
-		ExitBalanceToConsume:         fmt.Sprintf("%d", ebtc),
-		EarliestExitEpoch:            fmt.Sprintf("%d", eee),
-		PendingDeposits:              PendingDepositsFromConsensus(pbd),
-		PendingPartialWithdrawals:    PendingPartialWithdrawalsFromConsensus(ppw),
+		GenesisTime:                   fmt.Sprintf("%d", st.GenesisTime()),
+		GenesisValidatorsRoot:         hexutil.Encode(st.GenesisValidatorsRoot()),
+		Slot:                          fmt.Sprintf("%d", st.Slot()),
+		Fork:                          ForkFromConsensus(st.Fork()),
+		LatestBlockHeader:             BeaconBlockHeaderFromConsensus(st.LatestBlockHeader()),
+		BlockRoots:                    br,
+		StateRoots:                    sr,
+		HistoricalRoots:               hr,
+		RewardAdjustmentFactor:        st.RewardAdjustmentFactor(),
+		Eth1Data:                      Eth1DataFromConsensus(st.Eth1Data()),
+		Eth1DataVotes:                 votes,
+		Eth1DepositIndex:              fmt.Sprintf("%d", st.Eth1DepositIndex()),
+		Validators:                    vals,
+		Balances:                      bals,
+		PreviousEpochReserve:          st.PreviousEpochReserve(),
+		CurrentEpochReserve:           st.CurrentEpochReserve(),
+		RandaoMixes:                   rm,
+		Slashings:                     slashings,
+		PreviousEpochParticipation:    prevPart,
+		CurrentEpochParticipation:     currPart,
+		JustificationBits:             hexutil.Encode(st.JustificationBits()),
+		PreviousJustifiedCheckpoint:   CheckpointFromConsensus(st.PreviousJustifiedCheckpoint()),
+		CurrentJustifiedCheckpoint:    CheckpointFromConsensus(st.CurrentJustifiedCheckpoint()),
+		FinalizedCheckpoint:           CheckpointFromConsensus(st.FinalizedCheckpoint()),
+		InactivityScores:              is,
+		CurrentSyncCommittee:          SyncCommitteeFromConsensus(currSc),
+		NextSyncCommittee:             SyncCommitteeFromConsensus(nextSc),
+		LatestExecutionPayloadHeader:  payload,
+		NextWithdrawalIndex:           fmt.Sprintf("%d", nwi),
+		NextWithdrawalValidatorIndex:  fmt.Sprintf("%d", nwvi),
+		HistoricalSummaries:           hs,
+		DepositRequestsStartIndex:     fmt.Sprintf("%d", drsi),
+		DepositBalanceToConsume:       fmt.Sprintf("%d", dbtc),
+		ExitBalanceToConsume:          fmt.Sprintf("%d", ebtc),
+		EarliestExitEpoch:             fmt.Sprintf("%d", eee),
+		PendingDeposits:               PendingDepositsFromConsensus(pbd),
+		PendingPartialWithdrawals:     PendingPartialWithdrawalsFromConsensus(ppw),
 	}, nil
 }

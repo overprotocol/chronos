@@ -111,9 +111,6 @@ func TestUpgradeToAltair(t *testing.T) {
 	s, err := aState.InactivityScores()
 	require.NoError(t, err)
 	require.DeepSSZEqual(t, make([]uint64, numValidators), s)
-	ob, err := aState.BailOutScores()
-	require.NoError(t, err)
-	require.DeepSSZEqual(t, make([]uint64, numValidators), ob)
 
 	f := aState.Fork()
 	require.DeepSSZEqual(t, &ethpb.Fork{

@@ -44,11 +44,6 @@ func logStateTransitionData(b interfaces.ReadOnlyBeaconBlock) error {
 			return err
 		}
 		log = log.WithField("syncBitsCount", agg.SyncCommitteeBits.Count())
-		bo, err := b.Body().BailOuts()
-		if err != nil {
-			return err
-		}
-		log = log.WithField("bailOuts", len(bo))
 	}
 	if b.Version() >= version.Bellatrix {
 		p, err := b.Body().Execution()

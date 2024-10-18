@@ -935,20 +935,6 @@ func (s *SyncAggregate) MarshalJSON() ([]byte, error) {
 	})
 }
 
-// BailOut is field of Beacon Block Body
-type BailOut struct {
-	*eth.BailOut
-}
-
-// MarshalJSON returns a JSON byte array representation of BailOut.
-func (b *BailOut) MarshalJSON() ([]byte, error) {
-	return json.Marshal(struct {
-		ValidatorIndex string `json:"validator_index"`
-	}{
-		ValidatorIndex: fmt.Sprintf("%d", b.ValidatorIndex),
-	})
-}
-
 // Eth1Data is a field of Beacon Block Body.
 type Eth1Data struct {
 	*eth.Eth1Data

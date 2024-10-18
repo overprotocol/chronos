@@ -38,7 +38,7 @@ type BlockGenConfig struct {
 	NumAttestations       uint64
 	NumDeposits           uint64
 	NumVoluntaryExits     uint64
-	NumBailOuts           uint64 // Only for post Altair blocks
+
 	NumTransactions       uint64 // Only for post Bellatrix blocks
 	FullSyncAggregate     bool
 	NumBLSChanges         uint64 // Only for post Capella blocks
@@ -56,7 +56,7 @@ func DefaultBlockGenConfig() *BlockGenConfig {
 		NumAttestations:       1,
 		NumDeposits:           0,
 		NumVoluntaryExits:     0,
-		NumBailOuts:           0,
+
 		NumTransactions:       0,
 		NumBLSChanges:         0,
 		NumWithdrawals:        0,
@@ -490,24 +490,6 @@ func generateVoluntaryExits(
 	return voluntaryExits, nil
 }
 
-func generateBailOuts(
-	bState state.BeaconState,
-	numBailouts uint64,
-) ([]*ethpb.BailOut, error) {
-	bailOuts := make([]*ethpb.BailOut, numBailouts)
-	for i := 0; i < len(bailOuts); i++ {
-		valIndex, err := randValIndex(bState)
-		if err != nil {
-			return nil, err
-		}
-		bailout := &ethpb.BailOut{
-			ValidatorIndex: valIndex,
-		}
-		bailOuts[i] = bailout
-	}
-	return bailOuts, nil
-}
-
 func randValIndex(bState state.BeaconState) (primitives.ValidatorIndex, error) {
 	activeCount, err := helpers.ActiveValidatorCount(context.Background(), bState, time.CurrentEpoch(bState))
 	if err != nil {
@@ -723,9 +705,6 @@ func HydrateV2AltairBeaconBlockBody(b *v2.BeaconBlockBodyAltair) *v2.BeaconBlock
 			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
 		}
 	}
-	if b.BailOuts == nil {
-		b.BailOuts = make([]*v1.BailOut, 0)
-	}
 	return b
 }
 
@@ -778,9 +757,6 @@ func HydrateV2BellatrixBeaconBlockBody(b *v2.BeaconBlockBodyBellatrix) *v2.Beaco
 			SyncCommitteeBits:      make([]byte, 64),
 			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
 		}
-	}
-	if b.BailOuts == nil {
-		b.BailOuts = make([]*v1.BailOut, 0)
 	}
 	if b.ExecutionPayload == nil {
 		b.ExecutionPayload = &enginev1.ExecutionPayload{
@@ -849,9 +825,6 @@ func HydrateBeaconBlockBodyAltair(b *ethpb.BeaconBlockBodyAltair) *ethpb.BeaconB
 			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
 		}
 	}
-	if b.BailOuts == nil {
-		b.BailOuts = make([]*ethpb.BailOut, 0)
-	}
 	return b
 }
 
@@ -904,9 +877,6 @@ func HydrateBeaconBlockBodyBellatrix(b *ethpb.BeaconBlockBodyBellatrix) *ethpb.B
 			SyncCommitteeBits:      make([]byte, fieldparams.SyncAggregateSyncCommitteeBytesLength),
 			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
 		}
-	}
-	if b.BailOuts == nil {
-		b.BailOuts = make([]*ethpb.BailOut, 0)
 	}
 	if b.ExecutionPayload == nil {
 		b.ExecutionPayload = &enginev1.ExecutionPayload{
@@ -975,9 +945,6 @@ func HydrateBlindedBeaconBlockBodyBellatrix(b *ethpb.BlindedBeaconBlockBodyBella
 			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
 		}
 	}
-	if b.BailOuts == nil {
-		b.BailOuts = make([]*ethpb.BailOut, 0)
-	}
 	if b.ExecutionPayloadHeader == nil {
 		b.ExecutionPayloadHeader = &enginev1.ExecutionPayloadHeader{
 			ParentHash:       make([]byte, 32),
@@ -1045,9 +1012,6 @@ func HydrateV2BlindedBeaconBlockBodyBellatrix(b *v2.BlindedBeaconBlockBodyBellat
 			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
 		}
 	}
-	if b.BailOuts == nil {
-		b.BailOuts = make([]*v1.BailOut, 0)
-	}
 	if b.ExecutionPayloadHeader == nil {
 		b.ExecutionPayloadHeader = &enginev1.ExecutionPayloadHeader{
 			ParentHash:       make([]byte, 32),
@@ -1114,9 +1078,6 @@ func HydrateBeaconBlockBodyCapella(b *ethpb.BeaconBlockBodyCapella) *ethpb.Beaco
 			SyncCommitteeBits:      make([]byte, fieldparams.SyncAggregateSyncCommitteeBytesLength),
 			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
 		}
-	}
-	if b.BailOuts == nil {
-		b.BailOuts = make([]*ethpb.BailOut, 0)
 	}
 	if b.ExecutionPayload == nil {
 		b.ExecutionPayload = &enginev1.ExecutionPayloadCapella{
@@ -1186,9 +1147,6 @@ func HydrateBlindedBeaconBlockBodyCapella(b *ethpb.BlindedBeaconBlockBodyCapella
 			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
 		}
 	}
-	if b.BailOuts == nil {
-		b.BailOuts = make([]*ethpb.BailOut, 0)
-	}
 	if b.ExecutionPayloadHeader == nil {
 		b.ExecutionPayloadHeader = &enginev1.ExecutionPayloadHeaderCapella{
 			ParentHash:       make([]byte, 32),
@@ -1256,9 +1214,6 @@ func HydrateV2BlindedBeaconBlockBodyCapella(b *v2.BlindedBeaconBlockBodyCapella)
 			SyncCommitteeBits:      make([]byte, 64),
 			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
 		}
-	}
-	if b.BailOuts == nil {
-		b.BailOuts = make([]*v1.BailOut, 0)
 	}
 	if b.ExecutionPayloadHeader == nil {
 		b.ExecutionPayloadHeader = &enginev1.ExecutionPayloadHeaderCapella{
@@ -1407,9 +1362,6 @@ func HydrateBeaconBlockBodyDeneb(b *ethpb.BeaconBlockBodyDeneb) *ethpb.BeaconBlo
 			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
 		}
 	}
-	if b.BailOuts == nil {
-		b.BailOuts = make([]*ethpb.BailOut, 0)
-	}
 	if b.ExecutionPayload == nil {
 		b.ExecutionPayload = &enginev1.ExecutionPayloadDeneb{
 			ParentHash:    make([]byte, fieldparams.RootLength),
@@ -1452,9 +1404,6 @@ func HydrateBeaconBlockBodyElectra(b *ethpb.BeaconBlockBodyElectra) *ethpb.Beaco
 			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
 		}
 	}
-	if b.BailOuts == nil {
-		b.BailOuts = make([]*ethpb.BailOut, 0)
-	}
 	if b.ExecutionPayload == nil {
 		b.ExecutionPayload = &enginev1.ExecutionPayloadElectra{
 			ParentHash:    make([]byte, fieldparams.RootLength),
@@ -1486,6 +1435,9 @@ func HydrateExecutionRequests(e *enginev1.ExecutionRequests) *enginev1.Execution
 	if e.Withdrawals == nil {
 		e.Withdrawals = make([]*enginev1.WithdrawalRequest, 0)
 	}
+	if e.Consolidations == nil {
+		e.Consolidations = make([]*enginev1.ConsolidationRequest, 0)
+	}
 	return e
 }
 
@@ -1512,9 +1464,6 @@ func HydrateV2BeaconBlockBodyDeneb(b *v2.BeaconBlockBodyDeneb) *v2.BeaconBlockBo
 			SyncCommitteeBits:      make([]byte, fieldparams.SyncAggregateSyncCommitteeBytesLength),
 			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
 		}
-	}
-	if b.BailOuts == nil {
-		b.BailOuts = make([]*v1.BailOut, 0)
 	}
 	if b.ExecutionPayload == nil {
 		b.ExecutionPayload = &enginev1.ExecutionPayloadDeneb{
@@ -1636,9 +1585,6 @@ func HydrateBlindedBeaconBlockBodyDeneb(b *ethpb.BlindedBeaconBlockBodyDeneb) *e
 			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
 		}
 	}
-	if b.BailOuts == nil {
-		b.BailOuts = make([]*ethpb.BailOut, 0)
-	}
 	if b.ExecutionPayloadHeader == nil {
 		b.ExecutionPayloadHeader = &enginev1.ExecutionPayloadHeaderDeneb{
 			ParentHash:       make([]byte, 32),
@@ -1680,9 +1626,6 @@ func HydrateBlindedBeaconBlockBodyElectra(b *ethpb.BlindedBeaconBlockBodyElectra
 			SyncCommitteeBits:      make([]byte, fieldparams.SyncAggregateSyncCommitteeBytesLength),
 			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
 		}
-	}
-	if b.BailOuts == nil {
-		b.BailOuts = make([]*ethpb.BailOut, 0)
 	}
 	if b.ExecutionPayloadHeader == nil {
 		b.ExecutionPayloadHeader = &enginev1.ExecutionPayloadHeaderElectra{
@@ -1726,9 +1669,6 @@ func HydrateV2BlindedBeaconBlockBodyDeneb(b *v2.BlindedBeaconBlockBodyDeneb) *v2
 			SyncCommitteeBits:      make([]byte, fieldparams.SyncAggregateSyncCommitteeBytesLength),
 			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
 		}
-	}
-	if b.BailOuts == nil {
-		b.BailOuts = make([]*v1.BailOut, 0)
 	}
 	if b.ExecutionPayloadHeader == nil {
 		b.ExecutionPayloadHeader = &enginev1.ExecutionPayloadHeaderDeneb{

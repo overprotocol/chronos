@@ -271,16 +271,6 @@ func MapSignedVoluntaryExit(signedVoluntaryExit *ethpb.SignedVoluntaryExit) (*Si
 	}, nil
 }
 
-// MapBailOut maps the eth2.BailOut proto to the Web3Signer spec.
-func MapBailOut(bailOut *ethpb.BailOut) (*BailOut, error) {
-	if bailOut == nil {
-		return nil, fmt.Errorf("bail out is nil")
-	}
-	return &BailOut{
-		ValidatorIndex: fmt.Sprint(bailOut.ValidatorIndex),
-	}, nil
-}
-
 // MapBeaconBlockAltair maps the eth2.BeaconBlockAltair proto to the Web3Signer spec.
 func MapBeaconBlockAltair(block *ethpb.BeaconBlockAltair) (*BeaconBlockAltair, error) {
 	if block == nil {
@@ -328,7 +318,6 @@ func MapBeaconBlockBodyAltair(body *ethpb.BeaconBlockBodyAltair) (*BeaconBlockBo
 			SyncCommitteeBits:      []byte(body.SyncAggregate.SyncCommitteeBits),
 			SyncCommitteeSignature: body.SyncAggregate.SyncCommitteeSignature,
 		},
-		BailOuts: make([]*BailOut, len(body.BailOuts)),
 	}
 	for i, slashing := range body.ProposerSlashings {
 		proposer, err := MapProposerSlashing(slashing)
@@ -364,13 +353,6 @@ func MapBeaconBlockBodyAltair(body *ethpb.BeaconBlockBodyAltair) (*BeaconBlockBo
 			return nil, fmt.Errorf("could not map signed voluntary exit at index %v: %w", i, err)
 		}
 		block.VoluntaryExits[i] = exit
-	}
-	for i, bo := range body.BailOuts {
-		bailOut, err := MapBailOut(bo)
-		if err != nil {
-			return nil, fmt.Errorf("could not map bail out at index %v: %w", i, err)
-		}
-		block.BailOuts[i] = bailOut
 	}
 	return block, nil
 }

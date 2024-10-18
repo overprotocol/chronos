@@ -130,10 +130,6 @@ func buildGenesisBeaconState(genesisTime uint64, preState state.BeaconState, eth
 	if err != nil {
 		return nil, err
 	}
-	bscores, err := preState.BailOutScores()
-	if err != nil {
-		return nil, err
-	}
 	st := &ethpb.BeaconStateAltair{
 		// Misc fields.
 		Slot:                   0,
@@ -155,7 +151,6 @@ func buildGenesisBeaconState(genesisTime uint64, preState state.BeaconState, eth
 		PreviousEpochParticipation: prevEpochParticipation,
 		CurrentEpochParticipation:  currEpochParticipation,
 		InactivityScores:           scores,
-		BailOutScores:              bscores,
 
 		// Randomness and committees.
 		RandaoMixes: randaoMixes,
@@ -240,7 +235,6 @@ func emptyGenesisState() (state.BeaconState, error) {
 		PreviousEpochReserve: 0,
 		CurrentEpochReserve:  0,
 		InactivityScores:     []uint64{},
-		BailOutScores:        []uint64{},
 
 		JustificationBits:          []byte{0},
 		HistoricalRoots:            [][]byte{},
@@ -279,7 +273,6 @@ func NewBeaconBlockAltair() *ethpb.SignedBeaconBlockAltair {
 					SyncCommitteeBits:      scBits[:],
 					SyncCommitteeSignature: make([]byte, 96),
 				},
-				BailOuts: []*ethpb.BailOut{},
 			},
 		},
 		Signature: make([]byte, 96),
@@ -408,15 +401,6 @@ func GenerateFullBlockAltair(
 		}
 	}
 
-	numToGen = conf.NumBailOuts
-	var bailouts []*ethpb.BailOut
-	if numToGen > 0 {
-		bailouts, err = generateBailOuts(bState, numToGen)
-		if err != nil {
-			return nil, errors.Wrapf(err, "failed generating %d bailouts:", numToGen)
-		}
-	}
-
 	newHeader := bState.LatestBlockHeader()
 	prevStateRoot, err := bState.HashTreeRoot(ctx)
 	if err != nil {
@@ -484,7 +468,6 @@ func GenerateFullBlockAltair(
 			Deposits:          newDeposits,
 			Graffiti:          make([]byte, fieldparams.RootLength),
 			SyncAggregate:     newSyncAggregate,
-			BailOuts:          bailouts,
 		},
 	}
 

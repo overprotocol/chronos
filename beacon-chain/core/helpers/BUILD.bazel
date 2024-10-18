@@ -4,7 +4,6 @@ go_library(
     name = "go_default_library",
     srcs = [
         "attestation.go",
-        "bail_out.go",
         "beacon_committee.go",
         "block.go",
         "genesis.go",

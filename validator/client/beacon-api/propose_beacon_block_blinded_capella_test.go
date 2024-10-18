@@ -48,7 +48,6 @@ func TestProposeBeaconBlock_BlindedCapella(t *testing.T) {
 					SyncCommitteeBits:      hexutil.Encode(blindedCapellaBlock.BlindedCapella.Block.Body.SyncAggregate.SyncCommitteeBits),
 					SyncCommitteeSignature: hexutil.Encode(blindedCapellaBlock.BlindedCapella.Block.Body.SyncAggregate.SyncCommitteeSignature),
 				},
-				BailOuts: JsonifyBailOuts(blindedCapellaBlock.BlindedCapella.Block.Body.BailOuts),
 				ExecutionPayloadHeader: &structs.ExecutionPayloadHeaderCapella{
 					BaseFeePerGas:    bytesutil.LittleEndianBytesToBigInt(blindedCapellaBlock.BlindedCapella.Block.Body.ExecutionPayloadHeader.BaseFeePerGas).String(),
 					BlockHash:        hexutil.Encode(blindedCapellaBlock.BlindedCapella.Block.Body.ExecutionPayloadHeader.BlockHash),

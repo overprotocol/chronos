@@ -46,7 +46,6 @@ func TestProposeBeaconBlock_Altair(t *testing.T) {
 					SyncCommitteeBits:      hexutil.Encode(altairBlock.Altair.Block.Body.SyncAggregate.SyncCommitteeBits),
 					SyncCommitteeSignature: hexutil.Encode(altairBlock.Altair.Block.Body.SyncAggregate.SyncCommitteeSignature),
 				},
-				BailOuts: JsonifyBailOuts(altairBlock.Altair.Block.Body.BailOuts),
 			},
 		},
 	}

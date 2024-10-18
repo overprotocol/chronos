@@ -151,7 +151,6 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	MaxAttestationsElectra:           8,
 	MaxDeposits:                      16,
 	MaxVoluntaryExits:                16,
-	MaxBailOuts:                      16,
 	MaxWithdrawalsPerPayload:         16,
 	MaxBlsToExecutionChanges:         16,
 	MaxValidatorsPerWithdrawalsSweep: 16384,
@@ -172,7 +171,7 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	DomainBLSToExecutionChange:        bytesutil.Uint32ToBytes4(0x0A000000),
 
 	// Prysm constants.
-	GenesisValidatorsRoot:          [32]byte{99, 42, 118, 239, 199, 87, 26, 107, 33, 162, 145, 86, 222, 195, 237, 225, 100, 124, 246, 131, 47, 17, 180, 161, 75, 90, 31, 0, 178, 164, 214, 126},
+	GenesisValidatorsRoot:          [32]byte{154, 88, 112, 11, 10, 202, 22, 117, 115, 223, 51, 208, 134, 148, 59, 15, 188, 63, 208, 114, 173, 178, 172, 38, 223, 166, 31, 224, 147, 73, 147, 245},
 	GweiPerEth:                     1000000000,
 	BLSSecretKeyLength:             32,
 	BLSPubkeyLength:                48,
@@ -188,11 +187,11 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	ConfigName:                     MainnetName,
 	PresetBase:                     "mainnet",
 	BeaconStateFieldCount:          24,
-	BeaconStateAltairFieldCount:    28,
-	BeaconStateBellatrixFieldCount: 29,
-	BeaconStateCapellaFieldCount:   32,
-	BeaconStateDenebFieldCount:     32,
-	BeaconStateElectraFieldCount:   38,
+	BeaconStateAltairFieldCount:    27,
+	BeaconStateBellatrixFieldCount: 28,
+	BeaconStateCapellaFieldCount:   31,
+	BeaconStateDenebFieldCount:     31,
+	BeaconStateElectraFieldCount:   37,
 
 	// Slasher related values.
 	WeakSubjectivityPeriod:          54000,
@@ -239,8 +238,6 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	SyncCommitteeSize:            512,
 	InactivityScoreBias:          4,
 	InactivityScoreRecoveryRate:  16,
-	BailOutScoreBias:             1000000000000000,
-	BailOutScoreThreshold:        1575000000000000000,
 	EpochsPerSyncCommitteePeriod: 256,
 
 	// Updated penalty values.

@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/epoch/precompute"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
 	state_native "github.com/prysmaticlabs/prysm/v5/beacon-chain/state/state-native"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
@@ -31,7 +30,6 @@ func TestInitializeEpochValidators_Ok(t *testing.T) {
 			{WithdrawableEpoch: ffe, ExitEpoch: 1, EffectiveBalance: 100},
 		},
 		InactivityScores: []uint64{0, 1, 2, 3},
-		BailOutScores:    []uint64{0, 1, 2, 3},
 	})
 	require.NoError(t, err)
 	v, b, err := InitializePrecomputeValidators(context.Background(), s)
@@ -40,26 +38,22 @@ func TestInitializeEpochValidators_Ok(t *testing.T) {
 		IsSlashed:                    true,
 		CurrentEpochEffectiveBalance: 100,
 		InactivityScore:              0,
-		BailOutScore:                 0,
 	}, v[0], "Incorrect validator 0 status")
 	assert.DeepEqual(t, &precompute.Validator{
 		IsWithdrawableCurrentEpoch:   true,
 		CurrentEpochEffectiveBalance: 100,
 		InactivityScore:              1,
-		BailOutScore:                 1,
 	}, v[1], "Incorrect validator 1 status")
 	assert.DeepEqual(t, &precompute.Validator{
 		IsActivePrevEpoch:            true,
 		IsActiveCurrentEpoch:         true,
 		CurrentEpochEffectiveBalance: 100,
 		InactivityScore:              2,
-		BailOutScore:                 2,
 	}, v[2], "Incorrect validator 2 status")
 	assert.DeepEqual(t, &precompute.Validator{
 		IsActivePrevEpoch:            true,
 		CurrentEpochEffectiveBalance: 100,
 		InactivityScore:              3,
-		BailOutScore:                 3,
 	}, v[3], "Incorrect validator 3 status")
 
 	wantedBalances := &precompute.Balance{
@@ -78,7 +72,6 @@ func TestInitializeEpochValidators_Overflow(t *testing.T) {
 			{WithdrawableEpoch: ffe, ExitEpoch: ffe, EffectiveBalance: math.MaxUint64},
 		},
 		InactivityScores: []uint64{0, 1},
-		BailOutScores:    []uint64{0, 1},
 	})
 	require.NoError(t, err)
 	_, _, err = InitializePrecomputeValidators(context.Background(), s)
@@ -174,7 +167,6 @@ func TestProcessEpochParticipation_InactiveValidator(t *testing.T) {
 			generateParticipation(params.BeaconConfig().TimelySourceFlagIndex, params.BeaconConfig().TimelyTargetFlagIndex, params.BeaconConfig().TimelyHeadFlagIndex),
 		},
 		InactivityScores: []uint64{0, 0, 0},
-		BailOutScores:    []uint64{0, 0, 0},
 	})
 	require.NoError(t, err)
 	validators, balance, err := InitializePrecomputeValidators(context.Background(), st)
@@ -361,7 +353,7 @@ func TestProcessRewardsAndPenaltiesPrecompute_InactivityLeak(t *testing.T) {
 	require.Equal(t, uint64(0), inactivityBalances[3])
 }
 
-func TestProcessInactivityAndBailOutScores_CanProcessInactivityLeak(t *testing.T) {
+func TestProcessInactivityScores_CanProcessInactivityLeak(t *testing.T) {
 	s, err := testState()
 	require.NoError(t, err)
 	defaultScore := uint64(5)
@@ -371,7 +363,7 @@ func TestProcessInactivityAndBailOutScores_CanProcessInactivityLeak(t *testing.T
 	require.NoError(t, err)
 	validators, _, err = ProcessEpochParticipation(context.Background(), s, balance, validators)
 	require.NoError(t, err)
-	s, _, err = ProcessInactivityAndBailOutScores(context.Background(), s, validators)
+	s, _, err = ProcessInactivityScores(context.Background(), s, validators)
 	require.NoError(t, err)
 	inactivityScores, err := s.InactivityScores()
 	require.NoError(t, err)
@@ -382,7 +374,7 @@ func TestProcessInactivityAndBailOutScores_CanProcessInactivityLeak(t *testing.T
 	require.Equal(t, defaultScore-1, inactivityScores[3])
 }
 
-func TestProcessInactivityAndBailOutScores_GenesisEpoch(t *testing.T) {
+func TestProcessInactivityScores_GenesisEpoch(t *testing.T) {
 	s, err := testState()
 	require.NoError(t, err)
 	defaultScore := uint64(10)
@@ -392,7 +384,7 @@ func TestProcessInactivityAndBailOutScores_GenesisEpoch(t *testing.T) {
 	require.NoError(t, err)
 	validators, _, err = ProcessEpochParticipation(context.Background(), s, balance, validators)
 	require.NoError(t, err)
-	s, _, err = ProcessInactivityAndBailOutScores(context.Background(), s, validators)
+	s, _, err = ProcessInactivityScores(context.Background(), s, validators)
 	require.NoError(t, err)
 	inactivityScores, err := s.InactivityScores()
 	require.NoError(t, err)
@@ -402,7 +394,7 @@ func TestProcessInactivityAndBailOutScores_GenesisEpoch(t *testing.T) {
 	require.Equal(t, defaultScore, inactivityScores[3])
 }
 
-func TestProcessInactivityAndBailOutScores_CanProcessNonInactivityLeak(t *testing.T) {
+func TestProcessInactivityScores_CanProcessNonInactivityLeak(t *testing.T) {
 	s, err := testState()
 	require.NoError(t, err)
 	defaultScore := uint64(5)
@@ -411,7 +403,7 @@ func TestProcessInactivityAndBailOutScores_CanProcessNonInactivityLeak(t *testin
 	require.NoError(t, err)
 	validators, _, err = ProcessEpochParticipation(context.Background(), s, balance, validators)
 	require.NoError(t, err)
-	s, _, err = ProcessInactivityAndBailOutScores(context.Background(), s, validators)
+	s, _, err = ProcessInactivityScores(context.Background(), s, validators)
 	require.NoError(t, err)
 	inactivityScores, err := s.InactivityScores()
 	require.NoError(t, err)
@@ -452,7 +444,7 @@ func TestProcessRewardsAndPenaltiesPrecompute_BadState(t *testing.T) {
 	require.ErrorContains(t, "validator registries not the same length as state's validator registries", err)
 }
 
-func TestProcessInactivityAndBailOutScores_NonEligibleValidator(t *testing.T) {
+func TestProcessInactivityScores_NonEligibleValidator(t *testing.T) {
 	s, err := testState()
 	require.NoError(t, err)
 	defaultScore := uint64(5)
@@ -480,7 +472,7 @@ func TestProcessInactivityAndBailOutScores_NonEligibleValidator(t *testing.T) {
 
 	validators, _, err = ProcessEpochParticipation(context.Background(), s, balance, validators)
 	require.NoError(t, err)
-	s, _, err = ProcessInactivityAndBailOutScores(context.Background(), s, validators)
+	s, _, err = ProcessInactivityScores(context.Background(), s, validators)
 	require.NoError(t, err)
 	inactivityScores, err := s.InactivityScores()
 	require.NoError(t, err)
@@ -524,97 +516,8 @@ func testState() (state.BeaconState, error) {
 			generateParticipation(params.BeaconConfig().TimelySourceFlagIndex, params.BeaconConfig().TimelyTargetFlagIndex, params.BeaconConfig().TimelyHeadFlagIndex),
 		},
 		InactivityScores: []uint64{0, 0, 0, 0},
-		BailOutScores:    []uint64{0, 0, 0, 0},
 		Balances:         []uint64{0, 0, 0, 0},
 	})
-}
-
-func TestProcessInactivityAndBailOutScores_EjectionScoreUp(t *testing.T) {
-	generateParticipation := func(flags ...uint8) byte {
-		b := byte(0)
-		var err error
-		for _, flag := range flags {
-			b, err = AddValidatorFlag(b, flag)
-			if err != nil {
-				return 0
-			}
-		}
-		return b
-	}
-
-	s, err := testState()
-	require.NoError(t, err)
-	err = s.SetPreviousParticipationBits([]byte{
-		0,
-		0,
-		0,
-		generateParticipation(params.BeaconConfig().TimelySourceFlagIndex, params.BeaconConfig().TimelyTargetFlagIndex),
-	})
-	require.NoError(t, err)
-	err = s.SetBailOutScores([]uint64{
-		0,
-		params.BeaconConfig().BailOutScoreThreshold,
-		params.BeaconConfig().BailOutScoreThreshold + params.BeaconConfig().BailOutScoreBias,
-		0},
-	)
-	require.NoError(t, err)
-	validators, balance, err := InitializePrecomputeValidators(context.Background(), s)
-	require.NoError(t, err)
-	validators, _, err = ProcessEpochParticipation(context.Background(), s, balance, validators)
-	require.NoError(t, err)
-	s, _, err = ProcessInactivityAndBailOutScores(context.Background(), s, validators)
-	require.NoError(t, err)
-	bailoutScores, err := s.BailOutScores()
-	require.NoError(t, err)
-
-	require.Equal(t, params.BeaconConfig().BailOutScoreBias, bailoutScores[0])                                               // Should increase by bias
-	require.Equal(t, params.BeaconConfig().BailOutScoreThreshold+params.BeaconConfig().BailOutScoreBias, bailoutScores[1])   // Should increase by bias even it's over threshold
-	require.Equal(t, params.BeaconConfig().BailOutScoreThreshold+params.BeaconConfig().BailOutScoreBias*2, bailoutScores[2]) // Should increase by bias even it's over threshold
-	require.Equal(t, uint64(0), bailoutScores[3])                                                                            // Should remain unchanged
-}
-
-func TestProcessInactivityAndEjectionScores_EjectionScoreDown(t *testing.T) {
-	generateParticipation := func(flags ...uint8) byte {
-		b := byte(0)
-		var err error
-		for _, flag := range flags {
-			b, err = AddValidatorFlag(b, flag)
-			if err != nil {
-				return 0
-			}
-		}
-		return b
-	}
-
-	s, err := testState()
-	require.NoError(t, err)
-	err = s.SetPreviousParticipationBits([]byte{
-		generateParticipation(params.BeaconConfig().TimelySourceFlagIndex, params.BeaconConfig().TimelyTargetFlagIndex),
-		generateParticipation(params.BeaconConfig().TimelySourceFlagIndex, params.BeaconConfig().TimelyTargetFlagIndex),
-		generateParticipation(params.BeaconConfig().TimelySourceFlagIndex, params.BeaconConfig().TimelyTargetFlagIndex),
-		generateParticipation(params.BeaconConfig().TimelySourceFlagIndex, params.BeaconConfig().TimelyTargetFlagIndex),
-	})
-	require.NoError(t, err)
-	err = s.SetBailOutScores([]uint64{
-		0,
-		params.BeaconConfig().BailOutScoreThreshold,
-		params.BeaconConfig().BailOutScoreThreshold + params.BeaconConfig().BailOutScoreBias,
-		params.BeaconConfig().BailOutScoreBias},
-	)
-	require.NoError(t, err)
-	validators, balance, err := InitializePrecomputeValidators(context.Background(), s)
-	require.NoError(t, err)
-	validators, _, err = ProcessEpochParticipation(context.Background(), s, balance, validators)
-	require.NoError(t, err)
-	s, _, err = ProcessInactivityAndBailOutScores(context.Background(), s, validators)
-	require.NoError(t, err)
-	bailoutScores, err := s.BailOutScores()
-	require.NoError(t, err)
-
-	require.Equal(t, uint64(0), bailoutScores[0])                                                                            // Should remain unchanged because score is already 0
-	require.Equal(t, params.BeaconConfig().BailOutScoreThreshold+params.BeaconConfig().BailOutScoreBias, bailoutScores[1])   // Should remain unchanged because score is already at threshold
-	require.Equal(t, params.BeaconConfig().BailOutScoreThreshold+params.BeaconConfig().BailOutScoreBias*2, bailoutScores[2]) // Should remain unchanged because score is already over threshold
-	require.Equal(t, params.BeaconConfig().BailOutScoreBias-helpers.BailOutRecoveryScore(len(validators)), bailoutScores[3]) // Should decrease by penalty
 }
 
 func testStateBellatrix() (state.BeaconState, error) {
@@ -650,7 +553,6 @@ func testStateBellatrix() (state.BeaconState, error) {
 			generateParticipation(params.BeaconConfig().TimelySourceFlagIndex, params.BeaconConfig().TimelyTargetFlagIndex, params.BeaconConfig().TimelyHeadFlagIndex),
 		},
 		InactivityScores: []uint64{0, 0, 0, 0},
-		BailOutScores:    []uint64{0, 0, 0, 0},
 		Balances:         []uint64{0, 0, 0, 0},
 	})
 }

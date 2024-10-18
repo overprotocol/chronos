@@ -57,7 +57,6 @@ type ReadOnlyBeaconState interface {
 	ReadOnlyWithdrawals
 	ReadOnlyParticipation
 	ReadOnlyInactivity
-	ReadOnlyBailOut
 	ReadOnlySyncCommittee
 	ReadOnlyDeposits
 	ToProtoUnsafe() interface{}
@@ -93,7 +92,6 @@ type WriteOnlyBeaconState interface {
 	WriteOnlyAttestations
 	WriteOnlyParticipation
 	WriteOnlyInactivity
-	WriteOnlyBailOut
 	WriteOnlySyncCommittee
 	WriteOnlyWithdrawals
 	WriteOnlyDeposits
@@ -221,11 +219,6 @@ type ReadOnlyInactivity interface {
 	InactivityScores() ([]uint64, error)
 }
 
-// ReadOnlyBailout defines a struct which only has read access to bail out methods.
-type ReadOnlyBailOut interface {
-	BailOutScores() ([]uint64, error)
-}
-
 // ReadOnlySyncCommittee defines a struct which only has read access to sync committee methods.
 type ReadOnlySyncCommittee interface {
 	CurrentSyncCommittee() (*ethpb.SyncCommittee, error)
@@ -311,12 +304,6 @@ type WriteOnlyParticipation interface {
 type WriteOnlyInactivity interface {
 	AppendInactivityScore(s uint64) error
 	SetInactivityScores(val []uint64) error
-}
-
-// WriteOnlyBailOut defines a struct which only has write access to bail out methods.
-type WriteOnlyBailOut interface {
-	AppendBailOutScore(s uint64) error
-	SetBailOutScores(val []uint64) error
 }
 
 // WriteOnlySyncCommittee defines a struct which only has write access to sync committee methods.

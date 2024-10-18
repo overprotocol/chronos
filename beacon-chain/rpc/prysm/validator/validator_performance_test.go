@@ -7,7 +7,6 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"strconv"
 	"testing"
 	"time"
 
@@ -78,7 +77,6 @@ func TestServer_GetValidatorPerformance(t *testing.T) {
 			BalancesBeforeEpochTransition: []uint64{101, 102},
 			BalancesAfterEpochTransition:  []uint64{0, 0},
 			MissingValidators:             [][]byte{publicKeys[0][:]},
-			BailOutScores:                 []string{"0"},
 		}
 
 		request := &structs.GetValidatorPerformanceRequest{
@@ -145,7 +143,6 @@ func TestServer_GetValidatorPerformance(t *testing.T) {
 			BalancesBeforeEpochTransition: []uint64{extraBal, extraBal + params.BeaconConfig().GweiPerEth},
 			BalancesAfterEpochTransition:  []uint64{vp[1].AfterEpochTransitionBalance, vp[2].AfterEpochTransitionBalance},
 			MissingValidators:             [][]byte{publicKeys[0][:]},
-			BailOutScores:                 []string{"0"},
 		}
 		request := &structs.GetValidatorPerformanceRequest{
 			Indices: []primitives.ValidatorIndex{2, 1, 0},
@@ -211,7 +208,6 @@ func TestServer_GetValidatorPerformance(t *testing.T) {
 			BalancesBeforeEpochTransition: []uint64{extraBal, extraBal + params.BeaconConfig().GweiPerEth},
 			BalancesAfterEpochTransition:  []uint64{vp[1].AfterEpochTransitionBalance, vp[2].AfterEpochTransitionBalance},
 			MissingValidators:             [][]byte{publicKeys[0][:]},
-			BailOutScores:                 []string{"0"},
 		}
 		request := &structs.GetValidatorPerformanceRequest{
 			PublicKeys: [][]byte{publicKeys[0][:], publicKeys[2][:]}, Indices: []primitives.ValidatorIndex{1, 2},
@@ -253,7 +249,6 @@ func TestServer_GetValidatorPerformance(t *testing.T) {
 		headState = setHeadState(t, headState, publicKeys)
 
 		require.NoError(t, headState.SetInactivityScores([]uint64{0, 0, 0}))
-		require.NoError(t, headState.SetBailOutScores([]uint64{0, params.BeaconConfig().BailOutScoreBias, params.BeaconConfig().BailOutScoreThreshold}))
 		require.NoError(t, headState.SetBalances([]uint64{100, 101, 102}))
 		offset := int64(headState.Slot().Mul(params.BeaconConfig().SecondsPerSlot))
 		vs := &Server{
@@ -275,7 +270,6 @@ func TestServer_GetValidatorPerformance(t *testing.T) {
 			BalancesAfterEpochTransition:  []uint64{0, 0},
 			MissingValidators:             [][]byte{publicKeys[0][:]},
 			InactivityScores:              []uint64{0, 0},
-			BailOutScores:                 []string{"0", strconv.FormatUint(params.BeaconConfig().BailOutScoreBias*2, 10), strconv.FormatUint(params.BeaconConfig().BailOutScoreThreshold+params.BeaconConfig().BailOutScoreBias, 10)},
 		}
 		request := &structs.GetValidatorPerformanceRequest{
 			PublicKeys: [][]byte{publicKeys[0][:], publicKeys[2][:], publicKeys[1][:]},
@@ -317,7 +311,6 @@ func TestServer_GetValidatorPerformance(t *testing.T) {
 		headState = setHeadState(t, headState, publicKeys)
 
 		require.NoError(t, headState.SetInactivityScores([]uint64{0, 0, 0}))
-		require.NoError(t, headState.SetBailOutScores([]uint64{0, params.BeaconConfig().BailOutScoreBias, params.BeaconConfig().BailOutScoreThreshold}))
 		require.NoError(t, headState.SetBalances([]uint64{100, 101, 102}))
 		offset := int64(headState.Slot().Mul(params.BeaconConfig().SecondsPerSlot))
 		vs := &Server{
@@ -339,7 +332,6 @@ func TestServer_GetValidatorPerformance(t *testing.T) {
 			BalancesAfterEpochTransition:  []uint64{0, 0},
 			MissingValidators:             [][]byte{publicKeys[0][:]},
 			InactivityScores:              []uint64{0, 0},
-			BailOutScores:                 []string{"0", strconv.FormatUint(params.BeaconConfig().BailOutScoreBias*2, 10), strconv.FormatUint(params.BeaconConfig().BailOutScoreThreshold+params.BeaconConfig().BailOutScoreBias, 10)},
 		}
 		request := &structs.GetValidatorPerformanceRequest{
 			PublicKeys: [][]byte{publicKeys[0][:], publicKeys[2][:], publicKeys[1][:]},
@@ -381,7 +373,6 @@ func TestServer_GetValidatorPerformance(t *testing.T) {
 		headState = setHeadState(t, headState, publicKeys)
 
 		require.NoError(t, headState.SetInactivityScores([]uint64{0, 0, 0}))
-		require.NoError(t, headState.SetBailOutScores([]uint64{0, params.BeaconConfig().BailOutScoreBias, params.BeaconConfig().BailOutScoreThreshold}))
 		require.NoError(t, headState.SetBalances([]uint64{100, 101, 102}))
 		offset := int64(headState.Slot().Mul(params.BeaconConfig().SecondsPerSlot))
 		vs := &Server{
@@ -403,7 +394,6 @@ func TestServer_GetValidatorPerformance(t *testing.T) {
 			BalancesAfterEpochTransition:  []uint64{0, 0},
 			MissingValidators:             [][]byte{publicKeys[0][:]},
 			InactivityScores:              []uint64{0, 0},
-			BailOutScores:                 []string{"0", strconv.FormatUint(params.BeaconConfig().BailOutScoreBias*2, 10), strconv.FormatUint(params.BeaconConfig().BailOutScoreThreshold+params.BeaconConfig().BailOutScoreBias, 10)},
 		}
 		request := &structs.GetValidatorPerformanceRequest{
 			PublicKeys: [][]byte{publicKeys[0][:], publicKeys[2][:], publicKeys[1][:]},

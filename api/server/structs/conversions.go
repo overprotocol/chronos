@@ -602,23 +602,6 @@ func ExitFromConsensus(e *eth.VoluntaryExit) *VoluntaryExit {
 	}
 }
 
-func (b *BailOut) ToConsensus() (*eth.BailOut, error) {
-	valIndex, err := strconv.ParseUint(b.ValidatorIndex, 10, 64)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "ValidatorIndex")
-	}
-
-	return &eth.BailOut{
-		ValidatorIndex: primitives.ValidatorIndex(valIndex),
-	}, nil
-}
-
-func BailOutFromConsensus(b *eth.BailOut) *BailOut {
-	return &BailOut{
-		ValidatorIndex: fmt.Sprintf("%d", b.ValidatorIndex),
-	}
-}
-
 func (m *SyncCommitteeMessage) ToConsensus() (*eth.SyncCommitteeMessage, error) {
 	slot, err := strconv.ParseUint(m.Slot, 10, 64)
 	if err != nil {
@@ -1433,33 +1416,6 @@ func SignedExitsFromConsensus(src []*eth.SignedVoluntaryExit) []*SignedVoluntary
 		}
 	}
 	return exits
-}
-
-func BailOutsToConsensus(src []*BailOut) ([]*eth.BailOut, error) {
-	if src == nil {
-		return nil, errNilValue
-	}
-	err := slice.VerifyMaxLength(src, 16)
-	if err != nil {
-		return nil, err
-	}
-
-	bailOuts := make([]*eth.BailOut, len(src))
-	for i, b := range src {
-		bailOuts[i], err = b.ToConsensus()
-		if err != nil {
-			return nil, server.NewDecodeError(err, fmt.Sprintf("[%d]", i))
-		}
-	}
-	return bailOuts, nil
-}
-
-func BailOutsFromConsensus(src []*eth.BailOut) []*BailOut {
-	bailOuts := make([]*BailOut, len(src))
-	for i, b := range src {
-		bailOuts[i] = BailOutFromConsensus(b)
-	}
-	return bailOuts
 }
 
 func sszBytesToUint256String(b []byte) (string, error) {

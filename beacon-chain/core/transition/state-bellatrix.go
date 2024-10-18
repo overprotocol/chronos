@@ -135,16 +135,6 @@ func OptimizedGenesisBeaconStateBellatrix(genesisTime uint64, preState state.Bea
 			scores = append(scores, 0)
 		}
 	}
-	boScores, err := preState.BailOutScores()
-	if err != nil {
-		return nil, err
-	}
-	boScoresMissing := len(preState.Validators()) - len(boScores)
-	if boScoresMissing > 0 {
-		for i := 0; i < boScoresMissing; i++ {
-			scores = append(boScores, 0)
-		}
-	}
 	wep, err := blocks.WrappedExecutionPayload(ep)
 	if err != nil {
 		return nil, err
@@ -201,7 +191,6 @@ func OptimizedGenesisBeaconStateBellatrix(genesisTime uint64, preState state.Bea
 		Eth1DepositIndex:             preState.Eth1DepositIndex(),
 		LatestExecutionPayloadHeader: eph,
 		InactivityScores:             scores,
-		BailOutScores:                boScores,
 	}
 
 	bodyRoot, err := (&ethpb.BeaconBlockBodyBellatrix{

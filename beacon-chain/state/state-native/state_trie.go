@@ -80,7 +80,6 @@ var altairFields = []types.FieldIndex{
 	types.InactivityScores,
 	types.CurrentSyncCommittee,
 	types.NextSyncCommittee,
-	types.BailOutScores,
 }
 
 var bellatrixFields = append(altairFields, types.LatestExecutionPayloadHeader)
@@ -117,11 +116,11 @@ var electraFields = append(
 
 const (
 	phase0SharedFieldRefCount                     = 10
-	altairSharedFieldRefCount                     = 12
-	bellatrixSharedFieldRefCount                  = 13
-	capellaSharedFieldRefCount                    = 14
-	denebSharedFieldRefCount                      = 14
-	electraSharedFieldRefCount                    = 17
+	altairSharedFieldRefCount                     = 11
+	bellatrixSharedFieldRefCount                  = 12
+	capellaSharedFieldRefCount                    = 13
+	denebSharedFieldRefCount                      = 13
+	electraSharedFieldRefCount                    = 16
 	experimentalStatePhase0SharedFieldRefCount    = 5
 	experimentalStateAltairSharedFieldRefCount    = 5
 	experimentalStateBellatrixSharedFieldRefCount = 6
@@ -319,7 +318,6 @@ func InitializeFromProtoUnsafeAltair(st *ethpb.BeaconStateAltair) (state.BeaconS
 		b.balancesMultiValue = NewMultiValueBalances(st.Balances)
 		b.validatorsMultiValue = NewMultiValueValidators(st.Validators)
 		b.inactivityScoresMultiValue = NewMultiValueInactivityScores(st.InactivityScores)
-		b.bailoutScoresMultiValue = NewMultiValueBailOutScores(st.BailOutScores)
 		b.sharedFieldReferences = make(map[types.FieldIndex]*stateutil.Reference, experimentalStateAltairSharedFieldRefCount)
 	} else {
 		bRoots := make([][32]byte, fieldparams.BlockRootsLength)
@@ -343,7 +341,6 @@ func InitializeFromProtoUnsafeAltair(st *ethpb.BeaconStateAltair) (state.BeaconS
 		b.balances = st.Balances
 		b.validators = st.Validators
 		b.inactivityScores = st.InactivityScores
-		b.bailoutScores = st.BailOutScores
 
 		b.sharedFieldReferences = make(map[types.FieldIndex]*stateutil.Reference, altairSharedFieldRefCount)
 	}
@@ -372,7 +369,6 @@ func InitializeFromProtoUnsafeAltair(st *ethpb.BeaconStateAltair) (state.BeaconS
 		b.sharedFieldReferences[types.Balances] = stateutil.NewRef(1)
 		b.sharedFieldReferences[types.Validators] = stateutil.NewRef(1)
 		b.sharedFieldReferences[types.InactivityScores] = stateutil.NewRef(1)
-		b.sharedFieldReferences[types.BailOutScores] = stateutil.NewRef(1) // New in Altair.
 	}
 
 	state.Count.Inc()
@@ -435,7 +431,6 @@ func InitializeFromProtoUnsafeBellatrix(st *ethpb.BeaconStateBellatrix) (state.B
 		b.balancesMultiValue = NewMultiValueBalances(st.Balances)
 		b.validatorsMultiValue = NewMultiValueValidators(st.Validators)
 		b.inactivityScoresMultiValue = NewMultiValueInactivityScores(st.InactivityScores)
-		b.bailoutScoresMultiValue = NewMultiValueBailOutScores(st.BailOutScores)
 		b.sharedFieldReferences = make(map[types.FieldIndex]*stateutil.Reference, experimentalStateBellatrixSharedFieldRefCount)
 	} else {
 		bRoots := make([][32]byte, fieldparams.BlockRootsLength)
@@ -459,7 +454,6 @@ func InitializeFromProtoUnsafeBellatrix(st *ethpb.BeaconStateBellatrix) (state.B
 		b.balances = st.Balances
 		b.validators = st.Validators
 		b.inactivityScores = st.InactivityScores
-		b.bailoutScores = st.BailOutScores
 
 		b.sharedFieldReferences = make(map[types.FieldIndex]*stateutil.Reference, bellatrixSharedFieldRefCount)
 	}
@@ -489,7 +483,6 @@ func InitializeFromProtoUnsafeBellatrix(st *ethpb.BeaconStateBellatrix) (state.B
 		b.sharedFieldReferences[types.Balances] = stateutil.NewRef(1)
 		b.sharedFieldReferences[types.Validators] = stateutil.NewRef(1)
 		b.sharedFieldReferences[types.InactivityScores] = stateutil.NewRef(1)
-		b.sharedFieldReferences[types.BailOutScores] = stateutil.NewRef(1)
 	}
 
 	state.Count.Inc()
@@ -555,7 +548,6 @@ func InitializeFromProtoUnsafeCapella(st *ethpb.BeaconStateCapella) (state.Beaco
 		b.balancesMultiValue = NewMultiValueBalances(st.Balances)
 		b.validatorsMultiValue = NewMultiValueValidators(st.Validators)
 		b.inactivityScoresMultiValue = NewMultiValueInactivityScores(st.InactivityScores)
-		b.bailoutScoresMultiValue = NewMultiValueBailOutScores(st.BailOutScores)
 		b.sharedFieldReferences = make(map[types.FieldIndex]*stateutil.Reference, experimentalStateCapellaSharedFieldRefCount)
 	} else {
 		bRoots := make([][32]byte, fieldparams.BlockRootsLength)
@@ -579,7 +571,6 @@ func InitializeFromProtoUnsafeCapella(st *ethpb.BeaconStateCapella) (state.Beaco
 		b.balances = st.Balances
 		b.validators = st.Validators
 		b.inactivityScores = st.InactivityScores
-		b.bailoutScores = st.BailOutScores
 
 		b.sharedFieldReferences = make(map[types.FieldIndex]*stateutil.Reference, capellaSharedFieldRefCount)
 	}
@@ -610,7 +601,6 @@ func InitializeFromProtoUnsafeCapella(st *ethpb.BeaconStateCapella) (state.Beaco
 		b.sharedFieldReferences[types.Balances] = stateutil.NewRef(1)
 		b.sharedFieldReferences[types.Validators] = stateutil.NewRef(1)
 		b.sharedFieldReferences[types.InactivityScores] = stateutil.NewRef(1)
-		b.sharedFieldReferences[types.BailOutScores] = stateutil.NewRef(1)
 	}
 
 	state.Count.Inc()
@@ -674,7 +664,6 @@ func InitializeFromProtoUnsafeDeneb(st *ethpb.BeaconStateDeneb) (state.BeaconSta
 		b.balancesMultiValue = NewMultiValueBalances(st.Balances)
 		b.validatorsMultiValue = NewMultiValueValidators(st.Validators)
 		b.inactivityScoresMultiValue = NewMultiValueInactivityScores(st.InactivityScores)
-		b.bailoutScoresMultiValue = NewMultiValueBailOutScores(st.BailOutScores)
 		b.sharedFieldReferences = make(map[types.FieldIndex]*stateutil.Reference, experimentalStateDenebSharedFieldRefCount)
 	} else {
 		bRoots := make([][32]byte, fieldparams.BlockRootsLength)
@@ -698,7 +687,6 @@ func InitializeFromProtoUnsafeDeneb(st *ethpb.BeaconStateDeneb) (state.BeaconSta
 		b.balances = st.Balances
 		b.validators = st.Validators
 		b.inactivityScores = st.InactivityScores
-		b.bailoutScores = st.BailOutScores
 
 		b.sharedFieldReferences = make(map[types.FieldIndex]*stateutil.Reference, denebSharedFieldRefCount)
 	}
@@ -729,7 +717,6 @@ func InitializeFromProtoUnsafeDeneb(st *ethpb.BeaconStateDeneb) (state.BeaconSta
 		b.sharedFieldReferences[types.Balances] = stateutil.NewRef(1)
 		b.sharedFieldReferences[types.Validators] = stateutil.NewRef(1)
 		b.sharedFieldReferences[types.InactivityScores] = stateutil.NewRef(1)
-		b.sharedFieldReferences[types.BailOutScores] = stateutil.NewRef(1)
 	}
 
 	state.Count.Inc()
@@ -799,7 +786,6 @@ func InitializeFromProtoUnsafeElectra(st *ethpb.BeaconStateElectra) (state.Beaco
 		b.balancesMultiValue = NewMultiValueBalances(st.Balances)
 		b.validatorsMultiValue = NewMultiValueValidators(st.Validators)
 		b.inactivityScoresMultiValue = NewMultiValueInactivityScores(st.InactivityScores)
-		b.bailoutScoresMultiValue = NewMultiValueBailOutScores(st.BailOutScores)
 		b.sharedFieldReferences = make(map[types.FieldIndex]*stateutil.Reference, experimentalStateElectraSharedFieldRefCount)
 	} else {
 		bRoots := make([][32]byte, fieldparams.BlockRootsLength)
@@ -823,7 +809,6 @@ func InitializeFromProtoUnsafeElectra(st *ethpb.BeaconStateElectra) (state.Beaco
 		b.balances = st.Balances
 		b.validators = st.Validators
 		b.inactivityScores = st.InactivityScores
-		b.bailoutScores = st.BailOutScores
 
 		b.sharedFieldReferences = make(map[types.FieldIndex]*stateutil.Reference, electraSharedFieldRefCount)
 	}
@@ -856,7 +841,6 @@ func InitializeFromProtoUnsafeElectra(st *ethpb.BeaconStateElectra) (state.Beaco
 		b.sharedFieldReferences[types.Balances] = stateutil.NewRef(1)
 		b.sharedFieldReferences[types.Validators] = stateutil.NewRef(1)
 		b.sharedFieldReferences[types.InactivityScores] = stateutil.NewRef(1)
-		b.sharedFieldReferences[types.BailOutScores] = stateutil.NewRef(1)
 	}
 
 	state.Count.Inc()
@@ -925,9 +909,7 @@ func (b *BeaconState) Copy() state.BeaconState {
 		previousEpochParticipation: b.previousEpochParticipation,
 		currentEpochParticipation:  b.currentEpochParticipation,
 		inactivityScores:           b.inactivityScores,
-		bailoutScores:              b.bailoutScores,
 		inactivityScoresMultiValue: b.inactivityScoresMultiValue,
-		bailoutScoresMultiValue:    b.bailoutScoresMultiValue,
 		pendingDeposits:            b.pendingDeposits,
 		pendingPartialWithdrawals:  b.pendingPartialWithdrawals,
 
@@ -964,7 +946,6 @@ func (b *BeaconState) Copy() state.BeaconState {
 		b.balancesMultiValue.Copy(b, dst)
 		if b.version > version.Phase0 {
 			b.inactivityScoresMultiValue.Copy(b, dst)
-			b.bailoutScoresMultiValue.Copy(b, dst)
 		}
 		b.validatorsMultiValue.Copy(b, dst)
 	}
@@ -1172,15 +1153,6 @@ func (b *BeaconState) RecordStateMetrics() {
 		multiValueAppendedElementReferencesCountGauge.WithLabelValues(types.InactivityScores.String()).Set(float64(stats.TotalAppendedElemReferences))
 	}
 
-	// BailoutScores
-	if b.bailoutScoresMultiValue != nil {
-		stats := b.bailoutScoresMultiValue.MultiValueStatistics()
-		multiValueIndividualElementsCountGauge.WithLabelValues(types.BailOutScores.String()).Set(float64(stats.TotalIndividualElements))
-		multiValueIndividualElementReferencesCountGauge.WithLabelValues(types.BailOutScores.String()).Set(float64(stats.TotalIndividualElemReferences))
-		multiValueAppendedElementsCountGauge.WithLabelValues(types.BailOutScores.String()).Set(float64(stats.TotalAppendedElements))
-		multiValueAppendedElementReferencesCountGauge.WithLabelValues(types.BailOutScores.String()).Set(float64(stats.TotalAppendedElemReferences))
-	}
-
 	// BlockRoots
 	if b.blockRootsMultiValue != nil {
 		stats := b.blockRootsMultiValue.MultiValueStatistics()
@@ -1322,12 +1294,6 @@ func (b *BeaconState) rootSelector(ctx context.Context, field types.FieldIndex) 
 		return stateutil.SyncCommitteeRoot(b.currentSyncCommittee)
 	case types.NextSyncCommittee:
 		return stateutil.SyncCommitteeRoot(b.nextSyncCommittee)
-	case types.BailOutScores:
-		if features.Get().EnableExperimentalState {
-			return stateutil.Uint64ListRootWithRegistryLimit(b.bailoutScoresMultiValue.Value(b))
-		} else {
-			return stateutil.Uint64ListRootWithRegistryLimit(b.bailoutScores)
-		}
 	case types.LatestExecutionPayloadHeader:
 		return b.latestExecutionPayloadHeader.HashTreeRoot()
 	case types.LatestExecutionPayloadHeaderCapella:
@@ -1475,9 +1441,6 @@ func finalizerCleanup(b *BeaconState) {
 		}
 		if b.inactivityScoresMultiValue != nil {
 			b.inactivityScoresMultiValue.Detach(b)
-		}
-		if b.bailoutScoresMultiValue != nil {
-			b.bailoutScoresMultiValue.Detach(b)
 		}
 		if b.validatorsMultiValue != nil {
 			b.validatorsMultiValue.Detach(b)

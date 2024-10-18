@@ -91,7 +91,6 @@ ssz_altair_objs = [
     "SignedBeaconBlockAltair",
     "SignedContributionAndProof",
     "SyncAggregate",
-    "BailOut",
     "SyncAggregatorSelectionData",
     "SyncCommittee",
     "SyncCommitteeContribution",

@@ -562,11 +562,6 @@ func testSignedBlindedBeaconBlockBellatrix(t *testing.T) *eth.SignedBlindedBeaco
 					SyncCommitteeSignature: make([]byte, 48),
 					SyncCommitteeBits:      bitfield.Bitvector512{0x01},
 				},
-				BailOuts: []*eth.BailOut{
-					{
-						ValidatorIndex: 1,
-					},
-				},
 				ExecutionPayloadHeader: &v1.ExecutionPayloadHeader{
 					ParentHash:       ezDecode(t, "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2"),
 					FeeRecipient:     ezDecode(t, "0xabcf8e0d4e9587369b2301d0790347320302cc09"),
@@ -708,11 +703,6 @@ func testSignedBlindedBeaconBlockCapella(t *testing.T) *eth.SignedBlindedBeaconB
 				SyncAggregate: &eth.SyncAggregate{
 					SyncCommitteeSignature: make([]byte, 48),
 					SyncCommitteeBits:      bitfield.Bitvector512{0x01},
-				},
-				BailOuts: []*eth.BailOut{
-					{
-						ValidatorIndex: 1,
-					},
 				},
 				ExecutionPayloadHeader: &v1.ExecutionPayloadHeaderCapella{
 					ParentHash:       ezDecode(t, "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2"),
@@ -860,11 +850,6 @@ func testSignedBlindedBeaconBlockDeneb(t *testing.T) *eth.SignedBlindedBeaconBlo
 				SyncAggregate: &eth.SyncAggregate{
 					SyncCommitteeSignature: make([]byte, 96),
 					SyncCommitteeBits:      ezDecode(t, "0x6451e9f951ebf05edc01de67e593484b672877054f055903ff0df1a1a945cf30ca26bb4d4b154f94a1bc776bcf5d0efb3603e1f9b8ee2499ccdcfe2a18cef458"),
-				},
-				BailOuts: []*eth.BailOut{
-					{
-						ValidatorIndex: 1,
-					},
 				},
 				ExecutionPayloadHeader: &v1.ExecutionPayloadHeaderDeneb{
 					ParentHash:       ezDecode(t, "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2"),
