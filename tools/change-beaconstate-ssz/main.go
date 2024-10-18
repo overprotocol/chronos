@@ -109,10 +109,9 @@ func main() {
 		newSt.CurrentJustifiedCheckpoint = st.CurrentJustifiedCheckpoint
 		newSt.FinalizedCheckpoint = st.FinalizedCheckpoint
 
-		// Fill: RewardAdjustmentFactor, PreviousEpochReserve, CurrentEpochReserve
+		// Fill: RewardAdjustmentFactor, Reserves
 		newSt.RewardAdjustmentFactor = 0
-		newSt.PreviousEpochReserve = 0
-		newSt.CurrentEpochReserve = 0
+		newSt.Reserves = 0
 
 		output, err = newSt.MarshalSSZ()
 		if err != nil {
@@ -147,10 +146,9 @@ func main() {
 		newSt.CurrentJustifiedCheckpoint = st.CurrentJustifiedCheckpoint
 		newSt.FinalizedCheckpoint = st.FinalizedCheckpoint
 
-		// Fill: RewardAdjustmentFactor, PreviousEpochReserve, CurrentEpochReserve
+		// Fill: RewardAdjustmentFactor, Reserves
 		newSt.RewardAdjustmentFactor = 0
-		newSt.PreviousEpochReserve = 0
-		newSt.CurrentEpochReserve = 0
+		newSt.Reserves = 0
 
 		output, err = newSt.MarshalSSZ()
 		if err != nil {
@@ -185,10 +183,9 @@ func main() {
 		newSt.CurrentJustifiedCheckpoint = st.CurrentJustifiedCheckpoint
 		newSt.FinalizedCheckpoint = st.FinalizedCheckpoint
 
-		// Fill: RewardAdjustmentFactor, PreviousEpochReserve, CurrentEpochReserve
+		// Fill: RewardAdjustmentFactor, Reserves
 		newSt.RewardAdjustmentFactor = 0
-		newSt.PreviousEpochReserve = 0
-		newSt.CurrentEpochReserve = 0
+		newSt.Reserves = 0
 
 		output, err = newSt.MarshalSSZ()
 		if err != nil {
@@ -223,10 +220,9 @@ func main() {
 		newSt.CurrentJustifiedCheckpoint = st.CurrentJustifiedCheckpoint
 		newSt.FinalizedCheckpoint = st.FinalizedCheckpoint
 
-		// Fill: RewardAdjustmentFactor, PreviousEpochReserve, CurrentEpochReserve
+		// Fill: RewardAdjustmentFactor, Reserves
 		newSt.RewardAdjustmentFactor = 0
-		newSt.PreviousEpochReserve = 0
-		newSt.CurrentEpochReserve = 0
+		newSt.Reserves = 0
 
 		output, err = newSt.MarshalSSZ()
 		if err != nil {
@@ -262,10 +258,9 @@ func main() {
 		newSt.CurrentJustifiedCheckpoint = st.CurrentJustifiedCheckpoint
 		newSt.FinalizedCheckpoint = st.FinalizedCheckpoint
 
-		// Fill: RewardAdjustmentFactor, PreviousEpochReserve, CurrentEpochReserve
+		// Fill: RewardAdjustmentFactor, Reserves
 		newSt.RewardAdjustmentFactor = 0
-		newSt.PreviousEpochReserve = 0
-		newSt.CurrentEpochReserve = 0
+		newSt.Reserves = 0
 
 		output, err = newSt.MarshalSSZ()
 		if err != nil {
@@ -300,10 +295,9 @@ func main() {
 		newSt.CurrentJustifiedCheckpoint = st.CurrentJustifiedCheckpoint
 		newSt.FinalizedCheckpoint = st.FinalizedCheckpoint
 
-		// Fill: RewardAdjustmentFactor, PreviousEpochReserve, CurrentEpochReserve
+		// Fill: RewardAdjustmentFactor, Reserves
 		newSt.RewardAdjustmentFactor = 0
-		newSt.PreviousEpochReserve = 0
-		newSt.CurrentEpochReserve = 0
+		newSt.Reserves = 0
 
 		output, err = newSt.MarshalSSZ()
 		if err != nil {

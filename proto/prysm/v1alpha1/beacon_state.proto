@@ -38,8 +38,7 @@ message BeaconState {
   // Registry [4001-5000]
   repeated Validator validators = 4001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
   repeated uint64 balances = 4002 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
-  uint64 previous_epoch_reserve = 4003;
-  uint64 current_epoch_reserve = 4004;
+  uint64 reserves = 4003;
 
   // Randomness [5001-6000]
   repeated bytes randao_mixes = 5001 [(ethereum.eth.ext.ssz_size) = "randao_mixes.size"];
@@ -80,8 +79,7 @@ message BeaconStateAltair {
   // Registry [4001-5000]
   repeated Validator validators = 4001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
   repeated uint64 balances = 4002 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
-  uint64 previous_epoch_reserve = 4003;
-  uint64 current_epoch_reserve = 4004;
+  uint64 reserves = 4003;
 
   // Randomness [5001-6000]
   repeated bytes randao_mixes = 5001 [(ethereum.eth.ext.ssz_size) = "randao_mixes.size"];
@@ -211,8 +209,7 @@ message BeaconStateBellatrix {
   // Registry [4001-5000]
   repeated Validator validators = 4001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
   repeated uint64 balances = 4002 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
-  uint64 previous_epoch_reserve = 4003;
-  uint64 current_epoch_reserve = 4004;
+  uint64 reserves = 4003;
 
   // Randomness [5001-6000]
   repeated bytes randao_mixes = 5001 [(ethereum.eth.ext.ssz_size) = "randao_mixes.size"];
@@ -259,8 +256,7 @@ message BeaconStateCapella {
   // Registry [4001-5000]
   repeated Validator validators = 4001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
   repeated uint64 balances = 4002 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
-  uint64 previous_epoch_reserve = 4003;
-  uint64 current_epoch_reserve = 4004;
+  uint64 reserves = 4003;
 
   // Randomness [5001-6000]
   repeated bytes randao_mixes = 5001 [(ethereum.eth.ext.ssz_size) = "randao_mixes.size"];
@@ -312,8 +308,7 @@ message BeaconStateDeneb {
   // Registry [4001-5000]
   repeated Validator validators = 4001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
   repeated uint64 balances = 4002 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
-  uint64 previous_epoch_reserve = 4003;
-  uint64 current_epoch_reserve = 4004;
+  uint64 reserves = 4003;
 
   // Randomness [5001-6000]
   repeated bytes randao_mixes = 5001 [(ethereum.eth.ext.ssz_size) = "randao_mixes.size"];
@@ -365,8 +360,7 @@ message BeaconStateElectra {
   // Registry [4001-5000]
   repeated Validator validators = 4001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
   repeated uint64 balances = 4002 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
-  uint64 previous_epoch_reserve = 4003;
-  uint64 current_epoch_reserve = 4004;
+  uint64 reserves = 4003;
 
   // Randomness [5001-6000]
   repeated bytes randao_mixes = 5001 [(ethereum.eth.ext.ssz_size) = "randao_mixes.size"];

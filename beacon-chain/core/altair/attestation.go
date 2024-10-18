@@ -240,7 +240,7 @@ func RewardProposer(ctx context.Context, beaconState state.BeaconState, proposer
 		return err
 	}
 
-	err = helpers.DecreaseCurrentReserve(beaconState, proposerReserveNumerator/d)
+	err = helpers.DecreaseReserves(beaconState, proposerReserveNumerator/d)
 	if err != nil {
 		return err
 	}

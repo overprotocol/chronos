@@ -265,7 +265,7 @@ func EpochFeedbackBoost(s state.ReadOnlyBeaconState) uint64 {
 	rewardAdjustmentFactor := s.RewardAdjustmentFactor()
 	feedbackBoost := cfg.MaxTokenSupply / cfg.RewardAdjustmentFactorPrecision * rewardAdjustmentFactor / cfg.EpochsPerYear
 
-	if reserve := s.PreviousEpochReserve(); feedbackBoost > reserve {
+	if reserve := s.Reserves(); feedbackBoost > reserve {
 		return reserve
 	}
 	return feedbackBoost
@@ -351,17 +351,17 @@ func EpochToYear(epoch primitives.Epoch) int {
 	return year
 }
 
-// DecreaseCurrentReserve reduces the current reserve by the given amount.
+// DecreaseReserves reduces the reserve by the given amount.
 // If the reserve is less than the given amount, it sets the reserve to 0.
-func DecreaseCurrentReserve(state state.BeaconState, sub uint64) error {
-	currentReserve := state.CurrentEpochReserve()
-	if currentReserve < sub {
-		err := state.SetCurrentEpochReserve(0)
+func DecreaseReserves(state state.BeaconState, sub uint64) error {
+	Reserve := state.Reserves()
+	if Reserve < sub {
+		err := state.SetReserves(0)
 		if err != nil {
 			return err
 		}
 	} else {
-		err := state.SetCurrentEpochReserve(currentReserve - sub)
+		err := state.SetReserves(Reserve - sub)
 		if err != nil {
 			return err
 		}

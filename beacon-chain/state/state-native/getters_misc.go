@@ -92,20 +92,12 @@ func (b *BeaconState) RewardAdjustmentFactor() uint64 {
 	return b.rewardAdjustmentFactor
 }
 
-// PreviousEpochReserve of the beacon state as an uint64.
-func (b *BeaconState) PreviousEpochReserve() uint64 {
+// Reserves of the beacon state as an uint64.
+func (b *BeaconState) Reserves() uint64 {
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 
-	return b.previousEpochReserve
-}
-
-// CurrentEpochReserve of the beacon state as an uint64.
-func (b *BeaconState) CurrentEpochReserve() uint64 {
-	b.lock.RLock()
-	defer b.lock.RUnlock()
-
-	return b.currentEpochReserve
+	return b.reserves
 }
 
 // HistoricalSummaries of the beacon state.

@@ -184,12 +184,12 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	GenesisCountdownInterval:       time.Minute,
 	ConfigName:                     MainnetName,
 	PresetBase:                     "mainnet",
-	BeaconStateFieldCount:          23,
+	BeaconStateFieldCount:          22,
 	BeaconStateAltairFieldCount:    26,
 	BeaconStateBellatrixFieldCount: 27,
 	BeaconStateCapellaFieldCount:   30,
 	BeaconStateDenebFieldCount:     30,
-	BeaconStateElectraFieldCount:   36,
+	BeaconStateElectraFieldCount:   35,
 
 	// Slasher related values.
 	WeakSubjectivityPeriod:          54000,

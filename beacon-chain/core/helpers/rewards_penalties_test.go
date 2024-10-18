@@ -409,14 +409,14 @@ func TestProcessRewardfactorUpdate_OK(t *testing.T) {
 	for _, test := range tests {
 		base := buildState(params.BeaconConfig().SlotsPerEpoch.Mul(test.epoch), test.valCnt)
 		base.RewardAdjustmentFactor = test.rewardFactor
-		base.CurrentEpochReserve = test.currReserve
+		base.Reserves = test.currReserve
 		beaconState, err := state_native.InitializeFromProtoPhase0(base)
 		require.NoError(t, err)
 
 		err = helpers.ProcessRewardFactorUpdate(beaconState)
 		require.NoError(t, err)
 		assert.Equal(t, test.wantFactor, beaconState.RewardAdjustmentFactor(), test.name)
-		//assert.Equal(t, test.currReserve, beaconState.PreviousEpochReserve(), test.name)
+		assert.Equal(t, test.currReserve, beaconState.Reserves(), test.name)
 	}
 }
 
@@ -441,8 +441,7 @@ func TestTotalRewardWithReserveUsage_OK(t *testing.T) {
 	for _, test := range tests {
 		base := buildState(params.BeaconConfig().SlotsPerEpoch.Mul(test.epoch), 20000)
 		base.RewardAdjustmentFactor = test.factor
-		base.PreviousEpochReserve = test.reserve
-		base.CurrentEpochReserve = test.reserve
+		base.Reserves = test.reserve
 		beaconState, err := state_native.InitializeFromProtoPhase0(base)
 		require.NoError(t, err)
 
@@ -513,7 +512,7 @@ func TestTruncateRewardAdjustmentFactor_OK(t *testing.T) {
 	}
 }
 
-func TestDecreaseCurrentReserve_OK(t *testing.T) {
+func TestDecreaseReserves_OK(t *testing.T) {
 	tests := []struct {
 		r    uint64
 		sub  uint64
@@ -524,10 +523,10 @@ func TestDecreaseCurrentReserve_OK(t *testing.T) {
 	}
 	for _, test := range tests {
 		state, err := state_native.InitializeFromProtoPhase0(&ethpb.BeaconState{
-			CurrentEpochReserve: test.r,
+			Reserves: test.r,
 		})
 		require.NoError(t, err)
-		require.NoError(t, helpers.DecreaseCurrentReserve(state, test.sub))
-		assert.Equal(t, test.want, state.CurrentEpochReserve())
+		require.NoError(t, helpers.DecreaseReserves(state, test.sub))
+		assert.Equal(t, test.want, state.Reserves())
 	}
 }
