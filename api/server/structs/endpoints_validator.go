@@ -11,7 +11,7 @@ type AggregateAttestationResponse struct {
 }
 
 type SubmitAggregateAndProofsRequest struct {
-	Data []*SignedAggregateAttestationAndProof `json:"data"`
+	Data []json.RawMessage `json:"data"`
 }
 
 type SubmitBeaconCommitteeSubscriptionsRequest struct {
