@@ -2,7 +2,6 @@ package helpers
 
 import (
 	"errors"
-	"math/big"
 
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/cache"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/time"
@@ -251,26 +250,6 @@ func TargetDepositPlan(epoch primitives.Epoch) uint64 {
 	}
 }
 
-func ProcessRewardFactorUpdate(state state.BeaconState) error {
-	// update reward adjustment factor
-	calculatedFactor, err := CalculateRewardAdjustmentFactor(state)
-	if err != nil {
-		return err
-	}
-	err = state.SetRewardAdjustmentFactor(calculatedFactor)
-	if err != nil {
-		return err
-	}
-
-	// update previous epoch reserve
-	err = state.SetPreviousEpochReserve(state.CurrentEpochReserve())
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // TotalRewardWithReserveUsage returns the total reward and total reserve usage in the given epoch.
 // Reserve is always depleted in Over tokenomics.
 func TotalRewardWithReserveUsage(s state.ReadOnlyBeaconState) (uint64, uint64) {
@@ -284,7 +263,7 @@ func TotalRewardWithReserveUsage(s state.ReadOnlyBeaconState) (uint64, uint64) {
 func EpochFeedbackBoost(s state.ReadOnlyBeaconState) uint64 {
 	cfg := params.BeaconConfig()
 	rewardAdjustmentFactor := s.RewardAdjustmentFactor()
-	feedbackBoost := cfg.MaxTokenSupply / cfg.RewardFeedbackPrecision * rewardAdjustmentFactor / cfg.EpochsPerYear
+	feedbackBoost := cfg.MaxTokenSupply / cfg.RewardAdjustmentFactorPrecision * rewardAdjustmentFactor / cfg.EpochsPerYear
 
 	if reserve := s.PreviousEpochReserve(); feedbackBoost > reserve {
 		return reserve
@@ -292,56 +271,33 @@ func EpochFeedbackBoost(s state.ReadOnlyBeaconState) uint64 {
 	return feedbackBoost
 }
 
-// CalcutateRewardAdjustmentFactor returns the adjustment factor for the next epoch.
+// ProcessRewardFactorUpdate returns the adjustment factor for the next epoch.
 // This is pseudo code from the spec.
 //
 // Spec code:
 //
-//	def calc_feedback(
-//		deposit,
-//		target_deposit,
-//		pending_deposit,
-//		exit_deposit,
-//		target_change_rate,
-//		threshold
-//	):
-//		deposit_delta = pending_deposit - exit_deposit
+// def process_reward_adjustment_factor(state: BeaconState) -> None:
+// _, future_total_active_balance = get_balance_with_queue(state)
+// target_deposit = get_target_deposit(state)
 //
-//	 	future_deposit = deposit + deposit_delta
-//	 	error_rate = abs(future_deposit - target_deposit) / target_deposit
-//
-//	 	scale = max(min_change_rate, min(1.0, error_rate / threshold))
-//
-//	 	if future_deposit > target_deposit:
-//	     	return -target_change_rate * scale
-//	 	else:
-//	     	return target_change_rate * scale
-//
-//	def process_feedback(epoch, deposit, pending_deposit, exit_deposit):
-//
-//		target_deposit = TARGET_DEPOSIT_PLAN[epoch]
-//
-//		bias_delta = calc_feedback(
-//			deposit,
-//			target_deposit,
-//			pending_deposit,
-//			exit_deposit,
-//			threshold=FEEDBACK_THRESHOLD
-//			target_change_rate = TARGET_CHANGE_RATE
-//		)
-//
-//		return bias_delta
-//
-//	def process_validator_reward(epoch, parent, deposit, pending_deposit, exit_deposit):
-//
-//		prev_bias = parent.bias
-//
-//		bias_delta = process_feedback(epoch, deposit, pending_deposit, exit_deposit)
-//		bias = prev_bias + bias_delta
-//		bias = max(0, bias)
-//		bias = min(bias, MAX_BOOST_YIELD[epoch])
-//
-//		return bias
+// if future_total_active_balance > target_deposit:
+// decrease_reward_adjustment_factor(state, REWARD_ADJUSTMENT_FACTOR_DELTA)
+// elif future_total_active_balance < target_deposit:
+// increase_reward_adjustment_factor(state, REWARD_ADJUSTMENT_FACTOR_DELTA)
+func ProcessRewardFactorUpdate(state state.BeaconState) error {
+	// update reward adjustment factor
+	calculatedFactor, err := CalculateRewardAdjustmentFactor(state)
+	if err != nil {
+		return err
+	}
+	err = state.SetRewardAdjustmentFactor(calculatedFactor)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func CalculateRewardAdjustmentFactor(state state.ReadOnlyBeaconState) (uint64, error) {
 	cfg := params.BeaconConfig()
 	epoch := slots.ToEpoch(state.Slot())
@@ -351,22 +307,8 @@ func CalculateRewardAdjustmentFactor(state state.ReadOnlyBeaconState) (uint64, e
 	}
 	targetDeposit := TargetDepositPlan(time.NextEpoch(state))
 
-	// Using big integers for precise calculation
-	bigFutureDeposit := big.NewInt(int64(futureDeposit)) // lint:ignore uintcast -- changeRate will not exceed int64 because of total issuance.
-	bigTargetDeposit := big.NewInt(int64(targetDeposit)) // lint:ignore uintcast -- changeRate will not exceed int64 because of total issuance.
-	bigRewardPrecision := big.NewInt(int64(cfg.RewardFeedbackPrecision))
-
-	// Calculate the gap and error rate to make mitigating factor
-	gap := new(big.Int).Abs(new(big.Int).Sub(bigFutureDeposit, bigTargetDeposit))
-	numerator := new(big.Int).Mul(gap, bigRewardPrecision)
-	errRate := new(big.Int).Div(numerator, bigTargetDeposit)
-	mitigatingFactor := big.NewInt(int64(mathutil.Max(1000000, mathutil.Min(cfg.RewardFeedbackPrecision, errRate.Uint64()*cfg.RewardFeedbackThresholdReciprocal)))) // lint:ignore uintcast -- errRate will not exceed int64 because of truncation.
-
-	// Calculate the change rate
-	targetChangeRate := big.NewInt(int64(cfg.TargetChangeRate))
-	changeRate := new(big.Int).Div(new(big.Int).Mul(targetChangeRate, mitigatingFactor), bigRewardPrecision).Uint64() // lint:ignore uintcast -- changeRate will not exceed int64 because of value limit.
-
 	bias := state.RewardAdjustmentFactor()
+	changeRate := cfg.RewardAdjustmentFactorDelta
 	if futureDeposit >= targetDeposit {
 		if bias <= changeRate {
 			bias = 0
@@ -395,11 +337,11 @@ func TruncateRewardAdjustmentFactor(bias uint64, epoch primitives.Epoch) uint64 
 func MaxBoostYield(epoch primitives.Epoch) uint64 {
 	cfg := params.BeaconConfig()
 	year := EpochToYear(epoch)
-	if year >= len(cfg.MaxBoostYield) {
-		year = len(cfg.MaxBoostYield) - 1
+	if year >= len(cfg.MaxRewardAdjustmentFactors) {
+		year = len(cfg.MaxRewardAdjustmentFactors) - 1
 	}
 
-	return cfg.MaxBoostYield[year]
+	return cfg.MaxRewardAdjustmentFactors[year]
 }
 
 // EpochToYear converts an epoch to a year.
