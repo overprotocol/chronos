@@ -77,7 +77,7 @@ func ProcessEpoch(ctx context.Context, state state.BeaconState) error {
 		return errors.Wrap(err, "could not process registry updates")
 	}
 
-	err = helpers.ProcessRewardFactorUpdate(state)
+	err = helpers.ProcessRewardAdjustmentFactor(state)
 	if err != nil {
 		return errors.Wrap(err, "could not update reserve and reward factor")
 	}

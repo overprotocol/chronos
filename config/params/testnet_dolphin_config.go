@@ -33,7 +33,7 @@ func DolphinConfig() *BeaconChainConfig {
 	cfg.ElectraForkEpoch = math.MaxUint64
 	cfg.ElectraForkVersion = []byte{0x5, 0x00, 0x00, 0x28}
 	cfg.IssuanceRate = [11]uint64{20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 0}
-	cfg.MaxBoostYield = [11]uint64{0, 10000000000, 10000000000, 10000000000, 10000000000, 10000000000, 10000000000, 10000000000, 10000000000, 10000000000, 10000000000}
+	cfg.MaxRewardAdjustmentFactors = [11]uint64{1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000}
 	cfg.InitializeForkSchedule()
 	cfg.InitializeDolphinDepositPlan()
 	return cfg

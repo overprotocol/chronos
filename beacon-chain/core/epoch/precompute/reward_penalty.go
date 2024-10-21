@@ -60,7 +60,7 @@ func ProcessRewardsAndPenaltiesPrecompute(
 	if err := state.SetBalances(validatorBals); err != nil {
 		return nil, errors.Wrap(err, "could not set validator balances")
 	}
-	if err := helpers.DecreaseCurrentReserve(state, reserveUsage); err != nil {
+	if err := helpers.DecreaseReserves(state, reserveUsage); err != nil {
 		return nil, errors.Wrap(err, "could not set current epoch reserve")
 	}
 

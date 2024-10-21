@@ -40,8 +40,7 @@ var phase0Fields = []types.FieldIndex{
 	types.Eth1DepositIndex,
 	types.Validators,
 	types.Balances,
-	types.PreviousEpochReserve,
-	types.CurrentEpochReserve,
+	types.Reserves,
 	types.RandaoMixes,
 	types.PreviousEpochAttestations,
 	types.CurrentEpochAttestations,
@@ -66,8 +65,7 @@ var altairFields = []types.FieldIndex{
 	types.Eth1DepositIndex,
 	types.Validators,
 	types.Balances,
-	types.PreviousEpochReserve,
-	types.CurrentEpochReserve,
+	types.Reserves,
 	types.RandaoMixes,
 	types.PreviousEpochParticipationBits,
 	types.CurrentEpochParticipationBits,
@@ -181,8 +179,7 @@ func InitializeFromProtoUnsafePhase0(st *ethpb.BeaconState) (state.BeaconState, 
 		eth1Data:                    st.Eth1Data,
 		eth1DataVotes:               st.Eth1DataVotes,
 		eth1DepositIndex:            st.Eth1DepositIndex,
-		previousEpochReserve:        st.PreviousEpochReserve,
-		currentEpochReserve:         st.CurrentEpochReserve,
+		reserves:                    st.Reserves,
 		previousEpochAttestations:   st.PreviousEpochAttestations,
 		currentEpochAttestations:    st.CurrentEpochAttestations,
 		justificationBits:           st.JustificationBits,
@@ -286,8 +283,7 @@ func InitializeFromProtoUnsafeAltair(st *ethpb.BeaconStateAltair) (state.BeaconS
 		eth1Data:                    st.Eth1Data,
 		eth1DataVotes:               st.Eth1DataVotes,
 		eth1DepositIndex:            st.Eth1DepositIndex,
-		previousEpochReserve:        st.PreviousEpochReserve,
-		currentEpochReserve:         st.CurrentEpochReserve,
+		reserves:                    st.Reserves,
 		previousEpochParticipation:  st.PreviousEpochParticipation,
 		currentEpochParticipation:   st.CurrentEpochParticipation,
 		justificationBits:           st.JustificationBits,
@@ -396,8 +392,7 @@ func InitializeFromProtoUnsafeBellatrix(st *ethpb.BeaconStateBellatrix) (state.B
 		eth1Data:                     st.Eth1Data,
 		eth1DataVotes:                st.Eth1DataVotes,
 		eth1DepositIndex:             st.Eth1DepositIndex,
-		previousEpochReserve:         st.PreviousEpochReserve,
-		currentEpochReserve:          st.CurrentEpochReserve,
+		reserves:                     st.Reserves,
 		previousEpochParticipation:   st.PreviousEpochParticipation,
 		currentEpochParticipation:    st.CurrentEpochParticipation,
 		justificationBits:            st.JustificationBits,
@@ -508,8 +503,7 @@ func InitializeFromProtoUnsafeCapella(st *ethpb.BeaconStateCapella) (state.Beaco
 		eth1Data:                            st.Eth1Data,
 		eth1DataVotes:                       st.Eth1DataVotes,
 		eth1DepositIndex:                    st.Eth1DepositIndex,
-		previousEpochReserve:                st.PreviousEpochReserve,
-		currentEpochReserve:                 st.CurrentEpochReserve,
+		reserves:                            st.Reserves,
 		previousEpochParticipation:          st.PreviousEpochParticipation,
 		currentEpochParticipation:           st.CurrentEpochParticipation,
 		justificationBits:                   st.JustificationBits,
@@ -624,8 +618,7 @@ func InitializeFromProtoUnsafeDeneb(st *ethpb.BeaconStateDeneb) (state.BeaconSta
 		eth1Data:                          st.Eth1Data,
 		eth1DataVotes:                     st.Eth1DataVotes,
 		eth1DepositIndex:                  st.Eth1DepositIndex,
-		previousEpochReserve:              st.PreviousEpochReserve,
-		currentEpochReserve:               st.CurrentEpochReserve,
+		reserves:                          st.Reserves,
 		previousEpochParticipation:        st.PreviousEpochParticipation,
 		currentEpochParticipation:         st.CurrentEpochParticipation,
 		justificationBits:                 st.JustificationBits,
@@ -738,8 +731,7 @@ func InitializeFromProtoUnsafeElectra(st *ethpb.BeaconStateElectra) (state.Beaco
 		eth1Data:                          st.Eth1Data,
 		eth1DataVotes:                     st.Eth1DataVotes,
 		eth1DepositIndex:                  st.Eth1DepositIndex,
-		previousEpochReserve:              st.PreviousEpochReserve,
-		currentEpochReserve:               st.CurrentEpochReserve,
+		reserves:                          st.Reserves,
 		previousEpochParticipation:        st.PreviousEpochParticipation,
 		currentEpochParticipation:         st.CurrentEpochParticipation,
 		justificationBits:                 st.JustificationBits,
@@ -860,18 +852,17 @@ func (b *BeaconState) Copy() state.BeaconState {
 		version: b.version,
 
 		// Primitive types, safe to copy.
-		genesisTime:                  b.genesisTime,
-		slot:                         b.slot,
-		eth1DepositIndex:             b.eth1DepositIndex,
-		nextWithdrawalIndex:          b.nextWithdrawalIndex,
-		nextWithdrawalValidatorIndex: b.nextWithdrawalValidatorIndex,
-		rewardAdjustmentFactor:       b.rewardAdjustmentFactor,
-		previousEpochReserve:         b.previousEpochReserve,
-		currentEpochReserve:          b.currentEpochReserve,
-		depositRequestsStartIndex:    b.depositRequestsStartIndex,
-		depositBalanceToConsume:      b.depositBalanceToConsume,
-		exitBalanceToConsume:         b.exitBalanceToConsume,
-		earliestExitEpoch:            b.earliestExitEpoch,
+		genesisTime:                   b.genesisTime,
+		slot:                          b.slot,
+		eth1DepositIndex:              b.eth1DepositIndex,
+		nextWithdrawalIndex:           b.nextWithdrawalIndex,
+		nextWithdrawalValidatorIndex:  b.nextWithdrawalValidatorIndex,
+		rewardAdjustmentFactor:        b.rewardAdjustmentFactor,
+		reserves:                      b.reserves,
+		depositRequestsStartIndex:     b.depositRequestsStartIndex,
+		depositBalanceToConsume:       b.depositBalanceToConsume,
+		exitBalanceToConsume:          b.exitBalanceToConsume,
+		earliestExitEpoch:             b.earliestExitEpoch,
 
 		// Large arrays, infrequently changed, constant size.
 		blockRoots:                b.blockRoots,
@@ -1221,10 +1212,8 @@ func (b *BeaconState) rootSelector(ctx context.Context, field types.FieldIndex) 
 		return b.validatorsRootSelector(field)
 	case types.Balances:
 		return b.balancesRootSelector(field)
-	case types.PreviousEpochReserve:
-		return ssz.Uint64Root(b.previousEpochReserve), nil
-	case types.CurrentEpochReserve:
-		return ssz.Uint64Root(b.currentEpochReserve), nil
+	case types.Reserves:
+		return ssz.Uint64Root(b.reserves), nil
 	case types.RandaoMixes:
 		return b.randaoMixesRootSelector(field)
 	case types.PreviousEpochAttestations:

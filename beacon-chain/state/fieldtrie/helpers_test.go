@@ -162,7 +162,7 @@ func TestFieldTrie_NativeState_fieldConvertersNative(t *testing.T) {
 		{
 			name: "RandaoMixes customtypes.RandaoMixes",
 			args: &args{
-				field:      types.FieldIndex(16),
+				field:      types.FieldIndex(15),
 				indices:    []uint64{},
 				elements:   customtypes.RandaoMixes{},
 				convertAll: true,
@@ -173,7 +173,7 @@ func TestFieldTrie_NativeState_fieldConvertersNative(t *testing.T) {
 		{
 			name: "RandaoMixes type not found",
 			args: &args{
-				field:      types.FieldIndex(16),
+				field:      types.FieldIndex(15),
 				indices:    []uint64{},
 				elements:   123,
 				convertAll: true,

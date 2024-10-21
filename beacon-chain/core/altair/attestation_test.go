@@ -657,7 +657,7 @@ func TestEpochParticipation(t *testing.T) {
 func TestRewardProposer(t *testing.T) {
 	beaconState, _ := util.DeterministicGenesisStateAltair(t, params.BeaconConfig().MaxValidatorsPerCommittee)
 	require.NoError(t, beaconState.SetSlot(1))
-	err := beaconState.SetCurrentEpochReserve(1000000000000)
+	err := beaconState.SetReserves(1000000000000)
 	require.NoError(t, err)
 	tests := []struct {
 		rewardNumerator  uint64
@@ -671,7 +671,7 @@ func TestRewardProposer(t *testing.T) {
 		{rewardNumerator: 1000000000000, reserveNumerator: 1000000000000, want: 2604166666},
 	}
 	for _, test := range tests {
-		pr := beaconState.CurrentEpochReserve()
+		pr := beaconState.Reserves()
 		i, err := helpers.BeaconProposerIndex(context.Background(), beaconState)
 		require.NoError(t, err)
 		pb, err := beaconState.BalanceAtIndex(i)
@@ -680,7 +680,7 @@ func TestRewardProposer(t *testing.T) {
 		b, err := beaconState.BalanceAtIndex(i)
 		require.NoError(t, err)
 		require.Equal(t, test.want+pb, b)
-		r := beaconState.CurrentEpochReserve()
+		r := beaconState.Reserves()
 		require.Equal(t, test.want, pr-r)
 	}
 }

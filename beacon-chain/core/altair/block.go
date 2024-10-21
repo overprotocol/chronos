@@ -117,7 +117,7 @@ func processSyncAggregate(ctx context.Context, s state.BeaconState, sync *ethpb.
 		return nil, nil, 0, err
 	}
 
-	if err := helpers.DecreaseCurrentReserve(s, cumulatedReserveUsage); err != nil {
+	if err := helpers.DecreaseReserves(s, cumulatedReserveUsage); err != nil {
 		return nil, nil, 0, err
 	}
 

@@ -163,23 +163,13 @@ func (b *BeaconState) SetRewardAdjustmentFactor(val uint64) error {
 	return nil
 }
 
-// SetPreviousEpochReserve for the beacon state.
-func (b *BeaconState) SetPreviousEpochReserve(val uint64) error {
+// SetReserves for the beacon state.
+func (b *BeaconState) SetReserves(val uint64) error {
 	b.lock.Lock()
 	defer b.lock.Unlock()
 
-	b.previousEpochReserve = val
-	b.markFieldAsDirty(types.PreviousEpochReserve)
-	return nil
-}
-
-// SetCurrentEpochReserve for the beacon state.
-func (b *BeaconState) SetCurrentEpochReserve(val uint64) error {
-	b.lock.Lock()
-	defer b.lock.Unlock()
-
-	b.currentEpochReserve = val
-	b.markFieldAsDirty(types.CurrentEpochReserve)
+	b.reserves = val
+	b.markFieldAsDirty(types.Reserves)
 	return nil
 }
 

@@ -154,10 +154,9 @@ func OptimizedGenesisBeaconStateBellatrix(genesisTime uint64, preState state.Bea
 		},
 
 		// Validator registry fields.
-		Validators:           preState.Validators(),
-		Balances:             preState.Balances(),
-		PreviousEpochReserve: preState.PreviousEpochReserve(),
-		CurrentEpochReserve:  preState.CurrentEpochReserve(),
+		Validators: preState.Validators(),
+		Balances:   preState.Balances(),
+		Reserves:   preState.Reserves(),
 
 		// Randomness and committees.
 		RandaoMixes: randaoMixes,
@@ -252,10 +251,9 @@ func EmptyGenesisStateBellatrix() (state.BeaconState, error) {
 			Epoch:           0,
 		},
 		// Validator registry fields.
-		Validators:           []*ethpb.Validator{},
-		Balances:             []uint64{},
-		PreviousEpochReserve: 0,
-		CurrentEpochReserve:  0,
+		Validators: []*ethpb.Validator{},
+		Balances:   []uint64{},
+		Reserves:   0,
 
 		JustificationBits:      []byte{0},
 		HistoricalRoots:        [][]byte{},

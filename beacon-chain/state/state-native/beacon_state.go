@@ -37,8 +37,7 @@ type BeaconState struct {
 	validators                          []*ethpb.Validator
 	validatorsMultiValue                *MultiValueValidators
 	balances                            []uint64
-	previousEpochReserve                uint64
-	currentEpochReserve                 uint64
+	reserves                            uint64
 	balancesMultiValue                  *MultiValueBalances
 	randaoMixes                         customtypes.RandaoMixes
 	randaoMixesMultiValue               *MultiValueRandaoMixes
@@ -96,8 +95,7 @@ type beaconStateMarshalable struct {
 	Eth1DepositIndex                    uint64                                  `json:"eth_1_deposit_index" yaml:"eth_1_deposit_index"`
 	Validators                          []*ethpb.Validator                      `json:"validators" yaml:"validators"`
 	Balances                            []uint64                                `json:"balances" yaml:"balances"`
-	PreviousEpochReserve                uint64                                  `json:"previous_epoch_reserve" yaml:"previous_epoch_reserve"`
-	CurrentEpochReserve                 uint64                                  `json:"current_epoch_reserve" yaml:"current_epoch_reserve"`
+	Reserves                            uint64                                  `json:"reserves" yaml:"reserves"`
 	RandaoMixes                         customtypes.RandaoMixes                 `json:"randao_mixes" yaml:"randao_mixes"`
 	PreviousEpochAttestations           []*ethpb.PendingAttestation             `json:"previous_epoch_attestations" yaml:"previous_epoch_attestations"`
 	CurrentEpochAttestations            []*ethpb.PendingAttestation             `json:"current_epoch_attestations" yaml:"current_epoch_attestations"`
@@ -164,8 +162,7 @@ func (b *BeaconState) MarshalJSON() ([]byte, error) {
 		Eth1DepositIndex:                    b.eth1DepositIndex,
 		Validators:                          vals,
 		Balances:                            balances,
-		PreviousEpochReserve:                b.previousEpochReserve,
-		CurrentEpochReserve:                 b.currentEpochReserve,
+		Reserves:                            b.reserves,
 		RandaoMixes:                         mixes,
 		PreviousEpochAttestations:           b.previousEpochAttestations,
 		CurrentEpochAttestations:            b.currentEpochAttestations,

@@ -58,10 +58,8 @@ func (f FieldIndex) String() string {
 		return "validators"
 	case Balances:
 		return "balances"
-	case PreviousEpochReserve:
-		return "previousEpochReserve"
-	case CurrentEpochReserve:
-		return "currentEpochReserve"
+	case Reserves:
+		return "reserves"
 	case RandaoMixes:
 		return "randaoMixes"
 	case PreviousEpochAttestations:
@@ -147,50 +145,48 @@ func (f FieldIndex) RealPosition() int {
 		return 12
 	case Balances:
 		return 13
-	case PreviousEpochReserve:
+	case Reserves:
 		return 14
-	case CurrentEpochReserve:
-		return 15
 	case RandaoMixes:
-		return 16
+		return 15
 	case PreviousEpochAttestations, PreviousEpochParticipationBits:
-		return 17
+		return 16
 	case CurrentEpochAttestations, CurrentEpochParticipationBits:
-		return 18
+		return 17
 	case JustificationBits:
-		return 19
+		return 18
 	case PreviousJustifiedCheckpoint:
-		return 20
+		return 19
 	case CurrentJustifiedCheckpoint:
-		return 21
+		return 20
 	case FinalizedCheckpoint:
-		return 22
+		return 21
 	case InactivityScores:
-		return 23
+		return 22
 	case CurrentSyncCommittee:
-		return 24
+		return 23
 	case NextSyncCommittee:
-		return 25
+		return 24
 	case LatestExecutionPayloadHeader, LatestExecutionPayloadHeaderCapella, LatestExecutionPayloadHeaderDeneb:
-		return 26
+		return 25
 	case NextWithdrawalIndex:
-		return 27
+		return 26
 	case NextWithdrawalValidatorIndex:
-		return 28
+		return 27
 	case HistoricalSummaries:
-		return 29
+		return 28
 	case DepositRequestsStartIndex:
-		return 30
+		return 29
 	case DepositBalanceToConsume:
-		return 31
+		return 30
 	case ExitBalanceToConsume:
-		return 32
+		return 31
 	case EarliestExitEpoch:
-		return 33
+		return 32
 	case PendingDeposits:
-		return 34
+		return 33
 	case PendingPartialWithdrawals:
-		return 35
+		return 34
 	default:
 		return -1
 	}
@@ -228,8 +224,7 @@ const (
 	Eth1DepositIndex
 	Validators
 	Balances
-	PreviousEpochReserve
-	CurrentEpochReserve
+	Reserves
 	RandaoMixes
 	PreviousEpochAttestations
 	CurrentEpochAttestations

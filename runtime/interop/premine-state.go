@@ -169,10 +169,7 @@ func (s *PremineGenesisConfig) empty() (state.BeaconState, error) {
 	if err = e.SetRewardAdjustmentFactor(0); err != nil {
 		return nil, err
 	}
-	if err = e.SetPreviousEpochReserve(0); err != nil {
-		return nil, err
-	}
-	if err = e.SetCurrentEpochReserve(0); err != nil {
+	if err = e.SetReserves(0); err != nil {
 		return nil, err
 	}
 	if err = e.SetJustificationBits([]byte{0}); err != nil {
