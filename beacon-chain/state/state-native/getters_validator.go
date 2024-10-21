@@ -391,30 +391,6 @@ func (b *BeaconState) BalancesLength() int {
 	return len(b.balances)
 }
 
-// Slashings of validators on the beacon chain.
-func (b *BeaconState) Slashings() []uint64 {
-	if b.slashings == nil {
-		return nil
-	}
-
-	b.lock.RLock()
-	defer b.lock.RUnlock()
-
-	return b.slashingsVal()
-}
-
-// slashingsVal of validators on the beacon chain.
-// This assumes that a lock is already held on BeaconState.
-func (b *BeaconState) slashingsVal() []uint64 {
-	if b.slashings == nil {
-		return nil
-	}
-
-	res := make([]uint64, len(b.slashings))
-	copy(res, b.slashings)
-	return res
-}
-
 // InactivityScores of validators participating in consensus on the beacon chain.
 func (b *BeaconState) InactivityScores() ([]uint64, error) {
 	if b.version == version.Phase0 {

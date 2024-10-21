@@ -15,7 +15,6 @@ func TestProcessEpoch_CanProcess(t *testing.T) {
 	require.NoError(t, st.SetSlot(10*params.BeaconConfig().SlotsPerEpoch))
 	err := altair.ProcessEpoch(context.Background(), st)
 	require.NoError(t, err)
-	require.Equal(t, uint64(0), st.Slashings()[2], "Unexpected slashed balance")
 
 	b := st.Balances()
 	require.Equal(t, params.BeaconConfig().MaxValidatorsPerCommittee, uint64(len(b)))
@@ -47,7 +46,6 @@ func TestProcessEpoch_CanProcessBellatrix(t *testing.T) {
 	require.NoError(t, st.SetSlot(10*params.BeaconConfig().SlotsPerEpoch))
 	err := altair.ProcessEpoch(context.Background(), st)
 	require.NoError(t, err)
-	require.Equal(t, uint64(0), st.Slashings()[2], "Unexpected slashed balance")
 
 	b := st.Balances()
 	require.Equal(t, params.BeaconConfig().MaxValidatorsPerCommittee, uint64(len(b)))

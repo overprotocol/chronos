@@ -150,13 +150,6 @@ func ComputeFieldRootsWithHasher(ctx context.Context, state *BeaconState) ([][]b
 	}
 	fieldRoots[types.RandaoMixes.RealPosition()] = randaoRootsRoot[:]
 
-	// Slashings array root.
-	slashingsRootsRoot, err := ssz.SlashingsRoot(state.slashings)
-	if err != nil {
-		return nil, errors.Wrap(err, "could not compute slashings merkleization")
-	}
-	fieldRoots[types.Slashings.RealPosition()] = slashingsRootsRoot[:]
-
 	if state.version == version.Phase0 {
 		// PreviousEpochAttestations slice root.
 		prevAttsRoot, err := stateutil.EpochAttestationsRoot(state.previousEpochAttestations)

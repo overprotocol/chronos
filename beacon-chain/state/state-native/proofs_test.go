@@ -35,10 +35,10 @@ func TestBeaconStateMerkleProofs_altair(t *testing.T) {
 	require.NoError(t, err)
 	t.Run("current sync committee", func(t *testing.T) {
 		results := []string{
-			"0xacff3e632bf8ff27b783ac48086a544d1e920512add91817790d355e09846cd0",
-			"0xa7953f8b3bcd6511774787b2f5c5173cab1f431b5672dc9d926b84d48276d6db",
+			"0x173669ae8794c057def63b20372114a628abb029354a2ef50d7a1aaa9a3dab4a",
+			"0xf5a5fd42d16a20302798ef6ed309979b43003d2320d9f0e8ea9831a92759fb4b",
 			"0xdb56114e00fdd4c1f85c892bf35ac9a89289aaecb1ebd0a96cde606a748b5d71",
-			"0xd96747cbf167ae33a66b7c32dd372eaba88f4b0d0669f319f06a1f1b193be155",
+			"0x444b03442d619994d80397aac4f24d2a8b8e873dc9978555c0afbe4fd844a540",
 			"0x6e84be54558f6577ea6770acf4062accf291b086abdd724025eb92b99095e266",
 		}
 		cscp, err := altair.CurrentSyncCommitteeProof(ctx)
@@ -50,10 +50,10 @@ func TestBeaconStateMerkleProofs_altair(t *testing.T) {
 	})
 	t.Run("next sync committee", func(t *testing.T) {
 		n_results := []string{
-			"0x0000000000000000000000000000000000000000000000000000000000000000",
-			"0x1b1897375f88a804a22d60a8855ef68068011015741b2bd91238e7c93fbc9ad9",
+			"0x173669ae8794c057def63b20372114a628abb029354a2ef50d7a1aaa9a3dab4a",
+			"0xf5a5fd42d16a20302798ef6ed309979b43003d2320d9f0e8ea9831a92759fb4b",
 			"0xdb56114e00fdd4c1f85c892bf35ac9a89289aaecb1ebd0a96cde606a748b5d71",
-			"0xd96747cbf167ae33a66b7c32dd372eaba88f4b0d0669f319f06a1f1b193be155",
+			"0x444b03442d619994d80397aac4f24d2a8b8e873dc9978555c0afbe4fd844a540",
 			"0x6e84be54558f6577ea6770acf4062accf291b086abdd724025eb92b99095e266",
 		}
 		nscp, err := altair.NextSyncCommitteeProof(ctx)
@@ -111,10 +111,10 @@ func TestBeaconStateMerkleProofs_bellatrix(t *testing.T) {
 	require.NoError(t, err)
 	t.Run("current sync committee", func(t *testing.T) {
 		results := []string{
-			"0xacff3e632bf8ff27b783ac48086a544d1e920512add91817790d355e09846cd0",
-			"0xd7e4f0a0152ab9f03431f9976b7d1634af038541a61e863c1f0c58c50361587b",
+			"0x173669ae8794c057def63b20372114a628abb029354a2ef50d7a1aaa9a3dab4a",
+			"0xb68b2f519878bcdc8fce2bba633a841e89e757c901224e731ec16a2397fdca74",
 			"0xdb56114e00fdd4c1f85c892bf35ac9a89289aaecb1ebd0a96cde606a748b5d71",
-			"0xd96747cbf167ae33a66b7c32dd372eaba88f4b0d0669f319f06a1f1b193be155",
+			"0x444b03442d619994d80397aac4f24d2a8b8e873dc9978555c0afbe4fd844a540",
 			"0x6e84be54558f6577ea6770acf4062accf291b086abdd724025eb92b99095e266",
 		}
 		cscp, err := bellatrix.CurrentSyncCommitteeProof(ctx)
@@ -126,10 +126,10 @@ func TestBeaconStateMerkleProofs_bellatrix(t *testing.T) {
 	})
 	t.Run("next sync committee", func(t *testing.T) {
 		n_results := []string{
-			"0x22216a4a17e55cc41ce454600e5deb8aad32f15580a938b1914f93a9652c0e2c",
-			"0x1b1897375f88a804a22d60a8855ef68068011015741b2bd91238e7c93fbc9ad9",
+			"0x173669ae8794c057def63b20372114a628abb029354a2ef50d7a1aaa9a3dab4a",
+			"0xb68b2f519878bcdc8fce2bba633a841e89e757c901224e731ec16a2397fdca74",
 			"0xdb56114e00fdd4c1f85c892bf35ac9a89289aaecb1ebd0a96cde606a748b5d71",
-			"0xd96747cbf167ae33a66b7c32dd372eaba88f4b0d0669f319f06a1f1b193be155",
+			"0x444b03442d619994d80397aac4f24d2a8b8e873dc9978555c0afbe4fd844a540",
 			"0x6e84be54558f6577ea6770acf4062accf291b086abdd724025eb92b99095e266",
 		}
 		nscp, err := bellatrix.NextSyncCommitteeProof(ctx)

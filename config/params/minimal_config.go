@@ -20,6 +20,7 @@ func MinimalSpecConfig() *BeaconChainConfig {
 	minimalConfig.MinGenesisTime = 1578009600
 	minimalConfig.GenesisDelay = 300 // 5 minutes
 	minimalConfig.TargetAggregatorsPerCommittee = 16
+	minimalConfig.MinSlashingWithdrawableDelay = 64
 
 	// Gwei values
 	minimalConfig.MinDepositAmount = 1e9
@@ -49,7 +50,6 @@ func MinimalSpecConfig() *BeaconChainConfig {
 
 	// State vector lengths
 	minimalConfig.EpochsPerHistoricalVector = 64
-	minimalConfig.EpochsPerSlashingsVector = 64
 	minimalConfig.HistoricalRootsLimit = 16777216
 	minimalConfig.ValidatorRegistryLimit = 1099511627776
 
@@ -59,7 +59,6 @@ func MinimalSpecConfig() *BeaconChainConfig {
 	minimalConfig.ProposerRewardQuotient = 8
 	minimalConfig.InactivityPenaltyQuotient = 33554432
 	minimalConfig.MinSlashingPenaltyQuotient = 64
-	minimalConfig.ProportionalSlashingMultiplier = 2
 
 	// Max operations per block
 	minimalConfig.MaxProposerSlashings = 16

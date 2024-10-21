@@ -68,7 +68,6 @@ func UpgradeToCapella(state state.BeaconState) (state.BeaconState, error) {
 		PreviousEpochReserve:        state.PreviousEpochReserve(),
 		CurrentEpochReserve:         state.CurrentEpochReserve(),
 		RandaoMixes:                 state.RandaoMixes(),
-		Slashings:                   state.Slashings(),
 		PreviousEpochParticipation:  prevEpochParticipation,
 		CurrentEpochParticipation:   currentEpochParticipation,
 		JustificationBits:           state.JustificationBits(),

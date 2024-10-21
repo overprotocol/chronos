@@ -42,7 +42,6 @@ type BeaconState struct {
 	balancesMultiValue                  *MultiValueBalances
 	randaoMixes                         customtypes.RandaoMixes
 	randaoMixesMultiValue               *MultiValueRandaoMixes
-	slashings                           []uint64
 	previousEpochAttestations           []*ethpb.PendingAttestation
 	currentEpochAttestations            []*ethpb.PendingAttestation
 	previousEpochParticipation          []byte
@@ -100,7 +99,6 @@ type beaconStateMarshalable struct {
 	PreviousEpochReserve                uint64                                  `json:"previous_epoch_reserve" yaml:"previous_epoch_reserve"`
 	CurrentEpochReserve                 uint64                                  `json:"current_epoch_reserve" yaml:"current_epoch_reserve"`
 	RandaoMixes                         customtypes.RandaoMixes                 `json:"randao_mixes" yaml:"randao_mixes"`
-	Slashings                           []uint64                                `json:"slashings" yaml:"slashings"`
 	PreviousEpochAttestations           []*ethpb.PendingAttestation             `json:"previous_epoch_attestations" yaml:"previous_epoch_attestations"`
 	CurrentEpochAttestations            []*ethpb.PendingAttestation             `json:"current_epoch_attestations" yaml:"current_epoch_attestations"`
 	PreviousEpochParticipation          []byte                                  `json:"previous_epoch_participation" yaml:"previous_epoch_participation"`
@@ -169,7 +167,6 @@ func (b *BeaconState) MarshalJSON() ([]byte, error) {
 		PreviousEpochReserve:                b.previousEpochReserve,
 		CurrentEpochReserve:                 b.currentEpochReserve,
 		RandaoMixes:                         mixes,
-		Slashings:                           b.slashings,
 		PreviousEpochAttestations:           b.previousEpochAttestations,
 		CurrentEpochAttestations:            b.currentEpochAttestations,
 		PreviousEpochParticipation:          b.previousEpochParticipation,

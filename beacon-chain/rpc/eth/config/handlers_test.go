@@ -93,7 +93,7 @@ func TestGetSpec(t *testing.T) {
 	config.ShardCommitteePeriod = 33
 	config.MinEpochsToInactivityPenalty = 34
 	config.EpochsPerHistoricalVector = 35
-	config.EpochsPerSlashingsVector = 36
+	config.MinSlashingWithdrawableDelay = 36
 	config.HistoricalRootsLimit = 37
 	config.ValidatorRegistryLimit = 38
 	config.BaseRewardFactor = 39
@@ -101,7 +101,6 @@ func TestGetSpec(t *testing.T) {
 	config.ProposerRewardQuotient = 41
 	config.InactivityPenaltyQuotient = 42
 	config.MinSlashingPenaltyQuotient = 44
-	config.ProportionalSlashingMultiplier = 46
 	config.MaxProposerSlashings = 48
 	config.MaxAttesterSlashings = 49
 	config.MaxAttestations = 50
@@ -122,7 +121,6 @@ func TestGetSpec(t *testing.T) {
 	config.EpochsPerSyncCommitteePeriod = 66
 	config.InactivityPenaltyQuotientAltair = 67
 	config.MinSlashingPenaltyQuotientAltair = 68
-	config.ProportionalSlashingMultiplierAltair = 69
 	config.InactivityScoreRecoveryRate = 70
 	config.MinSyncCommitteeParticipants = 71
 	config.TerminalBlockHash = common.HexToHash("TerminalBlockHash")
@@ -205,7 +203,7 @@ func TestGetSpec(t *testing.T) {
 	data, ok := resp.Data.(map[string]interface{})
 	require.Equal(t, true, ok)
 
-	assert.Equal(t, 170, len(data))
+	assert.Equal(t, 167, len(data))
 	for k, v := range data {
 		t.Run(k, func(t *testing.T) {
 			switch k {
@@ -313,7 +311,7 @@ func TestGetSpec(t *testing.T) {
 				assert.Equal(t, "34", v)
 			case "EPOCHS_PER_HISTORICAL_VECTOR":
 				assert.Equal(t, "35", v)
-			case "EPOCHS_PER_SLASHINGS_VECTOR":
+			case "MIN_SLASHING_WITHDRAWABLE_DELAY":
 				assert.Equal(t, "36", v)
 			case "HISTORICAL_ROOTS_LIMIT":
 				assert.Equal(t, "37", v)
@@ -333,8 +331,6 @@ func TestGetSpec(t *testing.T) {
 				assert.Equal(t, "44", v)
 			case "HF1_MIN_SLASHING_PENALTY_QUOTIENT":
 				assert.Equal(t, "45", v)
-			case "PROPORTIONAL_SLASHING_MULTIPLIER":
-				assert.Equal(t, "46", v)
 			case "HF1_PROPORTIONAL_SLASHING_MULTIPLIER":
 				assert.Equal(t, "47", v)
 			case "MAX_PROPOSER_SLASHINGS":
@@ -381,8 +377,6 @@ func TestGetSpec(t *testing.T) {
 				assert.Equal(t, "67", v)
 			case "MIN_SLASHING_PENALTY_QUOTIENT_ALTAIR":
 				assert.Equal(t, "68", v)
-			case "PROPORTIONAL_SLASHING_MULTIPLIER_ALTAIR":
-				assert.Equal(t, "69", v)
 			case "INACTIVITY_SCORE_RECOVERY_RATE":
 				assert.Equal(t, "70", v)
 			case "MIN_SYNC_COMMITTEE_PARTICIPANTS":
@@ -429,8 +423,6 @@ func TestGetSpec(t *testing.T) {
 				assert.Equal(t, "73", v)
 			case "DefaultFeeRecipient":
 				assert.Equal(t, common.HexToAddress("DefaultFeeRecipient"), v)
-			case "PROPORTIONAL_SLASHING_MULTIPLIER_BELLATRIX":
-				assert.Equal(t, "3", v)
 			case "MIN_SLASHING_PENALTY_QUOTIENT_BELLATRIX":
 				assert.Equal(t, "32", v)
 			case "INACTIVITY_PENALTY_QUOTIENT_BELLATRIX":

@@ -120,6 +120,7 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	// Validator params.
 	RandomSubnetsPerValidator:         1 << 0,
 	EpochsPerRandomSubnetSubscription: 1 << 8,
+	MinSlashingWithdrawableDelay:      8192,
 
 	// While eth1 mainnet block times are closer to 13s, we must conform with other clients in
 	// order to vote on the correct eth1 blocks.
@@ -131,17 +132,15 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 
 	// State list length constants.
 	EpochsPerHistoricalVector: 65536,
-	EpochsPerSlashingsVector:  8192,
 	HistoricalRootsLimit:      16777216,
 	ValidatorRegistryLimit:    1099511627776,
 
 	// Reward and penalty quotients constants.
-	BaseRewardFactor:               64,
-	WhistleBlowerRewardQuotient:    512,
-	ProposerRewardQuotient:         8,
-	InactivityPenaltyQuotient:      67108864,
-	MinSlashingPenaltyQuotient:     128,
-	ProportionalSlashingMultiplier: 1,
+	BaseRewardFactor:            64,
+	WhistleBlowerRewardQuotient: 512,
+	ProposerRewardQuotient:      8,
+	InactivityPenaltyQuotient:   67108864,
+	MinSlashingPenaltyQuotient:  128,
 
 	// Max operations per block constants.
 	MaxProposerSlashings:             16,
@@ -171,7 +170,7 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	DomainBLSToExecutionChange:        bytesutil.Uint32ToBytes4(0x0A000000),
 
 	// Prysm constants.
-	GenesisValidatorsRoot:          [32]byte{154, 88, 112, 11, 10, 202, 22, 117, 115, 223, 51, 208, 134, 148, 59, 15, 188, 63, 208, 114, 173, 178, 172, 38, 223, 166, 31, 224, 147, 73, 147, 245},
+	GenesisValidatorsRoot:          [32]byte{118, 108, 170, 30, 97, 71, 222, 85, 164, 205, 177, 224, 150, 138, 131, 9, 155, 19, 122, 134, 198, 109, 194, 232, 131, 10, 92, 39, 12, 13, 79, 216},
 	GweiPerEth:                     1000000000,
 	BLSSecretKeyLength:             32,
 	BLSPubkeyLength:                48,
@@ -186,12 +185,12 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	GenesisCountdownInterval:       time.Minute,
 	ConfigName:                     MainnetName,
 	PresetBase:                     "mainnet",
-	BeaconStateFieldCount:          24,
-	BeaconStateAltairFieldCount:    27,
-	BeaconStateBellatrixFieldCount: 28,
-	BeaconStateCapellaFieldCount:   31,
-	BeaconStateDenebFieldCount:     31,
-	BeaconStateElectraFieldCount:   37,
+	BeaconStateFieldCount:          23,
+	BeaconStateAltairFieldCount:    26,
+	BeaconStateBellatrixFieldCount: 27,
+	BeaconStateCapellaFieldCount:   30,
+	BeaconStateDenebFieldCount:     30,
+	BeaconStateElectraFieldCount:   36,
 
 	// Slasher related values.
 	WeakSubjectivityPeriod:          54000,
@@ -241,12 +240,10 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	EpochsPerSyncCommitteePeriod: 256,
 
 	// Updated penalty values.
-	InactivityPenaltyQuotientAltair:         3 * 1 << 24, // 50331648
-	MinSlashingPenaltyQuotientAltair:        64,
-	ProportionalSlashingMultiplierAltair:    2,
-	MinSlashingPenaltyQuotientBellatrix:     32,
-	ProportionalSlashingMultiplierBellatrix: 3,
-	InactivityPenaltyQuotientBellatrix:      1 << 24,
+	InactivityPenaltyQuotientAltair:     3 * 1 << 24, // 50331648
+	MinSlashingPenaltyQuotientAltair:    64,
+	MinSlashingPenaltyQuotientBellatrix: 32,
+	InactivityPenaltyQuotientBellatrix:  1 << 24,
 
 	// Light client
 	MinSyncCommitteeParticipants: 1,

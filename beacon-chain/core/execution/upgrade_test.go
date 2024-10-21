@@ -38,7 +38,6 @@ func TestUpgradeToBellatrix(t *testing.T) {
 	require.Equal(t, preForkState.PreviousEpochReserve(), mSt.PreviousEpochReserve())
 	require.Equal(t, preForkState.CurrentEpochReserve(), mSt.CurrentEpochReserve())
 	require.DeepSSZEqual(t, preForkState.RandaoMixes(), mSt.RandaoMixes())
-	require.DeepSSZEqual(t, preForkState.Slashings(), mSt.Slashings())
 	require.DeepSSZEqual(t, preForkState.JustificationBits(), mSt.JustificationBits())
 	require.DeepSSZEqual(t, preForkState.PreviousJustifiedCheckpoint(), mSt.PreviousJustifiedCheckpoint())
 	require.DeepSSZEqual(t, preForkState.CurrentJustifiedCheckpoint(), mSt.CurrentJustifiedCheckpoint())

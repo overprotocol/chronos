@@ -64,8 +64,6 @@ func (f FieldIndex) String() string {
 		return "currentEpochReserve"
 	case RandaoMixes:
 		return "randaoMixes"
-	case Slashings:
-		return "slashings"
 	case PreviousEpochAttestations:
 		return "previousEpochAttestations"
 	case CurrentEpochAttestations:
@@ -155,46 +153,44 @@ func (f FieldIndex) RealPosition() int {
 		return 15
 	case RandaoMixes:
 		return 16
-	case Slashings:
-		return 17
 	case PreviousEpochAttestations, PreviousEpochParticipationBits:
-		return 18
+		return 17
 	case CurrentEpochAttestations, CurrentEpochParticipationBits:
-		return 19
+		return 18
 	case JustificationBits:
-		return 20
+		return 19
 	case PreviousJustifiedCheckpoint:
-		return 21
+		return 20
 	case CurrentJustifiedCheckpoint:
-		return 22
+		return 21
 	case FinalizedCheckpoint:
-		return 23
+		return 22
 	case InactivityScores:
-		return 24
+		return 23
 	case CurrentSyncCommittee:
-		return 25
+		return 24
 	case NextSyncCommittee:
-		return 26
+		return 25
 	case LatestExecutionPayloadHeader, LatestExecutionPayloadHeaderCapella, LatestExecutionPayloadHeaderDeneb:
-		return 27
+		return 26
 	case NextWithdrawalIndex:
-		return 28
+		return 27
 	case NextWithdrawalValidatorIndex:
-		return 29
+		return 28
 	case HistoricalSummaries:
-		return 30
+		return 29
 	case DepositRequestsStartIndex:
-		return 31
+		return 30
 	case DepositBalanceToConsume:
-		return 32
+		return 31
 	case ExitBalanceToConsume:
-		return 33
+		return 32
 	case EarliestExitEpoch:
-		return 34
+		return 33
 	case PendingDeposits:
-		return 35
+		return 34
 	case PendingPartialWithdrawals:
-		return 36
+		return 35
 	default:
 		return -1
 	}
@@ -235,7 +231,6 @@ const (
 	PreviousEpochReserve
 	CurrentEpochReserve
 	RandaoMixes
-	Slashings
 	PreviousEpochAttestations
 	CurrentEpochAttestations
 	PreviousEpochParticipationBits

@@ -18,7 +18,6 @@ type BeaconState struct {
 	PreviousEpochReserve        uint64                `json:"previous_epoch_reserve"`
 	CurrentEpochReserve         uint64                `json:"current_epoch_reserve"`
 	RandaoMixes                 []string              `json:"randao_mixes"`
-	Slashings                   []string              `json:"slashings"`
 	PreviousEpochAttestations   []*PendingAttestation `json:"previous_epoch_attestations"`
 	CurrentEpochAttestations    []*PendingAttestation `json:"current_epoch_attestations"`
 	JustificationBits           string                `json:"justification_bits"`
@@ -45,7 +44,6 @@ type BeaconStateAltair struct {
 	PreviousEpochReserve        uint64             `json:"previous_epoch_reserve"`
 	CurrentEpochReserve         uint64             `json:"current_epoch_reserve"`
 	RandaoMixes                 []string           `json:"randao_mixes"`
-	Slashings                   []string           `json:"slashings"`
 	PreviousEpochParticipation  []string           `json:"previous_epoch_participation"`
 	CurrentEpochParticipation   []string           `json:"current_epoch_participation"`
 	JustificationBits           string             `json:"justification_bits"`
@@ -75,7 +73,6 @@ type BeaconStateBellatrix struct {
 	PreviousEpochReserve         uint64                  `json:"previous_epoch_reserve"`
 	CurrentEpochReserve          uint64                  `json:"current_epoch_reserve"`
 	RandaoMixes                  []string                `json:"randao_mixes"`
-	Slashings                    []string                `json:"slashings"`
 	PreviousEpochParticipation   []string                `json:"previous_epoch_participation"`
 	CurrentEpochParticipation    []string                `json:"current_epoch_participation"`
 	JustificationBits            string                  `json:"justification_bits"`
@@ -106,7 +103,6 @@ type BeaconStateCapella struct {
 	PreviousEpochReserve         uint64                         `json:"previous_epoch_reserve"`
 	CurrentEpochReserve          uint64                         `json:"current_epoch_reserve"`
 	RandaoMixes                  []string                       `json:"randao_mixes"`
-	Slashings                    []string                       `json:"slashings"`
 	PreviousEpochParticipation   []string                       `json:"previous_epoch_participation"`
 	CurrentEpochParticipation    []string                       `json:"current_epoch_participation"`
 	JustificationBits            string                         `json:"justification_bits"`
@@ -140,7 +136,6 @@ type BeaconStateDeneb struct {
 	PreviousEpochReserve         uint64                       `json:"previous_epoch_reserve"`
 	CurrentEpochReserve          uint64                       `json:"current_epoch_reserve"`
 	RandaoMixes                  []string                     `json:"randao_mixes"`
-	Slashings                    []string                     `json:"slashings"`
 	PreviousEpochParticipation   []string                     `json:"previous_epoch_participation"`
 	CurrentEpochParticipation    []string                     `json:"current_epoch_participation"`
 	JustificationBits            string                       `json:"justification_bits"`
@@ -174,7 +169,6 @@ type BeaconStateElectra struct {
 	PreviousEpochReserve         uint64                         `json:"previous_epoch_reserve"`
 	CurrentEpochReserve          uint64                         `json:"current_epoch_reserve"`
 	RandaoMixes                  []string                       `json:"randao_mixes"`
-	Slashings                    []string                       `json:"slashings"`
 	PreviousEpochParticipation   []string                       `json:"previous_epoch_participation"`
 	CurrentEpochParticipation    []string                       `json:"current_epoch_participation"`
 	JustificationBits            string                         `json:"justification_bits"`

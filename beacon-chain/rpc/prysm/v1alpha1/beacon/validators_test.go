@@ -1254,7 +1254,7 @@ func TestServer_GetValidatorActiveSetChanges(t *testing.T) {
 			activationEpoch = 0
 		} else if i%3 == 0 {
 			// Mark indices divisible by 3 as slashed.
-			withdrawableEpoch = params.BeaconConfig().EpochsPerSlashingsVector
+			withdrawableEpoch = params.BeaconConfig().MinSlashingWithdrawableDelay
 			slashed = true
 		} else if i%5 == 0 {
 			// Mark indices divisible by 5 as exited.

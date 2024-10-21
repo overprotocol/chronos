@@ -140,8 +140,7 @@ func InitiateValidatorExit(ctx context.Context, s state.BeaconState, idx primiti
 //	  initiate_validator_exit(state, slashed_index)
 //	  validator = state.validators[slashed_index]
 //	  validator.slashed = True
-//	  validator.withdrawable_epoch = max(validator.withdrawable_epoch, Epoch(epoch + EPOCHS_PER_SLASHINGS_VECTOR))
-//	  state.slashings[epoch % EPOCHS_PER_SLASHINGS_VECTOR] += validator.effective_balance
+//	  validator.withdrawable_epoch = max(validator.withdrawable_epoch, Epoch(epoch + MIN_SLASHING_WITHDRAWABLE_DELAY))
 //	  slashing_penalty = validator.effective_balance // MIN_SLASHING_PENALTY_QUOTIENT_EIP7251  # [Modified in EIP7251]
 //	  decrease_balance(state, slashed_index, slashing_penalty)
 //
@@ -169,20 +168,10 @@ func SlashValidator(
 		return nil, err
 	}
 	validator.Slashed = true
-	maxWithdrawableEpoch := primitives.MaxEpoch(validator.WithdrawableEpoch, currentEpoch+params.BeaconConfig().EpochsPerSlashingsVector)
+	maxWithdrawableEpoch := primitives.MaxEpoch(validator.WithdrawableEpoch, currentEpoch+params.BeaconConfig().MinSlashingWithdrawableDelay)
 	validator.WithdrawableEpoch = maxWithdrawableEpoch
 
 	if err := s.UpdateValidatorAtIndex(slashedIdx, validator); err != nil {
-		return nil, err
-	}
-
-	// The slashing amount is represented by epochs per slashing vector. The validator's effective balance is then applied to that amount.
-	slashings := s.Slashings()
-	currentSlashing := slashings[currentEpoch%params.BeaconConfig().EpochsPerSlashingsVector]
-	if err := s.UpdateSlashingsAtIndex(
-		uint64(currentEpoch%params.BeaconConfig().EpochsPerSlashingsVector),
-		currentSlashing+validator.EffectiveBalance,
-	); err != nil {
 		return nil, err
 	}
 
@@ -238,7 +227,7 @@ func SlashedValidatorIndices(epoch primitives.Epoch, validators []*ethpb.Validat
 	slashed := make([]primitives.ValidatorIndex, 0)
 	for i := 0; i < len(validators); i++ {
 		val := validators[i]
-		maxWithdrawableEpoch := primitives.MaxEpoch(val.WithdrawableEpoch, epoch+params.BeaconConfig().EpochsPerSlashingsVector)
+		maxWithdrawableEpoch := primitives.MaxEpoch(val.WithdrawableEpoch, epoch+params.BeaconConfig().MinSlashingWithdrawableDelay)
 		if val.WithdrawableEpoch == maxWithdrawableEpoch && val.Slashed {
 			slashed = append(slashed, primitives.ValidatorIndex(i))
 		}
