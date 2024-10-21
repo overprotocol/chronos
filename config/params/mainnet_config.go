@@ -185,10 +185,10 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	ConfigName:                     MainnetName,
 	PresetBase:                     "mainnet",
 	BeaconStateFieldCount:          22,
-	BeaconStateAltairFieldCount:    26,
-	BeaconStateBellatrixFieldCount: 27,
-	BeaconStateCapellaFieldCount:   30,
-	BeaconStateDenebFieldCount:     30,
+	BeaconStateAltairFieldCount:    25,
+	BeaconStateBellatrixFieldCount: 26,
+	BeaconStateCapellaFieldCount:   29,
+	BeaconStateDenebFieldCount:     29,
 	BeaconStateElectraFieldCount:   35,
 
 	// Slasher related values.
