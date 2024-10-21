@@ -379,15 +379,10 @@ func CopyExecutionRequests(e *enginev1.ExecutionRequests) *enginev1.ExecutionReq
 	for i, w := range e.Withdrawals {
 		wr[i] = w.Copy()
 	}
-	cr := make([]*enginev1.ConsolidationRequest, len(e.Consolidations))
-	for i, c := range e.Consolidations {
-		cr[i] = c.Copy()
-	}
 
 	return &enginev1.ExecutionRequests{
-		Deposits:       dr,
-		Withdrawals:    wr,
-		Consolidations: cr,
+		Deposits:    dr,
+		Withdrawals: wr,
 	}
 }
 

@@ -153,18 +153,9 @@ func GenerateFullBlockElectra(
 		}
 	}
 
-	consolidationRequests := make([]*v1.ConsolidationRequest, 0)
-	if conf.NumConsolidationRequests > 0 {
-		consolidationRequests, err = generateConsolidationRequests(bState, privs, conf.NumConsolidationRequests)
-		if err != nil {
-			return nil, errors.Wrapf(err, "failed generating %d consolidation requests:", conf.NumConsolidationRequests)
-		}
-	}
-
 	executionRequests := &v1.ExecutionRequests{
-		Withdrawals:    withdrawalRequests,
-		Deposits:       depositRequests,
-		Consolidations: consolidationRequests,
+		Withdrawals: withdrawalRequests,
+		Deposits:    depositRequests,
 	}
 
 	parentExecution, err := stCopy.LatestExecutionPayloadHeader()
@@ -354,41 +345,4 @@ func generateDepositRequests(
 		}
 	}
 	return depositRequests, nil
-}
-
-func generateConsolidationRequests(
-	bState state.BeaconState,
-	privs []bls.SecretKey,
-	numRequests uint64,
-) ([]*v1.ConsolidationRequest, error) {
-	consolidationRequests := make([]*v1.ConsolidationRequest, numRequests)
-	for i := uint64(0); i < numRequests; i++ {
-		valIndex, err := randValIndex(bState)
-		if err != nil {
-			return nil, err
-		}
-		valIndex2, err := randValIndex(bState)
-		if err != nil {
-			return nil, err
-		}
-		source, err := randomAddress()
-		if err != nil {
-			return nil, err
-		}
-		consolidationRequests[i] = &v1.ConsolidationRequest{
-			TargetPubkey:  privs[valIndex2].PublicKey().Marshal(),
-			SourceAddress: source.Bytes(),
-			SourcePubkey:  privs[valIndex].PublicKey().Marshal(),
-		}
-	}
-	return consolidationRequests, nil
-}
-
-func randomAddress() (common.Address, error) {
-	b := make([]byte, 20)
-	_, err := rand.Read(b)
-	if err != nil {
-		return common.Address{}, err
-	}
-	return common.BytesToAddress(b), nil
 }

@@ -307,11 +307,10 @@ type GetPayloadV4ResponseJson struct {
 
 // ExecutionPayloadBody represents the engine API ExecutionPayloadV1 or ExecutionPayloadV2 type.
 type ExecutionPayloadBody struct {
-	Transactions          []hexutil.Bytes          `json:"transactions"`
-	Withdrawals           []*Withdrawal            `json:"withdrawals"`
-	WithdrawalRequests    []WithdrawalRequestV1    `json:"withdrawalRequests"`
-	DepositRequests       []DepositRequestV1       `json:"depositRequests"`
-	ConsolidationRequests []ConsolidationRequestV1 `json:"consolidationRequests"`
+	Transactions       []hexutil.Bytes       `json:"transactions"`
+	Withdrawals        []*Withdrawal         `json:"withdrawals"`
+	WithdrawalRequests []WithdrawalRequestV1 `json:"withdrawalRequests"`
+	DepositRequests    []DepositRequestV1    `json:"depositRequests"`
 }
 
 type ExecutionPayloadDenebJSON struct {
@@ -385,30 +384,6 @@ func (r DepositRequestV1) Validate() error {
 	}
 	if r.Index == nil {
 		return errors.Wrap(errJsonNilField, "missing required field 'index' for DepositRequestV1")
-	}
-	return nil
-}
-
-// ConsolidationRequestV1 represents an execution engine ConsolidationRequestV1 value
-// https://github.com/ethereum/execution-apis/blob/main/src/engine/prague.md#consolidationrequestv1
-type ConsolidationRequestV1 struct {
-	// sourceAddress: DATA, 20 Bytes
-	SourceAddress *common.Address `json:"sourceAddress"`
-	// sourcePubkey: DATA, 48 Bytes
-	SourcePubkey *BlsPubkey `json:"sourcePubkey"`
-	// targetPubkey: DATA, 48 Bytes
-	TargetPubkey *BlsPubkey `json:"targetPubkey"`
-}
-
-func (r ConsolidationRequestV1) Validate() error {
-	if r.SourceAddress == nil {
-		return errors.Wrap(errJsonNilField, "missing required field 'sourceAddress' for ConsolidationRequestV1")
-	}
-	if r.SourcePubkey == nil {
-		return errors.Wrap(errJsonNilField, "missing required field 'sourcePubkey' for ConsolidationRequestV1")
-	}
-	if r.TargetPubkey == nil {
-		return errors.Wrap(errJsonNilField, "missing required field 'targetPubkey' for ConsolidationRequestV1")
 	}
 	return nil
 }
@@ -957,42 +932,6 @@ func ProtoWithdrawalRequestsToJson(reqs []*WithdrawalRequest) []WithdrawalReques
 			SourceAddress:   &address,
 			ValidatorPubkey: &pk,
 			Amount:          &amt,
-		}
-	}
-	return j
-}
-
-func JsonConsolidationRequestsToProto(j []ConsolidationRequestV1) ([]*ConsolidationRequest, error) {
-	reqs := make([]*ConsolidationRequest, len(j))
-
-	for i := range j {
-		req := j[i]
-		if err := req.Validate(); err != nil {
-			return nil, err
-		}
-		reqs[i] = &ConsolidationRequest{
-			SourceAddress: req.SourceAddress.Bytes(),
-			SourcePubkey:  req.SourcePubkey.Bytes(),
-			TargetPubkey:  req.TargetPubkey.Bytes(),
-		}
-	}
-
-	return reqs, nil
-}
-
-func ProtoConsolidationRequestsToJson(reqs []*ConsolidationRequest) []ConsolidationRequestV1 {
-	j := make([]ConsolidationRequestV1, len(reqs))
-	for i := range reqs {
-		r := reqs[i]
-		spk := BlsPubkey{}
-		copy(spk[:], r.SourcePubkey)
-		tpk := BlsPubkey{}
-		copy(tpk[:], r.TargetPubkey)
-		address := common.BytesToAddress(r.SourceAddress)
-		j[i] = ConsolidationRequestV1{
-			SourceAddress: &address,
-			SourcePubkey:  &spk,
-			TargetPubkey:  &tpk,
 		}
 	}
 	return j

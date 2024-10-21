@@ -12,7 +12,6 @@ import (
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	"github.com/prysmaticlabs/prysm/v5/testing/require"
 	"github.com/prysmaticlabs/prysm/v5/testing/util"
-	"github.com/prysmaticlabs/prysm/v5/time/slots"
 )
 
 func TestUpgradeToElectra(t *testing.T) {
@@ -161,14 +160,6 @@ func TestUpgradeToElectra(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, primitives.Epoch(1), eee)
 
-	cbtc, err := mSt.ConsolidationBalanceToConsume()
-	require.NoError(t, err)
-	require.Equal(t, helpers.ConsolidationChurnLimit(primitives.Gwei(tab)), cbtc)
-
-	earliestConsolidationEpoch, err := mSt.EarliestConsolidationEpoch()
-	require.NoError(t, err)
-	require.Equal(t, helpers.ActivationExitEpoch(slots.ToEpoch(preForkState.Slot())), earliestConsolidationEpoch)
-
 	pendingDeposits, err := mSt.PendingDeposits()
 	require.NoError(t, err)
 	require.Equal(t, 2, len(pendingDeposits))
@@ -177,9 +168,4 @@ func TestUpgradeToElectra(t *testing.T) {
 	numPendingPartialWithdrawals, err := mSt.NumPendingPartialWithdrawals()
 	require.NoError(t, err)
 	require.Equal(t, uint64(0), numPendingPartialWithdrawals)
-
-	consolidations, err := mSt.PendingConsolidations()
-	require.NoError(t, err)
-	require.Equal(t, 0, len(consolidations))
-
 }

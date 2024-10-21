@@ -191,7 +191,7 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	BeaconStateBellatrixFieldCount: 28,
 	BeaconStateCapellaFieldCount:   31,
 	BeaconStateDenebFieldCount:     31,
-	BeaconStateElectraFieldCount:   40,
+	BeaconStateElectraFieldCount:   37,
 
 	// Slasher related values.
 	WeakSubjectivityPeriod:          54000,
@@ -268,7 +268,6 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	// Subnet value
 	BlobsidecarSubnetCount: 6,
 
-	MaxPerEpochActivationChurnLimit:  8,
 	MinEpochsForBlobsSidecarsRequest: 4096,
 	MaxRequestBlobSidecars:           768,
 	MaxRequestBlocksDeneb:            128,
@@ -284,9 +283,7 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	WhistleBlowerRewardQuotientElectra:    4096,
 	PendingDepositLimit:                   134_217_728,
 	PendingPartialWithdrawalsLimit:        134_217_728,
-	PendingConsolidationsLimit:            262_144,
 	MinActivationBalance:                  256_000_000_000,
-	MaxConsolidationsRequestsPerPayload:   1,
 	MaxPendingPartialsPerWithdrawalsSweep: 8,
 	MaxPendingDepositsPerEpoch:            16,
 	FullExitRequestAmount:                 0,

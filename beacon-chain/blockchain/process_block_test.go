@@ -2047,7 +2047,6 @@ func TestOnBlock_HandleBlockAttestations(t *testing.T) {
 		defaultConfig := util.DefaultBlockGenConfig()
 		defaultConfig.NumWithdrawalRequests = 1
 		defaultConfig.NumDepositRequests = 2
-		defaultConfig.NumConsolidationRequests = 1
 		b, err := util.GenerateFullBlockElectra(st, keys, defaultConfig, 1)
 		require.NoError(t, err)
 		wsb, err := consensusblocks.NewSignedBeaconBlock(b)

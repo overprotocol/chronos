@@ -48,22 +48,11 @@ message DepositRequest {
 	uint64 index = 5;
 }
 
-// ConsolidationRequest is the message from the execution layer to trigger the consolidation of one
-// validator to another validator.
-message ConsolidationRequest {
-	// Source address of account which originated the request.
-	bytes source_address = 1 [(ethereum.eth.ext.ssz_size) = "20"];
-	// Funds will be moved from this public key.
-	bytes source_pubkey = 2 [(ethereum.eth.ext.ssz_size) = "48"];
-	// Funds will be moved to this public key.
-	bytes target_pubkey = 3 [(ethereum.eth.ext.ssz_size) = "48"];
-}
 
 // ExecutionRequests is a container that contains all the requests from the execution layer to be included in a block
 message ExecutionRequests {
 	repeated DepositRequest deposits = 1 [(ethereum.eth.ext.ssz_max) = "max_deposit_requests_per_payload.size"];
 	repeated WithdrawalRequest	withdrawals = 2 [(ethereum.eth.ext.ssz_max) = "max_withdrawal_requests_per_payload.size"];
-	repeated ConsolidationRequest consolidations = 3 [(ethereum.eth.ext.ssz_max) = "max_consolidation_requests_per_payload.size"];
 }
 
 // ExecutionBundleElectra is a container that builds on Payload V4 and includes execution requests sidecar needed post Electra

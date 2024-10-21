@@ -108,16 +108,10 @@ func (f FieldIndex) String() string {
 		return "exitBalanceToConsume"
 	case EarliestExitEpoch:
 		return "earliestExitEpoch"
-	case ConsolidationBalanceToConsume:
-		return "consolidationBalanceToConsume"
-	case EarliestConsolidationEpoch:
-		return "earliestConsolidationEpoch"
 	case PendingDeposits:
 		return "pendingDeposits"
 	case PendingPartialWithdrawals:
 		return "pendingPartialWithdrawals"
-	case PendingConsolidations:
-		return "pendingConsolidations"
 	default:
 		return fmt.Sprintf("unknown field index number: %d", f)
 	}
@@ -197,16 +191,10 @@ func (f FieldIndex) RealPosition() int {
 		return 33
 	case EarliestExitEpoch:
 		return 34
-	case ConsolidationBalanceToConsume:
-		return 35
-	case EarliestConsolidationEpoch:
-		return 36
 	case PendingDeposits:
-		return 37
+		return 35
 	case PendingPartialWithdrawals:
-		return 38
-	case PendingConsolidations:
-		return 39
+		return 36
 	default:
 		return -1
 	}
@@ -265,15 +253,12 @@ const (
 	NextWithdrawalIndex
 	NextWithdrawalValidatorIndex
 	HistoricalSummaries
-	DepositRequestsStartIndex     // Electra: EIP-6110
-	DepositBalanceToConsume       // Electra: EIP-7251
-	ExitBalanceToConsume          // Electra: EIP-7251
-	EarliestExitEpoch             // Electra: EIP-7251
-	ConsolidationBalanceToConsume // Electra: EIP-7251
-	EarliestConsolidationEpoch    // Electra: EIP-7251
-	PendingDeposits               // Electra: EIP-7251
-	PendingPartialWithdrawals     // Electra: EIP-7251
-	PendingConsolidations         // Electra: EIP-7251
+	DepositRequestsStartIndex // Electra: EIP-6110
+	DepositBalanceToConsume   // Electra: EIP-7251
+	ExitBalanceToConsume      // Electra: EIP-7251
+	EarliestExitEpoch         // Electra: EIP-7251
+	PendingDeposits           // Electra: EIP-7251
+	PendingPartialWithdrawals // Electra: EIP-7251
 )
 
 // Enumerator keeps track of the number of states created since the node's start.

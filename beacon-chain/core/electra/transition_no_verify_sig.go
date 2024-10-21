@@ -2,7 +2,6 @@ package electra
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/pkg/errors"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/blocks"
@@ -44,8 +43,6 @@ var (
 //      for_ops(body.execution_payload.deposit_requests, process_deposit_request)  # [New in Electra:EIP6110]
 //      # [New in Electra:EIP7002:EIP7251]
 //      for_ops(body.execution_payload.withdrawal_requests, process_withdrawal_request)
-//      # [New in Electra:EIP7251]
-//      for_ops(body.execution_payload.consolidation_requests, process_consolidation_request)
 
 func ProcessOperations(
 	ctx context.Context,
@@ -89,9 +86,6 @@ func ProcessOperations(
 	st, err = ProcessWithdrawalRequests(ctx, st, requests.Withdrawals)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not process execution layer withdrawal requests")
-	}
-	if err := ProcessConsolidationRequests(ctx, st, requests.Consolidations); err != nil {
-		return nil, fmt.Errorf("could not process consolidation requests: %w", err)
 	}
 	return st, nil
 }

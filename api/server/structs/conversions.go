@@ -810,42 +810,6 @@ func (w *WithdrawalRequest) ToConsensus() (*enginev1.WithdrawalRequest, error) {
 	}, nil
 }
 
-func ConsolidationRequestsFromConsensus(cs []*enginev1.ConsolidationRequest) []*ConsolidationRequest {
-	result := make([]*ConsolidationRequest, len(cs))
-	for i, c := range cs {
-		result[i] = ConsolidationRequestFromConsensus(c)
-	}
-	return result
-}
-
-func ConsolidationRequestFromConsensus(c *enginev1.ConsolidationRequest) *ConsolidationRequest {
-	return &ConsolidationRequest{
-		SourceAddress: hexutil.Encode(c.SourceAddress),
-		SourcePubkey:  hexutil.Encode(c.SourcePubkey),
-		TargetPubkey:  hexutil.Encode(c.TargetPubkey),
-	}
-}
-
-func (c *ConsolidationRequest) ToConsensus() (*enginev1.ConsolidationRequest, error) {
-	srcAddress, err := bytesutil.DecodeHexWithLength(c.SourceAddress, common.AddressLength)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "SourceAddress")
-	}
-	srcPubkey, err := bytesutil.DecodeHexWithLength(c.SourcePubkey, fieldparams.BLSPubkeyLength)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "SourcePubkey")
-	}
-	targetPubkey, err := bytesutil.DecodeHexWithLength(c.TargetPubkey, fieldparams.BLSPubkeyLength)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "TargetPubkey")
-	}
-	return &enginev1.ConsolidationRequest{
-		SourceAddress: srcAddress,
-		SourcePubkey:  srcPubkey,
-		TargetPubkey:  targetPubkey,
-	}, nil
-}
-
 func DepositRequestsFromConsensus(ds []*enginev1.DepositRequest) []*DepositRequest {
 	result := make([]*DepositRequest, len(ds))
 	for i, d := range ds {
@@ -1500,17 +1464,6 @@ func PendingPartialWithdrawalsFromConsensus(ws []*eth.PendingPartialWithdrawal) 
 		}
 	}
 	return withdrawals
-}
-
-func PendingConsolidationsFromConsensus(cs []*eth.PendingConsolidation) []*PendingConsolidation {
-	consolidations := make([]*PendingConsolidation, len(cs))
-	for i, c := range cs {
-		consolidations[i] = &PendingConsolidation{
-			SourceIndex: fmt.Sprintf("%d", c.SourceIndex),
-			TargetIndex: fmt.Sprintf("%d", c.TargetIndex),
-		}
-	}
-	return consolidations
 }
 
 func HeadEventFromV1(event *ethv1.EventHead) *HeadEvent {

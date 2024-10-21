@@ -4,8 +4,6 @@ go_library(
     name = "go_default_library",
     srcs = [
         "attestation.go",
-        "churn.go",
-        "consolidations.go",
         "deposits.go",
         "effective_balance_updates.go",
         "registry_updates.go",
@@ -49,8 +47,6 @@ go_library(
 go_test(
     name = "go_default_test",
     srcs = [
-        "churn_test.go",
-        "consolidations_test.go",
         "deposit_fuzz_test.go",
         "deposits_test.go",
         "effective_balance_updates_test.go",

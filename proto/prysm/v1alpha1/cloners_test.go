@@ -1097,9 +1097,8 @@ func genBeaconBlockBodyElectra() *v1alpha1.BeaconBlockBodyElectra {
 
 func genExecutionRequests() *enginev1.ExecutionRequests {
 	return &enginev1.ExecutionRequests{
-		Deposits:       genDepositRequests(10),
-		Withdrawals:    genWithdrawalRequests(10),
-		Consolidations: genConsolidationRequests(10),
+		Deposits:    genDepositRequests(10),
+		Withdrawals: genWithdrawalRequests(10),
 	}
 }
 
@@ -1134,21 +1133,5 @@ func genWithdrawalRequest() *enginev1.WithdrawalRequest {
 		SourceAddress:   bytes(20),
 		ValidatorPubkey: bytes(48),
 		Amount:          55555,
-	}
-}
-
-func genConsolidationRequests(num int) []*enginev1.ConsolidationRequest {
-	crs := make([]*enginev1.ConsolidationRequest, num)
-	for i := 0; i < num; i++ {
-		crs[i] = genConsolidationRequest()
-	}
-	return crs
-}
-
-func genConsolidationRequest() *enginev1.ConsolidationRequest {
-	return &enginev1.ConsolidationRequest{
-		SourceAddress: bytes(20),
-		SourcePubkey:  bytes(48),
-		TargetPubkey:  bytes(48),
 	}
 }

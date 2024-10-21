@@ -110,13 +110,13 @@ func operationEventsFixtures(t *testing.T) (*topicRequest, []*feed.Event) {
 	vblob := blocks.NewVerifiedROBlob(ro)
 
 	return topics, []*feed.Event{
-		&feed.Event{
+		{
 			Type: operation.UnaggregatedAttReceived,
 			Data: &operation.UnAggregatedAttReceivedData{
 				Attestation: util.HydrateAttestation(&eth.Attestation{}),
 			},
 		},
-		&feed.Event{
+		{
 			Type: operation.AggregatedAttReceived,
 			Data: &operation.AggregatedAttReceivedData{
 				Attestation: &eth.AggregateAttestationAndProof{
@@ -126,7 +126,7 @@ func operationEventsFixtures(t *testing.T) (*topicRequest, []*feed.Event) {
 				},
 			},
 		},
-		&feed.Event{
+		{
 			Type: operation.ExitReceived,
 			Data: &operation.ExitReceivedData{
 				Exit: &eth.SignedVoluntaryExit{
@@ -138,7 +138,7 @@ func operationEventsFixtures(t *testing.T) (*topicRequest, []*feed.Event) {
 				},
 			},
 		},
-		&feed.Event{
+		{
 			Type: operation.SyncCommitteeContributionReceived,
 			Data: &operation.SyncCommitteeContributionReceivedData{
 				Contribution: &eth.SignedContributionAndProof{
@@ -157,7 +157,7 @@ func operationEventsFixtures(t *testing.T) (*topicRequest, []*feed.Event) {
 				},
 			},
 		},
-		&feed.Event{
+		{
 			Type: operation.BLSToExecutionChangeReceived,
 			Data: &operation.BLSToExecutionChangeReceivedData{
 				Change: &eth.SignedBLSToExecutionChange{
@@ -170,13 +170,13 @@ func operationEventsFixtures(t *testing.T) (*topicRequest, []*feed.Event) {
 				},
 			},
 		},
-		&feed.Event{
+		{
 			Type: operation.BlobSidecarReceived,
 			Data: &operation.BlobSidecarReceivedData{
 				Blob: &vblob,
 			},
 		},
-		&feed.Event{
+		{
 			Type: operation.AttesterSlashingReceived,
 			Data: &operation.AttesterSlashingReceivedData{
 				AttesterSlashing: &eth.AttesterSlashing{
@@ -209,7 +209,7 @@ func operationEventsFixtures(t *testing.T) (*topicRequest, []*feed.Event) {
 				},
 			},
 		},
-		&feed.Event{
+		{
 			Type: operation.ProposerSlashingReceived,
 			Data: &operation.ProposerSlashingReceivedData{
 				ProposerSlashing: &eth.ProposerSlashing{
@@ -275,7 +275,7 @@ func TestStreamEvents_OperationsEvents(t *testing.T) {
 		b, err := blocks.NewSignedBeaconBlock(util.HydrateSignedBeaconBlock(&eth.SignedBeaconBlock{}))
 		require.NoError(t, err)
 		events := []*feed.Event{
-			&feed.Event{
+			{
 				Type: statefeed.BlockProcessed,
 				Data: &statefeed.BlockProcessedData{
 					Slot:        0,
@@ -285,7 +285,7 @@ func TestStreamEvents_OperationsEvents(t *testing.T) {
 					Optimistic:  false,
 				},
 			},
-			&feed.Event{
+			{
 				Type: statefeed.NewHead,
 				Data: &ethpb.EventHead{
 					Slot:                      0,
@@ -297,7 +297,7 @@ func TestStreamEvents_OperationsEvents(t *testing.T) {
 					ExecutionOptimistic:       false,
 				},
 			},
-			&feed.Event{
+			{
 				Type: statefeed.Reorg,
 				Data: &ethpb.EventChainReorg{
 					Slot:                0,
@@ -310,7 +310,7 @@ func TestStreamEvents_OperationsEvents(t *testing.T) {
 					ExecutionOptimistic: false,
 				},
 			},
-			&feed.Event{
+			{
 				Type: statefeed.FinalizedCheckpoint,
 				Data: &ethpb.EventFinalizedCheckpoint{
 					Block:               make([]byte, 32),
@@ -426,7 +426,7 @@ func TestStreamEvents_OperationsEvents(t *testing.T) {
 			require.NoError(t, err)
 			request := topics.testHttpRequest(t)
 			w := NewStreamingResponseWriterRecorder()
-			events := []*feed.Event{&feed.Event{Type: statefeed.MissedSlot}}
+			events := []*feed.Event{{Type: statefeed.MissedSlot}}
 
 			go func() {
 				s.StreamEvents(w, request)

@@ -62,15 +62,12 @@ type BeaconState struct {
 	nextWithdrawalValidatorIndex        primitives.ValidatorIndex
 
 	// Electra fields
-	depositRequestsStartIndex     uint64
-	depositBalanceToConsume       primitives.Gwei
-	exitBalanceToConsume          primitives.Gwei
-	earliestExitEpoch             primitives.Epoch
-	consolidationBalanceToConsume primitives.Gwei
-	earliestConsolidationEpoch    primitives.Epoch
-	pendingDeposits               []*ethpb.PendingDeposit           // pending_deposits: List[PendingDeposit, PENDING_DEPOSITS_LIMIT]
-	pendingPartialWithdrawals     []*ethpb.PendingPartialWithdrawal // pending_partial_withdrawals: List[PartialWithdrawal, PENDING_PARTIAL_WITHDRAWALS_LIMIT]
-	pendingConsolidations         []*ethpb.PendingConsolidation     // pending_consolidations: List[PendingConsolidation, PENDING_CONSOLIDATIONS_LIMIT]
+	depositRequestsStartIndex uint64
+	depositBalanceToConsume   primitives.Gwei
+	exitBalanceToConsume      primitives.Gwei
+	earliestExitEpoch         primitives.Epoch
+	pendingDeposits           []*ethpb.PendingDeposit           // pending_deposits: List[PendingDeposit, PENDING_DEPOSITS_LIMIT]
+	pendingPartialWithdrawals []*ethpb.PendingPartialWithdrawal // pending_partial_withdrawals: List[PartialWithdrawal, PENDING_PARTIAL_WITHDRAWALS_LIMIT]
 
 	id                    uint64
 	lock                  sync.RWMutex
@@ -124,11 +121,8 @@ type beaconStateMarshalable struct {
 	DepositBalanceToConsume             primitives.Gwei                         `json:"deposit_balance_to_consume" yaml:"deposit_balance_to_consume"`
 	ExitBalanceToConsume                primitives.Gwei                         `json:"exit_balance_to_consume" yaml:"exit_balance_to_consume"`
 	EarliestExitEpoch                   primitives.Epoch                        `json:"earliest_exit_epoch" yaml:"earliest_exit_epoch"`
-	ConsolidationBalanceToConsume       primitives.Gwei                         `json:"consolidation_balance_to_consume" yaml:"consolidation_balance_to_consume"`
-	EarliestConsolidationEpoch          primitives.Epoch                        `json:"earliest_consolidation_epoch" yaml:"earliest_consolidation_epoch"`
 	PendingDeposits                     []*ethpb.PendingDeposit                 `json:"pending_deposits" yaml:"pending_deposits"`
 	PendingPartialWithdrawals           []*ethpb.PendingPartialWithdrawal       `json:"pending_partial_withdrawals" yaml:"pending_partial_withdrawals"`
-	PendingConsolidations               []*ethpb.PendingConsolidation           `json:"pending_consolidations" yaml:"pending_consolidations"`
 }
 
 func (b *BeaconState) MarshalJSON() ([]byte, error) {
@@ -196,11 +190,8 @@ func (b *BeaconState) MarshalJSON() ([]byte, error) {
 		DepositBalanceToConsume:             b.depositBalanceToConsume,
 		ExitBalanceToConsume:                b.exitBalanceToConsume,
 		EarliestExitEpoch:                   b.earliestExitEpoch,
-		ConsolidationBalanceToConsume:       b.consolidationBalanceToConsume,
-		EarliestConsolidationEpoch:          b.earliestConsolidationEpoch,
 		PendingDeposits:                     b.pendingDeposits,
 		PendingPartialWithdrawals:           b.pendingPartialWithdrawals,
-		PendingConsolidations:               b.pendingConsolidations,
 	}
 	return json.Marshal(marshalable)
 }

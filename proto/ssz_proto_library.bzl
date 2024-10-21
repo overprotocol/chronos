@@ -34,8 +34,6 @@ mainnet = {
     "committee_bits.type": "github.com/prysmaticlabs/go-bitfield.Bitvector64",
     "pending_deposits_limit": "134217728",
     "pending_partial_withdrawals_limit": "134217728",
-    "pending_consolidations_limit": "262144",
-    "max_consolidation_requests_per_payload.size": "1",
 }
 
 minimal = {
@@ -66,8 +64,6 @@ minimal = {
     "committee_bits.type": "github.com/prysmaticlabs/go-bitfield.Bitvector4",
     "pending_deposits_limit": "134217728",
     "pending_partial_withdrawals_limit": "64",
-    "pending_consolidations_limit": "64",
-    "max_consolidation_requests_per_payload.size": "1",
 }
 
 ###### Rules definitions #######

@@ -39,10 +39,8 @@ const (
 	FinalityBranchDepth                   = 6             // FinalityBranchDepth defines the number of leaves in a merkle proof of the finalized checkpoint root.
 	PendingDepositsLimit                  = 134217728     // Maximum number of pending balance deposits in the beacon state.
 	PendingPartialWithdrawalsLimit        = 64            // Maximum number of pending partial withdrawals in the beacon state.
-	PendingConsolidationsLimit            = 64            // Maximum number of pending consolidations in the beacon state.
 	MaxDepositRequestsPerPayload          = 4             // Maximum number of deposit requests in an execution payload.
 	MaxWithdrawalRequestsPerPayload       = 2             // Maximum number of execution layer withdrawal requests in an execution payload.
-	MaxConsolidationRequestsPerPayload    = 1             // Maximum number of consolidation requests in an execution payload.
 	MaxProposerSlashings                  = 16            // Maximum number of proposer slashings in a block.
 	MaxAttesterSlashings                  = 2             // Maximum number of attester slashings in a block.
 	MaxAttesterSlashingsElectra           = 1             // Maximum number of attester slashings in a block.

@@ -627,9 +627,8 @@ func hydrateBeaconBlockBodyElectra() *eth.BeaconBlockBodyElectra {
 			Withdrawals:   make([]*pb.Withdrawal, 0),
 		},
 		ExecutionRequests: &pb.ExecutionRequests{
-			Deposits:       make([]*pb.DepositRequest, 0),
-			Withdrawals:    make([]*pb.WithdrawalRequest, 0),
-			Consolidations: make([]*pb.ConsolidationRequest, 0),
+			Deposits:    make([]*pb.DepositRequest, 0),
+			Withdrawals: make([]*pb.WithdrawalRequest, 0),
 		},
 	}
 }

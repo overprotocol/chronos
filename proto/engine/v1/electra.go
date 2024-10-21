@@ -15,11 +15,9 @@ var (
 	drSize    = drExample.SizeSSZ()
 	wrExample = &WithdrawalRequest{}
 	wrSize    = wrExample.SizeSSZ()
-	crExample = &ConsolidationRequest{}
-	crSize    = crExample.SizeSSZ()
 )
 
-const LenExecutionRequestsElectra = 3
+const LenExecutionRequestsElectra = 2
 
 func (ebe *ExecutionBundleElectra) GetDecodedExecutionRequests() (*ExecutionRequests, error) {
 	requests := &ExecutionRequests{}
@@ -42,13 +40,6 @@ func (ebe *ExecutionBundleElectra) GetDecodedExecutionRequests() (*ExecutionRequ
 	}
 	requests.Withdrawals = wrs
 
-	// consolidation requests
-	crs, err := unmarshalItems(ebe.ExecutionRequests[2], crSize, func() *ConsolidationRequest { return &ConsolidationRequest{} })
-	if err != nil {
-		return nil, err
-	}
-	requests.Consolidations = crs
-
 	return requests, nil
 }
 
@@ -67,11 +58,7 @@ func EncodeExecutionRequests(requests *ExecutionRequests) ([]hexutil.Bytes, erro
 		return nil, errors.Wrap(err, "failed to marshal withdrawal requests")
 	}
 
-	crBytes, err := marshalItems(requests.Consolidations)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to marshal consolidation requests")
-	}
-	return []hexutil.Bytes{drBytes, wrBytes, crBytes}, nil
+	return []hexutil.Bytes{drBytes, wrBytes}, nil
 }
 
 type sszUnmarshaler interface {

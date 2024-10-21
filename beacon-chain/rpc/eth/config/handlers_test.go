@@ -158,17 +158,15 @@ func TestGetSpec(t *testing.T) {
 	config.MinActivationBalance = 99
 	config.PendingDepositLimit = 100
 	config.MaxPendingPartialsPerWithdrawalsSweep = 101
-	config.PendingConsolidationsLimit = 102
-	config.MaxPartialWithdrawalsPerPayload = 103
-	config.FullExitRequestAmount = 104
-	config.MaxConsolidationsRequestsPerPayload = 105
-	config.MaxAttesterSlashingsElectra = 106
-	config.MaxAttestationsElectra = 107
-	config.MaxWithdrawalRequestsPerPayload = 108
-	config.MaxCellsInExtendedMatrix = 109
-	config.UnsetDepositRequestsStartIndex = 110
-	config.MaxDepositRequestsPerPayload = 111
-	config.MaxPendingDepositsPerEpoch = 112
+	config.MaxPartialWithdrawalsPerPayload = 102
+	config.FullExitRequestAmount = 103
+	config.MaxAttesterSlashingsElectra = 104
+	config.MaxAttestationsElectra = 105
+	config.MaxWithdrawalRequestsPerPayload = 106
+	config.MaxCellsInExtendedMatrix = 107
+	config.UnsetDepositRequestsStartIndex = 108
+	config.MaxDepositRequestsPerPayload = 109
+	config.MaxPendingDepositsPerEpoch = 110
 
 	var dbp [4]byte
 	copy(dbp[:], []byte{'0', '0', '0', '1'})
@@ -207,7 +205,7 @@ func TestGetSpec(t *testing.T) {
 	data, ok := resp.Data.(map[string]interface{})
 	require.Equal(t, true, ok)
 
-	assert.Equal(t, 173, len(data))
+	assert.Equal(t, 170, len(data))
 	for k, v := range data {
 		t.Run(k, func(t *testing.T) {
 			switch k {
@@ -558,28 +556,24 @@ func TestGetSpec(t *testing.T) {
 				assert.Equal(t, "100", v)
 			case "MAX_PENDING_PARTIALS_PER_WITHDRAWALS_SWEEP":
 				assert.Equal(t, "101", v)
-			case "PENDING_CONSOLIDATIONS_LIMIT":
-				assert.Equal(t, "102", v)
 			case "MAX_PARTIAL_WITHDRAWALS_PER_PAYLOAD":
-				assert.Equal(t, "103", v)
+				assert.Equal(t, "102", v)
 			case "FULL_EXIT_REQUEST_AMOUNT":
-				assert.Equal(t, "104", v)
-			case "MAX_CONSOLIDATION_REQUESTS_PER_PAYLOAD":
-				assert.Equal(t, "105", v)
+				assert.Equal(t, "103", v)
 			case "MAX_ATTESTER_SLASHINGS_ELECTRA":
-				assert.Equal(t, "106", v)
+				assert.Equal(t, "104", v)
 			case "MAX_ATTESTATIONS_ELECTRA":
-				assert.Equal(t, "107", v)
+				assert.Equal(t, "105", v)
 			case "MAX_WITHDRAWAL_REQUESTS_PER_PAYLOAD":
-				assert.Equal(t, "108", v)
+				assert.Equal(t, "106", v)
 			case "MAX_CELLS_IN_EXTENDED_MATRIX":
-				assert.Equal(t, "109", v)
+				assert.Equal(t, "107", v)
 			case "UNSET_DEPOSIT_REQUESTS_START_INDEX":
-				assert.Equal(t, "110", v)
+				assert.Equal(t, "108", v)
 			case "MAX_DEPOSIT_REQUESTS_PER_PAYLOAD":
-				assert.Equal(t, "111", v)
+				assert.Equal(t, "109", v)
 			case "MAX_PENDING_DEPOSITS_PER_EPOCH":
-				assert.Equal(t, "112", v)
+				assert.Equal(t, "110", v)
 			default:
 				t.Errorf("Incorrect key: %s", k)
 			}

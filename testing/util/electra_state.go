@@ -15,7 +15,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/crypto/bls"
 	enginev1 "github.com/prysmaticlabs/prysm/v5/proto/engine/v1"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
-	"github.com/prysmaticlabs/prysm/v5/time/slots"
 )
 
 // DeterministicGenesisStateElectra returns a genesis state in Electra format made using the deterministic deposits.
@@ -98,9 +97,8 @@ func emptyGenesisStateElectra() (state.BeaconState, error) {
 
 		LatestExecutionPayloadHeader: &enginev1.ExecutionPayloadHeaderElectra{},
 
-		DepositBalanceToConsume:       primitives.Gwei(0),
-		ExitBalanceToConsume:          primitives.Gwei(0),
-		ConsolidationBalanceToConsume: primitives.Gwei(0),
+		DepositBalanceToConsume: primitives.Gwei(0),
+		ExitBalanceToConsume:    primitives.Gwei(0),
 	}
 	return state_native.InitializeFromProtoElectra(st)
 }
@@ -205,13 +203,10 @@ func buildGenesisBeaconStateElectra(genesisTime uint64, preState state.BeaconSta
 		Eth1DepositIndex: preState.Eth1DepositIndex(),
 
 		// Electra Data
-		DepositRequestsStartIndex:     params.BeaconConfig().UnsetDepositRequestsStartIndex,
-		ExitBalanceToConsume:          helpers.ActivationExitChurnLimit(primitives.Gwei(tab)),
-		EarliestConsolidationEpoch:    helpers.ActivationExitEpoch(slots.ToEpoch(preState.Slot())),
-		ConsolidationBalanceToConsume: helpers.ConsolidationChurnLimit(primitives.Gwei(tab)),
-		PendingDeposits:               make([]*ethpb.PendingDeposit, 0),
-		PendingPartialWithdrawals:     make([]*ethpb.PendingPartialWithdrawal, 0),
-		PendingConsolidations:         make([]*ethpb.PendingConsolidation, 0),
+		DepositRequestsStartIndex: params.BeaconConfig().UnsetDepositRequestsStartIndex,
+		ExitBalanceToConsume:      helpers.ActivationExitChurnLimit(primitives.Gwei(tab)),
+		PendingDeposits:           make([]*ethpb.PendingDeposit, 0),
+		PendingPartialWithdrawals: make([]*ethpb.PendingPartialWithdrawal, 0),
 	}
 
 	var scBits [fieldparams.SyncAggregateSyncCommitteeBytesLength]byte
@@ -239,9 +234,8 @@ func buildGenesisBeaconStateElectra(genesisTime uint64, preState state.BeaconSta
 			Transactions:  make([][]byte, 0),
 		},
 		ExecutionRequests: &enginev1.ExecutionRequests{
-			Deposits:       make([]*enginev1.DepositRequest, 0),
-			Withdrawals:    make([]*enginev1.WithdrawalRequest, 0),
-			Consolidations: make([]*enginev1.ConsolidationRequest, 0),
+			Deposits:    make([]*enginev1.DepositRequest, 0),
+			Withdrawals: make([]*enginev1.WithdrawalRequest, 0),
 		},
 	}).HashTreeRoot()
 	if err != nil {

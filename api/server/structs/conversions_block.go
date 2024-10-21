@@ -2115,14 +2115,6 @@ func (b *BeaconBlockElectra) ToConsensus() (*eth.BeaconBlockElectra, error) {
 		}
 	}
 
-	consolidationRequests := make([]*enginev1.ConsolidationRequest, len(b.Body.ExecutionRequests.Consolidations))
-	for i, c := range b.Body.ExecutionRequests.Consolidations {
-		consolidationRequests[i], err = c.ToConsensus()
-		if err != nil {
-			return nil, server.NewDecodeError(err, fmt.Sprintf("Body.ExecutionRequests.Consolidations[%d]", i))
-		}
-	}
-
 	blsChanges, err := SignedBLSChangesToConsensus(b.Body.BLSToExecutionChanges)
 	if err != nil {
 		return nil, server.NewDecodeError(err, "Body.BLSToExecutionChanges")
@@ -2183,9 +2175,8 @@ func (b *BeaconBlockElectra) ToConsensus() (*eth.BeaconBlockElectra, error) {
 			BlsToExecutionChanges: blsChanges,
 			BlobKzgCommitments:    blobKzgCommitments,
 			ExecutionRequests: &enginev1.ExecutionRequests{
-				Deposits:       depositRequests,
-				Withdrawals:    withdrawalRequests,
-				Consolidations: consolidationRequests,
+				Deposits:    depositRequests,
+				Withdrawals: withdrawalRequests,
 			},
 		},
 	}, nil
@@ -2415,14 +2406,6 @@ func (b *BlindedBeaconBlockElectra) ToConsensus() (*eth.BlindedBeaconBlockElectr
 		}
 	}
 
-	consolidationRequests := make([]*enginev1.ConsolidationRequest, len(b.Body.ExecutionRequests.Consolidations))
-	for i, c := range b.Body.ExecutionRequests.Consolidations {
-		consolidationRequests[i], err = c.ToConsensus()
-		if err != nil {
-			return nil, server.NewDecodeError(err, fmt.Sprintf("Body.ExecutionRequests.Consolidations[%d]", i))
-		}
-	}
-
 	blsChanges, err := SignedBLSChangesToConsensus(b.Body.BLSToExecutionChanges)
 	if err != nil {
 		return nil, server.NewDecodeError(err, "Body.BLSToExecutionChanges")
@@ -2484,9 +2467,8 @@ func (b *BlindedBeaconBlockElectra) ToConsensus() (*eth.BlindedBeaconBlockElectr
 			BlsToExecutionChanges: blsChanges,
 			BlobKzgCommitments:    blobKzgCommitments,
 			ExecutionRequests: &enginev1.ExecutionRequests{
-				Deposits:       depositRequests,
-				Withdrawals:    withdrawalRequests,
-				Consolidations: consolidationRequests,
+				Deposits:    depositRequests,
+				Withdrawals: withdrawalRequests,
 			},
 		},
 	}, nil
@@ -3001,9 +2983,8 @@ func BlindedBeaconBlockElectraFromConsensus(b *eth.BlindedBeaconBlockElectra) (*
 
 func ExecutionRequestsFromConsensus(er *enginev1.ExecutionRequests) *ExecutionRequests {
 	return &ExecutionRequests{
-		Deposits:       DepositRequestsFromConsensus(er.Deposits),
-		Withdrawals:    WithdrawalRequestsFromConsensus(er.Withdrawals),
-		Consolidations: ConsolidationRequestsFromConsensus(er.Consolidations),
+		Deposits:    DepositRequestsFromConsensus(er.Deposits),
+		Withdrawals: WithdrawalRequestsFromConsensus(er.Withdrawals),
 	}
 }
 

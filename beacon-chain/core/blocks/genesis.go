@@ -214,9 +214,8 @@ func NewGenesisBlockForState(ctx context.Context, st state.BeaconState) (interfa
 					BlsToExecutionChanges: make([]*ethpb.SignedBLSToExecutionChange, 0),
 					BlobKzgCommitments:    make([][]byte, 0),
 					ExecutionRequests: &enginev1.ExecutionRequests{
-						Withdrawals:    make([]*enginev1.WithdrawalRequest, 0),
-						Deposits:       make([]*enginev1.DepositRequest, 0),
-						Consolidations: make([]*enginev1.ConsolidationRequest, 0),
+						Withdrawals: make([]*enginev1.WithdrawalRequest, 0),
+						Deposits:    make([]*enginev1.DepositRequest, 0),
 					},
 				},
 			},

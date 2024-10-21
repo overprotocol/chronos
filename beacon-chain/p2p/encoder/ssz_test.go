@@ -112,7 +112,6 @@ type HistoricalSummaryCreator struct{}
 type BlobIdentifierCreator struct{}
 type PendingDepositCreator struct{}
 type PendingPartialWithdrawalCreator struct{}
-type PendingConsolidationCreator struct{}
 type StatusCreator struct{}
 type BeaconBlocksByRangeRequestCreator struct{}
 type ENRForkIDCreator struct{}
@@ -285,9 +284,6 @@ func (PendingDepositCreator) Create() MarshalerProtoMessage {
 func (PendingPartialWithdrawalCreator) Create() MarshalerProtoMessage {
 	return &ethpb.PendingPartialWithdrawal{}
 }
-func (PendingConsolidationCreator) Create() MarshalerProtoMessage {
-	return &ethpb.PendingConsolidation{}
-}
 func (StatusCreator) Create() MarshalerProtoMessage { return &ethpb.Status{} }
 func (BeaconBlocksByRangeRequestCreator) Create() MarshalerProtoMessage {
 	return &ethpb.BeaconBlocksByRangeRequest{}
@@ -399,7 +395,6 @@ var creators = []MarshalerProtoCreator{
 	BlobIdentifierCreator{},
 	PendingDepositCreator{},
 	PendingPartialWithdrawalCreator{},
-	PendingConsolidationCreator{},
 	StatusCreator{},
 	BeaconBlocksByRangeRequestCreator{},
 	ENRForkIDCreator{},

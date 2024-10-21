@@ -249,7 +249,6 @@ type BeaconChainConfig struct {
 	BlobsidecarSubnetCount uint64 `yaml:"BLOB_SIDECAR_SUBNET_COUNT"` // BlobsidecarSubnetCount is the number of blobsidecar subnets used in the gossipsub protocol.
 
 	// Values introduced in Deneb hard fork
-	MaxPerEpochActivationChurnLimit  uint64           `yaml:"MAX_PER_EPOCH_ACTIVATION_CHURN_LIMIT" spec:"true"`  // MaxPerEpochActivationChurnLimit is the maximum amount of churn allotted for validator activation.
 	MinEpochsForBlobsSidecarsRequest primitives.Epoch `yaml:"MIN_EPOCHS_FOR_BLOB_SIDECARS_REQUESTS" spec:"true"` // MinEpochsForBlobsSidecarsRequest is the minimum number of epochs the node will keep the blobs for.
 	MaxRequestBlobSidecars           uint64           `yaml:"MAX_REQUEST_BLOB_SIDECARS" spec:"true"`             // MaxRequestBlobSidecars is the maximum number of blobs to request in a single request.
 	MaxRequestBlocksDeneb            uint64           `yaml:"MAX_REQUEST_BLOCKS_DENEB" spec:"true"`              // MaxRequestBlocksDeneb is the maximum number of blocks in a single request after the deneb epoch.
@@ -264,8 +263,6 @@ type BeaconChainConfig struct {
 	WhistleBlowerRewardQuotientElectra    uint64 `yaml:"WHISTLEBLOWER_REWARD_QUOTIENT_ELECTRA" spec:"true"`      // WhistleBlowerRewardQuotientElectra is used to calculate whistle blower reward, modified in electra.
 	PendingDepositLimit                   uint64 `yaml:"PENDING_DEPOSITS_LIMIT" spec:"true"`                     // PendingDepositLimit is the maximum number of pending balance deposits allowed in the beacon state.
 	PendingPartialWithdrawalsLimit        uint64 `yaml:"PENDING_PARTIAL_WITHDRAWALS_LIMIT" spec:"true"`          // PendingPartialWithdrawalsLimit is the maximum number of pending partial withdrawals allowed in the beacon state.
-	PendingConsolidationsLimit            uint64 `yaml:"PENDING_CONSOLIDATIONS_LIMIT" spec:"true"`               // PendingConsolidationsLimit is the maximum number of pending validator consolidations allowed in the beacon state.
-	MaxConsolidationsRequestsPerPayload   uint64 `yaml:"MAX_CONSOLIDATION_REQUESTS_PER_PAYLOAD" spec:"true"`     // MaxConsolidationsRequestsPerPayload is the maximum number of consolidations in a block.
 	MaxPendingPartialsPerWithdrawalsSweep uint64 `yaml:"MAX_PENDING_PARTIALS_PER_WITHDRAWALS_SWEEP" spec:"true"` // MaxPendingPartialsPerWithdrawalsSweep is the maximum number of pending partial withdrawals to process per payload.
 	MaxPendingDepositsPerEpoch            uint64 `yaml:"MAX_PENDING_DEPOSITS_PER_EPOCH" spec:"true"`             // MaxPendingDepositsPerEpoch is the maximum number of pending deposits per epoch processing.
 	FullExitRequestAmount                 uint64 `yaml:"FULL_EXIT_REQUEST_AMOUNT" spec:"true"`                   // FullExitRequestAmount is the amount of Gwei required to request a full exit.

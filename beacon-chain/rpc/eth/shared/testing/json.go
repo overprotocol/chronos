@@ -1843,13 +1843,6 @@ var BlindedElectraBlock = fmt.Sprintf(`{
 		    "validator_pubkey": "0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a",
 		    "amount": "123"
 		  }
-		],
-		"consolidations": [
-		  {
-		    "source_address": "0xabcf8e0d4e9587369b2301d0790347320302cc09",
-		    "source_pubkey": "0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a",
-		    "target_pubkey": "0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a"
-		  }
 		]
 	}
 
@@ -2276,13 +2269,6 @@ var ElectraBlockContents = fmt.Sprintf(`{
 					    "source_address": "0xabcf8e0d4e9587369b2301d0790347320302cc09",
 					    "validator_pubkey": "0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a",
 					    "amount": "123"
-					  }
-					],
-					"consolidations": [
-					  {
-					    "source_address": "0xabcf8e0d4e9587369b2301d0790347320302cc09",
-					    "source_pubkey": "0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a",
-					    "target_pubkey": "0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a"
 					  }
 					]
 				}
