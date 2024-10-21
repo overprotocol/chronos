@@ -43,7 +43,6 @@ var (
 //      for_ops(body.execution_payload.deposit_requests, process_deposit_request)  # [New in Electra:EIP6110]
 //      # [New in Electra:EIP7002:EIP7251]
 //      for_ops(body.execution_payload.withdrawal_requests, process_withdrawal_request)
-//      # [New in Electra:EIP7251]
 
 func ProcessOperations(
 	ctx context.Context,
