@@ -117,6 +117,7 @@ type ReadOnlyValidator interface {
 	Copy() *ethpb.Validator
 	Slashed() bool
 	IsNil() bool
+	PrincipalBalance() uint64
 }
 
 // ReadOnlyValidators defines a struct which only has read access to validators methods.
