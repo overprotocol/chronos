@@ -125,12 +125,18 @@ jobs:
         id: changelog
         run: |
           git fetch --tags
-          prev_tag=$(git tag --sort=-version:refname | grep -e "^v[0-9.]*$" | head -n 1)
+
+          # Extract version (e.g., v1.4.9 -> 1.4 & 9)
+          major_minor_version=$(echo "${{ needs.extract-version.outputs.version_name }}" | sed -E 's/^v([0-9]+\.[0-9]+)\.[0-9]+/\1/')
+          current_patch_version=$(echo "${{ needs.extract-version.outputs.version_name }}" | sed -E 's/^v[0-9]+\.[0-9]+\.([0-9]+)/\1/')
+
+          prev_tag=$(git tag --sort=-version:refname | grep -E "^v${major_minor_version}\.[0-9]+_${{ needs.extract-version.outputs.tag_name }}$" | grep -v "${current_patch_version}_${{ needs.extract-version.outputs.tag_name }}" | head -n 1)
+
           echo "previous release: $prev_tag"
           if [ "$prev_tag" ]; then
-            changelog=$(git log --oneline --no-decorate $prev_tag..HEAD)
+            changelog=$(git log --oneline --no-decorate $prev_tag..HEAD --reverse)
           else
-            changelog=$(git log --oneline --no-decorate)
+            changelog="fix me"
           fi
           echo "changelog<<EOF" >> $GITHUB_OUTPUT
           echo " - ${changelog//$'\n'/$'\n' - }" >> $GITHUB_OUTPUT

@@ -39,7 +39,7 @@ def prysm_image_deps():
         package_name = "libtinfo6", # Required by: bash
         sha256 = "58027c991756930a2abb2f87a829393d3fdbfb76f4eca9795ef38ea2b0510e27",
         urls = [
-            "https://snapshot.debian.org/archive/debian/20231214T085654Z/pool/main/n/ncurses/libtinfo6_6.2+20201114-2+deb11u1_arm64.deb",
+            "https://snapshot.debian.org/archive/debian/20231214T085654Z/pool/main/n/ncurses/libtinfo6_6.2+20201114-2+deb11u2_arm64.deb",
             "https://prysmaticlabs.com/uploads/libtinfo6_6.2+20201114-2+deb11u2_arm64.deb",
         ],
     )
