@@ -228,9 +228,13 @@ func EpochParticipation(beaconState state.BeaconState, indices []uint64, epochPa
 //
 // Spec code:
 //
-//	proposer_reward_denominator = (WEIGHT_DENOMINATOR - PROPOSER_WEIGHT) * WEIGHT_DENOMINATOR // PROPOSER_WEIGHT
-//	proposer_reward = Gwei(proposer_reward_numerator // proposer_reward_denominator)
-//	increase_balance(state, get_beacon_proposer_index(state), proposer_reward)
+//		proposer_reward_denominator = (WEIGHT_DENOMINATOR - PROPOSER_WEIGHT - LIGHT_LAYER_WEIGHT) * WEIGHT_DENOMINATOR // PROPOSER_WEIGHT
+//
+//	   proposer_base_reward = Gwei(proposer_base_reward_numerator // proposer_reward_denominator)
+//	   proposer_boost = Gwei(proposer_boost_numerator // proposer_reward_denominator)
+//
+//	   increase_balance(state, get_beacon_proposer_index(state), proposer_base_reward + proposer_boost)
+//	   decrease_reserve(state, proposer_boost)
 func RewardProposer(ctx context.Context, beaconState state.BeaconState, proposerRewardNumerator uint64, proposerReserveNumerator uint64) error {
 	cfg := params.BeaconConfig()
 	d := (cfg.WeightDenominator - cfg.ProposerWeight - cfg.LightLayerWeight) * cfg.WeightDenominator / cfg.ProposerWeight
