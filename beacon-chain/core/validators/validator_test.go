@@ -226,9 +226,7 @@ func TestSlashValidator_OK(t *testing.T) {
 	assert.Equal(t, true, v.Slashed, "Validator not slashed despite supposed to being slashed")
 	assert.Equal(t, time.CurrentEpoch(state)+params.BeaconConfig().MinSlashingWithdrawableDelay, v.WithdrawableEpoch, "Withdrawable epoch not the expected value")
 
-	maxBalance := params.BeaconConfig().MaxEffectiveBalance
-
-	whistleblowerReward := maxBalance / params.BeaconConfig().WhistleBlowerRewardQuotient
+	whistleblowerReward := v.EffectiveBalance / params.BeaconConfig().WhistleBlowerRewardQuotient
 	bal, err := state.BalanceAtIndex(proposer)
 	require.NoError(t, err)
 	// The proposer is the whistleblower in phase 0.
@@ -237,7 +235,7 @@ func TestSlashValidator_OK(t *testing.T) {
 	require.NoError(t, err)
 	v, err = state.ValidatorAtIndex(slashedIdx)
 	require.NoError(t, err)
-	assert.Equal(t, maxBalance-(v.EffectiveBalance/params.BeaconConfig().MinSlashingPenaltyQuotient), bal, "Did not get expected balance for slashed validator")
+	assert.Equal(t, v.EffectiveBalance-(v.EffectiveBalance/params.BeaconConfig().MinSlashingPenaltyQuotient), bal, "Did not get expected balance for slashed validator")
 }
 
 func TestSlashValidator_Electra(t *testing.T) {
