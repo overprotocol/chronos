@@ -390,36 +390,6 @@ func TestTargetDepositPlan(t *testing.T) {
 	}
 }
 
-func TestProcessRewardfactorUpdate_OK(t *testing.T) {
-	tests := []struct {
-		name         string
-		epoch        uint64
-		valCnt       uint64
-		rewardFactor uint64
-		currReserve  uint64
-		wantFactor   uint64
-	}{
-		{name: "Case 1 : first year, smaller than target, base factor", epoch: 1, valCnt: 10000, currReserve: 1000000000, rewardFactor: params.BeaconConfig().RewardAdjustmentFactorPrecision / 1000, wantFactor: 100150},
-		{name: "Case 2 : first year, larger than target, base factor", epoch: 1, valCnt: 160000, currReserve: 1000000000, rewardFactor: params.BeaconConfig().RewardAdjustmentFactorPrecision / 1000, wantFactor: 99850},
-		{name: "Case 3 : later year, smaller than target, base factor", epoch: 410625, valCnt: 500000, currReserve: 1000000000, rewardFactor: params.BeaconConfig().RewardAdjustmentFactorPrecision / 100, wantFactor: 1000000},
-		{name: "Case 4 : later year, larger than target, base factor", epoch: 410625, valCnt: 1000000, currReserve: 1000000000, rewardFactor: params.BeaconConfig().RewardAdjustmentFactorPrecision / 100, wantFactor: 999850},
-		{name: "Case 5 : last years, smaller valset, base factor", epoch: 862313, valCnt: 1000000, currReserve: 1000000000, rewardFactor: params.BeaconConfig().RewardAdjustmentFactorPrecision / 100, wantFactor: 1000000},
-		{name: "Case 6 : last years, larger valset, base factor", epoch: 862313, valCnt: 1500000, currReserve: 1000000000, rewardFactor: params.BeaconConfig().RewardAdjustmentFactorPrecision / 100, wantFactor: 999850},
-	}
-	for _, test := range tests {
-		base := buildState(params.BeaconConfig().SlotsPerEpoch.Mul(test.epoch), test.valCnt)
-		base.RewardAdjustmentFactor = test.rewardFactor
-		base.Reserves = test.currReserve
-		beaconState, err := state_native.InitializeFromProtoPhase0(base)
-		require.NoError(t, err)
-
-		err = helpers.ProcessRewardFactorUpdate(beaconState)
-		require.NoError(t, err)
-		assert.Equal(t, test.wantFactor, beaconState.RewardAdjustmentFactor(), test.name)
-		assert.Equal(t, test.currReserve, beaconState.Reserves(), test.name)
-	}
-}
-
 func TestTotalRewardWithReserveUsage_OK(t *testing.T) {
 	tests := []struct {
 		epoch   uint64
@@ -451,64 +421,84 @@ func TestTotalRewardWithReserveUsage_OK(t *testing.T) {
 	}
 }
 
-func TestCalculateRewardAdjustmentFactor_OK(t *testing.T) {
+func TestProcessRewardAdjustmentFactor_OK(t *testing.T) {
 	tests := []struct {
 		name         string
 		epoch        uint64
 		valCnt       uint64
 		rewardFactor uint64
-		want         uint64
+		currReserve  uint64
+		wantFactor   uint64
 	}{
-		{name: "Case 1 : early year, smaller than target, 0 factor", epoch: 1, valCnt: 10000, want: 150},
-		{name: "Case 2 : early year, larger than target, 0 factor", epoch: 1, valCnt: 200000, want: 0},
-		{name: "Case 1-1 : early year, smaller than target, base factor", epoch: 1, valCnt: 10000, rewardFactor: params.BeaconConfig().RewardAdjustmentFactorPrecision / 1000, want: 100150},
-		{name: "Case 2-1 : early year, larger than target, base factor", epoch: 1, valCnt: 200000, rewardFactor: params.BeaconConfig().RewardAdjustmentFactorPrecision / 1000, want: 99850},
-		{name: "Case 3 : later year, smaller than target, 0 factor", epoch: 410625, valCnt: 500000, want: 150},
-		{name: "Case 4 : later year, larger than target, 0 factor", epoch: 410625, valCnt: 1000000, want: 0},
-		{name: "Case 3-1 : later year, smaller than target, base factor", epoch: 410625, valCnt: 500000, rewardFactor: params.BeaconConfig().RewardAdjustmentFactorPrecision / 1000, want: 100150},
-		{name: "Case 4-1 : later year, larger than target, base factor", epoch: 410625, valCnt: 1000000, rewardFactor: params.BeaconConfig().RewardAdjustmentFactorPrecision / 1000, want: 99850},
-		{name: "Case 5 : last years, smaller than target, 0 factor", epoch: 862313, valCnt: 1000000, want: 150},
-		{name: "Case 6 : last years, larger than target, 0 factor", epoch: 862313, valCnt: 1500000, want: 0},
-		{name: "Case 5-1 : last years, smaller than target, base factor", epoch: 862313, valCnt: 1000000, rewardFactor: params.BeaconConfig().RewardAdjustmentFactorPrecision / 1000, want: 100150},
-		{name: "Case 6-1 : last years, larger than target, base factor", epoch: 862313, valCnt: 1500000, rewardFactor: params.BeaconConfig().RewardAdjustmentFactorPrecision / 1000, want: 99850},
+		{name: "Case 1 : first year, smaller than target, base factor", epoch: 1, valCnt: 10000, currReserve: 1000000000, rewardFactor: params.BeaconConfig().RewardAdjustmentFactorPrecision / 1000, wantFactor: 100150},
+		{name: "Case 2 : first year, larger than target, base factor", epoch: 1, valCnt: 160000, currReserve: 1000000000, rewardFactor: params.BeaconConfig().RewardAdjustmentFactorPrecision / 1000, wantFactor: 99850},
+		{name: "Case 3 : later year, smaller than target, base factor", epoch: 410625, valCnt: 500000, currReserve: 1000000000, rewardFactor: params.BeaconConfig().RewardAdjustmentFactorPrecision / 100, wantFactor: 1000000},
+		{name: "Case 4 : later year, larger than target, base factor", epoch: 410625, valCnt: 1000000, currReserve: 1000000000, rewardFactor: params.BeaconConfig().RewardAdjustmentFactorPrecision / 100, wantFactor: 999850},
+		{name: "Case 5 : last years, smaller valset, base factor", epoch: 862313, valCnt: 1000000, currReserve: 1000000000, rewardFactor: params.BeaconConfig().RewardAdjustmentFactorPrecision / 100, wantFactor: 1000000},
+		{name: "Case 6 : last years, larger valset, base factor", epoch: 862313, valCnt: 1500000, currReserve: 1000000000, rewardFactor: params.BeaconConfig().RewardAdjustmentFactorPrecision / 100, wantFactor: 999850},
 	}
 	for _, test := range tests {
 		base := buildState(params.BeaconConfig().SlotsPerEpoch.Mul(test.epoch), test.valCnt)
 		base.RewardAdjustmentFactor = test.rewardFactor
+		base.Reserves = test.currReserve
 		beaconState, err := state_native.InitializeFromProtoPhase0(base)
 		require.NoError(t, err)
-		got, err := helpers.CalculateRewardAdjustmentFactor(beaconState)
+
+		err = helpers.ProcessRewardAdjustmentFactor(beaconState)
 		require.NoError(t, err)
+		assert.Equal(t, test.wantFactor, beaconState.RewardAdjustmentFactor(), test.name)
+		assert.Equal(t, test.currReserve, beaconState.Reserves(), test.name)
+	}
+}
+
+func TestDecreaseRewardAdjustmentFactor_OK(t *testing.T) {
+	tests := []struct {
+		name         string
+		rewardFactor uint64
+		want         uint64
+	}{
+		{name: "Rewardfactor smaller than delta", rewardFactor: 100, want: 0},
+		{name: "Rewardfactor same as delta", rewardFactor: 150, want: 0},
+		{name: "Rewardfactor larger than delta", rewardFactor: 200, want: 50},
+	}
+	for _, test := range tests {
+		base := buildState(params.BeaconConfig().SlotsPerEpoch.Mul(1), 10000)
+		base.RewardAdjustmentFactor = test.rewardFactor
+		beaconState, err := state_native.InitializeFromProtoPhase0(base)
+		require.NoError(t, err)
+		err = helpers.DecreaseRewardAdjustmentFactor(beaconState)
+		require.NoError(t, err)
+		got := beaconState.RewardAdjustmentFactor()
 		assert.Equal(t, test.want, got, test.name)
 	}
 }
 
-func TestTruncateRewardAdjustmentFactor_OK(t *testing.T) {
+func TestIncreaseRewardAdjustmentFactor_OK(t *testing.T) {
 	tests := []struct {
-		name  string
-		in    uint64
-		epoch uint64
-		want  uint64
+		name         string
+		rewardFactor uint64
+		epoch        uint64
+		want         uint64
 	}{
-		{name: "TruncateRewardAdjustmentFactor of Epoch 41063 (year 1)", epoch: (params.BeaconConfig().EpochsPerYear + 1) / 2, in: 0, want: 0},
-		{name: "TruncateRewardAdjustmentFactor of Epoch 41063 (year 1)", epoch: (params.BeaconConfig().EpochsPerYear + 1) / 2, in: 500000, want: 500000},
-		{name: "TruncateRewardAdjustmentFactor of Epoch 41063 (year 1)", epoch: (params.BeaconConfig().EpochsPerYear + 1) / 2, in: 1000000, want: 1000000},
-		{name: "TruncateRewardAdjustmentFactor of Epoch 41063 (year 1)", epoch: (params.BeaconConfig().EpochsPerYear + 1) / 2, in: 1000001, want: 1000000},
-		{name: "TruncateRewardAdjustmentFactor of Epoch 82125 (Year 2)", epoch: params.BeaconConfig().EpochsPerYear, in: 0, want: 0},
-		{name: "TruncateRewardAdjustmentFactor of Epoch 82125 (Year 2)", epoch: params.BeaconConfig().EpochsPerYear, in: 500000, want: 500000},
-		{name: "TruncateRewardAdjustmentFactor of Epoch 82125 (Year 2)", epoch: params.BeaconConfig().EpochsPerYear, in: 1000000, want: 1000000},
-		{name: "TruncateRewardAdjustmentFactor of Epoch 82125 (Year 2)", epoch: params.BeaconConfig().EpochsPerYear, in: 1000001, want: 1000000},
-		{name: "TruncateRewardAdjustmentFactor of Epoch 739125 (Year 10)", epoch: params.BeaconConfig().EpochsPerYear * 9, in: 0, want: 0},
-		{name: "TruncateRewardAdjustmentFactor of Epoch 739125 (Year 10)", epoch: params.BeaconConfig().EpochsPerYear * 9, in: 500000, want: 500000},
-		{name: "TruncateRewardAdjustmentFactor of Epoch 739125 (Year 10)", epoch: params.BeaconConfig().EpochsPerYear * 9, in: 1000000, want: 1000000},
-		{name: "TruncateRewardAdjustmentFactor of Epoch 739125 (Year 10)", epoch: params.BeaconConfig().EpochsPerYear * 9, in: 1000001, want: 1000000},
-		{name: "TruncateRewardAdjustmentFactor of Epoch 862313 (Year 11)", epoch: params.BeaconConfig().EpochsPerYear*21 + 1, in: 0, want: 0},
-		{name: "TruncateRewardAdjustmentFactor of Epoch 862313 (Year 11)", epoch: params.BeaconConfig().EpochsPerYear*21 + 1, in: 500000, want: 500000},
-		{name: "TruncateRewardAdjustmentFactor of Epoch 862313 (Year 11)", epoch: params.BeaconConfig().EpochsPerYear*21 + 1, in: 1000000, want: 1000000},
-		{name: "TruncateRewardAdjustmentFactor of Epoch 862313 (Year 11)", epoch: params.BeaconConfig().EpochsPerYear*21 + 1, in: 1000001, want: 1000000},
+		{name: "New rewardfactor less than MaxRewardAdjustmentFactors (year 1)", epoch: (params.BeaconConfig().EpochsPerYear + 1) / 2, rewardFactor: 100000, want: 100150},
+		{name: "New rewardfactor same as MaxRewardAdjustmentFactors (year 1)", epoch: (params.BeaconConfig().EpochsPerYear + 1) / 2, rewardFactor: 999850, want: 1000000},
+		{name: "New rewardfactor larger than MaxRewardAdjustmentFactors (year 1)", epoch: (params.BeaconConfig().EpochsPerYear + 1) / 2, rewardFactor: 1000001, want: 1000000},
+		{name: "New rewardfactor less than MaxRewardAdjustmentFactors (year 2)", epoch: (params.BeaconConfig().EpochsPerYear*2 + 1) / 2, rewardFactor: 100000, want: 100150},
+		{name: "New rewardfactor same as MaxRewardAdjustmentFactors (year 2)", epoch: (params.BeaconConfig().EpochsPerYear*2 + 1) / 2, rewardFactor: 999850, want: 1000000},
+		{name: "New rewardfactor larger than MaxRewardAdjustmentFactors (year 2)", epoch: (params.BeaconConfig().EpochsPerYear*2 + 1) / 2, rewardFactor: 1000001, want: 1000000},
+		{name: "New rewardfactor less than MaxRewardAdjustmentFactors (year 11)", epoch: (params.BeaconConfig().EpochsPerYear*20 + 1) / 2, rewardFactor: 100000, want: 100150},
+		{name: "New rewardfactor same as MaxRewardAdjustmentFactors (year 11)", epoch: (params.BeaconConfig().EpochsPerYear*20 + 1) / 2, rewardFactor: 999850, want: 1000000},
+		{name: "New rewardfactor larger than MaxRewardAdjustmentFactors (year 11)", epoch: (params.BeaconConfig().EpochsPerYear*20 + 1) / 2, rewardFactor: 1000001, want: 1000000},
 	}
 	for _, test := range tests {
-		assert.Equal(t, test.want, helpers.TruncateRewardAdjustmentFactor(test.in, primitives.Epoch(test.epoch)))
+		base := buildState(params.BeaconConfig().SlotsPerEpoch.Mul(test.epoch), 10000)
+		base.RewardAdjustmentFactor = test.rewardFactor
+		beaconState, err := state_native.InitializeFromProtoPhase0(base)
+		require.NoError(t, err)
+		err = helpers.IncreaseRewardAdjustmentFactor(beaconState)
+		require.NoError(t, err)
+		got := beaconState.RewardAdjustmentFactor()
+		assert.Equal(t, test.want, got, test.name)
 	}
 }
 

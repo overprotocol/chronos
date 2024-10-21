@@ -477,7 +477,12 @@ func ProcessEpochPrecompute(ctx context.Context, state state.BeaconState) (state
 		return nil, errors.Wrap(err, "could not process registry updates")
 	}
 
-	err = helpers.ProcessRewardFactorUpdate(state)
+	err = precompute.ProcessSlashingsPrecompute(state, bp)
+	if err != nil {
+		return nil, err
+	}
+
+	err = helpers.ProcessRewardAdjustmentFactor(state)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not update reserve and reward factor")
 	}

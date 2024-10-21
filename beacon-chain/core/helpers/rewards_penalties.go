@@ -271,7 +271,7 @@ func EpochFeedbackBoost(s state.ReadOnlyBeaconState) uint64 {
 	return feedbackBoost
 }
 
-// ProcessRewardFactorUpdate returns the adjustment factor for the next epoch.
+// ProcessRewardAdjustmentFactor sets the adjustment factor for the next epoch.
 // This is pseudo code from the spec.
 //
 // Spec code:
@@ -284,53 +284,69 @@ func EpochFeedbackBoost(s state.ReadOnlyBeaconState) uint64 {
 // decrease_reward_adjustment_factor(state, REWARD_ADJUSTMENT_FACTOR_DELTA)
 // elif future_total_active_balance < target_deposit:
 // increase_reward_adjustment_factor(state, REWARD_ADJUSTMENT_FACTOR_DELTA)
-func ProcessRewardFactorUpdate(state state.BeaconState) error {
-	// update reward adjustment factor
-	calculatedFactor, err := CalculateRewardAdjustmentFactor(state)
+func ProcessRewardAdjustmentFactor(state state.BeaconState) error {
+	futureDeposit, err := TotalBalanceWithQueue(state)
 	if err != nil {
 		return err
 	}
-	err = state.SetRewardAdjustmentFactor(calculatedFactor)
-	if err != nil {
-		return err
+	targetDeposit := TargetDepositPlan(time.NextEpoch(state))
+
+	if futureDeposit >= targetDeposit {
+		err = DecreaseRewardAdjustmentFactor(state)
+		if err != nil {
+			return err
+		}
+	} else {
+		err = IncreaseRewardAdjustmentFactor(state)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
 }
 
-func CalculateRewardAdjustmentFactor(state state.ReadOnlyBeaconState) (uint64, error) {
-	cfg := params.BeaconConfig()
-	epoch := slots.ToEpoch(state.Slot())
-	futureDeposit, err := TotalBalanceWithQueue(state)
-	if err != nil {
-		return 0, err
-	}
-	targetDeposit := TargetDepositPlan(time.NextEpoch(state))
-
-	bias := state.RewardAdjustmentFactor()
-	changeRate := cfg.RewardAdjustmentFactorDelta
-	if futureDeposit >= targetDeposit {
-		if bias <= changeRate {
-			bias = 0
-		} else {
-			bias -= changeRate
+// DecreaseRewardAdjustmentFactor reduces the RewardAdjustmentFactor with fixed amount.
+// If the RewardAdjustmentFactor is less than the given amount, it sets the RewardAdjustmentFactor to 0.
+func DecreaseRewardAdjustmentFactor(state state.BeaconState) error {
+	delta := params.BeaconConfig().RewardAdjustmentFactorDelta
+	factor := state.RewardAdjustmentFactor()
+	if factor < delta {
+		err := state.SetRewardAdjustmentFactor(0)
+		if err != nil {
+			return err
 		}
 	} else {
-		bias += changeRate
+		err := state.SetRewardAdjustmentFactor(factor - delta)
+		if err != nil {
+			return err
+		}
 	}
 
-	return TruncateRewardAdjustmentFactor(bias, epoch), nil
+	return nil
 }
 
-// TruncateRewardAdjustmentFactor truncates the given bias to the min and max bounds.
-// The min and max bounds are defined in the spec.
-func TruncateRewardAdjustmentFactor(bias uint64, epoch primitives.Epoch) uint64 {
+// IncreaseRewardAdjustmentFactor increases the RewardAdjustmentFactor with fixed amount.
+// If the RewardAdjustmentFactor is larger than the MaxRewardAdjustmentFactors[year],
+// it sets the RewardAdjustmentFactor to MaxRewardAdjustmentFactors[year].
+func IncreaseRewardAdjustmentFactor(state state.BeaconState) error {
+	epoch := slots.ToEpoch(state.Slot())
+	newFactor := state.RewardAdjustmentFactor() + params.BeaconConfig().RewardAdjustmentFactorDelta
+
 	maxBoostYield := MaxBoostYield(epoch)
-	if maxBoostYield < bias {
-		bias = maxBoostYield
+	if maxBoostYield < newFactor {
+		err := state.SetRewardAdjustmentFactor(maxBoostYield)
+		if err != nil {
+			return err
+		}
+	} else {
+		err := state.SetRewardAdjustmentFactor(newFactor)
+		if err != nil {
+			return err
+		}
 	}
 
-	return bias
+	return nil
 }
 
 // MaxBoostYield gets the maximum boost yield of corresponding year for the given epoch.
@@ -354,14 +370,14 @@ func EpochToYear(epoch primitives.Epoch) int {
 // DecreaseReserves reduces the reserve by the given amount.
 // If the reserve is less than the given amount, it sets the reserve to 0.
 func DecreaseReserves(state state.BeaconState, sub uint64) error {
-	Reserve := state.Reserves()
-	if Reserve < sub {
+	reserve := state.Reserves()
+	if reserve < sub {
 		err := state.SetReserves(0)
 		if err != nil {
 			return err
 		}
 	} else {
-		err := state.SetReserves(Reserve - sub)
+		err := state.SetReserves(reserve - sub)
 		if err != nil {
 			return err
 		}
