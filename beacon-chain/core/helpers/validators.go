@@ -589,18 +589,18 @@ func IsSameWithdrawalCredentials(a, b *ethpb.Validator) bool {
 //	    Check if ``validator`` is fully withdrawable.
 //	    """
 //		return validator.withdrawable_epoch <= epoch and balance > 0  # [Modified in Electra:EIP7251]
-func IsFullyWithdrawableValidator(val *ethpb.Validator, balance uint64, epoch primitives.Epoch, fork int) bool {
+func IsFullyWithdrawableValidator(val state.ReadOnlyValidator, balance uint64, epoch primitives.Epoch, fork int) bool {
 	if val == nil || balance <= 0 {
 		return false
 	}
-	withdrawableEpoch := GetWithdrawableEpoch(val.ExitEpoch, val.Slashed)
+	withdrawableEpoch := GetWithdrawableEpoch(val.ExitEpoch(), val.Slashed())
 	return withdrawableEpoch <= epoch
 }
 
 // IsPartiallyWithdrawableValidator returns whether the validator is able to perform a
 // partial withdrawal. This function assumes that the caller has a lock on the state.
 // This method conditionally calls the fork appropriate implementation based on the epoch argument.
-func IsPartiallyWithdrawableValidator(val *ethpb.Validator, balance uint64, epoch primitives.Epoch, fork int) bool {
+func IsPartiallyWithdrawableValidator(val state.ReadOnlyValidator, balance uint64, epoch primitives.Epoch, fork int) bool {
 	if val == nil {
 		return false
 	}
@@ -618,8 +618,8 @@ func IsPartiallyWithdrawableValidator(val *ethpb.Validator, balance uint64, epoc
 //	"""
 //	has_excess_balance = balance > validator.principal_balance  # [Modified in Electra:EIP7251]
 //	return has_excess_balance  # [Modified in Electra:EIP7251]
-func IsPartiallyWithdrawableValidatorAlpaca(val *ethpb.Validator, balance uint64) bool {
-	hasExcessBalance := balance > val.PrincipalBalance
+func IsPartiallyWithdrawableValidatorAlpaca(val state.ReadOnlyValidator, balance uint64) bool {
+	hasExcessBalance := balance > val.PrincipalBalance()
 	return hasExcessBalance
 }
 
