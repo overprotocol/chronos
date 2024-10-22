@@ -4,9 +4,7 @@ import (
 	"context"
 
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
-	coreTime "github.com/prysmaticlabs/prysm/v5/beacon-chain/core/time"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/transition"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/rpc/core"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
 	"github.com/prysmaticlabs/prysm/v5/encoding/bytesutil"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
@@ -124,35 +122,35 @@ func (vs *Server) duties(ctx context.Context, req *ethpb.DutiesRequest) (*ethpb.
 		}
 
 		// Are the validators in current or next epoch sync committee.
-		if ok && coreTime.HigherEqualThanAltairVersionAndEpoch(s, req.Epoch) {
-			assignment.IsSyncCommittee, err = helpers.IsCurrentPeriodSyncCommittee(s, idx)
-			if err != nil {
-				return nil, status.Errorf(codes.Internal, "Could not determine current epoch sync committee: %v", err)
-			}
-			if assignment.IsSyncCommittee {
-				if err := core.RegisterSyncSubnetCurrentPeriodProto(s, req.Epoch, pubKey, assignment.Status); err != nil {
-					return nil, err
-				}
-			}
-			nextAssignment.IsSyncCommittee = assignment.IsSyncCommittee
+		// if ok && coreTime.HigherEqualThanAltairVersionAndEpoch(s, req.Epoch) {
+		// 	assignment.IsSyncCommittee, err = helpers.IsCurrentPeriodSyncCommittee(s, idx)
+		// 	if err != nil {
+		// 		return nil, status.Errorf(codes.Internal, "Could not determine current epoch sync committee: %v", err)
+		// 	}
+		// 	if assignment.IsSyncCommittee {
+		// 		if err := core.RegisterSyncSubnetCurrentPeriodProto(s, req.Epoch, pubKey, assignment.Status); err != nil {
+		// 			return nil, err
+		// 		}
+		// 	}
+		// 	nextAssignment.IsSyncCommittee = assignment.IsSyncCommittee
 
-			// Next epoch sync committee duty is assigned with next period sync committee only during
-			// sync period epoch boundary (ie. EPOCHS_PER_SYNC_COMMITTEE_PERIOD - 1). Else wise
-			// next epoch sync committee duty is the same as current epoch.
-			nextEpoch := req.Epoch + 1
-			currentEpoch := coreTime.CurrentEpoch(s)
-			if slots.SyncCommitteePeriod(nextEpoch) > slots.SyncCommitteePeriod(currentEpoch) {
-				nextAssignment.IsSyncCommittee, err = helpers.IsNextPeriodSyncCommittee(s, idx)
-				if err != nil {
-					return nil, status.Errorf(codes.Internal, "Could not determine next epoch sync committee: %v", err)
-				}
-				if nextAssignment.IsSyncCommittee {
-					if err := core.RegisterSyncSubnetNextPeriodProto(s, req.Epoch, pubKey, nextAssignment.Status); err != nil {
-						return nil, err
-					}
-				}
-			}
-		}
+		// 	// Next epoch sync committee duty is assigned with next period sync committee only during
+		// 	// sync period epoch boundary (ie. EPOCHS_PER_SYNC_COMMITTEE_PERIOD - 1). Else wise
+		// 	// next epoch sync committee duty is the same as current epoch.
+		// 	nextEpoch := req.Epoch + 1
+		// 	currentEpoch := coreTime.CurrentEpoch(s)
+		// 	if slots.SyncCommitteePeriod(nextEpoch) > slots.SyncCommitteePeriod(currentEpoch) {
+		// 		nextAssignment.IsSyncCommittee, err = helpers.IsNextPeriodSyncCommittee(s, idx)
+		// 		if err != nil {
+		// 			return nil, status.Errorf(codes.Internal, "Could not determine next epoch sync committee: %v", err)
+		// 		}
+		// 		if nextAssignment.IsSyncCommittee {
+		// 			if err := core.RegisterSyncSubnetNextPeriodProto(s, req.Epoch, pubKey, nextAssignment.Status); err != nil {
+		// 				return nil, err
+		// 			}
+		// 		}
+		// 	}
+		// }
 
 		validatorAssignments = append(validatorAssignments, assignment)
 		nextValidatorAssignments = append(nextValidatorAssignments, nextAssignment)

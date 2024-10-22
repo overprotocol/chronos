@@ -90,13 +90,3 @@ type BlobSidecarEvent struct {
 	KzgCommitment string `json:"kzg_commitment"`
 	VersionedHash string `json:"versioned_hash"`
 }
-
-type LightClientFinalityUpdateEvent struct {
-	Version string                     `json:"version"`
-	Data    *LightClientFinalityUpdate `json:"data"`
-}
-
-type LightClientOptimisticUpdateEvent struct {
-	Version string                       `json:"version"`
-	Data    *LightClientOptimisticUpdate `json:"data"`
-}

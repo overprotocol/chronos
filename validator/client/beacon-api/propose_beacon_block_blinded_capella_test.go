@@ -44,11 +44,7 @@ func TestProposeBeaconBlock_BlindedCapella(t *testing.T) {
 				ProposerSlashings: jsonifyProposerSlashings(blindedCapellaBlock.BlindedCapella.Block.Body.ProposerSlashings),
 				RandaoReveal:      hexutil.Encode(blindedCapellaBlock.BlindedCapella.Block.Body.RandaoReveal),
 				VoluntaryExits:    JsonifySignedVoluntaryExits(blindedCapellaBlock.BlindedCapella.Block.Body.VoluntaryExits),
-				SyncAggregate: &structs.SyncAggregate{
-					SyncCommitteeBits:      hexutil.Encode(blindedCapellaBlock.BlindedCapella.Block.Body.SyncAggregate.SyncCommitteeBits),
-					SyncCommitteeSignature: hexutil.Encode(blindedCapellaBlock.BlindedCapella.Block.Body.SyncAggregate.SyncCommitteeSignature),
-				},
-				BailOuts: JsonifyBailOuts(blindedCapellaBlock.BlindedCapella.Block.Body.BailOuts),
+				BailOuts:          JsonifyBailOuts(blindedCapellaBlock.BlindedCapella.Block.Body.BailOuts),
 				ExecutionPayloadHeader: &structs.ExecutionPayloadHeaderCapella{
 					BaseFeePerGas:    bytesutil.LittleEndianBytesToBigInt(blindedCapellaBlock.BlindedCapella.Block.Body.ExecutionPayloadHeader.BaseFeePerGas).String(),
 					BlockHash:        hexutil.Encode(blindedCapellaBlock.BlindedCapella.Block.Body.ExecutionPayloadHeader.BlockHash),
@@ -305,10 +301,6 @@ func generateSignedBlindedCapellaBlock() *ethpb.GenericSignedBeaconBlock_Blinded
 							},
 							Signature: testhelpers.FillByteSlice(96, 109),
 						},
-					},
-					SyncAggregate: &ethpb.SyncAggregate{
-						SyncCommitteeBits:      testhelpers.FillByteSlice(64, 110),
-						SyncCommitteeSignature: testhelpers.FillByteSlice(96, 111),
 					},
 					ExecutionPayloadHeader: &enginev1.ExecutionPayloadHeaderCapella{
 						ParentHash:       testhelpers.FillByteSlice(32, 112),

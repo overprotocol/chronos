@@ -113,18 +113,18 @@ func TestGetSpec(t *testing.T) {
 	config.TimelyHeadWeight = 56
 	config.TimelySourceWeight = 57
 	config.TimelyTargetWeight = 58
-	config.SyncRewardWeight = 59
+	// config.SyncRewardWeight = 59
 	config.WeightDenominator = 60
-	config.TargetAggregatorsPerSyncSubcommittee = 61
-	config.SyncCommitteeSubnetCount = 62
-	config.SyncCommitteeSize = 63
+	// config.TargetAggregatorsPerSyncSubcommittee = 61
+	// config.SyncCommitteeSubnetCount = 62
+	// config.SyncCommitteeSize = 63
 	config.InactivityScoreBias = 65
-	config.EpochsPerSyncCommitteePeriod = 66
+	// config.EpochsPerSyncCommitteePeriod = 66
 	config.InactivityPenaltyQuotientAltair = 67
 	config.MinSlashingPenaltyQuotientAltair = 68
 	config.ProportionalSlashingMultiplierAltair = 69
 	config.InactivityScoreRecoveryRate = 70
-	config.MinSyncCommitteeParticipants = 71
+	// config.MinSyncCommitteeParticipants = 71
 	config.TerminalBlockHash = common.HexToHash("TerminalBlockHash")
 	config.TerminalBlockHashActivationEpoch = 72
 	config.TerminalTotalDifficulty = "73"
@@ -151,7 +151,7 @@ func TestGetSpec(t *testing.T) {
 	config.MaxTokenSupply = 93
 	config.EpochsPerYear = 94
 	config.IssuancePerYear = 95
-	config.LightLayerWeight = 96
+	// config.LightLayerWeight = 96
 	config.MaxBailOuts = 97
 	config.MinSlashingPenaltyQuotientElectra = 98
 	config.MaxEffectiveBalanceElectra = 99
@@ -379,8 +379,8 @@ func TestGetSpec(t *testing.T) {
 				assert.Equal(t, "64", v)
 			case "INACTIVITY_SCORE_BIAS":
 				assert.Equal(t, "65", v)
-			case "EPOCHS_PER_SYNC_COMMITTEE_PERIOD":
-				assert.Equal(t, "66", v)
+			// case "EPOCHS_PER_SYNC_COMMITTEE_PERIOD":
+			// 	assert.Equal(t, "66", v)
 			case "INACTIVITY_PENALTY_QUOTIENT_ALTAIR":
 				assert.Equal(t, "67", v)
 			case "MIN_SLASHING_PENALTY_QUOTIENT_ALTAIR":
@@ -389,8 +389,8 @@ func TestGetSpec(t *testing.T) {
 				assert.Equal(t, "69", v)
 			case "INACTIVITY_SCORE_RECOVERY_RATE":
 				assert.Equal(t, "70", v)
-			case "MIN_SYNC_COMMITTEE_PARTICIPANTS":
-				assert.Equal(t, "71", v)
+			// case "MIN_SYNC_COMMITTEE_PARTICIPANTS":
+			// 	assert.Equal(t, "71", v)
 			case "PROPOSER_WEIGHT":
 				assert.Equal(t, "8", v)
 			case "DOMAIN_BEACON_PROPOSER":

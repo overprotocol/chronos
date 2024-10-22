@@ -7,12 +7,10 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/cache"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/p2p"
 	"github.com/prysmaticlabs/prysm/v5/cmd/beacon-chain/flags"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	pb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
-	"github.com/prysmaticlabs/prysm/v5/time/slots"
 )
 
 var (
@@ -184,31 +182,22 @@ func (s *Service) updateMetrics() {
 		log.WithError(err).Debugf("Could not compute fork digest")
 	}
 	indices := s.aggregatorSubnetIndices(s.cfg.clock.CurrentSlot())
-	syncIndices := cache.SyncSubnetIDs.GetAllSubnets(slots.ToEpoch(s.cfg.clock.CurrentSlot()))
 	attTopic := p2p.GossipTypeMapping[reflect.TypeOf(&pb.Attestation{})]
-	syncTopic := p2p.GossipTypeMapping[reflect.TypeOf(&pb.SyncCommitteeMessage{})]
 	attTopic += s.cfg.p2p.Encoding().ProtocolSuffix()
-	syncTopic += s.cfg.p2p.Encoding().ProtocolSuffix()
 	if flags.Get().SubscribeToAllSubnets {
 		for i := uint64(0); i < params.BeaconConfig().AttestationSubnetCount; i++ {
 			s.collectMetricForSubnet(attTopic, digest, i)
 		}
-		for i := uint64(0); i < params.BeaconConfig().SyncCommitteeSubnetCount; i++ {
-			s.collectMetricForSubnet(syncTopic, digest, i)
-		}
 	} else {
 		for _, committeeIdx := range indices {
 			s.collectMetricForSubnet(attTopic, digest, committeeIdx)
-		}
-		for _, committeeIdx := range syncIndices {
-			s.collectMetricForSubnet(syncTopic, digest, committeeIdx)
 		}
 	}
 
 	// We update all other gossip topics.
 	for _, topic := range p2p.AllTopics() {
 		// We already updated attestation subnet topics.
-		if strings.Contains(topic, p2p.GossipAttestationMessage) || strings.Contains(topic, p2p.GossipSyncCommitteeMessage) {
+		if strings.Contains(topic, p2p.GossipAttestationMessage) {
 			continue
 		}
 		topic += s.cfg.p2p.Encoding().ProtocolSuffix()

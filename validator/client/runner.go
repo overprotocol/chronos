@@ -239,10 +239,6 @@ func performRoles(slotCtx context.Context, allRoles map[[48]byte][]iface.Validat
 					v.ProposeBlock(slotCtx, slot, pubKey)
 				case iface.RoleAggregator:
 					v.SubmitAggregateAndProof(slotCtx, slot, pubKey)
-				case iface.RoleSyncCommittee:
-					v.SubmitSyncCommitteeMessage(slotCtx, slot, pubKey)
-				case iface.RoleSyncCommitteeAggregator:
-					v.SubmitSignedContributionAndProof(slotCtx, slot, pubKey)
 				case iface.RoleUnknown:
 					log.WithField("pubkey", fmt.Sprintf("%#x", bytesutil.Trunc(pubKey[:]))).Trace("No active roles, doing nothing")
 				default:
@@ -265,7 +261,6 @@ func performRoles(slotCtx context.Context, allRoles map[[48]byte][]iface.Validat
 		}()
 		// Log performance in the previous slot
 		v.LogSubmittedAtts(slot)
-		v.LogSubmittedSyncCommitteeMessages()
 		if err := v.LogValidatorGainsAndLosses(slotCtx, slot); err != nil {
 			log.WithError(err).Error("Could not report validator's rewards/penalties")
 		}

@@ -197,10 +197,6 @@ func (BeaconBlockBody) VoluntaryExits() []*eth.SignedVoluntaryExit {
 	panic("implement me")
 }
 
-func (BeaconBlockBody) SyncAggregate() (*eth.SyncAggregate, error) {
-	panic("implement me")
-}
-
 func (BeaconBlockBody) IsNil() bool {
 	return false
 }
@@ -254,10 +250,6 @@ func (b *BeaconBlockBody) SetDeposits([]*eth.Deposit) {
 }
 
 func (b *BeaconBlockBody) SetVoluntaryExits([]*eth.SignedVoluntaryExit) {
-	panic("implement me")
-}
-
-func (b *BeaconBlockBody) SetSyncAggregate(*eth.SyncAggregate) error {
 	panic("implement me")
 }
 

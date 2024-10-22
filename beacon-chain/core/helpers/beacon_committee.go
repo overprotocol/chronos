@@ -484,7 +484,6 @@ func CompressCommitteeCache() {
 func ClearCache() {
 	committeeCache.Clear()
 	proposerIndicesCache.Prune(0)
-	syncCommitteeCache.Clear()
 	balanceCache.Clear()
 	balanceWithQueueCache.Clear()
 }

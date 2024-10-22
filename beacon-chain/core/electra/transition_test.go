@@ -95,14 +95,6 @@ func TestProcessEpoch_CanProcessElectra(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, params.BeaconConfig().MaxValidatorsPerCommittee, uint64(len(p)))
 
-	sc, err := st.CurrentSyncCommittee()
-	require.NoError(t, err)
-	require.Equal(t, params.BeaconConfig().SyncCommitteeSize, uint64(len(sc.Pubkeys)))
-
-	sc, err = st.NextSyncCommittee()
-	require.NoError(t, err)
-	require.Equal(t, params.BeaconConfig().SyncCommitteeSize, uint64(len(sc.Pubkeys)))
-
 	res, err := st.DepositBalanceToConsume()
 	require.NoError(t, err)
 	require.Equal(t, primitives.Gwei(100), res)

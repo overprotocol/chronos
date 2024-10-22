@@ -21,16 +21,14 @@ import (
 	e2eparams "github.com/prysmaticlabs/prysm/v5/testing/endtoend/params"
 	"github.com/prysmaticlabs/prysm/v5/testing/endtoend/policies"
 	"github.com/prysmaticlabs/prysm/v5/testing/endtoend/types"
-	"github.com/prysmaticlabs/prysm/v5/time/slots"
 	"google.golang.org/grpc"
-	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 var expectedParticipation = 0.99
 
 var expectedMulticlientParticipation = 0.95
 
-var expectedSyncParticipation = 0.99
+// var expectedSyncParticipation = 0.99
 
 // ValidatorsAreActive ensures the expected amount of validators are active.
 var ValidatorsAreActive = types.Evaluator{
@@ -46,17 +44,6 @@ var ValidatorsParticipatingAtEpoch = func(epoch primitives.Epoch) types.Evaluato
 		Policy:     policies.AfterNthEpoch(epoch),
 		Evaluation: validatorsParticipating,
 	}
-}
-
-// ValidatorSyncParticipation ensures the expected amount of sync committee participants
-// are active.
-var ValidatorSyncParticipation = types.Evaluator{
-	Name: "validator_sync_participation_%d",
-	Policy: func(e primitives.Epoch) bool {
-		fEpoch := params.BeaconConfig().AltairForkEpoch
-		return policies.OnwardsNthEpoch(fEpoch)(e)
-	},
-	Evaluation: validatorsSyncParticipation,
 }
 
 func validatorsAreActive(ec *types.EvaluationContext, conns ...*grpc.ClientConn) error {
@@ -199,107 +186,6 @@ func validatorsParticipating(_ *types.EvaluationContext, conns ...*grpc.ClientCo
 			missTgtVals,
 			missHeadVals,
 		)
-	}
-	return nil
-}
-
-// validatorsSyncParticipation ensures the validators have an acceptable participation rate for
-// sync committee assignments.
-func validatorsSyncParticipation(_ *types.EvaluationContext, conns ...*grpc.ClientConn) error {
-	conn := conns[0]
-	client := ethpb.NewNodeClient(conn)
-	altairClient := ethpb.NewBeaconChainClient(conn)
-	genesis, err := client.GetGenesis(context.Background(), &emptypb.Empty{})
-	if err != nil {
-		return errors.Wrap(err, "failed to get genesis data")
-	}
-	currSlot := slots.CurrentSlot(uint64(genesis.GenesisTime.AsTime().Unix()))
-	currEpoch := slots.ToEpoch(currSlot)
-	lowestBound := primitives.Epoch(0)
-	if currEpoch >= 1 {
-		lowestBound = currEpoch - 1
-	}
-
-	if lowestBound < params.BeaconConfig().AltairForkEpoch {
-		lowestBound = params.BeaconConfig().AltairForkEpoch
-	}
-	blockCtrs, err := altairClient.ListBeaconBlocks(context.Background(), &ethpb.ListBlocksRequest{QueryFilter: &ethpb.ListBlocksRequest_Epoch{Epoch: lowestBound}})
-	if err != nil {
-		return errors.Wrap(err, "failed to get validator participation")
-	}
-	for _, ctr := range blockCtrs.BlockContainers {
-		b, err := syncCompatibleBlockFromCtr(ctr)
-		if err != nil {
-			return errors.Wrapf(err, "block type doesn't exist for block at epoch %d", lowestBound)
-		}
-
-		if b == nil || b.IsNil() {
-			return errors.New("nil block provided")
-		}
-		forkStartSlot, err := slots.EpochStart(params.BeaconConfig().AltairForkEpoch)
-		if err != nil {
-			return err
-		}
-		if forkStartSlot == b.Block().Slot() {
-			// Skip fork slot.
-			continue
-		}
-		expectedParticipation := expectedSyncParticipation
-		switch slots.ToEpoch(b.Block().Slot()) {
-		case params.BeaconConfig().AltairForkEpoch:
-			// Drop expected sync participation figure.
-			expectedParticipation = 0.90
-		default:
-			// no-op
-		}
-		syncAgg, err := b.Block().Body().SyncAggregate()
-		if err != nil {
-			return err
-		}
-		threshold := uint64(float64(syncAgg.SyncCommitteeBits.Len()) * expectedParticipation)
-		if syncAgg.SyncCommitteeBits.Count() < threshold {
-			return errors.Errorf("In block of slot %d ,the aggregate bitvector with length of %d only got a count of %d", b.Block().Slot(), threshold, syncAgg.SyncCommitteeBits.Count())
-		}
-	}
-	if lowestBound == currEpoch {
-		return nil
-	}
-	blockCtrs, err = altairClient.ListBeaconBlocks(context.Background(), &ethpb.ListBlocksRequest{QueryFilter: &ethpb.ListBlocksRequest_Epoch{Epoch: currEpoch}})
-	if err != nil {
-		return errors.Wrap(err, "failed to get validator participation")
-	}
-	for _, ctr := range blockCtrs.BlockContainers {
-		b, err := syncCompatibleBlockFromCtr(ctr)
-		if err != nil {
-			return errors.Wrapf(err, "block type doesn't exist for block at epoch %d", lowestBound)
-		}
-
-		if b == nil || b.IsNil() {
-			return errors.New("nil block provided")
-		}
-		forkSlot, err := slots.EpochStart(params.BeaconConfig().AltairForkEpoch)
-		if err != nil {
-			return err
-		}
-		nexForkSlot, err := slots.EpochStart(params.BeaconConfig().BellatrixForkEpoch)
-		if err != nil {
-			return err
-		}
-		switch b.Block().Slot() {
-		case forkSlot, forkSlot + 1, nexForkSlot:
-			// Skip evaluation of the slot.
-			continue
-		default:
-			// no-op
-		}
-		syncAgg, err := b.Block().Body().SyncAggregate()
-		if err != nil {
-			return err
-		}
-		threshold := uint64(float64(syncAgg.SyncCommitteeBits.Len()) * expectedSyncParticipation)
-		if syncAgg.SyncCommitteeBits.Count() < threshold {
-			return errors.Errorf("In block of slot %d ,the aggregate bitvector with length of %d only got a count of %d", b.Block().Slot(), threshold, syncAgg.SyncCommitteeBits.Count())
-		}
 	}
 	return nil
 }

@@ -112,90 +112,90 @@ func (s *Server) AttestationRewards(w http.ResponseWriter, r *http.Request) {
 
 // SyncCommitteeRewards retrieves rewards info for sync committee members specified by array of public keys or validator index.
 // If no array is provided, return reward info for every committee member.
-func (s *Server) SyncCommitteeRewards(w http.ResponseWriter, r *http.Request) {
-	ctx, span := trace.StartSpan(r.Context(), "beacon.SyncCommitteeRewards")
-	defer span.End()
-	segments := strings.Split(r.URL.Path, "/")
-	blockId := segments[len(segments)-1]
+// func (s *Server) SyncCommitteeRewards(w http.ResponseWriter, r *http.Request) {
+// 	ctx, span := trace.StartSpan(r.Context(), "beacon.SyncCommitteeRewards")
+// 	defer span.End()
+// 	segments := strings.Split(r.URL.Path, "/")
+// 	blockId := segments[len(segments)-1]
 
-	blk, err := s.Blocker.Block(r.Context(), []byte(blockId))
-	if !shared.WriteBlockFetchError(w, blk, err) {
-		return
-	}
-	if blk.Version() == version.Phase0 {
-		httputil.HandleError(w, "Sync committee rewards are not supported for Phase 0", http.StatusBadRequest)
-		return
-	}
+// 	blk, err := s.Blocker.Block(r.Context(), []byte(blockId))
+// 	if !shared.WriteBlockFetchError(w, blk, err) {
+// 		return
+// 	}
+// 	if blk.Version() == version.Phase0 {
+// 		httputil.HandleError(w, "Sync committee rewards are not supported for Phase 0", http.StatusBadRequest)
+// 		return
+// 	}
 
-	st, httpErr := s.BlockRewardFetcher.GetStateForRewards(ctx, blk.Block())
-	if httpErr != nil {
-		httputil.WriteError(w, httpErr)
-		return
-	}
-	sa, err := blk.Block().Body().SyncAggregate()
-	if err != nil {
-		httputil.HandleError(w, "Could not get sync aggregate: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
+// 	st, httpErr := s.BlockRewardFetcher.GetStateForRewards(ctx, blk.Block())
+// 	if httpErr != nil {
+// 		httputil.WriteError(w, httpErr)
+// 		return
+// 	}
+// 	// sa, err := blk.Block().Body().SyncAggregate()
+// 	// if err != nil {
+// 	// 	httputil.HandleError(w, "Could not get sync aggregate: "+err.Error(), http.StatusInternalServerError)
+// 	// 	return
+// 	// }
 
-	vals, valIndices, ok := syncRewardsVals(w, r, st)
-	if !ok {
-		return
-	}
-	preProcessBals := make([]uint64, len(vals))
-	for i, valIdx := range valIndices {
-		preProcessBals[i], err = st.BalanceAtIndex(valIdx)
-		if err != nil {
-			httputil.HandleError(w, "Could not get validator's balance: "+err.Error(), http.StatusInternalServerError)
-			return
-		}
-	}
+// 	// vals, valIndices, ok := syncRewardsVals(w, r, st)
+// 	// if !ok {
+// 	// 	return
+// 	// }
+// 	// preProcessBals := make([]uint64, len(vals))
+// 	// for i, valIdx := range valIndices {
+// 	// 	preProcessBals[i], err = st.BalanceAtIndex(valIdx)
+// 	// 	if err != nil {
+// 	// 		httputil.HandleError(w, "Could not get validator's balance: "+err.Error(), http.StatusInternalServerError)
+// 	// 		return
+// 	// 	}
+// 	// }
 
-	_, proposerReward, err := altair.ProcessSyncAggregate(r.Context(), st, sa)
-	if err != nil {
-		httputil.HandleError(w, "Could not get sync aggregate rewards: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
+// 	// _, proposerReward, err := altair.ProcessSyncAggregate(r.Context(), st, sa)
+// 	// if err != nil {
+// 	// 	httputil.HandleError(w, "Could not get sync aggregate rewards: "+err.Error(), http.StatusInternalServerError)
+// 	// 	return
+// 	// }
 
-	rewards := make([]int, len(preProcessBals))
-	proposerIndex := blk.Block().ProposerIndex()
-	for i, valIdx := range valIndices {
-		bal, err := st.BalanceAtIndex(valIdx)
-		if err != nil {
-			httputil.HandleError(w, "Could not get validator's balance: "+err.Error(), http.StatusInternalServerError)
-			return
-		}
-		rewards[i] = int(bal - preProcessBals[i]) // lint:ignore uintcast
-		if valIdx == proposerIndex {
-			rewards[i] = rewards[i] - int(proposerReward) // lint:ignore uintcast
-		}
-	}
+// 	// rewards := make([]int, len(preProcessBals))
+// 	// proposerIndex := blk.Block().ProposerIndex()
+// 	// for i, valIdx := range valIndices {
+// 	// 	bal, err := st.BalanceAtIndex(valIdx)
+// 	// 	if err != nil {
+// 	// 		httputil.HandleError(w, "Could not get validator's balance: "+err.Error(), http.StatusInternalServerError)
+// 	// 		return
+// 	// 	}
+// 	// 	rewards[i] = int(bal - preProcessBals[i]) // lint:ignore uintcast
+// 	// 	if valIdx == proposerIndex {
+// 	// 		rewards[i] = rewards[i] - int(proposerReward) // lint:ignore uintcast
+// 	// 	}
+// 	// }
 
-	optimistic, err := s.OptimisticModeFetcher.IsOptimistic(r.Context())
-	if err != nil {
-		httputil.HandleError(w, "Could not get optimistic mode info: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-	blkRoot, err := blk.Block().HashTreeRoot()
-	if err != nil {
-		httputil.HandleError(w, "Could not get block root: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
+// 	optimistic, err := s.OptimisticModeFetcher.IsOptimistic(r.Context())
+// 	if err != nil {
+// 		httputil.HandleError(w, "Could not get optimistic mode info: "+err.Error(), http.StatusInternalServerError)
+// 		return
+// 	}
+// 	blkRoot, err := blk.Block().HashTreeRoot()
+// 	if err != nil {
+// 		httputil.HandleError(w, "Could not get block root: "+err.Error(), http.StatusInternalServerError)
+// 		return
+// 	}
 
-	scRewards := make([]structs.SyncCommitteeReward, len(valIndices))
-	for i, valIdx := range valIndices {
-		scRewards[i] = structs.SyncCommitteeReward{
-			ValidatorIndex: strconv.FormatUint(uint64(valIdx), 10),
-			Reward:         strconv.Itoa(rewards[i]),
-		}
-	}
-	response := &structs.SyncCommitteeRewardsResponse{
-		Data:                scRewards,
-		ExecutionOptimistic: optimistic,
-		Finalized:           s.FinalizationFetcher.IsFinalized(r.Context(), blkRoot),
-	}
-	httputil.WriteJson(w, response)
-}
+// 	// scRewards := make([]structs.SyncCommitteeReward, len(valIndices))
+// 	// for i, valIdx := range valIndices {
+// 	// 	scRewards[i] = structs.SyncCommitteeReward{
+// 	// 		ValidatorIndex: strconv.FormatUint(uint64(valIdx), 10),
+// 	// 		Reward:         strconv.Itoa(rewards[i]),
+// 	// 	}
+// 	// }
+// 	// response := &structs.SyncCommitteeRewardsResponse{
+// 	// 	Data:                scRewards,
+// 	// 	ExecutionOptimistic: optimistic,
+// 	// 	Finalized:           s.FinalizationFetcher.IsFinalized(r.Context(), blkRoot),
+// 	// }
+// 	// httputil.WriteJson(w, response)
+// }
 
 func (s *Server) attRewardsState(w http.ResponseWriter, r *http.Request) (state.BeaconState, bool) {
 	segments := strings.Split(r.URL.Path, "/")
@@ -353,50 +353,50 @@ func totalAttRewards(
 	return totalRewards, true
 }
 
-func syncRewardsVals(
-	w http.ResponseWriter,
-	r *http.Request,
-	st state.BeaconState,
-) ([]*precompute.Validator, []primitives.ValidatorIndex, bool) {
-	allVals, _, err := altair.InitializePrecomputeValidators(r.Context(), st)
-	if err != nil {
-		httputil.HandleError(w, "Could not initialize precompute validators: "+err.Error(), http.StatusBadRequest)
-		return nil, nil, false
-	}
-	valIndices, ok := requestedValIndices(w, r, st, allVals)
-	if !ok {
-		return nil, nil, false
-	}
+// func syncRewardsVals(
+// 	w http.ResponseWriter,
+// 	r *http.Request,
+// 	st state.BeaconState,
+// ) ([]*precompute.Validator, []primitives.ValidatorIndex, bool) {
+// 	allVals, _, err := altair.InitializePrecomputeValidators(r.Context(), st)
+// 	if err != nil {
+// 		httputil.HandleError(w, "Could not initialize precompute validators: "+err.Error(), http.StatusBadRequest)
+// 		return nil, nil, false
+// 	}
+// 	valIndices, ok := requestedValIndices(w, r, st, allVals)
+// 	if !ok {
+// 		return nil, nil, false
+// 	}
 
-	sc, err := st.CurrentSyncCommittee()
-	if err != nil {
-		httputil.HandleError(w, "Could not get current sync committee: "+err.Error(), http.StatusBadRequest)
-		return nil, nil, false
-	}
-	allScIndices := make([]primitives.ValidatorIndex, len(sc.Pubkeys))
-	for i, pk := range sc.Pubkeys {
-		valIdx, ok := st.ValidatorIndexByPubkey(bytesutil.ToBytes48(pk))
-		if !ok {
-			httputil.HandleError(w, fmt.Sprintf("No validator index found for pubkey %#x", pk), http.StatusBadRequest)
-			return nil, nil, false
-		}
-		allScIndices[i] = valIdx
-	}
+// 	sc, err := st.CurrentSyncCommittee()
+// 	if err != nil {
+// 		httputil.HandleError(w, "Could not get current sync committee: "+err.Error(), http.StatusBadRequest)
+// 		return nil, nil, false
+// 	}
+// 	allScIndices := make([]primitives.ValidatorIndex, len(sc.Pubkeys))
+// 	for i, pk := range sc.Pubkeys {
+// 		valIdx, ok := st.ValidatorIndexByPubkey(bytesutil.ToBytes48(pk))
+// 		if !ok {
+// 			httputil.HandleError(w, fmt.Sprintf("No validator index found for pubkey %#x", pk), http.StatusBadRequest)
+// 			return nil, nil, false
+// 		}
+// 		allScIndices[i] = valIdx
+// 	}
 
-	scIndices := make([]primitives.ValidatorIndex, 0, len(allScIndices))
-	scVals := make([]*precompute.Validator, 0, len(allScIndices))
-	for _, valIdx := range valIndices {
-		for _, scIdx := range allScIndices {
-			if valIdx == scIdx {
-				scVals = append(scVals, allVals[valIdx])
-				scIndices = append(scIndices, valIdx)
-				break
-			}
-		}
-	}
+// 	scIndices := make([]primitives.ValidatorIndex, 0, len(allScIndices))
+// 	scVals := make([]*precompute.Validator, 0, len(allScIndices))
+// 	for _, valIdx := range valIndices {
+// 		for _, scIdx := range allScIndices {
+// 			if valIdx == scIdx {
+// 				scVals = append(scVals, allVals[valIdx])
+// 				scIndices = append(scIndices, valIdx)
+// 				break
+// 			}
+// 		}
+// 	}
 
-	return scVals, scIndices, true
-}
+// 	return scVals, scIndices, true
+// }
 
 func requestedValIndices(w http.ResponseWriter, r *http.Request, st state.BeaconState, allVals []*precompute.Validator) ([]primitives.ValidatorIndex, bool) {
 	var rawValIds []string

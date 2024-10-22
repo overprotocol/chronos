@@ -18,9 +18,7 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/cache"
 	"github.com/prysmaticlabs/prysm/v5/cmd/beacon-chain/flags"
 	"github.com/prysmaticlabs/prysm/v5/config/features"
-	"github.com/prysmaticlabs/prysm/v5/config/params"
 	ecdsaprysm "github.com/prysmaticlabs/prysm/v5/crypto/ecdsa"
-	"github.com/prysmaticlabs/prysm/v5/runtime/version"
 	"github.com/prysmaticlabs/prysm/v5/time/slots"
 )
 
@@ -72,36 +70,12 @@ func (s *Service) RefreshENR() {
 		return
 	}
 
-	// Compare current epoch with our fork epochs
-	altairForkEpoch := params.BeaconConfig().AltairForkEpoch
-	switch {
-	case currEpoch < altairForkEpoch:
-		// Phase 0 behaviour.
-		if bytes.Equal(bitV, currentBitV) {
-			// return early if bitfield hasn't changed
-			return
-		}
-		s.updateSubnetRecordWithMetadata(bitV)
-	default:
-		// Retrieve sync subnets from application level
-		// cache.
-		bitS := bitfield.Bitvector4{byte(0x00)}
-		committees = cache.SyncSubnetIDs.GetAllSubnets(currEpoch)
-		for _, idx := range committees {
-			bitS.SetBitAt(idx, true)
-		}
-		currentBitS, err := syncBitvector(s.dv5Listener.Self().Record())
-		if err != nil {
-			log.WithError(err).Error("Could not retrieve sync bitfield")
-			return
-		}
-		if bytes.Equal(bitV, currentBitV) && bytes.Equal(bitS, currentBitS) &&
-			s.Metadata().Version() == version.Altair {
-			// return early if bitfields haven't changed
-			return
-		}
-		s.updateSubnetRecordWithMetadataV2(bitV, bitS)
+	// Phase 0 behaviour.
+	if bytes.Equal(bitV, currentBitV) {
+		// return early if bitfield hasn't changed
+		return
 	}
+	s.updateSubnetRecordWithMetadata(bitV)
 	// ping all peers to inform them of new metadata
 	s.pingPeers()
 }
@@ -267,7 +241,6 @@ func (s *Service) createLocalNode(
 	}
 
 	localNode = initializeAttSubnets(localNode)
-	localNode = initializeSyncCommSubnets(localNode)
 
 	if s.cfg != nil && s.cfg.HostAddress != "" {
 		hostIP := net.ParseIP(s.cfg.HostAddress)

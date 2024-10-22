@@ -8,7 +8,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
-	mathutil "github.com/prysmaticlabs/prysm/v5/math"
 	prysmTime "github.com/prysmaticlabs/prysm/v5/time"
 )
 
@@ -238,26 +237,6 @@ func PrevSlot(slot primitives.Slot) primitives.Slot {
 		return slot.Sub(1)
 	}
 	return 0
-}
-
-// SyncCommitteePeriod returns the sync committee period of input epoch `e`.
-//
-// Spec code:
-// def compute_sync_committee_period(epoch: Epoch) -> uint64:
-//
-//	return epoch // EPOCHS_PER_SYNC_COMMITTEE_PERIOD
-func SyncCommitteePeriod(e primitives.Epoch) uint64 {
-	return uint64(e / params.BeaconConfig().EpochsPerSyncCommitteePeriod)
-}
-
-// SyncCommitteePeriodStartEpoch returns the start epoch of a sync committee period.
-func SyncCommitteePeriodStartEpoch(e primitives.Epoch) (primitives.Epoch, error) {
-	// Overflow is impossible here because of division of `EPOCHS_PER_SYNC_COMMITTEE_PERIOD`.
-	startEpoch, err := mathutil.Mul64(SyncCommitteePeriod(e), uint64(params.BeaconConfig().EpochsPerSyncCommitteePeriod))
-	if err != nil {
-		return 0, err
-	}
-	return primitives.Epoch(startEpoch), nil
 }
 
 // SecondsSinceSlotStart returns the number of seconds elapsed since the

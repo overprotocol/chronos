@@ -60,11 +60,6 @@ func TestUpgradeToBellatrix(t *testing.T) {
 		CurrentVersion:  params.BeaconConfig().BellatrixForkVersion,
 		Epoch:           time.CurrentEpoch(st),
 	}, f)
-	csc, err := mSt.CurrentSyncCommittee()
-	require.NoError(t, err)
-	nsc, err := mSt.NextSyncCommittee()
-	require.NoError(t, err)
-	require.DeepSSZEqual(t, nsc, csc)
 
 	b, err := mSt.BailOutScores()
 	require.NoError(t, err)

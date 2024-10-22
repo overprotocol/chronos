@@ -78,8 +78,6 @@ var altairFields = []types.FieldIndex{
 	types.CurrentJustifiedCheckpoint,
 	types.FinalizedCheckpoint,
 	types.InactivityScores,
-	types.CurrentSyncCommittee,
-	types.NextSyncCommittee,
 	types.BailOutScores,
 }
 
@@ -304,8 +302,6 @@ func InitializeFromProtoUnsafeAltair(st *ethpb.BeaconStateAltair) (state.BeaconS
 		previousJustifiedCheckpoint: st.PreviousJustifiedCheckpoint,
 		currentJustifiedCheckpoint:  st.CurrentJustifiedCheckpoint,
 		finalizedCheckpoint:         st.FinalizedCheckpoint,
-		currentSyncCommittee:        st.CurrentSyncCommittee,
-		nextSyncCommittee:           st.NextSyncCommittee,
 
 		id: types.Enumerator.Inc(),
 
@@ -420,8 +416,6 @@ func InitializeFromProtoUnsafeBellatrix(st *ethpb.BeaconStateBellatrix) (state.B
 		previousJustifiedCheckpoint:  st.PreviousJustifiedCheckpoint,
 		currentJustifiedCheckpoint:   st.CurrentJustifiedCheckpoint,
 		finalizedCheckpoint:          st.FinalizedCheckpoint,
-		currentSyncCommittee:         st.CurrentSyncCommittee,
-		nextSyncCommittee:            st.NextSyncCommittee,
 		latestExecutionPayloadHeader: st.LatestExecutionPayloadHeader,
 
 		id: types.Enumerator.Inc(),
@@ -538,8 +532,6 @@ func InitializeFromProtoUnsafeCapella(st *ethpb.BeaconStateCapella) (state.Beaco
 		previousJustifiedCheckpoint:         st.PreviousJustifiedCheckpoint,
 		currentJustifiedCheckpoint:          st.CurrentJustifiedCheckpoint,
 		finalizedCheckpoint:                 st.FinalizedCheckpoint,
-		currentSyncCommittee:                st.CurrentSyncCommittee,
-		nextSyncCommittee:                   st.NextSyncCommittee,
 		latestExecutionPayloadHeaderCapella: st.LatestExecutionPayloadHeader,
 		nextWithdrawalIndex:                 st.NextWithdrawalIndex,
 		nextWithdrawalValidatorIndex:        st.NextWithdrawalValidatorIndex,
@@ -660,8 +652,6 @@ func InitializeFromProtoUnsafeDeneb(st *ethpb.BeaconStateDeneb) (state.BeaconSta
 		previousJustifiedCheckpoint:       st.PreviousJustifiedCheckpoint,
 		currentJustifiedCheckpoint:        st.CurrentJustifiedCheckpoint,
 		finalizedCheckpoint:               st.FinalizedCheckpoint,
-		currentSyncCommittee:              st.CurrentSyncCommittee,
-		nextSyncCommittee:                 st.NextSyncCommittee,
 		latestExecutionPayloadHeaderDeneb: st.LatestExecutionPayloadHeader,
 		nextWithdrawalIndex:               st.NextWithdrawalIndex,
 		nextWithdrawalValidatorIndex:      st.NextWithdrawalValidatorIndex,
@@ -780,8 +770,6 @@ func InitializeFromProtoUnsafeElectra(st *ethpb.BeaconStateElectra) (state.Beaco
 		previousJustifiedCheckpoint:       st.PreviousJustifiedCheckpoint,
 		currentJustifiedCheckpoint:        st.CurrentJustifiedCheckpoint,
 		finalizedCheckpoint:               st.FinalizedCheckpoint,
-		currentSyncCommittee:              st.CurrentSyncCommittee,
-		nextSyncCommittee:                 st.NextSyncCommittee,
 		latestExecutionPayloadHeaderDeneb: st.LatestExecutionPayloadHeader,
 		nextWithdrawalIndex:               st.NextWithdrawalIndex,
 		nextWithdrawalValidatorIndex:      st.NextWithdrawalValidatorIndex,
@@ -956,8 +944,6 @@ func (b *BeaconState) Copy() state.BeaconState {
 		previousJustifiedCheckpoint:         b.previousJustifiedCheckpointVal(),
 		currentJustifiedCheckpoint:          b.currentJustifiedCheckpointVal(),
 		finalizedCheckpoint:                 b.finalizedCheckpointVal(),
-		currentSyncCommittee:                b.currentSyncCommitteeVal(),
-		nextSyncCommittee:                   b.nextSyncCommitteeVal(),
 		latestExecutionPayloadHeader:        b.latestExecutionPayloadHeader.Copy(),
 		latestExecutionPayloadHeaderCapella: b.latestExecutionPayloadHeaderCapella.Copy(),
 		latestExecutionPayloadHeaderDeneb:   b.latestExecutionPayloadHeaderDeneb.Copy(),
@@ -1335,10 +1321,6 @@ func (b *BeaconState) rootSelector(ctx context.Context, field types.FieldIndex) 
 		} else {
 			return stateutil.Uint64ListRootWithRegistryLimit(b.inactivityScores)
 		}
-	case types.CurrentSyncCommittee:
-		return stateutil.SyncCommitteeRoot(b.currentSyncCommittee)
-	case types.NextSyncCommittee:
-		return stateutil.SyncCommitteeRoot(b.nextSyncCommittee)
 	case types.BailOutScores:
 		if features.Get().EnableExperimentalState {
 			return stateutil.Uint64ListRootWithRegistryLimit(b.bailoutScoresMultiValue.Value(b))

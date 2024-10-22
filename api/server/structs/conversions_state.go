@@ -168,14 +168,6 @@ func BeaconStateAltairFromConsensus(st beaconState.BeaconState) (*BeaconStateAlt
 	for i, s := range srcIs {
 		is[i] = fmt.Sprintf("%d", s)
 	}
-	currSc, err := st.CurrentSyncCommittee()
-	if err != nil {
-		return nil, err
-	}
-	nextSc, err := st.NextSyncCommittee()
-	if err != nil {
-		return nil, err
-	}
 
 	srcBo, err := st.BailOutScores()
 	if err != nil {
@@ -212,8 +204,6 @@ func BeaconStateAltairFromConsensus(st beaconState.BeaconState) (*BeaconStateAlt
 		CurrentJustifiedCheckpoint:  CheckpointFromConsensus(st.CurrentJustifiedCheckpoint()),
 		FinalizedCheckpoint:         CheckpointFromConsensus(st.FinalizedCheckpoint()),
 		InactivityScores:            is,
-		CurrentSyncCommittee:        SyncCommitteeFromConsensus(currSc),
-		NextSyncCommittee:           SyncCommitteeFromConsensus(nextSc),
 		BailOutScores:               bo,
 	}, nil
 }
@@ -294,14 +284,6 @@ func BeaconStateBellatrixFromConsensus(st beaconState.BeaconState) (*BeaconState
 	for i, s := range srcBo {
 		bo[i] = fmt.Sprintf("%d", s)
 	}
-	currSc, err := st.CurrentSyncCommittee()
-	if err != nil {
-		return nil, err
-	}
-	nextSc, err := st.NextSyncCommittee()
-	if err != nil {
-		return nil, err
-	}
 	execData, err := st.LatestExecutionPayloadHeader()
 	if err != nil {
 		return nil, err
@@ -341,8 +323,6 @@ func BeaconStateBellatrixFromConsensus(st beaconState.BeaconState) (*BeaconState
 		CurrentJustifiedCheckpoint:   CheckpointFromConsensus(st.CurrentJustifiedCheckpoint()),
 		FinalizedCheckpoint:          CheckpointFromConsensus(st.FinalizedCheckpoint()),
 		InactivityScores:             is,
-		CurrentSyncCommittee:         SyncCommitteeFromConsensus(currSc),
-		NextSyncCommittee:            SyncCommitteeFromConsensus(nextSc),
 		BailOutScores:                bo,
 		LatestExecutionPayloadHeader: payload,
 	}, nil
@@ -424,14 +404,6 @@ func BeaconStateCapellaFromConsensus(st beaconState.BeaconState) (*BeaconStateCa
 	for i, s := range srcBo {
 		bo[i] = fmt.Sprintf("%d", s)
 	}
-	currSc, err := st.CurrentSyncCommittee()
-	if err != nil {
-		return nil, err
-	}
-	nextSc, err := st.NextSyncCommittee()
-	if err != nil {
-		return nil, err
-	}
 	execData, err := st.LatestExecutionPayloadHeader()
 	if err != nil {
 		return nil, err
@@ -487,8 +459,6 @@ func BeaconStateCapellaFromConsensus(st beaconState.BeaconState) (*BeaconStateCa
 		CurrentJustifiedCheckpoint:   CheckpointFromConsensus(st.CurrentJustifiedCheckpoint()),
 		FinalizedCheckpoint:          CheckpointFromConsensus(st.FinalizedCheckpoint()),
 		InactivityScores:             is,
-		CurrentSyncCommittee:         SyncCommitteeFromConsensus(currSc),
-		NextSyncCommittee:            SyncCommitteeFromConsensus(nextSc),
 		BailOutScores:                bo,
 		LatestExecutionPayloadHeader: payload,
 		NextWithdrawalIndex:          fmt.Sprintf("%d", nwi),
@@ -573,14 +543,6 @@ func BeaconStateDenebFromConsensus(st beaconState.BeaconState) (*BeaconStateDene
 	for i, s := range srcBo {
 		bo[i] = fmt.Sprintf("%d", s)
 	}
-	currSc, err := st.CurrentSyncCommittee()
-	if err != nil {
-		return nil, err
-	}
-	nextSc, err := st.NextSyncCommittee()
-	if err != nil {
-		return nil, err
-	}
 	execData, err := st.LatestExecutionPayloadHeader()
 	if err != nil {
 		return nil, err
@@ -636,8 +598,6 @@ func BeaconStateDenebFromConsensus(st beaconState.BeaconState) (*BeaconStateDene
 		CurrentJustifiedCheckpoint:   CheckpointFromConsensus(st.CurrentJustifiedCheckpoint()),
 		FinalizedCheckpoint:          CheckpointFromConsensus(st.FinalizedCheckpoint()),
 		InactivityScores:             is,
-		CurrentSyncCommittee:         SyncCommitteeFromConsensus(currSc),
-		NextSyncCommittee:            SyncCommitteeFromConsensus(nextSc),
 		BailOutScores:                bo,
 		LatestExecutionPayloadHeader: payload,
 		NextWithdrawalIndex:          fmt.Sprintf("%d", nwi),
@@ -721,14 +681,6 @@ func BeaconStateElectraFromConsensus(st beaconState.BeaconState) (*BeaconStateEl
 	bo := make([]string, len(srcBo))
 	for i, s := range srcBo {
 		bo[i] = fmt.Sprintf("%d", s)
-	}
-	currSc, err := st.CurrentSyncCommittee()
-	if err != nil {
-		return nil, err
-	}
-	nextSc, err := st.NextSyncCommittee()
-	if err != nil {
-		return nil, err
 	}
 	execData, err := st.LatestExecutionPayloadHeader()
 	if err != nil {
@@ -821,8 +773,6 @@ func BeaconStateElectraFromConsensus(st beaconState.BeaconState) (*BeaconStateEl
 		CurrentJustifiedCheckpoint:    CheckpointFromConsensus(st.CurrentJustifiedCheckpoint()),
 		FinalizedCheckpoint:           CheckpointFromConsensus(st.FinalizedCheckpoint()),
 		InactivityScores:              is,
-		CurrentSyncCommittee:          SyncCommitteeFromConsensus(currSc),
-		NextSyncCommittee:             SyncCommitteeFromConsensus(nextSc),
 		BailOutScores:                 bo,
 		LatestExecutionPayloadHeader:  payload,
 		NextWithdrawalIndex:           fmt.Sprintf("%d", nwi),

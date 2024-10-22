@@ -116,8 +116,6 @@ func TestComputeFieldRootsWithHasher_Altair(t *testing.T) {
 	require.NoError(t, beaconState.SetCurrentJustifiedCheckpoint(checkpoint("current")))
 	require.NoError(t, beaconState.SetFinalizedCheckpoint(checkpoint("finalized")))
 	require.NoError(t, beaconState.SetInactivityScores([]uint64{1, 2, 3}))
-	require.NoError(t, beaconState.SetCurrentSyncCommittee(syncCommittee("current")))
-	require.NoError(t, beaconState.SetNextSyncCommittee(syncCommittee("next")))
 	require.NoError(t, beaconState.SetBailOutScores([]uint64{1, 2, 3}))
 
 	nativeState, ok := beaconState.(*statenative.BeaconState)
@@ -194,8 +192,6 @@ func TestComputeFieldRootsWithHasher_Bellatrix(t *testing.T) {
 	require.NoError(t, beaconState.SetCurrentJustifiedCheckpoint(checkpoint("current")))
 	require.NoError(t, beaconState.SetFinalizedCheckpoint(checkpoint("finalized")))
 	require.NoError(t, beaconState.SetInactivityScores([]uint64{1, 2, 3}))
-	require.NoError(t, beaconState.SetCurrentSyncCommittee(syncCommittee("current")))
-	require.NoError(t, beaconState.SetNextSyncCommittee(syncCommittee("next")))
 	require.NoError(t, beaconState.SetBailOutScores([]uint64{1, 2, 3}))
 	wrappedHeader, err := blocks.WrappedExecutionPayloadHeader(executionPayloadHeader())
 	require.NoError(t, err)
@@ -276,8 +272,6 @@ func TestComputeFieldRootsWithHasher_Capella(t *testing.T) {
 	require.NoError(t, beaconState.SetCurrentJustifiedCheckpoint(checkpoint("current")))
 	require.NoError(t, beaconState.SetFinalizedCheckpoint(checkpoint("finalized")))
 	require.NoError(t, beaconState.SetInactivityScores([]uint64{1, 2, 3}))
-	require.NoError(t, beaconState.SetCurrentSyncCommittee(syncCommittee("current")))
-	require.NoError(t, beaconState.SetNextSyncCommittee(syncCommittee("next")))
 	require.NoError(t, beaconState.SetBailOutScores([]uint64{1, 2, 3}))
 	wrappedHeader, err := blocks.WrappedExecutionPayloadHeaderCapella(executionPayloadHeaderCapella())
 	require.NoError(t, err)
@@ -424,19 +418,6 @@ func checkpoint(prefix string) *ethpb.Checkpoint {
 	return &ethpb.Checkpoint{
 		Epoch: 123,
 		Root:  r[:],
-	}
-}
-
-func syncCommittee(prefix string) *ethpb.SyncCommittee {
-	pubkeys := make([][]byte, params.BeaconConfig().SyncCommitteeSize)
-	for i := range pubkeys {
-		key := bytesutil.ToBytes48([]byte(prefix + "pubkey"))
-		pubkeys[i] = key[:]
-	}
-	agg := bytesutil.ToBytes48([]byte(prefix + "aggregate"))
-	return &ethpb.SyncCommittee{
-		Pubkeys:         pubkeys,
-		AggregatePubkey: agg[:],
 	}
 }
 

@@ -62,7 +62,6 @@ type ReadOnlyBeaconBlockBody interface {
 	Attestations() []ethpb.Att
 	Deposits() []*ethpb.Deposit
 	VoluntaryExits() []*ethpb.SignedVoluntaryExit
-	SyncAggregate() (*ethpb.SyncAggregate, error)
 	BailOuts() ([]*ethpb.BailOut, error)
 	IsNil() bool
 	HashTreeRoot() ([field_params.RootLength]byte, error)
@@ -79,7 +78,6 @@ type SignedBeaconBlock interface {
 	SetBLSToExecutionChanges([]*ethpb.SignedBLSToExecutionChange) error
 	SetBlobKzgCommitments(c [][]byte) error
 	SetBailOuts([]*ethpb.BailOut) error
-	SetSyncAggregate(*ethpb.SyncAggregate) error
 	SetVoluntaryExits([]*ethpb.SignedVoluntaryExit)
 	SetDeposits([]*ethpb.Deposit)
 	SetAttestations([]ethpb.Att) error

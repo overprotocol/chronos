@@ -76,9 +76,6 @@ func (fv *FakeValidator) WaitForKeymanagerInitialization(_ context.Context) erro
 	return nil
 }
 
-// LogSubmittedSyncCommitteeMessages --
-func (fv *FakeValidator) LogSubmittedSyncCommitteeMessages() {}
-
 // WaitForChainStart for mocking.
 func (fv *FakeValidator) WaitForChainStart(_ context.Context) error {
 	fv.WaitForChainStartCalled++

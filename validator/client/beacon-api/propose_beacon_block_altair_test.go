@@ -42,11 +42,7 @@ func TestProposeBeaconBlock_Altair(t *testing.T) {
 				ProposerSlashings: jsonifyProposerSlashings(altairBlock.Altair.Block.Body.ProposerSlashings),
 				RandaoReveal:      hexutil.Encode(altairBlock.Altair.Block.Body.RandaoReveal),
 				VoluntaryExits:    JsonifySignedVoluntaryExits(altairBlock.Altair.Block.Body.VoluntaryExits),
-				SyncAggregate: &structs.SyncAggregate{
-					SyncCommitteeBits:      hexutil.Encode(altairBlock.Altair.Block.Body.SyncAggregate.SyncCommitteeBits),
-					SyncCommitteeSignature: hexutil.Encode(altairBlock.Altair.Block.Body.SyncAggregate.SyncCommitteeSignature),
-				},
-				BailOuts: JsonifyBailOuts(altairBlock.Altair.Block.Body.BailOuts),
+				BailOuts:          JsonifyBailOuts(altairBlock.Altair.Block.Body.BailOuts),
 			},
 		},
 	}

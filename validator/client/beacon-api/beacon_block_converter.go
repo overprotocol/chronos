@@ -152,20 +152,6 @@ func (c beaconApiBeaconBlockConverter) ConvertRESTAltairBlockToProto(block *stru
 		return nil, errors.Wrap(err, "failed to get the phase0 fields of the altair block")
 	}
 
-	if block.Body.SyncAggregate == nil {
-		return nil, errors.New("sync aggregate is nil")
-	}
-
-	syncCommitteeBits, err := hexutil.Decode(block.Body.SyncAggregate.SyncCommitteeBits)
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to decode sync committee bits `%s`", block.Body.SyncAggregate.SyncCommitteeBits)
-	}
-
-	syncCommitteeSignature, err := hexutil.Decode(block.Body.SyncAggregate.SyncCommitteeSignature)
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to decode sync committee signature `%s`", block.Body.SyncAggregate.SyncCommitteeSignature)
-	}
-
 	bailOuts, err := convertBailOutsToProto(block.Body.BailOuts)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get bail outs")
@@ -185,11 +171,7 @@ func (c beaconApiBeaconBlockConverter) ConvertRESTAltairBlockToProto(block *stru
 			Attestations:      phase0Block.Body.Attestations,
 			Deposits:          phase0Block.Body.Deposits,
 			VoluntaryExits:    phase0Block.Body.VoluntaryExits,
-			SyncAggregate: &ethpb.SyncAggregate{
-				SyncCommitteeBits:      syncCommitteeBits,
-				SyncCommitteeSignature: syncCommitteeSignature,
-			},
-			BailOuts: bailOuts,
+			BailOuts:          bailOuts,
 		},
 	}, nil
 }
@@ -216,7 +198,6 @@ func (c beaconApiBeaconBlockConverter) ConvertRESTBellatrixBlockToProto(block *s
 			Attestations:      block.Body.Attestations,
 			Deposits:          block.Body.Deposits,
 			VoluntaryExits:    block.Body.VoluntaryExits,
-			SyncAggregate:     block.Body.SyncAggregate,
 			BailOuts:          block.Body.BailOuts,
 		},
 	})
@@ -312,7 +293,6 @@ func (c beaconApiBeaconBlockConverter) ConvertRESTBellatrixBlockToProto(block *s
 			Attestations:      altairBlock.Body.Attestations,
 			Deposits:          altairBlock.Body.Deposits,
 			VoluntaryExits:    altairBlock.Body.VoluntaryExits,
-			SyncAggregate:     altairBlock.Body.SyncAggregate,
 			BailOuts:          altairBlock.Body.BailOuts,
 			ExecutionPayload: &enginev1.ExecutionPayload{
 				ParentHash:    parentHash,
@@ -360,7 +340,6 @@ func (c beaconApiBeaconBlockConverter) ConvertRESTCapellaBlockToProto(block *str
 			Attestations:      block.Body.Attestations,
 			Deposits:          block.Body.Deposits,
 			VoluntaryExits:    block.Body.VoluntaryExits,
-			SyncAggregate:     block.Body.SyncAggregate,
 			BailOuts:          block.Body.BailOuts,
 			ExecutionPayload: &structs.ExecutionPayload{
 				ParentHash:    block.Body.ExecutionPayload.ParentHash,
@@ -408,7 +387,6 @@ func (c beaconApiBeaconBlockConverter) ConvertRESTCapellaBlockToProto(block *str
 			Attestations:      bellatrixBlock.Body.Attestations,
 			Deposits:          bellatrixBlock.Body.Deposits,
 			VoluntaryExits:    bellatrixBlock.Body.VoluntaryExits,
-			SyncAggregate:     bellatrixBlock.Body.SyncAggregate,
 			BailOuts:          bellatrixBlock.Body.BailOuts,
 			ExecutionPayload: &enginev1.ExecutionPayloadCapella{
 				ParentHash:    bellatrixBlock.Body.ExecutionPayload.ParentHash,

@@ -304,12 +304,6 @@ func MapBeaconBlockBodyAltair(body *ethpb.BeaconBlockBodyAltair) (*BeaconBlockBo
 	if body == nil {
 		return nil, fmt.Errorf("beacon block body altair is nil")
 	}
-	if body.SyncAggregate == nil {
-		return nil, fmt.Errorf("sync aggregate in beacon block body altair is nil")
-	}
-	if body.SyncAggregate.SyncCommitteeBits == nil {
-		return nil, fmt.Errorf("sync committee bits in sync aggregate in beacon block body altair is nil")
-	}
 
 	block := &BeaconBlockBodyAltair{
 		RandaoReveal: body.RandaoReveal,
@@ -324,11 +318,7 @@ func MapBeaconBlockBodyAltair(body *ethpb.BeaconBlockBodyAltair) (*BeaconBlockBo
 		Attestations:      make([]*Attestation, len(body.Attestations)),
 		Deposits:          make([]*Deposit, len(body.Deposits)),
 		VoluntaryExits:    make([]*SignedVoluntaryExit, len(body.VoluntaryExits)),
-		SyncAggregate: &SyncAggregate{
-			SyncCommitteeBits:      []byte(body.SyncAggregate.SyncCommitteeBits),
-			SyncCommitteeSignature: body.SyncAggregate.SyncCommitteeSignature,
-		},
-		BailOuts: make([]*BailOut, len(body.BailOuts)),
+		BailOuts:          make([]*BailOut, len(body.BailOuts)),
 	}
 	for i, slashing := range body.ProposerSlashings {
 		proposer, err := MapProposerSlashing(slashing)
@@ -373,39 +363,4 @@ func MapBeaconBlockBodyAltair(body *ethpb.BeaconBlockBodyAltair) (*BeaconBlockBo
 		block.BailOuts[i] = bailOut
 	}
 	return block, nil
-}
-
-// MapSyncAggregatorSelectionData maps the eth2.SyncAggregatorSelectionData proto to the Web3Signer spec.
-func MapSyncAggregatorSelectionData(data *ethpb.SyncAggregatorSelectionData) (*SyncAggregatorSelectionData, error) {
-	if data == nil {
-		return nil, fmt.Errorf("sync aggregator selection data is nil")
-	}
-	return &SyncAggregatorSelectionData{
-		Slot:              fmt.Sprint(data.Slot),
-		SubcommitteeIndex: fmt.Sprint(data.SubcommitteeIndex),
-	}, nil
-}
-
-// MapContributionAndProof maps the eth2.ContributionAndProof proto to the Web3Signer spec.
-func MapContributionAndProof(contribution *ethpb.ContributionAndProof) (*ContributionAndProof, error) {
-	if contribution == nil {
-		return nil, fmt.Errorf("contribution and proof is nil")
-	}
-	if contribution.Contribution == nil {
-		return nil, fmt.Errorf("contribution in ContributionAndProof is nil")
-	}
-	if contribution.Contribution.AggregationBits == nil {
-		return nil, fmt.Errorf("aggregation bits in ContributionAndProof is nil")
-	}
-	return &ContributionAndProof{
-		AggregatorIndex: fmt.Sprint(contribution.AggregatorIndex),
-		SelectionProof:  contribution.SelectionProof,
-		Contribution: &SyncCommitteeContribution{
-			Slot:              fmt.Sprint(contribution.Contribution.Slot),
-			BeaconBlockRoot:   contribution.Contribution.BlockRoot,
-			SubcommitteeIndex: fmt.Sprint(contribution.Contribution.SubcommitteeIndex),
-			AggregationBits:   []byte(contribution.Contribution.AggregationBits),
-			Signature:         contribution.Contribution.Signature,
-		},
-	}, nil
 }

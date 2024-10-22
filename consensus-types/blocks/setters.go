@@ -130,16 +130,6 @@ func (b *SignedBeaconBlock) SetVoluntaryExits(v []*eth.SignedVoluntaryExit) {
 	b.block.body.voluntaryExits = v
 }
 
-// SetSyncAggregate sets the sync aggregate in the block.
-// This function is not thread safe, it is only used during block creation.
-func (b *SignedBeaconBlock) SetSyncAggregate(s *eth.SyncAggregate) error {
-	if b.version == version.Phase0 {
-		return consensus_types.ErrNotSupported("SyncAggregate", b.version)
-	}
-	b.block.body.syncAggregate = s
-	return nil
-}
-
 // SetBailOuts sets the BailOuts in the block.
 // This function is not thread safe, it is only used during block creation.
 func (b *SignedBeaconBlock) SetBailOuts(bo []*eth.BailOut) error {

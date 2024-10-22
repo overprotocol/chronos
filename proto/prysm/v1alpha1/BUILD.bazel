@@ -82,20 +82,11 @@ ssz_altair_objs = [
     "BeaconBlockBodyAltair",
     "BeaconStateAltair",
     "BeaconStateOldAltair",
-    "ContributionAndProof",
-    "LightClientBootstrapAltair",
-    "LightClientFinalityUpdateAltair",
-    "LightClientHeaderAltair",
-    "LightClientOptimisticUpdateAltair",
-    "LightClientUpdateAltair",
     "SignedBeaconBlockAltair",
     "SignedContributionAndProof",
     "SyncAggregate",
     "BailOut",
     "SyncAggregatorSelectionData",
-    "SyncCommittee",
-    "SyncCommitteeContribution",
-    "SyncCommitteeMessage",
 ]
 
 ssz_bellatrix_objs = [
@@ -119,11 +110,6 @@ ssz_capella_objs = [
     "BlindedBeaconBlockCapella",
     "BuilderBidCapella",
     "HistoricalSummary",
-    "LightClientBootstrapCapella",
-    "LightClientFinalityUpdateCapella",
-    "LightClientHeaderCapella",
-    "LightClientOptimisticUpdateCapella",
-    "LightClientUpdateCapella",
     "SignedBLSToExecutionChange",
     "SignedBeaconBlockCapella",
     "SignedBlindedBeaconBlockCapella",
@@ -142,11 +128,6 @@ ssz_deneb_objs = [
     "BlobSidecar",
     "BlobSidecars",
     "BuilderBidDeneb",
-    "LightClientBootstrapDeneb",
-    "LightClientFinalityUpdateDeneb",
-    "LightClientHeaderDeneb",
-    "LightClientOptimisticUpdateDeneb",
-    "LightClientUpdateDeneb",
     "SignedBeaconBlockContentsDeneb",
     "SignedBeaconBlockDeneb",
     "SignedBlindedBeaconBlockDeneb",
@@ -307,8 +288,6 @@ go_library(
         "beacon_block.go",
         "cloners.go",
         "eip_7521.go",
-        "sync_committee_mainnet.go",
-        "sync_committee_minimal.go",  # keep
         ":ssz_generated_altair",  # keep
         ":ssz_generated_bellatrix",  # keep
         ":ssz_generated_capella",  # keep
@@ -354,8 +333,6 @@ ssz_proto_files(
         "beacon_block.proto",
         "beacon_state.proto",
         "blobs.proto",
-        "light_client.proto",
-        "sync_committee.proto",
         "withdrawals.proto",
     ],
     config = select({

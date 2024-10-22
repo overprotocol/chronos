@@ -300,10 +300,6 @@ func BuildSignedBeaconBlockFromExecutionPayload(blk interfaces.ReadOnlySignedBea
 	if err := checkPayloadAgainstHeader(wrappedPayload, payloadHeader); err != nil {
 		return nil, err
 	}
-	syncAgg, err := b.Body().SyncAggregate()
-	if err != nil {
-		return nil, errors.Wrap(err, "could not get sync aggregate from block body")
-	}
 	bailOuts, err := b.Body().BailOuts()
 	if err != nil {
 		return nil, errors.Wrap(err, "could not get bail outs from block body")
@@ -358,7 +354,6 @@ func BuildSignedBeaconBlockFromExecutionPayload(blk interfaces.ReadOnlySignedBea
 					Attestations:      atts,
 					Deposits:          b.Body().Deposits(),
 					VoluntaryExits:    b.Body().VoluntaryExits(),
-					SyncAggregate:     syncAgg,
 					BailOuts:          bailOuts,
 					ExecutionPayload:  p,
 				},
@@ -411,7 +406,6 @@ func BuildSignedBeaconBlockFromExecutionPayload(blk interfaces.ReadOnlySignedBea
 					Attestations:          atts,
 					Deposits:              b.Body().Deposits(),
 					VoluntaryExits:        b.Body().VoluntaryExits(),
-					SyncAggregate:         syncAgg,
 					BailOuts:              bailOuts,
 					ExecutionPayload:      p,
 					BlsToExecutionChanges: blsToExecutionChanges,
@@ -469,7 +463,6 @@ func BuildSignedBeaconBlockFromExecutionPayload(blk interfaces.ReadOnlySignedBea
 					Attestations:          atts,
 					Deposits:              b.Body().Deposits(),
 					VoluntaryExits:        b.Body().VoluntaryExits(),
-					SyncAggregate:         syncAgg,
 					ExecutionPayload:      p,
 					BlsToExecutionChanges: blsToExecutionChanges,
 					BlobKzgCommitments:    commitments,
@@ -533,7 +526,6 @@ func BuildSignedBeaconBlockFromExecutionPayload(blk interfaces.ReadOnlySignedBea
 					Attestations:          atts,
 					Deposits:              b.Body().Deposits(),
 					VoluntaryExits:        b.Body().VoluntaryExits(),
-					SyncAggregate:         syncAgg,
 					BailOuts:              bailOuts,
 					ExecutionPayload:      p,
 					BlsToExecutionChanges: blsToExecutionChanges,

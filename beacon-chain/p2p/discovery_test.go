@@ -224,9 +224,6 @@ func TestCreateLocalNode(t *testing.T) {
 			require.DeepSSZEqual(t, []byte{0, 0, 0, 0, 0, 0, 0, 0}, *attSubnets)
 
 			// Check sync committees subnets.
-			syncSubnets := new([]byte)
-			require.NoError(t, localNode.Node().Record().Load(enr.WithEntry(syncCommsSubnetEnrKey, syncSubnets)))
-			require.DeepSSZEqual(t, []byte{0}, *syncSubnets)
 		})
 	}
 }
@@ -588,7 +585,6 @@ func TestRefreshENR_ForkBoundaries(t *testing.T) {
 				s.metaData = wrapper.WrappedMetadataV0(new(ethpb.MetaDataV0))
 				s.updateSubnetRecordWithMetadata([]byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
 				cache.SubnetIDs.AddPersistentCommittee([]uint64{1, 2, 3, 23}, 0)
-				cache.SyncSubnetIDs.AddSyncCommitteeSubnets([]byte{'A'}, 0, []uint64{0, 1}, 0)
 				return s
 			},
 			postValidation: func(t *testing.T, s *Service) {
@@ -605,7 +601,6 @@ func TestRefreshENR_ForkBoundaries(t *testing.T) {
 			tt.postValidation(t, s)
 			s.dv5Listener.Close()
 			cache.SubnetIDs.EmptyAllCaches()
-			cache.SyncSubnetIDs.EmptyAllCaches()
 		})
 	}
 }

@@ -53,8 +53,6 @@ type BeaconStateAltair struct {
 	CurrentJustifiedCheckpoint  *Checkpoint        `json:"current_justified_checkpoint"`
 	FinalizedCheckpoint         *Checkpoint        `json:"finalized_checkpoint"`
 	InactivityScores            []string           `json:"inactivity_scores"`
-	CurrentSyncCommittee        *SyncCommittee     `json:"current_sync_committee"`
-	NextSyncCommittee           *SyncCommittee     `json:"next_sync_committee"`
 	BailOutScores               []string           `json:"bail_out_scores"`
 }
 
@@ -84,8 +82,6 @@ type BeaconStateBellatrix struct {
 	CurrentJustifiedCheckpoint   *Checkpoint             `json:"current_justified_checkpoint"`
 	FinalizedCheckpoint          *Checkpoint             `json:"finalized_checkpoint"`
 	InactivityScores             []string                `json:"inactivity_scores"`
-	CurrentSyncCommittee         *SyncCommittee          `json:"current_sync_committee"`
-	NextSyncCommittee            *SyncCommittee          `json:"next_sync_committee"`
 	BailOutScores                []string                `json:"bail_out_scores"`
 	LatestExecutionPayloadHeader *ExecutionPayloadHeader `json:"latest_execution_payload_header"`
 }
@@ -116,8 +112,6 @@ type BeaconStateCapella struct {
 	CurrentJustifiedCheckpoint   *Checkpoint                    `json:"current_justified_checkpoint"`
 	FinalizedCheckpoint          *Checkpoint                    `json:"finalized_checkpoint"`
 	InactivityScores             []string                       `json:"inactivity_scores"`
-	CurrentSyncCommittee         *SyncCommittee                 `json:"current_sync_committee"`
-	NextSyncCommittee            *SyncCommittee                 `json:"next_sync_committee"`
 	BailOutScores                []string                       `json:"bail_out_scores"`
 	LatestExecutionPayloadHeader *ExecutionPayloadHeaderCapella `json:"latest_execution_payload_header"`
 	NextWithdrawalIndex          string                         `json:"next_withdrawal_index"`
@@ -151,8 +145,6 @@ type BeaconStateDeneb struct {
 	CurrentJustifiedCheckpoint   *Checkpoint                  `json:"current_justified_checkpoint"`
 	FinalizedCheckpoint          *Checkpoint                  `json:"finalized_checkpoint"`
 	InactivityScores             []string                     `json:"inactivity_scores"`
-	CurrentSyncCommittee         *SyncCommittee               `json:"current_sync_committee"`
-	NextSyncCommittee            *SyncCommittee               `json:"next_sync_committee"`
 	BailOutScores                []string                     `json:"bail_out_scores"`
 	LatestExecutionPayloadHeader *ExecutionPayloadHeaderDeneb `json:"latest_execution_payload_header"`
 	NextWithdrawalIndex          string                       `json:"next_withdrawal_index"`
@@ -186,8 +178,6 @@ type BeaconStateElectra struct {
 	CurrentJustifiedCheckpoint    *Checkpoint                    `json:"current_justified_checkpoint"`
 	FinalizedCheckpoint           *Checkpoint                    `json:"finalized_checkpoint"`
 	InactivityScores              []string                       `json:"inactivity_scores"`
-	CurrentSyncCommittee          *SyncCommittee                 `json:"current_sync_committee"`
-	NextSyncCommittee             *SyncCommittee                 `json:"next_sync_committee"`
 	BailOutScores                 []string                       `json:"bail_out_scores"`
 	LatestExecutionPayloadHeader  *ExecutionPayloadHeaderElectra `json:"latest_execution_payload_header"`
 	NextWithdrawalIndex           string                         `json:"next_withdrawal_index"`

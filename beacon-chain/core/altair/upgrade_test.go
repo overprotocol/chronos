@@ -121,9 +121,4 @@ func TestUpgradeToAltair(t *testing.T) {
 		CurrentVersion:  params.BeaconConfig().AltairForkVersion,
 		Epoch:           time.CurrentEpoch(st),
 	}, f)
-	csc, err := aState.CurrentSyncCommittee()
-	require.NoError(t, err)
-	nsc, err := aState.NextSyncCommittee()
-	require.NoError(t, err)
-	require.DeepSSZEqual(t, nsc, csc)
 }

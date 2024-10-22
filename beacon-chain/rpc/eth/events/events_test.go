@@ -98,7 +98,7 @@ func operationEventsFixtures(t *testing.T) (*topicRequest, []*feed.Event) {
 	topics, err := newTopicRequest([]string{
 		AttestationTopic,
 		VoluntaryExitTopic,
-		SyncCommitteeContributionTopic,
+		// SyncCommitteeContributionTopic,
 		BLSToExecutionChangeTopic,
 		BlobSidecarTopic,
 		AttesterSlashingTopic,
@@ -138,25 +138,25 @@ func operationEventsFixtures(t *testing.T) (*topicRequest, []*feed.Event) {
 				},
 			},
 		},
-		&feed.Event{
-			Type: operation.SyncCommitteeContributionReceived,
-			Data: &operation.SyncCommitteeContributionReceivedData{
-				Contribution: &eth.SignedContributionAndProof{
-					Message: &eth.ContributionAndProof{
-						AggregatorIndex: 0,
-						Contribution: &eth.SyncCommitteeContribution{
-							Slot:              0,
-							BlockRoot:         make([]byte, 32),
-							SubcommitteeIndex: 0,
-							AggregationBits:   make([]byte, 16),
-							Signature:         make([]byte, 96),
-						},
-						SelectionProof: make([]byte, 96),
-					},
-					Signature: make([]byte, 96),
-				},
-			},
-		},
+		// &feed.Event{
+		// 	Type: operation.SyncCommitteeContributionReceived,
+		// 	Data: &operation.SyncCommitteeContributionReceivedData{
+		// 		Contribution: &eth.SignedContributionAndProof{
+		// 			Message: &eth.ContributionAndProof{
+		// 				AggregatorIndex: 0,
+		// 				Contribution: &eth.SyncCommitteeContribution{
+		// 					Slot:              0,
+		// 					BlockRoot:         make([]byte, 32),
+		// 					SubcommitteeIndex: 0,
+		// 					AggregationBits:   make([]byte, 16),
+		// 					Signature:         make([]byte, 96),
+		// 				},
+		// 				SelectionProof: make([]byte, 96),
+		// 			},
+		// 			Signature: make([]byte, 96),
+		// 		},
+		// 	},
+		// },
 		&feed.Event{
 			Type: operation.BLSToExecutionChangeReceived,
 			Data: &operation.BLSToExecutionChangeReceivedData{

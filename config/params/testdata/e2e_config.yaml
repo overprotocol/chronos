@@ -101,19 +101,6 @@ MIN_SLASHING_PENALTY_QUOTIENT_ALTAIR: 64
 PROPORTIONAL_SLASHING_MULTIPLIER_ALTAIR: 2
 
 
-# Sync committee
-# ---------------------------------------------------------------
-# [customized]
-SYNC_COMMITTEE_SIZE: 32
-# [customized]
-EPOCHS_PER_SYNC_COMMITTEE_PERIOD: 8
-
-
-# Sync protocol
-# ---------------------------------------------------------------
-# 1
-MIN_SYNC_COMMITTEE_PARTICIPANTS: 1
-
 # Other e2e overrides
 # ---------------------------------------------------------------
 CONFIG_NAME: "end-to-end"

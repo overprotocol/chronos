@@ -17,7 +17,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/feed/operation"
 	corehelpers "github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/transition"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/rpc/core"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/rpc/eth/shared"
 	"github.com/prysmaticlabs/prysm/v5/config/features"
 	consensus_types "github.com/prysmaticlabs/prysm/v5/consensus-types"
@@ -263,57 +262,6 @@ func (s *Server) SubmitVoluntaryExit(w http.ResponseWriter, r *http.Request) {
 	if err = s.Broadcaster.Broadcast(ctx, exit); err != nil {
 		httputil.HandleError(w, "Could not broadcast exit: "+err.Error(), http.StatusInternalServerError)
 		return
-	}
-}
-
-// SubmitSyncCommitteeSignatures submits sync committee signature objects to the node.
-func (s *Server) SubmitSyncCommitteeSignatures(w http.ResponseWriter, r *http.Request) {
-	ctx, span := trace.StartSpan(r.Context(), "beacon.SubmitPoolSyncCommitteeSignatures")
-	defer span.End()
-
-	var req structs.SubmitSyncCommitteeSignaturesRequest
-	err := json.NewDecoder(r.Body).Decode(&req.Data)
-	switch {
-	case errors.Is(err, io.EOF):
-		httputil.HandleError(w, "No data submitted", http.StatusBadRequest)
-		return
-	case err != nil:
-		httputil.HandleError(w, "Could not decode request body: "+err.Error(), http.StatusBadRequest)
-		return
-	}
-	if len(req.Data) == 0 {
-		httputil.HandleError(w, "No data submitted", http.StatusBadRequest)
-		return
-	}
-
-	var validMessages []*eth.SyncCommitteeMessage
-	var msgFailures []*server.IndexedVerificationFailure
-	for i, sourceMsg := range req.Data {
-		msg, err := sourceMsg.ToConsensus()
-		if err != nil {
-			msgFailures = append(msgFailures, &server.IndexedVerificationFailure{
-				Index:   i,
-				Message: "Could not convert request message to consensus message: " + err.Error(),
-			})
-			continue
-		}
-		validMessages = append(validMessages, msg)
-	}
-
-	for _, msg := range validMessages {
-		if rpcerr := s.CoreService.SubmitSyncMessage(ctx, msg); rpcerr != nil {
-			httputil.HandleError(w, "Could not submit message: "+rpcerr.Err.Error(), core.ErrorReasonToHTTP(rpcerr.Reason))
-			return
-		}
-	}
-
-	if len(msgFailures) > 0 {
-		failuresErr := &server.IndexedVerificationFailureError{
-			Code:     http.StatusBadRequest,
-			Message:  "One or more messages failed validation",
-			Failures: msgFailures,
-		}
-		httputil.WriteError(w, failuresErr)
 	}
 }
 

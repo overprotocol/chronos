@@ -74,30 +74,6 @@ type VoluntaryExitSignRequest struct {
 	VoluntaryExit *VoluntaryExit `json:"voluntary_exit" validate:"required"`
 }
 
-// SyncCommitteeMessageSignRequest is a request object for web3signer sign api.
-type SyncCommitteeMessageSignRequest struct {
-	Type                 string                `json:"type" validate:"required"`
-	ForkInfo             *ForkInfo             `json:"fork_info" validate:"required"`
-	SigningRoot          hexutil.Bytes         `json:"signingRoot"`
-	SyncCommitteeMessage *SyncCommitteeMessage `json:"sync_committee_message" validate:"required"`
-}
-
-// SyncCommitteeSelectionProofSignRequest is a request object for web3signer sign api.
-type SyncCommitteeSelectionProofSignRequest struct {
-	Type                        string                       `json:"type" validate:"required"`
-	ForkInfo                    *ForkInfo                    `json:"fork_info" validate:"required"`
-	SigningRoot                 hexutil.Bytes                `json:"signingRoot"`
-	SyncAggregatorSelectionData *SyncAggregatorSelectionData `json:"sync_aggregator_selection_data" validate:"required"`
-}
-
-// SyncCommitteeContributionAndProofSignRequest is a request object for web3signer sign api.
-type SyncCommitteeContributionAndProofSignRequest struct {
-	Type                 string                `json:"type" validate:"required"`
-	ForkInfo             *ForkInfo             `json:"fork_info" validate:"required"`
-	SigningRoot          hexutil.Bytes         `json:"signingRoot"`
-	ContributionAndProof *ContributionAndProof `json:"contribution_and_proof" validate:"required"`
-}
-
 // ValidatorRegistrationSignRequest a request object for web3signer sign api.
 type ValidatorRegistrationSignRequest struct {
 	Type                  string                 `json:"type" validate:"required"`
@@ -277,7 +253,6 @@ type BeaconBlockBodyAltair struct {
 	Attestations      []*Attestation         `json:"attestations"`
 	Deposits          []*Deposit             `json:"deposits"`
 	VoluntaryExits    []*SignedVoluntaryExit `json:"voluntary_exits"`
-	SyncAggregate     *SyncAggregate         `json:"sync_aggregate"`
 	BailOuts          []*BailOut             `json:"bail_outs"`
 }
 
@@ -286,12 +261,6 @@ type BeaconBlockBodyAltair struct {
 type BeaconBlockV2Blinded struct {
 	Version     string             `json:"version" enum:"true"`
 	BlockHeader *BeaconBlockHeader `json:"block_header"`
-}
-
-// SyncAggregate is a sub property of BeaconBlockBodyAltair.
-type SyncAggregate struct {
-	SyncCommitteeBits      hexutil.Bytes `json:"sync_committee_bits"`      /* SSZ hexadecimal string */
-	SyncCommitteeSignature hexutil.Bytes `json:"sync_committee_signature"` /* 96 byte hexadecimal string */
 }
 
 // BeaconBlockBlockV2 a sub property of BlockV2SignRequest.
@@ -303,35 +272,6 @@ type BeaconBlockBlockV2 struct {
 // RandaoReveal a sub property of RandaoRevealSignRequest.
 type RandaoReveal struct {
 	Epoch string `json:"epoch"` /* uint64 */
-}
-
-// SyncCommitteeMessage a sub property of SyncCommitteeSignRequest.
-type SyncCommitteeMessage struct {
-	BeaconBlockRoot hexutil.Bytes `json:"beacon_block_root"` /* Hash32 */
-	Slot            string        `json:"slot"`              /* uint64 */
-	// Prysm uses BlockRoot instead of BeaconBlockRoot and has the following extra properties : ValidatorIndex, Signature
-}
-
-// SyncAggregatorSelectionData a sub property of SyncAggregatorSelectionSignRequest.
-type SyncAggregatorSelectionData struct {
-	Slot              string `json:"slot"`               /* uint64 */
-	SubcommitteeIndex string `json:"subcommittee_index"` /* uint64 */
-}
-
-// ContributionAndProof a sub property of AggregatorSelectionSignRequest.
-type ContributionAndProof struct {
-	AggregatorIndex string                     `json:"aggregator_index"` /* uint64 */
-	SelectionProof  hexutil.Bytes              `json:"selection_proof"`  /* 96 byte hexadecimal */
-	Contribution    *SyncCommitteeContribution `json:"contribution"`
-}
-
-// SyncCommitteeContribution a sub property of AggregatorSelectionSignRequest.
-type SyncCommitteeContribution struct {
-	Slot              string        `json:"slot"`               /* uint64 */
-	BeaconBlockRoot   hexutil.Bytes `json:"beacon_block_root"`  /* Hash32 */ // Prysm uses BlockRoot instead of BeaconBlockRoot
-	SubcommitteeIndex string        `json:"subcommittee_index"` /* uint64 */
-	AggregationBits   hexutil.Bytes `json:"aggregation_bits"`   /* SSZ hexadecimal string */
-	Signature         hexutil.Bytes `json:"signature"`          /* 96 byte hexadecimal string */
 }
 
 // ValidatorRegistration a sub property of ValidatorRegistrationSignRequest

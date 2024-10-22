@@ -9,7 +9,6 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	blockchainTesting "github.com/prysmaticlabs/prysm/v5/beacon-chain/blockchain/testing"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/cache"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/altair"
 	statefeed "github.com/prysmaticlabs/prysm/v5/beacon-chain/core/feed/state"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/das"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/bailout"
@@ -170,9 +169,6 @@ func TestService_ReceiveBlockWithBailOut(t *testing.T) {
 	ctx := context.Background()
 
 	genesis, keys := util.DeterministicGenesisStateAltair(t, 64)
-	sCom, err := altair.NextSyncCommittee(ctx, genesis)
-	assert.NoError(t, err)
-	assert.NoError(t, genesis.SetCurrentSyncCommittee(sCom))
 
 	scores, err := genesis.BailOutScores()
 	require.NoError(t, err)

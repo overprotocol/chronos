@@ -28,9 +28,7 @@ var (
 	ProcessRandaoMixesReset              = e.ProcessRandaoMixesReset
 	ProcessHistoricalDataUpdate          = e.ProcessHistoricalDataUpdate
 	ProcessParticipationFlagUpdates      = altair.ProcessParticipationFlagUpdates
-	ProcessSyncCommitteeUpdates          = altair.ProcessSyncCommitteeUpdates
 	AttestationsDelta                    = altair.AttestationsDelta
-	ProcessSyncAggregate                 = altair.ProcessSyncAggregate
 )
 
 // ProcessEpoch describes the per epoch operations that are performed on the beacon state.
@@ -123,12 +121,7 @@ func ProcessEpoch(ctx context.Context, state state.BeaconState) error {
 		return err
 	}
 
-	state, err = ProcessParticipationFlagUpdates(state)
-	if err != nil {
-		return err
-	}
-
-	_, err = ProcessSyncCommitteeUpdates(ctx, state)
+	_, err = ProcessParticipationFlagUpdates(state)
 	if err != nil {
 		return err
 	}

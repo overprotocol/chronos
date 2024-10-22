@@ -47,18 +47,6 @@ func (c *grpcValidatorClient) FeeRecipientByPubKey(ctx context.Context, in *ethp
 	return c.beaconNodeValidatorClient.GetFeeRecipientByPubKey(ctx, in)
 }
 
-func (c *grpcValidatorClient) SyncCommitteeContribution(ctx context.Context, in *ethpb.SyncCommitteeContributionRequest) (*ethpb.SyncCommitteeContribution, error) {
-	return c.beaconNodeValidatorClient.GetSyncCommitteeContribution(ctx, in)
-}
-
-func (c *grpcValidatorClient) SyncMessageBlockRoot(ctx context.Context, in *empty.Empty) (*ethpb.SyncMessageBlockRootResponse, error) {
-	return c.beaconNodeValidatorClient.GetSyncMessageBlockRoot(ctx, in)
-}
-
-func (c *grpcValidatorClient) SyncSubcommitteeIndex(ctx context.Context, in *ethpb.SyncSubcommitteeIndexRequest) (*ethpb.SyncSubcommitteeIndexResponse, error) {
-	return c.beaconNodeValidatorClient.GetSyncSubcommitteeIndex(ctx, in)
-}
-
 func (c *grpcValidatorClient) MultipleValidatorStatus(ctx context.Context, in *ethpb.MultipleValidatorStatusRequest) (*ethpb.MultipleValidatorStatusResponse, error) {
 	return c.beaconNodeValidatorClient.MultipleValidatorStatus(ctx, in)
 }
@@ -103,14 +91,6 @@ func (c *grpcValidatorClient) SubmitSignedAggregateSelectionProofElectra(ctx con
 	return c.beaconNodeValidatorClient.SubmitSignedAggregateSelectionProofElectra(ctx, in)
 }
 
-func (c *grpcValidatorClient) SubmitSignedContributionAndProof(ctx context.Context, in *ethpb.SignedContributionAndProof) (*empty.Empty, error) {
-	return c.beaconNodeValidatorClient.SubmitSignedContributionAndProof(ctx, in)
-}
-
-func (c *grpcValidatorClient) SubmitSyncMessage(ctx context.Context, in *ethpb.SyncCommitteeMessage) (*empty.Empty, error) {
-	return c.beaconNodeValidatorClient.SubmitSyncMessage(ctx, in)
-}
-
 func (c *grpcValidatorClient) SubmitValidatorRegistrations(ctx context.Context, in *ethpb.SignedValidatorRegistrationsV1) (*empty.Empty, error) {
 	return c.beaconNodeValidatorClient.SubmitValidatorRegistrations(ctx, in)
 }
@@ -147,18 +127,8 @@ func (c *grpcValidatorClient) WaitForChainStart(ctx context.Context, in *empty.E
 func (c *grpcValidatorClient) AssignValidatorToSubnet(ctx context.Context, in *ethpb.AssignValidatorToSubnetRequest) (*empty.Empty, error) {
 	return c.beaconNodeValidatorClient.AssignValidatorToSubnet(ctx, in)
 }
-func (c *grpcValidatorClient) AggregatedSigAndAggregationBits(
-	ctx context.Context,
-	in *ethpb.AggregatedSigAndAggregationBitsRequest,
-) (*ethpb.AggregatedSigAndAggregationBitsResponse, error) {
-	return c.beaconNodeValidatorClient.AggregatedSigAndAggregationBits(ctx, in)
-}
 
 func (*grpcValidatorClient) AggregatedSelections(context.Context, []iface.BeaconCommitteeSelection) ([]iface.BeaconCommitteeSelection, error) {
-	return nil, iface.ErrNotSupported
-}
-
-func (*grpcValidatorClient) AggregatedSyncSelections(context.Context, []iface.SyncCommitteeSelection) ([]iface.SyncCommitteeSelection, error) {
 	return nil, iface.ErrNotSupported
 }
 

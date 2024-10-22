@@ -213,10 +213,6 @@ func GenerateProtoBellatrixBeaconBlock() *ethpb.BeaconBlockBellatrix {
 					Signature: FillByteSlice(96, 109),
 				},
 			},
-			SyncAggregate: &ethpb.SyncAggregate{
-				SyncCommitteeBits:      FillByteSlice(64, 110),
-				SyncCommitteeSignature: FillByteSlice(96, 111),
-			},
 			BailOuts: []*ethpb.BailOut{
 				{
 					ValidatorIndex: 128,
@@ -454,10 +450,6 @@ func GenerateProtoBlindedBellatrixBeaconBlock() *ethpb.BlindedBeaconBlockBellatr
 					Signature: FillByteSlice(96, 109),
 				},
 			},
-			SyncAggregate: &ethpb.SyncAggregate{
-				SyncCommitteeBits:      FillByteSlice(64, 110),
-				SyncCommitteeSignature: FillByteSlice(96, 111),
-			},
 			BailOuts: []*ethpb.BailOut{
 				{
 					ValidatorIndex: 128,
@@ -691,10 +683,6 @@ func GenerateJsonBellatrixBeaconBlock() *structs.BeaconBlockBellatrix {
 					},
 					Signature: FillEncodedByteSlice(96, 109),
 				},
-			},
-			SyncAggregate: &structs.SyncAggregate{
-				SyncCommitteeBits:      FillEncodedByteSlice(64, 110),
-				SyncCommitteeSignature: FillEncodedByteSlice(96, 111),
 			},
 			BailOuts: []*structs.BailOut{
 				{
@@ -932,10 +920,6 @@ func GenerateJsonBlindedBellatrixBeaconBlock() *structs.BlindedBeaconBlockBellat
 					},
 					Signature: FillEncodedByteSlice(96, 109),
 				},
-			},
-			SyncAggregate: &structs.SyncAggregate{
-				SyncCommitteeBits:      FillEncodedByteSlice(64, 110),
-				SyncCommitteeSignature: FillEncodedByteSlice(96, 111),
 			},
 			BailOuts: []*structs.BailOut{
 				{

@@ -10,7 +10,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/interfaces"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
 	"github.com/prysmaticlabs/prysm/v5/encoding/bytesutil"
-	"github.com/prysmaticlabs/prysm/v5/time/slots"
 	"github.com/sirupsen/logrus"
 )
 
@@ -44,17 +43,6 @@ func (s *Service) processBlock(ctx context.Context, b interfaces.ReadOnlySignedB
 		return
 	}
 
-	currEpoch := slots.ToEpoch(blk.Slot())
-	s.RLock()
-	lastSyncedEpoch := s.lastSyncedEpoch
-	s.RUnlock()
-
-	if currEpoch != lastSyncedEpoch &&
-		slots.SyncCommitteePeriod(currEpoch) == slots.SyncCommitteePeriod(lastSyncedEpoch) {
-		s.updateSyncCommitteeTrackedVals(st)
-	}
-
-	s.processSyncAggregate(st, blk)
 	s.processProposedBlock(st, root, blk)
 	s.processAttestations(ctx, st, blk)
 
@@ -174,7 +162,6 @@ func (s *Service) logAggregatedPerformance() {
 			"averageInclusionDistance": fmt.Sprintf("%.1f", percentDistance),
 			"totalProposedBlocks":      p.totalProposedCount,
 			"totalAggregations":        p.totalAggregations,
-			"totalSyncContributions":   p.totalSyncCommitteeContributions,
 		}).Info("Aggregated performance since launch")
 	}
 }

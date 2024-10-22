@@ -200,16 +200,6 @@ message IndexedAttestation {
     bytes signature = 3 [(ethereum.eth.ext.ssz_size) = "96"];
 }
 
-// The sync aggregate object for the beacon chain to track sync committee votes and to
-// support light client infra.
-message SyncAggregate {
-    // Sync committee bits as Bitvector to track votes.
-    bytes sync_committee_bits = 1 [(ethereum.eth.ext.ssz_size) = "sync_committee_bytes.size", (ethereum.eth.ext.cast_type) = "sync_committee_bits.type"];
-
-    // BLS aggregated signature of the sync committee for the ones that voted.
-    bytes sync_committee_signature = 2 [(ethereum.eth.ext.ssz_size) = "96"];
-}
-
 // A message that represents a validator which should be kicked out
 // from the active validator set. The message does not contain a
 // validator signature.

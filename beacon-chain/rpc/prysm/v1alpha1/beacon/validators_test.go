@@ -11,7 +11,6 @@ import (
 
 	"github.com/prysmaticlabs/go-bitfield"
 	mock "github.com/prysmaticlabs/prysm/v5/beacon-chain/blockchain/testing"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/altair"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/epoch/precompute"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
 	coreTime "github.com/prysmaticlabs/prysm/v5/beacon-chain/core/time"
@@ -28,7 +27,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/cmd"
 	fieldparams "github.com/prysmaticlabs/prysm/v5/config/fieldparams"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
-	"github.com/prysmaticlabs/prysm/v5/consensus-types/blocks"
 	blocktest "github.com/prysmaticlabs/prysm/v5/consensus-types/blocks/testing"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/interfaces"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
@@ -1675,65 +1673,65 @@ func TestServer_GetValidatorParticipation_OrphanedUntilGenesis(t *testing.T) {
 	assert.DeepEqual(t, wanted, res.Participation, "Incorrect validator participation respond")
 }
 
-func TestServer_GetValidatorParticipation_CurrentAndPrevEpochWithBits(t *testing.T) {
-	params.SetupTestConfigCleanup(t)
-	params.OverrideBeaconConfig(params.BeaconConfig())
-	transition.SkipSlotCache.Disable()
+// func TestServer_GetValidatorParticipation_CurrentAndPrevEpochWithBits(t *testing.T) {
+// 	params.SetupTestConfigCleanup(t)
+// 	params.OverrideBeaconConfig(params.BeaconConfig())
+// 	transition.SkipSlotCache.Disable()
 
-	t.Run("altair", func(t *testing.T) {
-		validatorCount := uint64(32)
-		genState, _ := util.DeterministicGenesisStateAltair(t, validatorCount)
-		c, err := altair.NextSyncCommittee(context.Background(), genState)
-		require.NoError(t, err)
-		require.NoError(t, genState.SetCurrentSyncCommittee(c))
+// 	t.Run("altair", func(t *testing.T) {
+// 		validatorCount := uint64(32)
+// 		genState, _ := util.DeterministicGenesisStateAltair(t, validatorCount)
+// 		c, err := altair.NextSyncCommittee(context.Background(), genState)
+// 		require.NoError(t, err)
+// 		require.NoError(t, genState.SetCurrentSyncCommittee(c))
 
-		bits := make([]byte, validatorCount)
-		for i := range bits {
-			bits[i] = 0xff
-		}
-		require.NoError(t, genState.SetCurrentParticipationBits(bits))
-		require.NoError(t, genState.SetPreviousParticipationBits(bits))
-		gb, err := blocks.NewSignedBeaconBlock(util.NewBeaconBlockAltair())
-		assert.NoError(t, err)
-		runGetValidatorParticipationCurrentAndPrevEpoch(t, genState, gb)
-	})
+// 		bits := make([]byte, validatorCount)
+// 		for i := range bits {
+// 			bits[i] = 0xff
+// 		}
+// 		require.NoError(t, genState.SetCurrentParticipationBits(bits))
+// 		require.NoError(t, genState.SetPreviousParticipationBits(bits))
+// 		gb, err := blocks.NewSignedBeaconBlock(util.NewBeaconBlockAltair())
+// 		assert.NoError(t, err)
+// 		runGetValidatorParticipationCurrentAndPrevEpoch(t, genState, gb)
+// 	})
 
-	t.Run("bellatrix", func(t *testing.T) {
-		validatorCount := uint64(32)
-		genState, _ := util.DeterministicGenesisStateBellatrix(t, validatorCount)
-		c, err := altair.NextSyncCommittee(context.Background(), genState)
-		require.NoError(t, err)
-		require.NoError(t, genState.SetCurrentSyncCommittee(c))
+// 	t.Run("bellatrix", func(t *testing.T) {
+// 		validatorCount := uint64(32)
+// 		genState, _ := util.DeterministicGenesisStateBellatrix(t, validatorCount)
+// 		c, err := altair.NextSyncCommittee(context.Background(), genState)
+// 		require.NoError(t, err)
+// 		require.NoError(t, genState.SetCurrentSyncCommittee(c))
 
-		bits := make([]byte, validatorCount)
-		for i := range bits {
-			bits[i] = 0xff
-		}
-		require.NoError(t, genState.SetCurrentParticipationBits(bits))
-		require.NoError(t, genState.SetPreviousParticipationBits(bits))
-		gb, err := blocks.NewSignedBeaconBlock(util.NewBeaconBlockBellatrix())
-		assert.NoError(t, err)
-		runGetValidatorParticipationCurrentAndPrevEpoch(t, genState, gb)
-	})
+// 		bits := make([]byte, validatorCount)
+// 		for i := range bits {
+// 			bits[i] = 0xff
+// 		}
+// 		require.NoError(t, genState.SetCurrentParticipationBits(bits))
+// 		require.NoError(t, genState.SetPreviousParticipationBits(bits))
+// 		gb, err := blocks.NewSignedBeaconBlock(util.NewBeaconBlockBellatrix())
+// 		assert.NoError(t, err)
+// 		runGetValidatorParticipationCurrentAndPrevEpoch(t, genState, gb)
+// 	})
 
-	t.Run("capella", func(t *testing.T) {
-		validatorCount := uint64(32)
-		genState, _ := util.DeterministicGenesisStateCapella(t, validatorCount)
-		c, err := altair.NextSyncCommittee(context.Background(), genState)
-		require.NoError(t, err)
-		require.NoError(t, genState.SetCurrentSyncCommittee(c))
+// 	t.Run("capella", func(t *testing.T) {
+// 		validatorCount := uint64(32)
+// 		genState, _ := util.DeterministicGenesisStateCapella(t, validatorCount)
+// 		c, err := altair.NextSyncCommittee(context.Background(), genState)
+// 		require.NoError(t, err)
+// 		require.NoError(t, genState.SetCurrentSyncCommittee(c))
 
-		bits := make([]byte, validatorCount)
-		for i := range bits {
-			bits[i] = 0xff
-		}
-		require.NoError(t, genState.SetCurrentParticipationBits(bits))
-		require.NoError(t, genState.SetPreviousParticipationBits(bits))
-		gb, err := blocks.NewSignedBeaconBlock(util.NewBeaconBlockCapella())
-		assert.NoError(t, err)
-		runGetValidatorParticipationCurrentAndPrevEpoch(t, genState, gb)
-	})
-}
+// 		bits := make([]byte, validatorCount)
+// 		for i := range bits {
+// 			bits[i] = 0xff
+// 		}
+// 		require.NoError(t, genState.SetCurrentParticipationBits(bits))
+// 		require.NoError(t, genState.SetPreviousParticipationBits(bits))
+// 		gb, err := blocks.NewSignedBeaconBlock(util.NewBeaconBlockCapella())
+// 		assert.NoError(t, err)
+// 		runGetValidatorParticipationCurrentAndPrevEpoch(t, genState, gb)
+// 	})
+// }
 
 func runGetValidatorParticipationCurrentAndPrevEpoch(t *testing.T, genState state.BeaconState, gb interfaces.SignedBeaconBlock) {
 	helpers.ClearCache()

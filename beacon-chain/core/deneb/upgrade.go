@@ -13,14 +13,6 @@ import (
 func UpgradeToDeneb(state state.BeaconState) (state.BeaconState, error) {
 	epoch := time.CurrentEpoch(state)
 
-	currentSyncCommittee, err := state.CurrentSyncCommittee()
-	if err != nil {
-		return nil, err
-	}
-	nextSyncCommittee, err := state.NextSyncCommittee()
-	if err != nil {
-		return nil, err
-	}
 	prevEpochParticipation, err := state.PreviousEpochParticipation()
 	if err != nil {
 		return nil, err
@@ -96,8 +88,6 @@ func UpgradeToDeneb(state state.BeaconState) (state.BeaconState, error) {
 		CurrentJustifiedCheckpoint:  state.CurrentJustifiedCheckpoint(),
 		FinalizedCheckpoint:         state.FinalizedCheckpoint(),
 		InactivityScores:            inactivityScores,
-		CurrentSyncCommittee:        currentSyncCommittee,
-		NextSyncCommittee:           nextSyncCommittee,
 		BailOutScores:               bailoutScores,
 		LatestExecutionPayloadHeader: &enginev1.ExecutionPayloadHeaderDeneb{
 			ParentHash:       payloadHeader.ParentHash(),

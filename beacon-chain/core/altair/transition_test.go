@@ -33,14 +33,6 @@ func TestProcessEpoch_CanProcess(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, params.BeaconConfig().MaxValidatorsPerCommittee, uint64(len(p)))
 
-	sc, err := st.CurrentSyncCommittee()
-	require.NoError(t, err)
-	require.Equal(t, params.BeaconConfig().SyncCommitteeSize, uint64(len(sc.Pubkeys)))
-
-	sc, err = st.NextSyncCommittee()
-	require.NoError(t, err)
-	require.Equal(t, params.BeaconConfig().SyncCommitteeSize, uint64(len(sc.Pubkeys)))
-
 	bo, err := st.BailOutScores()
 	require.NoError(t, err)
 	require.Equal(t, params.BeaconConfig().MaxValidatorsPerCommittee, uint64(len(bo)))
@@ -68,14 +60,6 @@ func TestProcessEpoch_CanProcessBellatrix(t *testing.T) {
 	p, err = st.CurrentEpochParticipation()
 	require.NoError(t, err)
 	require.Equal(t, params.BeaconConfig().MaxValidatorsPerCommittee, uint64(len(p)))
-
-	sc, err := st.CurrentSyncCommittee()
-	require.NoError(t, err)
-	require.Equal(t, params.BeaconConfig().SyncCommitteeSize, uint64(len(sc.Pubkeys)))
-
-	sc, err = st.NextSyncCommittee()
-	require.NoError(t, err)
-	require.Equal(t, params.BeaconConfig().SyncCommitteeSize, uint64(len(sc.Pubkeys)))
 
 	bo, err := st.BailOutScores()
 	require.NoError(t, err)

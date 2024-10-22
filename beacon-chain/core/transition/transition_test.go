@@ -542,13 +542,6 @@ func TestProcessSlots_ThroughAltairEpoch(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, params.BeaconConfig().MaxValidatorsPerCommittee, uint64(len(p)))
 
-	sc, err := st.CurrentSyncCommittee()
-	require.NoError(t, err)
-	require.Equal(t, params.BeaconConfig().SyncCommitteeSize, uint64(len(sc.Pubkeys)))
-
-	sc, err = st.NextSyncCommittee()
-	require.NoError(t, err)
-	require.Equal(t, params.BeaconConfig().SyncCommitteeSize, uint64(len(sc.Pubkeys)))
 }
 
 func TestProcessSlots_OnlyAltairEpoch(t *testing.T) {
@@ -580,13 +573,6 @@ func TestProcessSlots_OnlyAltairEpoch(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, params.BeaconConfig().MaxValidatorsPerCommittee, uint64(len(p)))
 
-	sc, err := st.CurrentSyncCommittee()
-	require.NoError(t, err)
-	require.Equal(t, params.BeaconConfig().SyncCommitteeSize, uint64(len(sc.Pubkeys)))
-
-	sc, err = st.NextSyncCommittee()
-	require.NoError(t, err)
-	require.Equal(t, params.BeaconConfig().SyncCommitteeSize, uint64(len(sc.Pubkeys)))
 }
 
 func TestProcessSlots_OnlyBellatrixEpoch(t *testing.T) {
@@ -618,13 +604,6 @@ func TestProcessSlots_OnlyBellatrixEpoch(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, params.BeaconConfig().MaxValidatorsPerCommittee, uint64(len(p)))
 
-	sc, err := st.CurrentSyncCommittee()
-	require.NoError(t, err)
-	require.Equal(t, params.BeaconConfig().SyncCommitteeSize, uint64(len(sc.Pubkeys)))
-
-	sc, err = st.NextSyncCommittee()
-	require.NoError(t, err)
-	require.Equal(t, params.BeaconConfig().SyncCommitteeSize, uint64(len(sc.Pubkeys)))
 }
 
 func TestProcessSlots_ThroughBellatrixEpoch(t *testing.T) {

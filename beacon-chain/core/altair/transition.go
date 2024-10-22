@@ -28,7 +28,6 @@ import (
 //	process_randao_mixes_reset(state)
 //	process_historical_roots_update(state)
 //	process_participation_flag_updates(state)  # [New in Altair]
-//	process_sync_committee_updates(state)  # [New in Altair]
 func ProcessEpoch(ctx context.Context, state state.BeaconState) error {
 	ctx, span := trace.StartSpan(ctx, "altair.ProcessEpoch")
 	defer span.End()
@@ -105,13 +104,7 @@ func ProcessEpoch(ctx context.Context, state state.BeaconState) error {
 	}
 
 	// New in Altair.
-	state, err = ProcessParticipationFlagUpdates(state)
-	if err != nil {
-		return err
-	}
-
-	// New in Altair.
-	_, err = ProcessSyncCommitteeUpdates(ctx, state)
+	_, err = ProcessParticipationFlagUpdates(state)
 	if err != nil {
 		return err
 	}

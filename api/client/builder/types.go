@@ -920,20 +920,6 @@ func (ve *VoluntaryExit) MarshalJSON() ([]byte, error) {
 }
 
 // SyncAggregate is a field of Beacon Block Body.
-type SyncAggregate struct {
-	*eth.SyncAggregate
-}
-
-// MarshalJSON returns a JSON byte array representation of SyncAggregate.
-func (s *SyncAggregate) MarshalJSON() ([]byte, error) {
-	return json.Marshal(struct {
-		SyncCommitteeBits      hexutil.Bytes `json:"sync_committee_bits"`
-		SyncCommitteeSignature hexutil.Bytes `json:"sync_committee_signature"`
-	}{
-		SyncCommitteeBits:      hexutil.Bytes(s.SyncAggregate.SyncCommitteeBits),
-		SyncCommitteeSignature: s.SyncAggregate.SyncCommitteeSignature,
-	})
-}
 
 // BailOut is field of Beacon Block Body
 type BailOut struct {

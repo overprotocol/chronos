@@ -558,10 +558,6 @@ func testSignedBlindedBeaconBlockBellatrix(t *testing.T) *eth.SignedBlindedBeaco
 						Signature: ezDecode(t, "0x1b66ac1fb663c9bc59509846d6ec05345bd908eda73e670af888da41af171505cc411d61252fb6cb3fa0017b679f8bb2305b26a285fa2737f175668d0dff91cc1b66ac1fb663c9bc59509846d6ec05345bd908eda73e670af888da41af171505"),
 					},
 				},
-				SyncAggregate: &eth.SyncAggregate{
-					SyncCommitteeSignature: make([]byte, 48),
-					SyncCommitteeBits:      bitfield.Bitvector512{0x01},
-				},
 				BailOuts: []*eth.BailOut{
 					{
 						ValidatorIndex: 1,
@@ -704,10 +700,6 @@ func testSignedBlindedBeaconBlockCapella(t *testing.T) *eth.SignedBlindedBeaconB
 						},
 						Signature: ezDecode(t, "0x1b66ac1fb663c9bc59509846d6ec05345bd908eda73e670af888da41af171505cc411d61252fb6cb3fa0017b679f8bb2305b26a285fa2737f175668d0dff91cc1b66ac1fb663c9bc59509846d6ec05345bd908eda73e670af888da41af171505"),
 					},
-				},
-				SyncAggregate: &eth.SyncAggregate{
-					SyncCommitteeSignature: make([]byte, 48),
-					SyncCommitteeBits:      bitfield.Bitvector512{0x01},
 				},
 				BailOuts: []*eth.BailOut{
 					{
@@ -856,10 +848,6 @@ func testSignedBlindedBeaconBlockDeneb(t *testing.T) *eth.SignedBlindedBeaconBlo
 						},
 						Signature: ezDecode(t, "0x1b66ac1fb663c9bc59509846d6ec05345bd908eda73e670af888da41af171505cc411d61252fb6cb3fa0017b679f8bb2305b26a285fa2737f175668d0dff91cc1b66ac1fb663c9bc59509846d6ec05345bd908eda73e670af888da41af171505"),
 					},
-				},
-				SyncAggregate: &eth.SyncAggregate{
-					SyncCommitteeSignature: make([]byte, 96),
-					SyncCommitteeBits:      ezDecode(t, "0x6451e9f951ebf05edc01de67e593484b672877054f055903ff0df1a1a945cf30ca26bb4d4b154f94a1bc776bcf5d0efb3603e1f9b8ee2499ccdcfe2a18cef458"),
 				},
 				BailOuts: []*eth.BailOut{
 					{

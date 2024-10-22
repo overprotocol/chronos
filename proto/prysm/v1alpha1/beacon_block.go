@@ -86,7 +86,6 @@ func (body *BeaconBlockBodyAltair) Copy() *BeaconBlockBodyAltair {
 		Attestations:      CopySlice(body.Attestations),
 		Deposits:          CopySlice(body.Deposits),
 		VoluntaryExits:    CopySlice(body.VoluntaryExits),
-		SyncAggregate:     body.SyncAggregate.Copy(),
 		BailOuts:          CopySlice(body.BailOuts),
 	}
 }
@@ -130,7 +129,6 @@ func (body *BeaconBlockBodyBellatrix) Copy() *BeaconBlockBodyBellatrix {
 		Attestations:      CopySlice(body.Attestations),
 		Deposits:          CopySlice(body.Deposits),
 		VoluntaryExits:    CopySlice(body.VoluntaryExits),
-		SyncAggregate:     body.SyncAggregate.Copy(),
 		BailOuts:          CopySlice(body.BailOuts),
 		ExecutionPayload:  body.ExecutionPayload.Copy(),
 	}
@@ -175,7 +173,6 @@ func (body *BeaconBlockBodyCapella) Copy() *BeaconBlockBodyCapella {
 		Attestations:          CopySlice(body.Attestations),
 		Deposits:              CopySlice(body.Deposits),
 		VoluntaryExits:        CopySlice(body.VoluntaryExits),
-		SyncAggregate:         body.SyncAggregate.Copy(),
 		BailOuts:              CopySlice(body.BailOuts),
 		ExecutionPayload:      body.ExecutionPayload.Copy(),
 		BlsToExecutionChanges: CopySlice(body.BlsToExecutionChanges),
@@ -221,7 +218,6 @@ func (body *BlindedBeaconBlockBodyCapella) Copy() *BlindedBeaconBlockBodyCapella
 		Attestations:           CopySlice(body.Attestations),
 		Deposits:               CopySlice(body.Deposits),
 		VoluntaryExits:         CopySlice(body.VoluntaryExits),
-		SyncAggregate:          body.SyncAggregate.Copy(),
 		BailOuts:               CopySlice(body.BailOuts),
 		ExecutionPayloadHeader: body.ExecutionPayloadHeader.Copy(),
 		BlsToExecutionChanges:  CopySlice(body.BlsToExecutionChanges),
@@ -267,7 +263,6 @@ func (body *BlindedBeaconBlockBodyDeneb) Copy() *BlindedBeaconBlockBodyDeneb {
 		Attestations:           CopySlice(body.Attestations),
 		Deposits:               CopySlice(body.Deposits),
 		VoluntaryExits:         CopySlice(body.VoluntaryExits),
-		SyncAggregate:          body.SyncAggregate.Copy(),
 		BailOuts:               CopySlice(body.BailOuts),
 		ExecutionPayloadHeader: body.ExecutionPayloadHeader.Copy(),
 		BlsToExecutionChanges:  CopySlice(body.BlsToExecutionChanges),
@@ -314,7 +309,6 @@ func (body *BlindedBeaconBlockBodyElectra) Copy() *BlindedBeaconBlockBodyElectra
 		Attestations:           CopySlice(body.Attestations),
 		Deposits:               CopySlice(body.Deposits),
 		VoluntaryExits:         CopySlice(body.VoluntaryExits),
-		SyncAggregate:          body.SyncAggregate.Copy(),
 		BailOuts:               CopySlice(body.BailOuts),
 		ExecutionPayloadHeader: body.ExecutionPayloadHeader.Copy(),
 		BlsToExecutionChanges:  CopySlice(body.BlsToExecutionChanges),
@@ -362,7 +356,6 @@ func (body *BlindedBeaconBlockBodyBellatrix) Copy() *BlindedBeaconBlockBodyBella
 		Attestations:           CopySlice(body.Attestations),
 		Deposits:               CopySlice(body.Deposits),
 		VoluntaryExits:         CopySlice(body.VoluntaryExits),
-		SyncAggregate:          body.SyncAggregate.Copy(),
 		BailOuts:               CopySlice(body.BailOuts),
 		ExecutionPayloadHeader: body.ExecutionPayloadHeader.Copy(),
 	}
@@ -437,7 +430,6 @@ func (body *BeaconBlockBodyDeneb) Copy() *BeaconBlockBodyDeneb {
 		Attestations:          CopySlice(body.Attestations),
 		Deposits:              CopySlice(body.Deposits),
 		VoluntaryExits:        CopySlice(body.VoluntaryExits),
-		SyncAggregate:         body.SyncAggregate.Copy(),
 		BailOuts:              CopySlice(body.BailOuts),
 		ExecutionPayload:      body.ExecutionPayload.Copy(),
 		BlsToExecutionChanges: CopySlice(body.BlsToExecutionChanges),
@@ -484,7 +476,6 @@ func (body *BeaconBlockBodyElectra) Copy() *BeaconBlockBodyElectra {
 		Attestations:          CopySlice(body.Attestations),
 		Deposits:              CopySlice(body.Deposits),
 		VoluntaryExits:        CopySlice(body.VoluntaryExits),
-		SyncAggregate:         body.SyncAggregate.Copy(),
 		BailOuts:              CopySlice(body.BailOuts),
 		ExecutionPayload:      body.ExecutionPayload.Copy(),
 		BlsToExecutionChanges: CopySlice(body.BlsToExecutionChanges),
@@ -587,17 +578,6 @@ func (exit *VoluntaryExit) Copy() *VoluntaryExit {
 	return &VoluntaryExit{
 		Epoch:          exit.Epoch,
 		ValidatorIndex: exit.ValidatorIndex,
-	}
-}
-
-// Copy --
-func (a *SyncAggregate) Copy() *SyncAggregate {
-	if a == nil {
-		return nil
-	}
-	return &SyncAggregate{
-		SyncCommitteeBits:      bytesutil.SafeCopyBytes(a.SyncCommitteeBits),
-		SyncCommitteeSignature: bytesutil.SafeCopyBytes(a.SyncCommitteeSignature),
 	}
 }
 
