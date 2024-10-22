@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/altair"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/blocks"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
@@ -189,9 +188,6 @@ func TestProcessBlock_AllEventsTrackedVals(t *testing.T) {
 	ctx := context.Background()
 
 	genesis, keys := util.DeterministicGenesisStateAltair(t, 64)
-	c, err := altair.NextSyncCommittee(ctx, genesis)
-	require.NoError(t, err)
-	require.NoError(t, genesis.SetCurrentSyncCommittee(c))
 
 	genConfig := util.DefaultBlockGenConfig()
 	genConfig.NumProposerSlashings = 1
@@ -205,11 +201,6 @@ func TestProcessBlock_AllEventsTrackedVals(t *testing.T) {
 	pubKeys[1] = genesis.Validators()[1].PublicKey
 	pubKeys[2] = genesis.Validators()[2].PublicKey
 
-	currentSyncCommittee := util.ConvertToCommittee([][]byte{
-		pubKeys[0], pubKeys[1], pubKeys[2], pubKeys[1], pubKeys[1],
-	})
-	require.NoError(t, genesis.SetCurrentSyncCommittee(currentSyncCommittee))
-
 	idx := b.Block.Body.ProposerSlashings[0].Header_1.Header.ProposerIndex
 	s.RLock()
 	if !s.trackedIndex(idx) {
@@ -220,7 +211,6 @@ func TestProcessBlock_AllEventsTrackedVals(t *testing.T) {
 		s.aggregatedPerformance[idx] = ValidatorAggregatedPerformance{}
 	}
 	s.RUnlock()
-	s.updateSyncCommitteeTrackedVals(genesis)
 
 	root, err := b.GetBlock().HashTreeRoot()
 	require.NoError(t, err)
@@ -247,17 +237,15 @@ func TestLogAggregatedPerformance(t *testing.T) {
 	}
 	aggregatedPerformance := map[primitives.ValidatorIndex]ValidatorAggregatedPerformance{
 		1: {
-			startEpoch:                      0,
-			startBalance:                    31700000000,
-			totalAttestedCount:              12,
-			totalRequestedCount:             15,
-			totalDistance:                   14,
-			totalCorrectHead:                8,
-			totalCorrectSource:              11,
-			totalCorrectTarget:              12,
-			totalProposedCount:              1,
-			totalSyncCommitteeContributions: 0,
-			totalSyncCommitteeAggregations:  0,
+			startEpoch:          0,
+			startBalance:        31700000000,
+			totalAttestedCount:  12,
+			totalRequestedCount: 15,
+			totalDistance:       14,
+			totalCorrectHead:    8,
+			totalCorrectSource:  11,
+			totalCorrectTarget:  12,
+			totalProposedCount:  1,
 		},
 	}
 	s := &Service{

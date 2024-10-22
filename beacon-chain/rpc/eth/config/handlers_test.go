@@ -112,17 +112,17 @@ func TestGetSpec(t *testing.T) {
 	config.TimelyHeadWeight = 56
 	config.TimelySourceWeight = 57
 	config.TimelyTargetWeight = 58
-	config.SyncRewardWeight = 59
+	// config.SyncRewardWeight = 59
 	config.WeightDenominator = 60
-	config.TargetAggregatorsPerSyncSubcommittee = 61
-	config.SyncCommitteeSubnetCount = 62
-	config.SyncCommitteeSize = 63
+	// config.TargetAggregatorsPerSyncSubcommittee = 61
+	// config.SyncCommitteeSubnetCount = 62
+	// config.SyncCommitteeSize = 63
 	config.InactivityScoreBias = 65
-	config.EpochsPerSyncCommitteePeriod = 66
+	// config.EpochsPerSyncCommitteePeriod = 66
 	config.InactivityPenaltyQuotientAltair = 67
 	config.MinSlashingPenaltyQuotientAltair = 68
 	config.InactivityScoreRecoveryRate = 70
-	config.MinSyncCommitteeParticipants = 71
+	// config.MinSyncCommitteeParticipants = 71
 	config.TerminalBlockHash = common.HexToHash("TerminalBlockHash")
 	config.TerminalBlockHashActivationEpoch = 72
 	config.TerminalTotalDifficulty = "73"
@@ -130,26 +130,27 @@ func TestGetSpec(t *testing.T) {
 	config.MaxWithdrawalsPerPayload = 74
 	config.MaxBlsToExecutionChanges = 75
 	config.MaxValidatorsPerWithdrawalsSweep = 76
-	config.ChurnLimitBias = 77
-	config.IssuanceRate = [11]uint64{78, 78, 78, 78, 78, 78, 78, 78, 78, 78, 78}
-	config.IssuancePrecision = 79
-	config.DepositPlanEarlyEnd = 80
-	config.DepositPlanEarlySlope = 81
-	config.DepositPlanEarlyOffset = 82
-	config.DepositPlanLaterEnd = 83
-	config.DepositPlanLaterSlope = 84
-	config.DepositPlanLaterOffset = 85
-	config.DepositPlanFinal = 86
-	config.RewardFeedbackPrecision = 87
-	config.RewardFeedbackThresholdReciprocal = 88
-	config.MaxBoostYield = [11]uint64{89, 89, 89, 89, 89, 89, 89, 89, 89, 89, 89}
-	config.TargetChangeRate = 90
-	config.MaxTokenSupply = 91
-	config.EpochsPerYear = 92
-	config.IssuancePerYear = 93
-	config.LightLayerWeight = 94
-	config.MinSlashingPenaltyQuotientElectra = 95
-	config.MaxEffectiveBalanceElectra = 96
+	config.ChurnLimitBias = 79
+	config.IssuanceRate = [11]uint64{80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80}
+	config.IssuancePrecision = 81
+	config.DepositPlanEarlyEnd = 82
+	config.DepositPlanEarlySlope = 83
+	config.DepositPlanEarlyOffset = 84
+	config.DepositPlanLaterEnd = 85
+	config.DepositPlanLaterSlope = 86
+	config.DepositPlanLaterOffset = 87
+	config.DepositPlanFinal = 88
+	config.RewardFeedbackPrecision = 89
+	config.RewardFeedbackThresholdReciprocal = 90
+	config.MaxBoostYield = [11]uint64{91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91}
+	config.TargetChangeRate = 92
+	config.MaxTokenSupply = 93
+	config.EpochsPerYear = 94
+	config.IssuancePerYear = 95
+	// config.LightLayerWeight = 96
+	config.MaxBailOuts = 97
+	config.MinSlashingPenaltyQuotientElectra = 98
+	config.MaxEffectiveBalanceElectra = 99
 	config.CompoundingWithdrawalPrefixByte = byte('d')
 	config.WhistleBlowerRewardQuotientElectra = 97
 	config.PendingPartialWithdrawalsLimit = 98
@@ -371,16 +372,16 @@ func TestGetSpec(t *testing.T) {
 				assert.Equal(t, "64", v)
 			case "INACTIVITY_SCORE_BIAS":
 				assert.Equal(t, "65", v)
-			case "EPOCHS_PER_SYNC_COMMITTEE_PERIOD":
-				assert.Equal(t, "66", v)
+			// case "EPOCHS_PER_SYNC_COMMITTEE_PERIOD":
+			// 	assert.Equal(t, "66", v)
 			case "INACTIVITY_PENALTY_QUOTIENT_ALTAIR":
 				assert.Equal(t, "67", v)
 			case "MIN_SLASHING_PENALTY_QUOTIENT_ALTAIR":
 				assert.Equal(t, "68", v)
 			case "INACTIVITY_SCORE_RECOVERY_RATE":
 				assert.Equal(t, "70", v)
-			case "MIN_SYNC_COMMITTEE_PARTICIPANTS":
-				assert.Equal(t, "71", v)
+			// case "MIN_SYNC_COMMITTEE_PARTICIPANTS":
+			// 	assert.Equal(t, "71", v)
 			case "PROPOSER_WEIGHT":
 				assert.Equal(t, "8", v)
 			case "DOMAIN_BEACON_PROPOSER":

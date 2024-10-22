@@ -28,7 +28,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/attestations"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/blstoexec"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/slashings"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/synccommittee"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/voluntaryexits"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/p2p"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/startup"
@@ -83,7 +82,6 @@ type config struct {
 	attPool                       attestations.Pool
 	exitPool                      voluntaryexits.PoolManager
 	slashingPool                  slashings.PoolManager
-	syncCommsPool                 synccommittee.Pool
 	blsToExecPool                 blstoexec.PoolManager
 	chain                         blockchainService
 	initialSync                   Checker

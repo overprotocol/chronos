@@ -87,16 +87,6 @@ func TestUpgradeToElectra(t *testing.T) {
 		CurrentVersion:  params.BeaconConfig().ElectraForkVersion,
 		Epoch:           time.CurrentEpoch(st),
 	}, f)
-	csc, err := mSt.CurrentSyncCommittee()
-	require.NoError(t, err)
-	psc, err := preForkState.CurrentSyncCommittee()
-	require.NoError(t, err)
-	require.DeepSSZEqual(t, psc, csc)
-	nsc, err := mSt.NextSyncCommittee()
-	require.NoError(t, err)
-	psc, err = preForkState.NextSyncCommittee()
-	require.NoError(t, err)
-	require.DeepSSZEqual(t, psc, nsc)
 
 	header, err := mSt.LatestExecutionPayloadHeader()
 	require.NoError(t, err)

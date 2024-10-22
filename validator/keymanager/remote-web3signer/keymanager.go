@@ -433,12 +433,6 @@ func getSignRequestJson(ctx context.Context, validator *validator.Validate, requ
 		return handleRandaoReveal(ctx, validator, request, genesisValidatorsRoot)
 	case *validatorpb.SignRequest_Exit:
 		return handleVoluntaryExit(ctx, validator, request, genesisValidatorsRoot)
-	case *validatorpb.SignRequest_SyncMessageBlockRoot:
-		return handleSyncMessageBlockRoot(ctx, validator, request, genesisValidatorsRoot)
-	case *validatorpb.SignRequest_SyncAggregatorSelectionData:
-		return handleSyncAggregatorSelectionData(ctx, validator, request, genesisValidatorsRoot)
-	case *validatorpb.SignRequest_ContributionAndProof:
-		return handleContributionAndProof(ctx, validator, request, genesisValidatorsRoot)
 	case *validatorpb.SignRequest_Registration:
 		return handleRegistration(ctx, validator, request)
 	default:
@@ -600,42 +594,6 @@ func handleVoluntaryExit(ctx context.Context, validator *validator.Validate, req
 	}
 	voluntaryExitSignRequestsTotal.Inc()
 	return json.Marshal(voluntaryExitRequest)
-}
-
-func handleSyncMessageBlockRoot(ctx context.Context, validator *validator.Validate, request *validatorpb.SignRequest, genesisValidatorsRoot []byte) ([]byte, error) {
-	syncCommitteeMessageRequest, err := web3signerv1.GetSyncCommitteeMessageSignRequest(request, genesisValidatorsRoot)
-	if err != nil {
-		return nil, err
-	}
-	if err = validator.StructCtx(ctx, syncCommitteeMessageRequest); err != nil {
-		return nil, err
-	}
-	syncCommitteeMessageSignRequestsTotal.Inc()
-	return json.Marshal(syncCommitteeMessageRequest)
-}
-
-func handleSyncAggregatorSelectionData(ctx context.Context, validator *validator.Validate, request *validatorpb.SignRequest, genesisValidatorsRoot []byte) ([]byte, error) {
-	syncCommitteeSelectionProofRequest, err := web3signerv1.GetSyncCommitteeSelectionProofSignRequest(request, genesisValidatorsRoot)
-	if err != nil {
-		return nil, err
-	}
-	if err = validator.StructCtx(ctx, syncCommitteeSelectionProofRequest); err != nil {
-		return nil, err
-	}
-	syncCommitteeSelectionProofSignRequestsTotal.Inc()
-	return json.Marshal(syncCommitteeSelectionProofRequest)
-}
-
-func handleContributionAndProof(ctx context.Context, validator *validator.Validate, request *validatorpb.SignRequest, genesisValidatorsRoot []byte) ([]byte, error) {
-	contributionAndProofRequest, err := web3signerv1.GetSyncCommitteeContributionAndProofSignRequest(request, genesisValidatorsRoot)
-	if err != nil {
-		return nil, err
-	}
-	if err = validator.StructCtx(ctx, contributionAndProofRequest); err != nil {
-		return nil, err
-	}
-	syncCommitteeContributionAndProofSignRequestsTotal.Inc()
-	return json.Marshal(contributionAndProofRequest)
 }
 
 func handleRegistration(ctx context.Context, validator *validator.Validate, request *validatorpb.SignRequest) ([]byte, error) {

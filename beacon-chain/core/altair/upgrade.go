@@ -113,16 +113,6 @@ func UpgradeToAltair(ctx context.Context, state state.BeaconState) (state.Beacon
 		return nil, err
 	}
 
-	committee, err := NextSyncCommittee(ctx, newState)
-	if err != nil {
-		return nil, err
-	}
-	if err := newState.SetCurrentSyncCommittee(committee); err != nil {
-		return nil, err
-	}
-	if err := newState.SetNextSyncCommittee(committee); err != nil {
-		return nil, err
-	}
 	return newState, nil
 }
 

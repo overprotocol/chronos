@@ -297,9 +297,6 @@ message BeaconBlockBodyAltair {
 
   // At most MAX_VOLUNTARY_EXITS.
   repeated v1.SignedVoluntaryExit voluntary_exits = 8 [(ethereum.eth.ext.ssz_max) = "16"];
-
-  // Sync aggregate object to track sync committee votes for light client support. [New in ]
-  v1.SyncAggregate sync_aggregate = 9;
 }
 
 message BeaconBlockBodyBellatrix {
@@ -331,8 +328,6 @@ message BeaconBlockBodyBellatrix {
   // At most MAX_VOLUNTARY_EXITS.
   repeated v1.SignedVoluntaryExit voluntary_exits = 8 [(ethereum.eth.ext.ssz_max) = "16"];
 
-  // Sync aggregate object to track sync committee votes for light client support.
-  v1.SyncAggregate sync_aggregate = 9;
 
   // Execution payload: the embedded execution payload of the block [New in Bellatrix]
   ethereum.engine.v1.ExecutionPayload execution_payload = 10;
@@ -367,8 +362,6 @@ message BlindedBeaconBlockBodyBellatrix {
   // At most MAX_VOLUNTARY_EXITS.
   repeated v1.SignedVoluntaryExit voluntary_exits = 8 [(ethereum.eth.ext.ssz_max) = "16"];
 
-  // Sync aggregate object to track sync committee votes for light client support.
-  v1.SyncAggregate sync_aggregate = 9;
 
   // Execution payload header: the embedded execution payload of the block [New in Bellatrix]
   ethereum.engine.v1.ExecutionPayloadHeader execution_payload_header = 10;
@@ -403,8 +396,6 @@ message BeaconBlockBodyCapella {
   // At most MAX_VOLUNTARY_EXITS.
   repeated v1.SignedVoluntaryExit voluntary_exits = 8 [(ethereum.eth.ext.ssz_max) = "16"];
 
-  // Sync aggregate object to track sync committee votes for light client support.
-  v1.SyncAggregate sync_aggregate = 9;
 
   // Execution payload: the embedded execution payload of the block [Modified in Capella]
   ethereum.engine.v1.ExecutionPayloadCapella execution_payload = 10;
@@ -442,8 +433,6 @@ message BlindedBeaconBlockBodyCapella {
   // At most MAX_VOLUNTARY_EXITS.
   repeated v1.SignedVoluntaryExit voluntary_exits = 8 [(ethereum.eth.ext.ssz_max) = "16"];
 
-  // Sync aggregate object to track sync committee votes for light client support.
-  v1.SyncAggregate sync_aggregate = 9;
 
   // Execution payload header: the embedded execution payload of the block [Modified in Capella]
   ethereum.engine.v1.ExecutionPayloadHeaderCapella execution_payload_header = 10;
@@ -473,8 +462,6 @@ message BlindedBeaconBlockBodyDeneb {
   repeated v1.Deposit deposits = 7 [(ethereum.eth.ext.ssz_max) = "16"];
   // At most MAX_VOLUNTARY_EXITS.
   repeated v1.SignedVoluntaryExit voluntary_exits = 8 [(ethereum.eth.ext.ssz_max) = "16"];
-  // Sync aggregate object to track sync committee votes for light client support.
-  v1.SyncAggregate sync_aggregate = 9;
 
   // Execution payload header: the embedded execution payload of the block [Modified in Deneb]
   ethereum.engine.v1.ExecutionPayloadHeaderDeneb execution_payload_header = 10;
@@ -514,8 +501,6 @@ message BeaconBlockBodyDeneb {
   // At most MAX_VOLUNTARY_EXITS.
   repeated  v1.SignedVoluntaryExit voluntary_exits = 8 [(ethereum.eth.ext.ssz_max) = "16"];
 
-  // Sync aggregate object for the beacon chain to track sync committee votes. New in Altair network upgrade.
-  v1.SyncAggregate sync_aggregate = 9;
 
   // Execution payload from the execution chain. New in Bellatrix network upgrade.
   ethereum.engine.v1.ExecutionPayloadDeneb execution_payload = 10;

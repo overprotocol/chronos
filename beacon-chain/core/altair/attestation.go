@@ -233,7 +233,7 @@ func EpochParticipation(beaconState state.BeaconState, indices []uint64, epochPa
 //	increase_balance(state, get_beacon_proposer_index(state), proposer_reward)
 func RewardProposer(ctx context.Context, beaconState state.BeaconState, proposerRewardNumerator uint64, proposerReserveNumerator uint64) error {
 	cfg := params.BeaconConfig()
-	d := (cfg.WeightDenominator - cfg.ProposerWeight - cfg.LightLayerWeight) * cfg.WeightDenominator / cfg.ProposerWeight
+	d := (cfg.WeightDenominator - cfg.ProposerWeight) * cfg.WeightDenominator / cfg.ProposerWeight
 	proposerReward := proposerRewardNumerator / d
 	i, err := helpers.BeaconProposerIndex(ctx, beaconState)
 	if err != nil {

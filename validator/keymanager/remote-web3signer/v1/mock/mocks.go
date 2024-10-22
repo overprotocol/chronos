@@ -16,30 +16,6 @@ import (
 //////////////// Mock Requests //////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-func SyncComitteeBits() []byte {
-	currSize := new(eth.SyncAggregate).SyncCommitteeBits.Len()
-	switch currSize {
-	case 512:
-		return bitfield.NewBitvector512()
-	case 32:
-		return bitfield.NewBitvector32()
-	default:
-		return nil
-	}
-}
-
-func AggregationBits() []byte {
-	currSize := new(eth.SyncCommitteeContribution).AggregationBits.Len()
-	switch currSize {
-	case 128:
-		return bitfield.NewBitvector128()
-	case 8:
-		return bitfield.NewBitvector8()
-	default:
-		return nil
-	}
-}
-
 // GetMockSignRequest returns a mock SignRequest by type.
 func GetMockSignRequest(t string) *validatorpb.SignRequest {
 	switch t {
@@ -318,10 +294,6 @@ func GetMockSignRequest(t string) *validatorpb.SignRequest {
 								Signature: make([]byte, fieldparams.BLSSignatureLength),
 							},
 						},
-						SyncAggregate: &eth.SyncAggregate{
-							SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
-							SyncCommitteeBits:      SyncComitteeBits(),
-						},
 					},
 				},
 			},
@@ -388,49 +360,6 @@ func GetMockSignRequest(t string) *validatorpb.SignRequest {
 			SignatureDomain: make([]byte, 4),
 			Object: &validatorpb.SignRequest_Epoch{
 				Epoch: 0,
-			},
-			SigningSlot: 0,
-		}
-	case "SYNC_COMMITTEE_CONTRIBUTION_AND_PROOF":
-		return &validatorpb.SignRequest{
-			PublicKey:       make([]byte, fieldparams.BLSPubkeyLength),
-			SigningRoot:     make([]byte, fieldparams.RootLength),
-			SignatureDomain: make([]byte, 4),
-			Object: &validatorpb.SignRequest_ContributionAndProof{
-				ContributionAndProof: &eth.ContributionAndProof{
-					AggregatorIndex: 0,
-					Contribution: &eth.SyncCommitteeContribution{
-						Slot:              0,
-						BlockRoot:         make([]byte, fieldparams.RootLength),
-						SubcommitteeIndex: 0,
-						AggregationBits:   AggregationBits(),
-						Signature:         make([]byte, fieldparams.BLSSignatureLength),
-					},
-					SelectionProof: make([]byte, fieldparams.BLSSignatureLength),
-				},
-			},
-			SigningSlot: 0,
-		}
-	case "SYNC_COMMITTEE_MESSAGE":
-		return &validatorpb.SignRequest{
-			PublicKey:       make([]byte, fieldparams.BLSPubkeyLength),
-			SigningRoot:     make([]byte, fieldparams.RootLength),
-			SignatureDomain: make([]byte, 4),
-			Object: &validatorpb.SignRequest_SyncMessageBlockRoot{
-				SyncMessageBlockRoot: make([]byte, fieldparams.RootLength),
-			},
-			SigningSlot: 0,
-		}
-	case "SYNC_COMMITTEE_SELECTION_PROOF":
-		return &validatorpb.SignRequest{
-			PublicKey:       make([]byte, fieldparams.BLSPubkeyLength),
-			SigningRoot:     make([]byte, fieldparams.RootLength),
-			SignatureDomain: make([]byte, 4),
-			Object: &validatorpb.SignRequest_SyncAggregatorSelectionData{
-				SyncAggregatorSelectionData: &eth.SyncAggregatorSelectionData{
-					Slot:              0,
-					SubcommitteeIndex: 0,
-				},
 			},
 			SigningSlot: 0,
 		}
@@ -557,42 +486,6 @@ func RandaoRevealSignRequest() *v1.RandaoRevealSignRequest {
 		SigningRoot: make([]byte, fieldparams.RootLength),
 		RandaoReveal: &v1.RandaoReveal{
 			Epoch: "0",
-		},
-	}
-}
-
-// SyncCommitteeContributionAndProofSignRequest is a mock implementation of the SyncCommitteeContributionAndProofSignRequest.
-func SyncCommitteeContributionAndProofSignRequest() *v1.SyncCommitteeContributionAndProofSignRequest {
-	return &v1.SyncCommitteeContributionAndProofSignRequest{
-		Type:                 "SYNC_COMMITTEE_CONTRIBUTION_AND_PROOF",
-		ForkInfo:             ForkInfo(),
-		SigningRoot:          make([]byte, fieldparams.RootLength),
-		ContributionAndProof: ContributionAndProof(),
-	}
-}
-
-// SyncCommitteeMessageSignRequest is a mock implementation of the SyncCommitteeMessageSignRequest.
-func SyncCommitteeMessageSignRequest() *v1.SyncCommitteeMessageSignRequest {
-	return &v1.SyncCommitteeMessageSignRequest{
-		Type:        "SYNC_COMMITTEE_MESSAGE",
-		ForkInfo:    ForkInfo(),
-		SigningRoot: make([]byte, fieldparams.RootLength),
-		SyncCommitteeMessage: &v1.SyncCommitteeMessage{
-			BeaconBlockRoot: make([]byte, fieldparams.RootLength),
-			Slot:            "0",
-		},
-	}
-}
-
-// SyncCommitteeSelectionProofSignRequest is a mock implementation of the SyncCommitteeSelectionProofSignRequest.
-func SyncCommitteeSelectionProofSignRequest() *v1.SyncCommitteeSelectionProofSignRequest {
-	return &v1.SyncCommitteeSelectionProofSignRequest{
-		Type:        "SYNC_COMMITTEE_SELECTION_PROOF",
-		ForkInfo:    ForkInfo(),
-		SigningRoot: make([]byte, fieldparams.RootLength),
-		SyncAggregatorSelectionData: &v1.SyncAggregatorSelectionData{
-			Slot:              "0",
-			SubcommitteeIndex: "0",
 		},
 	}
 }
@@ -748,10 +641,6 @@ func BeaconBlockAltair() *v1.BeaconBlockAltair {
 					Signature: make([]byte, fieldparams.BLSSignatureLength),
 				},
 			},
-			SyncAggregate: &v1.SyncAggregate{
-				SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
-				SyncCommitteeBits:      SyncComitteeBits(),
-			},
 		},
 	}
 }
@@ -818,19 +707,5 @@ func BeaconBlockBody() *v1.BeaconBlockBody {
 				Signature: make([]byte, fieldparams.BLSSignatureLength),
 			},
 		},
-	}
-}
-
-func ContributionAndProof() *v1.ContributionAndProof {
-	return &v1.ContributionAndProof{
-		AggregatorIndex: "0",
-		Contribution: &v1.SyncCommitteeContribution{
-			Slot:              "0",
-			BeaconBlockRoot:   make([]byte, fieldparams.RootLength),
-			SubcommitteeIndex: "0",
-			AggregationBits:   AggregationBits(),
-			Signature:         make([]byte, fieldparams.BLSSignatureLength),
-		},
-		SelectionProof: make([]byte, fieldparams.BLSSignatureLength),
 	}
 }

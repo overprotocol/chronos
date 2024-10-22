@@ -37,10 +37,6 @@ func (m *MockBroadcaster) BroadcastAttestation(_ context.Context, _ uint64, a et
 }
 
 // BroadcastSyncCommitteeMessage records a broadcast occurred.
-func (m *MockBroadcaster) BroadcastSyncCommitteeMessage(_ context.Context, _ uint64, _ *ethpb.SyncCommitteeMessage) error {
-	m.BroadcastCalled.Store(true)
-	return nil
-}
 
 // BroadcastBlob broadcasts a blob for mock.
 func (m *MockBroadcaster) BroadcastBlob(context.Context, uint64, *ethpb.BlobSidecar) error {

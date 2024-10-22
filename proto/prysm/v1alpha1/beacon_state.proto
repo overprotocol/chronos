@@ -99,8 +99,6 @@ message BeaconStateAltair {
 
   // New Altair fields [9001-10000]
   repeated uint64 inactivity_scores = 9001 [(ethereum.eth.ext.ssz_max) = "1099511627776"]; // [New in Altair]
-  SyncCommittee current_sync_committee = 9002; // [New in Altair]
-  SyncCommittee next_sync_committee = 9003; // [New in Altair]
 }
 
 message Fork {
@@ -175,19 +173,6 @@ message DepositMessage {
   uint64 amount = 3;
 }
 
-// SyncCommittee serves as committees to facilitate light client syncing to beacon chain.
-message SyncCommittee {
-  repeated bytes pubkeys = 1  [(ethereum.eth.ext.ssz_size) = "sync_committee_bits.size,48"];
-  bytes aggregate_pubkey = 2 [(ethereum.eth.ext.ssz_size) = "48"];
-}
-
-// SyncAggregatorSelectionData is used to sign over and then check whether the aggregator is selected within a subcommittee.
-message SyncAggregatorSelectionData {
-  // Slot of this signing data.
-  uint64 slot = 1 [(ethereum.eth.ext.cast_type) = "github.com/prysmaticlabs/prysm/v5/consensus-types/primitives.Slot"];
-  // Subcommittee index of this signing data.
-  uint64 subcommittee_index = 2;
-}
 
 message BeaconStateBellatrix {
   // Versioning [1001-2000]
@@ -230,8 +215,6 @@ message BeaconStateBellatrix {
 
   // Altair fields [9001-10000]
   repeated uint64 inactivity_scores = 9001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
-  SyncCommittee current_sync_committee = 9002; // [New in Altair]
-  SyncCommittee next_sync_committee = 9003; // [New in Altair]
 
   // Bellatrix fields [10001-11000]
   ethereum.engine.v1.ExecutionPayloadHeader latest_execution_payload_header = 10001; // [New in Bellatrix]
@@ -278,8 +261,6 @@ message BeaconStateCapella {
 
   // Altair fields [9001-10000]
   repeated uint64 inactivity_scores = 9001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
-  SyncCommittee current_sync_committee = 9002; // [New in Altair]
-  SyncCommittee next_sync_committee = 9003; // [New in Altair]
 
   // Bellatrix fields [10001-11000]
   ethereum.engine.v1.ExecutionPayloadHeaderCapella latest_execution_payload_header = 10001; // [New in Bellatrix]
@@ -331,8 +312,6 @@ message BeaconStateDeneb {
 
   // Fields introduced in Altair fork [9001-10000]
   repeated uint64 inactivity_scores = 9001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
-  SyncCommittee current_sync_committee = 9002;
-  SyncCommittee next_sync_committee = 9003;
 
   // Fields introduced in Bellatrix fork [10001-11000]
   ethereum.engine.v1.ExecutionPayloadHeaderDeneb latest_execution_payload_header = 10001; // [New in Deneb]
@@ -384,8 +363,6 @@ message BeaconStateElectra {
 
   // Fields introduced in Altair fork [9001-10000]
   repeated uint64 inactivity_scores = 9001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
-  SyncCommittee current_sync_committee = 9002;
-  SyncCommittee next_sync_committee = 9003;
 
   // Fields introduced in Bellatrix fork [10001-11000]
   ethereum.engine.v1.ExecutionPayloadHeaderDeneb latest_execution_payload_header = 10001; // [New in Electra]
@@ -500,8 +477,6 @@ message BeaconStateOldAltair {
 
   // New Altair fields [9001-10000]
   repeated uint64 inactivity_scores = 9001 [(ethereum.eth.ext.ssz_max) = "1099511627776"]; // [New in Altair]
-  SyncCommittee current_sync_committee = 9002; // [New in Altair]
-  SyncCommittee next_sync_committee = 9003; // [New in Altair]
 }
 
 message BeaconStateOldBellatrix {
@@ -542,8 +517,6 @@ message BeaconStateOldBellatrix {
 
   // Altair fields [9001-10000]
   repeated uint64 inactivity_scores = 9001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
-  SyncCommittee current_sync_committee = 9002; // [New in Altair]
-  SyncCommittee next_sync_committee = 9003; // [New in Altair]
 
   // Bellatrix fields [10001-11000]
   ethereum.engine.v1.ExecutionPayloadHeader latest_execution_payload_header = 10001; // [New in Bellatrix]
@@ -587,8 +560,6 @@ message BeaconStateOldCapella {
 
   // Altair fields [9001-10000]
   repeated uint64 inactivity_scores = 9001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
-  SyncCommittee current_sync_committee = 9002; // [New in Altair]
-  SyncCommittee next_sync_committee = 9003; // [New in Altair]
 
   // Bellatrix fields [10001-11000]
   ethereum.engine.v1.ExecutionPayloadHeaderCapella latest_execution_payload_header = 10001; // [New in Bellatrix]
@@ -637,8 +608,6 @@ message BeaconStateOldDeneb {
 
   // Fields introduced in Altair fork [9001-10000]
   repeated uint64 inactivity_scores = 9001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
-  SyncCommittee current_sync_committee = 9002;
-  SyncCommittee next_sync_committee = 9003;
   // Fields introduced in Bellatrix fork [10001-11000]
   ethereum.engine.v1.ExecutionPayloadHeaderDeneb latest_execution_payload_header = 10001; // [New in Deneb]
 
@@ -686,8 +655,6 @@ message BeaconStateOldElectra {
 
   // Fields introduced in Altair fork [9001-10000]
   repeated uint64 inactivity_scores = 9001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
-  SyncCommittee current_sync_committee = 9002;
-  SyncCommittee next_sync_committee = 9003;
 
   // Fields introduced in Bellatrix fork [10001-11000]
   ethereum.engine.v1.ExecutionPayloadHeaderDeneb latest_execution_payload_header = 10001;

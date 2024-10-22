@@ -18,20 +18,12 @@ type SubmitAggregateAndProofsRequest struct {
 	Data []*SignedAggregateAttestationAndProof `json:"data"`
 }
 
-type SubmitSyncCommitteeSubscriptionsRequest struct {
-	Data []*SyncCommitteeSubscription `json:"data"`
-}
-
 type SubmitBeaconCommitteeSubscriptionsRequest struct {
 	Data []*BeaconCommitteeSubscription `json:"data"`
 }
 
 type GetAttestationDataResponse struct {
 	Data *AttestationData `json:"data"`
-}
-
-type ProduceSyncCommitteeContributionResponse struct {
-	Data *SyncCommitteeContribution `json:"data"`
 }
 
 type GetAttesterDutiesResponse struct {
@@ -60,17 +52,6 @@ type ProposerDuty struct {
 	Pubkey         string `json:"pubkey"`
 	ValidatorIndex string `json:"validator_index"`
 	Slot           string `json:"slot"`
-}
-
-type GetSyncCommitteeDutiesResponse struct {
-	ExecutionOptimistic bool                 `json:"execution_optimistic"`
-	Data                []*SyncCommitteeDuty `json:"data"`
-}
-
-type SyncCommitteeDuty struct {
-	Pubkey                        string   `json:"pubkey"`
-	ValidatorIndex                string   `json:"validator_index"`
-	ValidatorSyncCommitteeIndices []string `json:"validator_sync_committee_indices"`
 }
 
 // ProduceBlockV3Response is a wrapper json object for the returned block from the ProduceBlockV3 endpoint

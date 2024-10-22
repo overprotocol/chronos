@@ -154,18 +154,6 @@ type BLSToExecutionChange struct {
 	ToExecutionAddress string `json:"to_execution_address"`
 }
 
-type SyncCommitteeMessage struct {
-	Slot            string `json:"slot"`
-	BeaconBlockRoot string `json:"beacon_block_root"`
-	ValidatorIndex  string `json:"validator_index"`
-	Signature       string `json:"signature"`
-}
-
-type SyncCommittee struct {
-	Pubkeys         []string `json:"pubkeys"`
-	AggregatePubkey string   `json:"aggregate_pubkey"`
-}
-
 // SyncDetails contains information about node sync status.
 type SyncDetails struct {
 	HeadSlot     string `json:"head_slot"`

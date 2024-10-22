@@ -162,14 +162,6 @@ func NewBeaconStateAltair(options ...func(state *ethpb.BeaconStateAltair) error)
 		CurrentEpochReserve:         0,
 		PreviousEpochParticipation:  make([]byte, 0),
 		CurrentEpochParticipation:   make([]byte, 0),
-		CurrentSyncCommittee: &ethpb.SyncCommittee{
-			Pubkeys:         pubkeys,
-			AggregatePubkey: make([]byte, 48),
-		},
-		NextSyncCommittee: &ethpb.SyncCommittee{
-			Pubkeys:         pubkeys,
-			AggregatePubkey: make([]byte, 48),
-		},
 	}
 
 	for _, opt := range options {
@@ -219,14 +211,6 @@ func NewBeaconStateBellatrix(options ...func(state *ethpb.BeaconStateBellatrix) 
 		CurrentEpochReserve:         0,
 		PreviousEpochParticipation:  make([]byte, 0),
 		CurrentEpochParticipation:   make([]byte, 0),
-		CurrentSyncCommittee: &ethpb.SyncCommittee{
-			Pubkeys:         pubkeys,
-			AggregatePubkey: make([]byte, 48),
-		},
-		NextSyncCommittee: &ethpb.SyncCommittee{
-			Pubkeys:         pubkeys,
-			AggregatePubkey: make([]byte, 48),
-		},
 		LatestExecutionPayloadHeader: &enginev1.ExecutionPayloadHeader{
 			ParentHash:       make([]byte, 32),
 			FeeRecipient:     make([]byte, 20),
@@ -288,14 +272,6 @@ func NewBeaconStateCapella(options ...func(state *ethpb.BeaconStateCapella) erro
 		CurrentEpochReserve:         0,
 		PreviousEpochParticipation:  make([]byte, 0),
 		CurrentEpochParticipation:   make([]byte, 0),
-		CurrentSyncCommittee: &ethpb.SyncCommittee{
-			Pubkeys:         pubkeys,
-			AggregatePubkey: make([]byte, 48),
-		},
-		NextSyncCommittee: &ethpb.SyncCommittee{
-			Pubkeys:         pubkeys,
-			AggregatePubkey: make([]byte, 48),
-		},
 		LatestExecutionPayloadHeader: &enginev1.ExecutionPayloadHeaderCapella{
 			ParentHash:       make([]byte, 32),
 			FeeRecipient:     make([]byte, 20),
@@ -358,14 +334,6 @@ func NewBeaconStateDeneb(options ...func(state *ethpb.BeaconStateDeneb) error) (
 		PreviousJustifiedCheckpoint: &ethpb.Checkpoint{Root: make([]byte, fieldparams.RootLength)},
 		PreviousEpochParticipation:  make([]byte, 0),
 		CurrentEpochParticipation:   make([]byte, 0),
-		CurrentSyncCommittee: &ethpb.SyncCommittee{
-			Pubkeys:         pubkeys,
-			AggregatePubkey: make([]byte, 48),
-		},
-		NextSyncCommittee: &ethpb.SyncCommittee{
-			Pubkeys:         pubkeys,
-			AggregatePubkey: make([]byte, 48),
-		},
 		LatestExecutionPayloadHeader: &enginev1.ExecutionPayloadHeaderDeneb{
 			ParentHash:       make([]byte, 32),
 			FeeRecipient:     make([]byte, 20),
@@ -428,14 +396,6 @@ func NewBeaconStateElectra(options ...func(state *ethpb.BeaconStateElectra) erro
 		CurrentEpochReserve:         0,
 		PreviousEpochParticipation:  make([]byte, 0),
 		CurrentEpochParticipation:   make([]byte, 0),
-		CurrentSyncCommittee: &ethpb.SyncCommittee{
-			Pubkeys:         pubkeys,
-			AggregatePubkey: make([]byte, 48),
-		},
-		NextSyncCommittee: &ethpb.SyncCommittee{
-			Pubkeys:         pubkeys,
-			AggregatePubkey: make([]byte, 48),
-		},
 		LatestExecutionPayloadHeader: &enginev1.ExecutionPayloadHeaderElectra{
 			ParentHash:       make([]byte, 32),
 			FeeRecipient:     make([]byte, 20),

@@ -195,17 +195,6 @@ func topLevelRoots(body interfaces.ReadOnlyBeaconBlockBody) ([][]byte, error) {
 	}
 	copy(layer[7], root[:])
 
-	// Sync Aggregate
-	sa, err := body.SyncAggregate()
-	if err != nil {
-		return nil, err
-	}
-	root, err = sa.HashTreeRoot()
-	if err != nil {
-		return nil, err
-	}
-	copy(layer[8], root[:])
-
 	// Execution Payload
 	ep, err := body.Execution()
 	if err != nil {

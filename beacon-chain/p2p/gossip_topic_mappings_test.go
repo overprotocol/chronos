@@ -53,9 +53,6 @@ func TestGossipTopicMappings_CorrectType(t *testing.T) {
 	pMessage = GossipTopicMappings(AttesterSlashingSubnetTopicFormat, 0)
 	_, ok = pMessage.(*ethpb.AttesterSlashing)
 	assert.Equal(t, true, ok)
-	pMessage = GossipTopicMappings(AggregateAndProofSubnetTopicFormat, 0)
-	_, ok = pMessage.(*ethpb.SignedAggregateAttestationAndProof)
-	assert.Equal(t, true, ok)
 
 	// Altair Fork
 	pMessage = GossipTopicMappings(BlockSubnetTopicFormat, altairForkEpoch)

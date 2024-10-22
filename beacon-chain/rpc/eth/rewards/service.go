@@ -96,27 +96,27 @@ func (rs *BlockRewardService) GetBlockRewardsData(ctx context.Context, blk inter
 			Code:    http.StatusInternalServerError,
 		}
 	}
-	sa, err := blk.Body().SyncAggregate()
-	if err != nil {
-		return nil, &httputil.DefaultJsonError{
-			Message: "Could not get sync aggregate: " + err.Error(),
-			Code:    http.StatusInternalServerError,
-		}
-	}
-	var syncCommitteeReward uint64
-	_, syncCommitteeReward, err = altair.ProcessSyncAggregate(ctx, st, sa)
-	if err != nil {
-		return nil, &httputil.DefaultJsonError{
-			Message: "Could not get sync aggregate rewards: " + err.Error(),
-			Code:    http.StatusInternalServerError,
-		}
-	}
+	// sa, err := blk.Body().SyncAggregate()
+	// if err != nil {
+	// 	return nil, &httputil.DefaultJsonError{
+	// 		Message: "Could not get sync aggregate: " + err.Error(),
+	// 		Code:    http.StatusInternalServerError,
+	// 	}
+	// }
+	// var syncCommitteeReward uint64
+	// _, syncCommitteeReward, err = altair.ProcessSyncAggregate(ctx, st, sa)
+	// if err != nil {
+	// 	return nil, &httputil.DefaultJsonError{
+	// 		Message: "Could not get sync aggregate rewards: " + err.Error(),
+	// 		Code:    http.StatusInternalServerError,
+	// 	}
+	// }
 
 	return &structs.BlockRewards{
-		ProposerIndex:     strconv.FormatUint(uint64(proposerIndex), 10),
-		Total:             strconv.FormatUint(proposerSlashingsBalance-initBalance+syncCommitteeReward, 10),
-		Attestations:      strconv.FormatUint(attBalance-initBalance, 10),
-		SyncAggregate:     strconv.FormatUint(syncCommitteeReward, 10),
+		ProposerIndex: strconv.FormatUint(uint64(proposerIndex), 10),
+		Total:         strconv.FormatUint(proposerSlashingsBalance-initBalance, 10),
+		Attestations:  strconv.FormatUint(attBalance-initBalance, 10),
+		// SyncAggregate:     strconv.FormatUint(syncCommitteeReward, 10),
 		ProposerSlashings: strconv.FormatUint(proposerSlashingsBalance-attSlashingsBalance, 10),
 		AttesterSlashings: strconv.FormatUint(attSlashingsBalance-attBalance, 10),
 	}, nil

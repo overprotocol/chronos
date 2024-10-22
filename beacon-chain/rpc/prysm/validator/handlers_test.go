@@ -16,7 +16,6 @@ import (
 	"github.com/prysmaticlabs/go-bitfield"
 	"github.com/prysmaticlabs/prysm/v5/api/server/structs"
 	mock "github.com/prysmaticlabs/prysm/v5/beacon-chain/blockchain/testing"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/altair"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/transition"
 	dbTest "github.com/prysmaticlabs/prysm/v5/beacon-chain/db/testing"
@@ -287,9 +286,9 @@ func TestServer_GetValidatorParticipation_CurrentAndPrevEpochWithBits(t *testing
 		validatorCount := uint64(32)
 		genState, _ := util.DeterministicGenesisStateAltair(t, validatorCount)
 
-		c, err := altair.NextSyncCommittee(context.Background(), genState)
-		require.NoError(t, err)
-		require.NoError(t, genState.SetCurrentSyncCommittee(c))
+		// c, err := altair.NextSyncCommittee(context.Background(), genState)
+		// require.NoError(t, err)
+		// require.NoError(t, genState.SetCurrentSyncCommittee(c))
 
 		bits := make([]byte, validatorCount)
 		for i := range bits {
@@ -305,9 +304,9 @@ func TestServer_GetValidatorParticipation_CurrentAndPrevEpochWithBits(t *testing
 	t.Run("bellatrix", func(t *testing.T) {
 		validatorCount := uint64(32)
 		genState, _ := util.DeterministicGenesisStateBellatrix(t, validatorCount)
-		c, err := altair.NextSyncCommittee(context.Background(), genState)
-		require.NoError(t, err)
-		require.NoError(t, genState.SetCurrentSyncCommittee(c))
+		// c, err := altair.NextSyncCommittee(context.Background(), genState)
+		// require.NoError(t, err)
+		// require.NoError(t, genState.SetCurrentSyncCommittee(c))
 
 		bits := make([]byte, validatorCount)
 		for i := range bits {
@@ -323,9 +322,9 @@ func TestServer_GetValidatorParticipation_CurrentAndPrevEpochWithBits(t *testing
 	t.Run("capella", func(t *testing.T) {
 		validatorCount := uint64(32)
 		genState, _ := util.DeterministicGenesisStateCapella(t, validatorCount)
-		c, err := altair.NextSyncCommittee(context.Background(), genState)
-		require.NoError(t, err)
-		require.NoError(t, genState.SetCurrentSyncCommittee(c))
+		// c, err := altair.NextSyncCommittee(context.Background(), genState)
+		// require.NoError(t, err)
+		// require.NoError(t, genState.SetCurrentSyncCommittee(c))
 
 		bits := make([]byte, validatorCount)
 		for i := range bits {

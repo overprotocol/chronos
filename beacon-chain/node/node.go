@@ -40,7 +40,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/attestations"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/blstoexec"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/slashings"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/synccommittee"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/voluntaryexits"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/p2p"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/p2p/peers"
@@ -98,7 +97,6 @@ type BeaconNode struct {
 	attestationPool         attestations.Pool
 	exitPool                voluntaryexits.PoolManager
 	slashingsPool           slashings.PoolManager
-	syncCommitteePool       synccommittee.Pool
 	blsToExecPool           blstoexec.PoolManager
 	depositCache            cache.DepositCache
 	trackedValidatorsCache  *cache.TrackedValidatorsCache
@@ -149,7 +147,6 @@ func New(cliCtx *cli.Context, cancel context.CancelFunc, opts ...Option) (*Beaco
 		attestationPool:         attestations.NewPool(),
 		exitPool:                voluntaryexits.NewPool(),
 		slashingsPool:           slashings.NewPool(),
-		syncCommitteePool:       synccommittee.NewPool(),
 		blsToExecPool:           blstoexec.NewPool(),
 		trackedValidatorsCache:  cache.NewTrackedValidatorsCache(),
 		payloadIDCache:          cache.NewPayloadIDCache(),
@@ -849,7 +846,6 @@ func (b *BeaconNode) registerSyncService(initialSyncComplete chan struct{}, bFil
 		regularsync.WithAttestationPool(b.attestationPool),
 		regularsync.WithExitPool(b.exitPool),
 		regularsync.WithSlashingPool(b.slashingsPool),
-		regularsync.WithSyncCommsPool(b.syncCommitteePool),
 		regularsync.WithBlsToExecPool(b.blsToExecPool),
 		regularsync.WithStateGen(b.stateGen),
 		regularsync.WithSlasherAttestationsFeed(b.slasherAttestationsFeed),
@@ -1005,7 +1001,6 @@ func (b *BeaconNode) registerRPCService(router *http.ServeMux) error {
 		ExitPool:                      b.exitPool,
 		SlashingsPool:                 b.slashingsPool,
 		BLSChangesPool:                b.blsToExecPool,
-		SyncCommitteeObjectPool:       b.syncCommitteePool,
 		ExecutionChainService:         web3Service,
 		ExecutionChainInfoFetcher:     web3Service,
 		ChainStartFetcher:             chainStartFetcher,

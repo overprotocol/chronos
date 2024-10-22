@@ -177,7 +177,6 @@ func (b *SignedBeaconBlock) ToBlinded() (interfaces.ReadOnlySignedBeaconBlock, e
 						Attestations:           b.block.body.attestationsElectra,
 						Deposits:               b.block.body.deposits,
 						VoluntaryExits:         b.block.body.voluntaryExits,
-						SyncAggregate:          b.block.body.syncAggregate,
 						ExecutionPayloadHeader: header,
 						BlsToExecutionChanges:  b.block.body.blsToExecutionChanges,
 						BlobKzgCommitments:     b.block.body.blobKzgCommitments,
@@ -210,7 +209,6 @@ func (b *SignedBeaconBlock) ToBlinded() (interfaces.ReadOnlySignedBeaconBlock, e
 						Attestations:           b.block.body.attestations,
 						Deposits:               b.block.body.deposits,
 						VoluntaryExits:         b.block.body.voluntaryExits,
-						SyncAggregate:          b.block.body.syncAggregate,
 						ExecutionPayloadHeader: header,
 					},
 				},
@@ -237,7 +235,6 @@ func (b *SignedBeaconBlock) ToBlinded() (interfaces.ReadOnlySignedBeaconBlock, e
 						Attestations:           b.block.body.attestations,
 						Deposits:               b.block.body.deposits,
 						VoluntaryExits:         b.block.body.voluntaryExits,
-						SyncAggregate:          b.block.body.syncAggregate,
 						ExecutionPayloadHeader: header,
 						BlsToExecutionChanges:  b.block.body.blsToExecutionChanges,
 					},
@@ -265,7 +262,6 @@ func (b *SignedBeaconBlock) ToBlinded() (interfaces.ReadOnlySignedBeaconBlock, e
 						Attestations:           b.block.body.attestations,
 						Deposits:               b.block.body.deposits,
 						VoluntaryExits:         b.block.body.voluntaryExits,
-						SyncAggregate:          b.block.body.syncAggregate,
 						ExecutionPayloadHeader: header,
 						BlsToExecutionChanges:  b.block.body.blsToExecutionChanges,
 						BlobKzgCommitments:     b.block.body.blobKzgCommitments,
@@ -1074,12 +1070,12 @@ func (b *BeaconBlockBody) VoluntaryExits() []*eth.SignedVoluntaryExit {
 }
 
 // SyncAggregate returns the sync aggregate in the block.
-func (b *BeaconBlockBody) SyncAggregate() (*eth.SyncAggregate, error) {
-	if b.version == version.Phase0 {
-		return nil, consensus_types.ErrNotSupported("SyncAggregate", b.version)
-	}
-	return b.syncAggregate, nil
-}
+// func (b *BeaconBlockBody) SyncAggregate() (*eth.SyncAggregate, error) {
+// 	if b.version == version.Phase0 {
+// 		return nil, consensus_types.ErrNotSupported("SyncAggregate", b.version)
+// 	}
+// 	return b.syncAggregate, nil
+// }
 
 // Execution returns the execution payload of the block body.
 func (b *BeaconBlockBody) Execution() (interfaces.ExecutionData, error) {

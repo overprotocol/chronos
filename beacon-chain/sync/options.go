@@ -11,7 +11,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/attestations"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/blstoexec"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/slashings"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/synccommittee"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/voluntaryexits"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/p2p"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/startup"
@@ -60,13 +59,6 @@ func WithExitPool(exitPool voluntaryexits.PoolManager) Option {
 func WithSlashingPool(slashingPool slashings.PoolManager) Option {
 	return func(s *Service) error {
 		s.cfg.slashingPool = slashingPool
-		return nil
-	}
-}
-
-func WithSyncCommsPool(syncCommsPool synccommittee.Pool) Option {
-	return func(s *Service) error {
-		s.cfg.syncCommsPool = syncCommsPool
 		return nil
 	}
 }

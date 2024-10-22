@@ -155,19 +155,17 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	MaxValidatorsPerWithdrawalsSweep: 16384,
 
 	// BLS domain values.
-	DomainBeaconProposer:              bytesutil.Uint32ToBytes4(0x00000000),
-	DomainBeaconAttester:              bytesutil.Uint32ToBytes4(0x01000000),
-	DomainRandao:                      bytesutil.Uint32ToBytes4(0x02000000),
-	DomainDeposit:                     bytesutil.Uint32ToBytes4(0x03000000),
-	DomainVoluntaryExit:               bytesutil.Uint32ToBytes4(0x04000000),
-	DomainSelectionProof:              bytesutil.Uint32ToBytes4(0x05000000),
-	DomainAggregateAndProof:           bytesutil.Uint32ToBytes4(0x06000000),
-	DomainSyncCommittee:               bytesutil.Uint32ToBytes4(0x07000000),
-	DomainSyncCommitteeSelectionProof: bytesutil.Uint32ToBytes4(0x08000000),
-	DomainContributionAndProof:        bytesutil.Uint32ToBytes4(0x09000000),
-	DomainApplicationMask:             bytesutil.Uint32ToBytes4(0x00000001),
-	DomainApplicationBuilder:          bytesutil.Uint32ToBytes4(0x00000001),
-	DomainBLSToExecutionChange:        bytesutil.Uint32ToBytes4(0x0A000000),
+	DomainBeaconProposer:       bytesutil.Uint32ToBytes4(0x00000000),
+	DomainBeaconAttester:       bytesutil.Uint32ToBytes4(0x01000000),
+	DomainRandao:               bytesutil.Uint32ToBytes4(0x02000000),
+	DomainDeposit:              bytesutil.Uint32ToBytes4(0x03000000),
+	DomainVoluntaryExit:        bytesutil.Uint32ToBytes4(0x04000000),
+	DomainSelectionProof:       bytesutil.Uint32ToBytes4(0x05000000),
+	DomainAggregateAndProof:    bytesutil.Uint32ToBytes4(0x06000000),
+	DomainContributionAndProof: bytesutil.Uint32ToBytes4(0x09000000),
+	DomainApplicationMask:      bytesutil.Uint32ToBytes4(0x00000001),
+	DomainApplicationBuilder:   bytesutil.Uint32ToBytes4(0x00000001),
+	DomainBLSToExecutionChange: bytesutil.Uint32ToBytes4(0x0A000000),
 
 	// Prysm constants.
 	GenesisValidatorsRoot:          [32]byte{118, 108, 170, 30, 97, 71, 222, 85, 164, 205, 177, 224, 150, 138, 131, 9, 155, 19, 122, 134, 198, 109, 194, 232, 131, 10, 92, 39, 12, 13, 79, 216},
@@ -224,30 +222,18 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	TimelySourceWeight: 12,
 	TimelyTargetWeight: 24,
 	TimelyHeadWeight:   12,
-	SyncRewardWeight:   0,
 	ProposerWeight:     8,
-	LightLayerWeight:   8,
 	WeightDenominator:  64,
 
-	// Validator related values.
-	TargetAggregatorsPerSyncSubcommittee: 16,
-	SyncCommitteeSubnetCount:             4,
-
 	// Misc values.
-	SyncCommitteeSize:            512,
-	InactivityScoreBias:          4,
-	InactivityScoreRecoveryRate:  16,
-	EpochsPerSyncCommitteePeriod: 256,
+	InactivityScoreBias:         4,
+	InactivityScoreRecoveryRate: 16,
 
 	// Updated penalty values.
 	InactivityPenaltyQuotientAltair:     3 * 1 << 24, // 50331648
 	MinSlashingPenaltyQuotientAltair:    64,
 	MinSlashingPenaltyQuotientBellatrix: 32,
 	InactivityPenaltyQuotientBellatrix:  1 << 24,
-
-	// Light client
-	MinSyncCommitteeParticipants: 1,
-	MaxRequestLightClientUpdates: 128,
 
 	// Bellatrix
 	TerminalBlockHashActivationEpoch: 18446744073709551615,

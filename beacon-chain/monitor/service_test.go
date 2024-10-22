@@ -8,7 +8,6 @@ import (
 	"time"
 
 	mock "github.com/prysmaticlabs/prysm/v5/beacon-chain/blockchain/testing"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/altair"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/feed"
 	statefeed "github.com/prysmaticlabs/prysm/v5/beacon-chain/core/feed/state"
 	testDB "github.com/prysmaticlabs/prysm/v5/beacon-chain/db/testing"
@@ -31,11 +30,6 @@ func setupService(t *testing.T) *Service {
 	pubKeys[0] = state.Validators()[0].PublicKey
 	pubKeys[1] = state.Validators()[1].PublicKey
 	pubKeys[2] = state.Validators()[2].PublicKey
-
-	currentSyncCommittee := util.ConvertToCommittee([][]byte{
-		pubKeys[0], pubKeys[1], pubKeys[2], pubKeys[1], pubKeys[1],
-	})
-	require.NoError(t, state.SetCurrentSyncCommittee(currentSyncCommittee))
 
 	chainService := &mock.ChainService{
 		Genesis:        time.Now(),
@@ -79,17 +73,15 @@ func setupService(t *testing.T) *Service {
 	}
 	aggregatedPerformance := map[primitives.ValidatorIndex]ValidatorAggregatedPerformance{
 		1: {
-			startEpoch:                      0,
-			startBalance:                    25700000000,
-			totalAttestedCount:              12,
-			totalRequestedCount:             15,
-			totalDistance:                   14,
-			totalCorrectHead:                8,
-			totalCorrectSource:              11,
-			totalCorrectTarget:              12,
-			totalProposedCount:              1,
-			totalSyncCommitteeContributions: 0,
-			totalSyncCommitteeAggregations:  0,
+			startEpoch:          0,
+			startBalance:        25700000000,
+			totalAttestedCount:  12,
+			totalRequestedCount: 15,
+			totalDistance:       14,
+			totalCorrectHead:    8,
+			totalCorrectSource:  11,
+			totalCorrectTarget:  12,
+			totalProposedCount:  1,
 		},
 		2:  {},
 		12: {},
@@ -130,9 +122,6 @@ func TestTrackedIndex(t *testing.T) {
 func TestUpdateSyncCommitteeTrackedVals(t *testing.T) {
 	hook := logTest.NewGlobal()
 	s := setupService(t)
-	state, _ := util.DeterministicGenesisStateAltair(t, 1024)
-
-	s.updateSyncCommitteeTrackedVals(state)
 	require.LogsDoNotContain(t, hook, "Sync committee assignments will not be reported")
 	newTrackedSyncIndices := map[primitives.ValidatorIndex][]primitives.CommitteeIndex{
 		1: {1, 3, 4},
@@ -241,9 +230,6 @@ func TestMonitorRoutine(t *testing.T) {
 	}()
 
 	genesis, keys := util.DeterministicGenesisStateAltair(t, 64)
-	c, err := altair.NextSyncCommittee(ctx, genesis)
-	require.NoError(t, err)
-	require.NoError(t, genesis.SetCurrentSyncCommittee(c))
 
 	genConfig := util.DefaultBlockGenConfig()
 	block, err := util.GenerateFullBlockAltair(genesis, keys, genConfig, 1)

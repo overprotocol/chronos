@@ -58,22 +58,6 @@ func (mr *MockValidatorClientMockRecorder) AggregatedSelections(arg0, arg1 any) 
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AggregatedSelections", reflect.TypeOf((*MockValidatorClient)(nil).AggregatedSelections), arg0, arg1)
 }
-
-// AggregatedSyncSelections mocks base method.
-func (m *MockValidatorClient) AggregatedSyncSelections(arg0 context.Context, arg1 []iface.SyncCommitteeSelection) ([]iface.SyncCommitteeSelection, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AggregatedSyncSelections", arg0, arg1)
-	ret0, _ := ret[0].([]iface.SyncCommitteeSelection)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// AggregatedSyncSelections indicates an expected call of AggregatedSyncSelections.
-func (mr *MockValidatorClientMockRecorder) AggregatedSyncSelections(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AggregatedSyncSelections", reflect.TypeOf((*MockValidatorClient)(nil).AggregatedSyncSelections), arg0, arg1)
-}
-
 // AttestationData mocks base method.
 func (m *MockValidatorClient) AttestationData(arg0 context.Context, arg1 *eth.AttestationDataRequest) (*eth.AttestationData, error) {
 	m.ctrl.T.Helper()
@@ -365,37 +349,6 @@ func (mr *MockValidatorClientMockRecorder) SubmitSignedAggregateSelectionProofEl
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SubmitSignedAggregateSelectionProofElectra", reflect.TypeOf((*MockValidatorClient)(nil).SubmitSignedAggregateSelectionProofElectra), arg0, arg1)
 }
-
-// SubmitSignedContributionAndProof mocks base method.
-func (m *MockValidatorClient) SubmitSignedContributionAndProof(arg0 context.Context, arg1 *eth.SignedContributionAndProof) (*emptypb.Empty, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SubmitSignedContributionAndProof", arg0, arg1)
-	ret0, _ := ret[0].(*emptypb.Empty)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// SubmitSignedContributionAndProof indicates an expected call of SubmitSignedContributionAndProof.
-func (mr *MockValidatorClientMockRecorder) SubmitSignedContributionAndProof(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SubmitSignedContributionAndProof", reflect.TypeOf((*MockValidatorClient)(nil).SubmitSignedContributionAndProof), arg0, arg1)
-}
-
-// SubmitSyncMessage mocks base method.
-func (m *MockValidatorClient) SubmitSyncMessage(arg0 context.Context, arg1 *eth.SyncCommitteeMessage) (*emptypb.Empty, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SubmitSyncMessage", arg0, arg1)
-	ret0, _ := ret[0].(*emptypb.Empty)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// SubmitSyncMessage indicates an expected call of SubmitSyncMessage.
-func (mr *MockValidatorClientMockRecorder) SubmitSyncMessage(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SubmitSyncMessage", reflect.TypeOf((*MockValidatorClient)(nil).SubmitSyncMessage), arg0, arg1)
-}
-
 // SubmitValidatorRegistrations mocks base method.
 func (m *MockValidatorClient) SubmitValidatorRegistrations(arg0 context.Context, arg1 *eth.SignedValidatorRegistrationsV1) (*emptypb.Empty, error) {
 	m.ctrl.T.Helper()
@@ -426,50 +379,50 @@ func (mr *MockValidatorClientMockRecorder) SubscribeCommitteeSubnets(arg0, arg1,
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SubscribeCommitteeSubnets", reflect.TypeOf((*MockValidatorClient)(nil).SubscribeCommitteeSubnets), arg0, arg1, arg2)
 }
 
-// SyncCommitteeContribution mocks base method.
-func (m *MockValidatorClient) SyncCommitteeContribution(arg0 context.Context, arg1 *eth.SyncCommitteeContributionRequest) (*eth.SyncCommitteeContribution, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SyncCommitteeContribution", arg0, arg1)
-	ret0, _ := ret[0].(*eth.SyncCommitteeContribution)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
+// // SyncCommitteeContribution mocks base method.
+// func (m *MockValidatorClient) SyncCommitteeContribution(arg0 context.Context, arg1 *eth.SyncCommitteeContributionRequest) (*eth.SyncCommitteeContribution, error) {
+// 	m.ctrl.T.Helper()
+// 	ret := m.ctrl.Call(m, "SyncCommitteeContribution", arg0, arg1)
+// 	ret0, _ := ret[0].(*eth.SyncCommitteeContribution)
+// 	ret1, _ := ret[1].(error)
+// 	return ret0, ret1
+// }
 
-// SyncCommitteeContribution indicates an expected call of SyncCommitteeContribution.
-func (mr *MockValidatorClientMockRecorder) SyncCommitteeContribution(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SyncCommitteeContribution", reflect.TypeOf((*MockValidatorClient)(nil).SyncCommitteeContribution), arg0, arg1)
-}
+// // SyncCommitteeContribution indicates an expected call of SyncCommitteeContribution.
+// func (mr *MockValidatorClientMockRecorder) SyncCommitteeContribution(arg0, arg1 any) *gomock.Call {
+// 	mr.mock.ctrl.T.Helper()
+// 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SyncCommitteeContribution", reflect.TypeOf((*MockValidatorClient)(nil).SyncCommitteeContribution), arg0, arg1)
+// }
 
-// SyncMessageBlockRoot mocks base method.
-func (m *MockValidatorClient) SyncMessageBlockRoot(arg0 context.Context, arg1 *emptypb.Empty) (*eth.SyncMessageBlockRootResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SyncMessageBlockRoot", arg0, arg1)
-	ret0, _ := ret[0].(*eth.SyncMessageBlockRootResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
+// // SyncMessageBlockRoot mocks base method.
+// func (m *MockValidatorClient) SyncMessageBlockRoot(arg0 context.Context, arg1 *emptypb.Empty) (*eth.SyncMessageBlockRootResponse, error) {
+// 	m.ctrl.T.Helper()
+// 	ret := m.ctrl.Call(m, "SyncMessageBlockRoot", arg0, arg1)
+// 	ret0, _ := ret[0].(*eth.SyncMessageBlockRootResponse)
+// 	ret1, _ := ret[1].(error)
+// 	return ret0, ret1
+// }
 
 // SyncMessageBlockRoot indicates an expected call of SyncMessageBlockRoot.
-func (mr *MockValidatorClientMockRecorder) SyncMessageBlockRoot(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SyncMessageBlockRoot", reflect.TypeOf((*MockValidatorClient)(nil).SyncMessageBlockRoot), arg0, arg1)
-}
+// func (mr *MockValidatorClientMockRecorder) SyncMessageBlockRoot(arg0, arg1 any) *gomock.Call {
+// 	mr.mock.ctrl.T.Helper()
+// 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SyncMessageBlockRoot", reflect.TypeOf((*MockValidatorClient)(nil).SyncMessageBlockRoot), arg0, arg1)
+// }
 
 // SyncSubcommitteeIndex mocks base method.
-func (m *MockValidatorClient) SyncSubcommitteeIndex(arg0 context.Context, arg1 *eth.SyncSubcommitteeIndexRequest) (*eth.SyncSubcommitteeIndexResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SyncSubcommitteeIndex", arg0, arg1)
-	ret0, _ := ret[0].(*eth.SyncSubcommitteeIndexResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
+// func (m *MockValidatorClient) SyncSubcommitteeIndex(arg0 context.Context, arg1 *eth.SyncSubcommitteeIndexRequest) (*eth.SyncSubcommitteeIndexResponse, error) {
+// 	m.ctrl.T.Helper()
+// 	ret := m.ctrl.Call(m, "SyncSubcommitteeIndex", arg0, arg1)
+// 	ret0, _ := ret[0].(*eth.SyncSubcommitteeIndexResponse)
+// 	ret1, _ := ret[1].(error)
+// 	return ret0, ret1
+// }
 
 // SyncSubcommitteeIndex indicates an expected call of SyncSubcommitteeIndex.
-func (mr *MockValidatorClientMockRecorder) SyncSubcommitteeIndex(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SyncSubcommitteeIndex", reflect.TypeOf((*MockValidatorClient)(nil).SyncSubcommitteeIndex), arg0, arg1)
-}
+// func (mr *MockValidatorClientMockRecorder) SyncSubcommitteeIndex(arg0, arg1 any) *gomock.Call {
+// 	mr.mock.ctrl.T.Helper()
+// 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SyncSubcommitteeIndex", reflect.TypeOf((*MockValidatorClient)(nil).SyncSubcommitteeIndex), arg0, arg1)
+// }
 
 // ValidatorIndex mocks base method.
 func (m *MockValidatorClient) ValidatorIndex(arg0 context.Context, arg1 *eth.ValidatorIndexRequest) (*eth.ValidatorIndexResponse, error) {

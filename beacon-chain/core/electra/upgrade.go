@@ -121,14 +121,7 @@ import (
 //
 //	return post
 func UpgradeToElectra(beaconState state.BeaconState) (state.BeaconState, error) {
-	currentSyncCommittee, err := beaconState.CurrentSyncCommittee()
-	if err != nil {
-		return nil, err
-	}
-	nextSyncCommittee, err := beaconState.NextSyncCommittee()
-	if err != nil {
-		return nil, err
-	}
+
 	prevEpochParticipation, err := beaconState.PreviousEpochParticipation()
 	if err != nil {
 		return nil, err
@@ -235,8 +228,6 @@ func UpgradeToElectra(beaconState state.BeaconState) (state.BeaconState, error) 
 		CurrentJustifiedCheckpoint:  beaconState.CurrentJustifiedCheckpoint(),
 		FinalizedCheckpoint:         beaconState.FinalizedCheckpoint(),
 		InactivityScores:            inactivityScores,
-		CurrentSyncCommittee:        currentSyncCommittee,
-		NextSyncCommittee:           nextSyncCommittee,
 		LatestExecutionPayloadHeader: &enginev1.ExecutionPayloadHeaderElectra{
 			ParentHash:       payloadHeader.ParentHash(),
 			FeeRecipient:     payloadHeader.FeeRecipient(),

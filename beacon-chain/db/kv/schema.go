@@ -18,7 +18,6 @@ var (
 	registrationBucket    = []byte("registration")
 
 	// Light Client Updates Bucket
-	lightClientUpdatesBucket = []byte("light-client-updates")
 
 	// Deprecated: This bucket was migrated in PR 6461. Do not use, except for migrations.
 	slotsHasObjectBucket = []byte("slots-has-objects")

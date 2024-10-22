@@ -9,7 +9,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
 	state_native "github.com/prysmaticlabs/prysm/v5/beacon-chain/state/state-native"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state/stateutil"
-	fieldparams "github.com/prysmaticlabs/prysm/v5/config/fieldparams"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
 	"github.com/prysmaticlabs/prysm/v5/crypto/bls"
@@ -206,7 +205,6 @@ func buildGenesisBeaconStateElectra(genesisTime uint64, preState state.BeaconSta
 		PendingPartialWithdrawals: make([]*ethpb.PendingPartialWithdrawal, 0),
 	}
 
-	var scBits [fieldparams.SyncAggregateSyncCommitteeBytesLength]byte
 	bodyRoot, err := (&ethpb.BeaconBlockBodyElectra{
 		RandaoReveal: make([]byte, 96),
 		Eth1Data: &ethpb.Eth1Data{
@@ -214,10 +212,6 @@ func buildGenesisBeaconStateElectra(genesisTime uint64, preState state.BeaconSta
 			BlockHash:   make([]byte, 32),
 		},
 		Graffiti: make([]byte, 32),
-		SyncAggregate: &ethpb.SyncAggregate{
-			SyncCommitteeBits:      scBits[:],
-			SyncCommitteeSignature: make([]byte, 96),
-		},
 		ExecutionPayload: &enginev1.ExecutionPayloadElectra{
 			ParentHash:    make([]byte, 32),
 			FeeRecipient:  make([]byte, 20),
@@ -243,25 +237,6 @@ func buildGenesisBeaconStateElectra(genesisTime uint64, preState state.BeaconSta
 		ParentRoot: zeroHash,
 		StateRoot:  zeroHash,
 		BodyRoot:   bodyRoot[:],
-	}
-
-	var pubKeys [][]byte
-	vals := preState.Validators()
-	for i := uint64(0); i < params.BeaconConfig().SyncCommitteeSize; i++ {
-		j := i % uint64(len(vals))
-		pubKeys = append(pubKeys, vals[j].PublicKey)
-	}
-	aggregated, err := bls.AggregatePublicKeys(pubKeys)
-	if err != nil {
-		return nil, err
-	}
-	st.CurrentSyncCommittee = &ethpb.SyncCommittee{
-		Pubkeys:         pubKeys,
-		AggregatePubkey: aggregated.Marshal(),
-	}
-	st.NextSyncCommittee = &ethpb.SyncCommittee{
-		Pubkeys:         pubKeys,
-		AggregatePubkey: aggregated.Marshal(),
 	}
 
 	st.LatestExecutionPayloadHeader = &enginev1.ExecutionPayloadHeaderElectra{

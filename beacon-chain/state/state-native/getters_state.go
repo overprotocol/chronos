@@ -83,8 +83,6 @@ func (b *BeaconState) ToProtoUnsafe() interface{} {
 			CurrentJustifiedCheckpoint:  b.currentJustifiedCheckpoint,
 			FinalizedCheckpoint:         b.finalizedCheckpoint,
 			InactivityScores:            b.inactivityScoresVal(),
-			CurrentSyncCommittee:        b.currentSyncCommittee,
-			NextSyncCommittee:           b.nextSyncCommittee,
 		}
 	case version.Bellatrix:
 		return &ethpb.BeaconStateBellatrix{
@@ -112,8 +110,6 @@ func (b *BeaconState) ToProtoUnsafe() interface{} {
 			CurrentJustifiedCheckpoint:   b.currentJustifiedCheckpoint,
 			FinalizedCheckpoint:          b.finalizedCheckpoint,
 			InactivityScores:             b.inactivityScoresVal(),
-			CurrentSyncCommittee:         b.currentSyncCommittee,
-			NextSyncCommittee:            b.nextSyncCommittee,
 			LatestExecutionPayloadHeader: b.latestExecutionPayloadHeader,
 		}
 	case version.Capella:
@@ -142,8 +138,6 @@ func (b *BeaconState) ToProtoUnsafe() interface{} {
 			CurrentJustifiedCheckpoint:   b.currentJustifiedCheckpoint,
 			FinalizedCheckpoint:          b.finalizedCheckpoint,
 			InactivityScores:             b.inactivityScoresVal(),
-			CurrentSyncCommittee:         b.currentSyncCommittee,
-			NextSyncCommittee:            b.nextSyncCommittee,
 			LatestExecutionPayloadHeader: b.latestExecutionPayloadHeaderCapella,
 			NextWithdrawalIndex:          b.nextWithdrawalIndex,
 			NextWithdrawalValidatorIndex: b.nextWithdrawalValidatorIndex,
@@ -175,8 +169,6 @@ func (b *BeaconState) ToProtoUnsafe() interface{} {
 			CurrentJustifiedCheckpoint:   b.currentJustifiedCheckpoint,
 			FinalizedCheckpoint:          b.finalizedCheckpoint,
 			InactivityScores:             b.inactivityScoresVal(),
-			CurrentSyncCommittee:         b.currentSyncCommittee,
-			NextSyncCommittee:            b.nextSyncCommittee,
 			LatestExecutionPayloadHeader: b.latestExecutionPayloadHeaderDeneb,
 			NextWithdrawalIndex:          b.nextWithdrawalIndex,
 			NextWithdrawalValidatorIndex: b.nextWithdrawalValidatorIndex,
@@ -208,8 +200,6 @@ func (b *BeaconState) ToProtoUnsafe() interface{} {
 			CurrentJustifiedCheckpoint:   b.currentJustifiedCheckpoint,
 			FinalizedCheckpoint:          b.finalizedCheckpoint,
 			InactivityScores:             b.inactivityScoresVal(),
-			CurrentSyncCommittee:         b.currentSyncCommittee,
-			NextSyncCommittee:            b.nextSyncCommittee,
 			LatestExecutionPayloadHeader: b.latestExecutionPayloadHeaderDeneb,
 			NextWithdrawalIndex:          b.nextWithdrawalIndex,
 			NextWithdrawalValidatorIndex: b.nextWithdrawalValidatorIndex,
@@ -298,8 +288,6 @@ func (b *BeaconState) ToProto() interface{} {
 			CurrentJustifiedCheckpoint:  b.currentJustifiedCheckpointVal(),
 			FinalizedCheckpoint:         b.finalizedCheckpointVal(),
 			InactivityScores:            inactivityScores,
-			CurrentSyncCommittee:        b.currentSyncCommitteeVal(),
-			NextSyncCommittee:           b.nextSyncCommitteeVal(),
 		}
 	case version.Bellatrix:
 		return &ethpb.BeaconStateBellatrix{
@@ -327,8 +315,6 @@ func (b *BeaconState) ToProto() interface{} {
 			CurrentJustifiedCheckpoint:   b.currentJustifiedCheckpointVal(),
 			FinalizedCheckpoint:          b.finalizedCheckpointVal(),
 			InactivityScores:             inactivityScores,
-			CurrentSyncCommittee:         b.currentSyncCommitteeVal(),
-			NextSyncCommittee:            b.nextSyncCommitteeVal(),
 			LatestExecutionPayloadHeader: b.latestExecutionPayloadHeader.Copy(),
 		}
 	case version.Capella:
@@ -357,8 +343,6 @@ func (b *BeaconState) ToProto() interface{} {
 			CurrentJustifiedCheckpoint:   b.currentJustifiedCheckpointVal(),
 			FinalizedCheckpoint:          b.finalizedCheckpointVal(),
 			InactivityScores:             inactivityScores,
-			CurrentSyncCommittee:         b.currentSyncCommitteeVal(),
-			NextSyncCommittee:            b.nextSyncCommitteeVal(),
 			LatestExecutionPayloadHeader: b.latestExecutionPayloadHeaderCapella.Copy(),
 			NextWithdrawalIndex:          b.nextWithdrawalIndex,
 			NextWithdrawalValidatorIndex: b.nextWithdrawalValidatorIndex,
@@ -390,8 +374,6 @@ func (b *BeaconState) ToProto() interface{} {
 			CurrentJustifiedCheckpoint:   b.currentJustifiedCheckpointVal(),
 			FinalizedCheckpoint:          b.finalizedCheckpointVal(),
 			InactivityScores:             b.inactivityScoresVal(),
-			CurrentSyncCommittee:         b.currentSyncCommitteeVal(),
-			NextSyncCommittee:            b.nextSyncCommitteeVal(),
 			LatestExecutionPayloadHeader: b.latestExecutionPayloadHeaderDeneb.Copy(),
 			NextWithdrawalIndex:          b.nextWithdrawalIndex,
 			NextWithdrawalValidatorIndex: b.nextWithdrawalValidatorIndex,
@@ -423,8 +405,6 @@ func (b *BeaconState) ToProto() interface{} {
 			CurrentJustifiedCheckpoint:   b.currentJustifiedCheckpointVal(),
 			FinalizedCheckpoint:          b.finalizedCheckpointVal(),
 			InactivityScores:             b.inactivityScoresVal(),
-			CurrentSyncCommittee:         b.currentSyncCommitteeVal(),
-			NextSyncCommittee:            b.nextSyncCommitteeVal(),
 			LatestExecutionPayloadHeader: b.latestExecutionPayloadHeaderDeneb.Copy(),
 			NextWithdrawalIndex:          b.nextWithdrawalIndex,
 			NextWithdrawalValidatorIndex: b.nextWithdrawalValidatorIndex,

@@ -59,7 +59,6 @@ func e2eMinimal(t *testing.T, cfg *params.BeaconChainConfig, cfgo ...types.E2ECo
 		ev.DenebForkTransition,
 		ev.FinishedSyncing,
 		ev.AllNodesHaveSameHead,
-		ev.ValidatorSyncParticipation,
 		ev.FeeRecipientIsPresent,
 		//ev.TransactionsPresent, TODO: Re-enable Transaction evaluator once it tx pool issues are fixed.
 	}
@@ -189,7 +188,6 @@ func scenarioEvals() []types.Evaluator {
 		ev.DenebForkTransition,
 		ev.FinishedSyncing,
 		ev.AllNodesHaveSameHead,
-		ev.ValidatorSyncParticipation,
 	}
 }
 

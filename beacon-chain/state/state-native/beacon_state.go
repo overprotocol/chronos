@@ -52,8 +52,6 @@ type BeaconState struct {
 	finalizedCheckpoint                 *ethpb.Checkpoint
 	inactivityScores                    []uint64
 	inactivityScoresMultiValue          *MultiValueInactivityScores
-	currentSyncCommittee                *ethpb.SyncCommittee
-	nextSyncCommittee                   *ethpb.SyncCommittee
 	latestExecutionPayloadHeader        *enginev1.ExecutionPayloadHeader
 	latestExecutionPayloadHeaderCapella *enginev1.ExecutionPayloadHeaderCapella
 	latestExecutionPayloadHeaderDeneb   *enginev1.ExecutionPayloadHeaderDeneb
@@ -108,8 +106,6 @@ type beaconStateMarshalable struct {
 	CurrentJustifiedCheckpoint          *ethpb.Checkpoint                       `json:"current_justified_checkpoint" yaml:"current_justified_checkpoint"`
 	FinalizedCheckpoint                 *ethpb.Checkpoint                       `json:"finalized_checkpoint" yaml:"finalized_checkpoint"`
 	InactivityScores                    []uint64                                `json:"inactivity_scores" yaml:"inactivity_scores"`
-	CurrentSyncCommittee                *ethpb.SyncCommittee                    `json:"current_sync_committee" yaml:"current_sync_committee"`
-	NextSyncCommittee                   *ethpb.SyncCommittee                    `json:"next_sync_committee" yaml:"next_sync_committee"`
 	LatestExecutionPayloadHeader        *enginev1.ExecutionPayloadHeader        `json:"latest_execution_payload_header" yaml:"latest_execution_payload_header"`
 	LatestExecutionPayloadHeaderCapella *enginev1.ExecutionPayloadHeaderCapella `json:"latest_execution_payload_header_capella" yaml:"latest_execution_payload_header_capella"`
 	LatestExecutionPayloadHeaderDeneb   *enginev1.ExecutionPayloadHeaderDeneb   `json:"latest_execution_payload_header_deneb" yaml:"latest_execution_payload_header_deneb"`
@@ -176,8 +172,6 @@ func (b *BeaconState) MarshalJSON() ([]byte, error) {
 		CurrentJustifiedCheckpoint:          b.currentJustifiedCheckpoint,
 		FinalizedCheckpoint:                 b.finalizedCheckpoint,
 		InactivityScores:                    inactivityScores,
-		CurrentSyncCommittee:                b.currentSyncCommittee,
-		NextSyncCommittee:                   b.nextSyncCommittee,
 		LatestExecutionPayloadHeader:        b.latestExecutionPayloadHeader,
 		LatestExecutionPayloadHeaderCapella: b.latestExecutionPayloadHeaderCapella,
 		LatestExecutionPayloadHeaderDeneb:   b.latestExecutionPayloadHeaderDeneb,

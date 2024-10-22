@@ -20,7 +20,6 @@ type fields struct {
 	proposerSlashings        []*eth.ProposerSlashing
 	attesterSlashings        []*eth.AttesterSlashing
 	voluntaryExits           []*eth.SignedVoluntaryExit
-	syncAggregate            *eth.SyncAggregate
 	execPayload              *enginev1.ExecutionPayload
 	execPayloadHeader        *enginev1.ExecutionPayloadHeader
 	execPayloadCapella       *enginev1.ExecutionPayloadCapella
@@ -1114,7 +1113,6 @@ func bodyPbAltair() *eth.BeaconBlockBodyAltair {
 		Attestations:      f.atts,
 		Deposits:          f.deposits,
 		VoluntaryExits:    f.voluntaryExits,
-		SyncAggregate:     f.syncAggregate,
 	}
 }
 
@@ -1133,7 +1131,6 @@ func bodyPbBellatrix() *eth.BeaconBlockBodyBellatrix {
 		Attestations:      f.atts,
 		Deposits:          f.deposits,
 		VoluntaryExits:    f.voluntaryExits,
-		SyncAggregate:     f.syncAggregate,
 		ExecutionPayload:  f.execPayload,
 	}
 }
@@ -1153,7 +1150,6 @@ func bodyPbBlindedBellatrix() *eth.BlindedBeaconBlockBodyBellatrix {
 		Attestations:           f.atts,
 		Deposits:               f.deposits,
 		VoluntaryExits:         f.voluntaryExits,
-		SyncAggregate:          f.syncAggregate,
 		ExecutionPayloadHeader: f.execPayloadHeader,
 	}
 }
@@ -1173,7 +1169,6 @@ func bodyPbCapella() *eth.BeaconBlockBodyCapella {
 		Attestations:          f.atts,
 		Deposits:              f.deposits,
 		VoluntaryExits:        f.voluntaryExits,
-		SyncAggregate:         f.syncAggregate,
 		ExecutionPayload:      f.execPayloadCapella,
 		BlsToExecutionChanges: f.blsToExecutionChanges,
 	}
@@ -1194,7 +1189,6 @@ func bodyPbBlindedCapella() *eth.BlindedBeaconBlockBodyCapella {
 		Attestations:           f.atts,
 		Deposits:               f.deposits,
 		VoluntaryExits:         f.voluntaryExits,
-		SyncAggregate:          f.syncAggregate,
 		ExecutionPayloadHeader: f.execPayloadHeaderCapella,
 		BlsToExecutionChanges:  f.blsToExecutionChanges,
 	}
@@ -1215,7 +1209,6 @@ func bodyPbDeneb() *eth.BeaconBlockBodyDeneb {
 		Attestations:          f.atts,
 		Deposits:              f.deposits,
 		VoluntaryExits:        f.voluntaryExits,
-		SyncAggregate:         f.syncAggregate,
 		ExecutionPayload:      f.execPayloadDeneb,
 		BlsToExecutionChanges: f.blsToExecutionChanges,
 		BlobKzgCommitments:    f.kzgCommitments,
@@ -1237,7 +1230,6 @@ func bodyPbBlindedDeneb() *eth.BlindedBeaconBlockBodyDeneb {
 		Attestations:           f.atts,
 		Deposits:               f.deposits,
 		VoluntaryExits:         f.voluntaryExits,
-		SyncAggregate:          f.syncAggregate,
 		ExecutionPayloadHeader: f.execPayloadHeaderDeneb,
 		BlsToExecutionChanges:  f.blsToExecutionChanges,
 		BlobKzgCommitments:     f.kzgCommitments,
@@ -1279,7 +1271,6 @@ func bodyAltair() *BeaconBlockBody {
 		attestations:      f.atts,
 		deposits:          f.deposits,
 		voluntaryExits:    f.voluntaryExits,
-		syncAggregate:     f.syncAggregate,
 	}
 }
 
@@ -1301,7 +1292,6 @@ func bodyBellatrix(t *testing.T) *BeaconBlockBody {
 		attestations:      f.atts,
 		deposits:          f.deposits,
 		voluntaryExits:    f.voluntaryExits,
-		syncAggregate:     f.syncAggregate,
 		executionPayload:  p,
 	}
 }
@@ -1324,7 +1314,6 @@ func bodyBlindedBellatrix(t *testing.T) *BeaconBlockBody {
 		attestations:           f.atts,
 		deposits:               f.deposits,
 		voluntaryExits:         f.voluntaryExits,
-		syncAggregate:          f.syncAggregate,
 		executionPayloadHeader: ph,
 	}
 }
@@ -1347,7 +1336,6 @@ func bodyCapella(t *testing.T) *BeaconBlockBody {
 		attestations:          f.atts,
 		deposits:              f.deposits,
 		voluntaryExits:        f.voluntaryExits,
-		syncAggregate:         f.syncAggregate,
 		executionPayload:      p,
 		blsToExecutionChanges: f.blsToExecutionChanges,
 	}
@@ -1371,7 +1359,6 @@ func bodyBlindedCapella(t *testing.T) *BeaconBlockBody {
 		attestations:           f.atts,
 		deposits:               f.deposits,
 		voluntaryExits:         f.voluntaryExits,
-		syncAggregate:          f.syncAggregate,
 		executionPayloadHeader: ph,
 		blsToExecutionChanges:  f.blsToExecutionChanges,
 	}
@@ -1395,7 +1382,6 @@ func bodyDeneb(t *testing.T) *BeaconBlockBody {
 		attestations:          f.atts,
 		deposits:              f.deposits,
 		voluntaryExits:        f.voluntaryExits,
-		syncAggregate:         f.syncAggregate,
 		executionPayload:      p,
 		blsToExecutionChanges: f.blsToExecutionChanges,
 		blobKzgCommitments:    f.kzgCommitments,
@@ -1420,7 +1406,6 @@ func bodyBlindedDeneb(t *testing.T) *BeaconBlockBody {
 		attestations:           f.atts,
 		deposits:               f.deposits,
 		voluntaryExits:         f.voluntaryExits,
-		syncAggregate:          f.syncAggregate,
 		executionPayloadHeader: ph,
 		blsToExecutionChanges:  f.blsToExecutionChanges,
 		blobKzgCommitments:     f.kzgCommitments,
@@ -1535,14 +1520,6 @@ func getFields() fields {
 			ValidatorIndex: 128,
 		},
 		Signature: sig[:],
-	}
-	syncCommitteeBits := bitfield.NewBitvector512()
-	syncCommitteeBits.SetBitAt(1, true)
-	syncCommitteeBits.SetBitAt(2, true)
-	syncCommitteeBits.SetBitAt(8, true)
-	syncAggregate := &eth.SyncAggregate{
-		SyncCommitteeBits:      syncCommitteeBits,
-		SyncCommitteeSignature: sig[:],
 	}
 	execPayload := &enginev1.ExecutionPayload{
 		ParentHash:    root[:],
@@ -1697,7 +1674,6 @@ func getFields() fields {
 		proposerSlashings:        []*eth.ProposerSlashing{proposerSlashing},
 		attesterSlashings:        []*eth.AttesterSlashing{attesterSlashing},
 		voluntaryExits:           []*eth.SignedVoluntaryExit{voluntaryExit},
-		syncAggregate:            syncAggregate,
 		execPayload:              execPayload,
 		execPayloadHeader:        execPayloadHeader,
 		execPayloadCapella:       execPayloadCapella,

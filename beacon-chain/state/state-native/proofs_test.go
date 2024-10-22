@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	statenative "github.com/prysmaticlabs/prysm/v5/beacon-chain/state/state-native"
 	"github.com/prysmaticlabs/prysm/v5/container/trie"
 	"github.com/prysmaticlabs/prysm/v5/testing/require"
@@ -14,14 +13,6 @@ import (
 func TestBeaconStateMerkleProofs_phase0_notsupported(t *testing.T) {
 	ctx := context.Background()
 	st, _ := util.DeterministicGenesisState(t, 256)
-	t.Run("current sync committee", func(t *testing.T) {
-		_, err := st.CurrentSyncCommitteeProof(ctx)
-		require.ErrorContains(t, "not supported", err)
-	})
-	t.Run("next sync committee", func(t *testing.T) {
-		_, err := st.NextSyncCommitteeProof(ctx)
-		require.ErrorContains(t, "not supported", err)
-	})
 	t.Run("finalized root", func(t *testing.T) {
 		_, err := st.FinalizedRootProof(ctx)
 		require.ErrorContains(t, "not supported", err)
@@ -33,36 +24,6 @@ func TestBeaconStateMerkleProofs_altair(t *testing.T) {
 	require.NoError(t, err)
 	htr, err := altair.HashTreeRoot(ctx)
 	require.NoError(t, err)
-	t.Run("current sync committee", func(t *testing.T) {
-		results := []string{
-			"0x173669ae8794c057def63b20372114a628abb029354a2ef50d7a1aaa9a3dab4a",
-			"0xf5a5fd42d16a20302798ef6ed309979b43003d2320d9f0e8ea9831a92759fb4b",
-			"0xdb56114e00fdd4c1f85c892bf35ac9a89289aaecb1ebd0a96cde606a748b5d71",
-			"0x444b03442d619994d80397aac4f24d2a8b8e873dc9978555c0afbe4fd844a540",
-			"0x6e84be54558f6577ea6770acf4062accf291b086abdd724025eb92b99095e266",
-		}
-		cscp, err := altair.CurrentSyncCommitteeProof(ctx)
-		require.NoError(t, err)
-		require.Equal(t, 5, len(cscp))
-		for i, bytes := range cscp {
-			require.Equal(t, results[i], hexutil.Encode(bytes))
-		}
-	})
-	t.Run("next sync committee", func(t *testing.T) {
-		n_results := []string{
-			"0x173669ae8794c057def63b20372114a628abb029354a2ef50d7a1aaa9a3dab4a",
-			"0xf5a5fd42d16a20302798ef6ed309979b43003d2320d9f0e8ea9831a92759fb4b",
-			"0xdb56114e00fdd4c1f85c892bf35ac9a89289aaecb1ebd0a96cde606a748b5d71",
-			"0x444b03442d619994d80397aac4f24d2a8b8e873dc9978555c0afbe4fd844a540",
-			"0x6e84be54558f6577ea6770acf4062accf291b086abdd724025eb92b99095e266",
-		}
-		nscp, err := altair.NextSyncCommitteeProof(ctx)
-		require.NoError(t, err)
-		require.Equal(t, 5, len(nscp))
-		for i, bytes := range nscp {
-			require.Equal(t, n_results[i], hexutil.Encode(bytes))
-		}
-	})
 	t.Run("finalized root", func(t *testing.T) {
 		finalizedRoot := altair.FinalizedCheckpoint().Root
 		proof, err := altair.FinalizedRootProof(ctx)
@@ -109,36 +70,6 @@ func TestBeaconStateMerkleProofs_bellatrix(t *testing.T) {
 	require.NoError(t, err)
 	htr, err := bellatrix.HashTreeRoot(ctx)
 	require.NoError(t, err)
-	t.Run("current sync committee", func(t *testing.T) {
-		results := []string{
-			"0x173669ae8794c057def63b20372114a628abb029354a2ef50d7a1aaa9a3dab4a",
-			"0xb68b2f519878bcdc8fce2bba633a841e89e757c901224e731ec16a2397fdca74",
-			"0xdb56114e00fdd4c1f85c892bf35ac9a89289aaecb1ebd0a96cde606a748b5d71",
-			"0x444b03442d619994d80397aac4f24d2a8b8e873dc9978555c0afbe4fd844a540",
-			"0x6e84be54558f6577ea6770acf4062accf291b086abdd724025eb92b99095e266",
-		}
-		cscp, err := bellatrix.CurrentSyncCommitteeProof(ctx)
-		require.NoError(t, err)
-		require.Equal(t, 5, len(cscp))
-		for i, bytes := range cscp {
-			require.Equal(t, results[i], hexutil.Encode(bytes))
-		}
-	})
-	t.Run("next sync committee", func(t *testing.T) {
-		n_results := []string{
-			"0x173669ae8794c057def63b20372114a628abb029354a2ef50d7a1aaa9a3dab4a",
-			"0xb68b2f519878bcdc8fce2bba633a841e89e757c901224e731ec16a2397fdca74",
-			"0xdb56114e00fdd4c1f85c892bf35ac9a89289aaecb1ebd0a96cde606a748b5d71",
-			"0x444b03442d619994d80397aac4f24d2a8b8e873dc9978555c0afbe4fd844a540",
-			"0x6e84be54558f6577ea6770acf4062accf291b086abdd724025eb92b99095e266",
-		}
-		nscp, err := bellatrix.NextSyncCommitteeProof(ctx)
-		require.NoError(t, err)
-		require.Equal(t, 5, len(nscp))
-		for i, bytes := range nscp {
-			require.Equal(t, n_results[i], hexutil.Encode(bytes))
-		}
-	})
 	t.Run("finalized root", func(t *testing.T) {
 		finalizedRoot := bellatrix.FinalizedCheckpoint().Root
 		proof, err := bellatrix.FinalizedRootProof(ctx)

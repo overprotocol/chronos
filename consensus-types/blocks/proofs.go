@@ -120,19 +120,6 @@ func ComputeBlockBodyFieldRoots(ctx context.Context, blockBody *BeaconBlockBody)
 	}
 	copy(fieldRoots[7], root[:])
 
-	if blockBody.version >= version.Altair {
-		// Sync Aggregate
-		sa, err := blockBody.SyncAggregate()
-		if err != nil {
-			return nil, err
-		}
-		root, err = sa.HashTreeRoot()
-		if err != nil {
-			return nil, err
-		}
-		copy(fieldRoots[8], root[:])
-	}
-
 	if blockBody.version >= version.Bellatrix {
 		// Execution Payload
 		ep, err := blockBody.Execution()
