@@ -374,6 +374,7 @@ type Validator struct {
 	ActivationEpoch            uint64 `json:"activation_epoch"`
 	ExitEpoch                  uint64 `json:"exit_epoch"`
 	WithdrawableEpoch          uint64 `json:"withdrawable_epoch"`
+	PrincipalBalance           uint64 `json:"principal_balance"`
 }
 
 func ValidatorsResponseFromConsensus(e *eth.Validators) (*ValidatorsResponse, error) {
@@ -391,6 +392,7 @@ func ValidatorsResponseFromConsensus(e *eth.Validators) (*ValidatorsResponse, er
 				ActivationEpoch:            uint64(val.ActivationEpoch),
 				ExitEpoch:                  uint64(val.ExitEpoch),
 				WithdrawableEpoch:          uint64(val.WithdrawableEpoch),
+				PrincipalBalance:           val.PrincipalBalance,
 			},
 		}
 	}
