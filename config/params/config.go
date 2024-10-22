@@ -240,8 +240,6 @@ type BeaconChainConfig struct {
 	MinPerEpochChurnLimitElectra          uint64 `yaml:"MIN_PER_EPOCH_CHURN_LIMIT_ELECTRA" spec:"true"`          // MinPerEpochChurnLimitElectra is the minimum amount of churn allotted for validator rotations for electra.
 	MaxRequestDataColumnSidecars          uint64 `yaml:"MAX_REQUEST_DATA_COLUMN_SIDECARS" spec:"true"`           // MaxRequestDataColumnSidecars is the maximum number of data column sidecars in a single request
 	MaxEffectiveBalanceElectra            uint64 `yaml:"MAX_EFFECTIVE_BALANCE_ELECTRA" spec:"true"`              // MaxEffectiveBalanceElectra is the maximal amount of Gwei that is effective for staking, increased in electra.
-	MinSlashingPenaltyQuotientElectra     uint64 `yaml:"MIN_SLASHING_PENALTY_QUOTIENT_ELECTRA" spec:"true"`      // MinSlashingPenaltyQuotientElectra is used to calculate the minimum penalty to prevent DoS attacks, modified for electra.
-	WhistleBlowerRewardQuotientElectra    uint64 `yaml:"WHISTLEBLOWER_REWARD_QUOTIENT_ELECTRA" spec:"true"`      // WhistleBlowerRewardQuotientElectra is used to calculate whistle blower reward, modified in electra.
 	PendingDepositLimit                   uint64 `yaml:"PENDING_DEPOSITS_LIMIT" spec:"true"`                     // PendingDepositLimit is the maximum number of pending balance deposits allowed in the beacon state.
 	PendingPartialWithdrawalsLimit        uint64 `yaml:"PENDING_PARTIAL_WITHDRAWALS_LIMIT" spec:"true"`          // PendingPartialWithdrawalsLimit is the maximum number of pending partial withdrawals allowed in the beacon state.
 	MaxPendingPartialsPerWithdrawalsSweep uint64 `yaml:"MAX_PENDING_PARTIALS_PER_WITHDRAWALS_SWEEP" spec:"true"` // MaxPendingPartialsPerWithdrawalsSweep is the maximum number of pending partial withdrawals to process per payload.
@@ -250,6 +248,10 @@ type BeaconChainConfig struct {
 	MaxWithdrawalRequestsPerPayload       uint64 `yaml:"MAX_WITHDRAWAL_REQUESTS_PER_PAYLOAD" spec:"true"`        // MaxWithdrawalRequestsPerPayload is the maximum number of execution layer withdrawal requests in each payload.
 	MaxDepositRequestsPerPayload          uint64 `yaml:"MAX_DEPOSIT_REQUESTS_PER_PAYLOAD" spec:"true"`           // MaxDepositRequestsPerPayload is the maximum number of execution layer deposits in each payload
 	UnsetDepositRequestsStartIndex        uint64 `yaml:"UNSET_DEPOSIT_REQUESTS_START_INDEX" spec:"true"`         // UnsetDepositRequestsStartIndex is used to check the start index for eip6110
+
+	// Values introduce in Alpaca upgrade
+	MinSlashingPenaltyQuotientAlpaca  uint64 `yaml:"MIN_SLASHING_PENALTY_QUOTIENT_ALPACA" spec:"true"` // MinSlashingPenaltyQuotientAlpaca is used to calculate the minimum penalty to prevent DoS attacks, modified for alpaca.
+	WhistleBlowerRewardQuotientAlpaca uint64 `yaml:"WHISTLEBLOWER_REWARD_QUOTIENT_ALPACA" spec:"true"` // WhistleBlowerRewardQuotientAlpaca is used to calculate whistle blower reward, modified in alpaca.
 
 	// Networking Specific Parameters
 	GossipMaxSize                   uint64          `yaml:"GOSSIP_MAX_SIZE" spec:"true"`                    // GossipMaxSize is the maximum allowed size of uncompressed gossip messages.

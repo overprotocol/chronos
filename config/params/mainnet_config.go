@@ -259,8 +259,6 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	MinPerEpochChurnLimitElectra:          128_000_000_000,
 	MaxPerEpochActivationExitChurnLimit:   256_000_000_000,
 	MaxEffectiveBalanceElectra:            16384_000_000_000,
-	MinSlashingPenaltyQuotientElectra:     4096,
-	WhistleBlowerRewardQuotientElectra:    4096,
 	PendingDepositLimit:                   134_217_728,
 	PendingPartialWithdrawalsLimit:        134_217_728,
 	MinActivationBalance:                  256_000_000_000,
@@ -270,6 +268,10 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	MaxWithdrawalRequestsPerPayload:       16,
 	MaxDepositRequestsPerPayload:          8192, // 2**13 (= 8192)
 	UnsetDepositRequestsStartIndex:        math.MaxUint64,
+
+	// Values related to alpaca
+	MinSlashingPenaltyQuotientAlpaca:  10,
+	WhistleBlowerRewardQuotientAlpaca: 10,
 
 	// PeerDAS
 	NumberOfColumns:          128,

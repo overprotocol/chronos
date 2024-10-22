@@ -23,9 +23,9 @@ func SlashingParamsPerVersion(v int) (slashingQuotient, proposerRewardQuotient, 
 		proposerRewardQuotient = cfg.ProposerRewardQuotient
 		whistleblowerRewardQuotient = cfg.WhistleBlowerRewardQuotient
 	case version.Electra:
-		slashingQuotient = cfg.MinSlashingPenaltyQuotientElectra
+		slashingQuotient = cfg.MinSlashingPenaltyQuotientAlpaca
 		proposerRewardQuotient = cfg.ProposerRewardQuotient
-		whistleblowerRewardQuotient = cfg.WhistleBlowerRewardQuotientElectra
+		whistleblowerRewardQuotient = cfg.WhistleBlowerRewardQuotientAlpaca
 	default:
 		err = errors.New("unknown state version")
 	}

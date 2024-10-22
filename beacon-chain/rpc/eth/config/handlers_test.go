@@ -157,6 +157,8 @@ func TestGetSpec(t *testing.T) {
 	config.UnsetDepositRequestsStartIndex = 100
 	config.MaxDepositRequestsPerPayload = 101
 	config.MaxPendingDepositsPerEpoch = 102
+	config.MinSlashingPenaltyQuotientAlpaca = 103
+	config.WhistleBlowerRewardQuotientAlpaca = 104
 
 	var dbp [4]byte
 	copy(dbp[:], []byte{'0', '0', '0', '1'})
@@ -536,6 +538,10 @@ func TestGetSpec(t *testing.T) {
 				assert.Equal(t, "101", v)
 			case "MAX_PENDING_DEPOSITS_PER_EPOCH":
 				assert.Equal(t, "102", v)
+			case "MIN_SLASHING_PENALTY_QUOTIENT_ALPACA":
+				assert.Equal(t, "103", v)
+			case "WHISTLEBLOWER_REWARD_QUOTIENT_ALPACA":
+				assert.Equal(t, "104", v)
 			default:
 				t.Errorf("Incorrect key: %s", k)
 			}
