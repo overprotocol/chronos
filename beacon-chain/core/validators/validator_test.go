@@ -399,11 +399,11 @@ func TestSlashedValidatorIndices(t *testing.T) {
 
 func TestExitedValidatorIndices(t *testing.T) {
 	tests := []struct {
-		state  *ethpb.BeaconState
+		state  *ethpb.BeaconStateAltair
 		wanted []primitives.ValidatorIndex
 	}{
 		{
-			state: &ethpb.BeaconState{
+			state: &ethpb.BeaconStateAltair{
 				Validators: []*ethpb.Validator{
 					{
 						EffectiveBalance:  params.BeaconConfig().MaxEffectiveBalance,
@@ -425,7 +425,7 @@ func TestExitedValidatorIndices(t *testing.T) {
 			wanted: []primitives.ValidatorIndex{0, 2},
 		},
 		{
-			state: &ethpb.BeaconState{
+			state: &ethpb.BeaconStateAltair{
 				Validators: []*ethpb.Validator{
 					{
 						EffectiveBalance:  params.BeaconConfig().MaxEffectiveBalance,
@@ -437,7 +437,7 @@ func TestExitedValidatorIndices(t *testing.T) {
 			wanted: []primitives.ValidatorIndex{},
 		},
 		{
-			state: &ethpb.BeaconState{
+			state: &ethpb.BeaconStateAltair{
 				Validators: []*ethpb.Validator{
 					{
 						EffectiveBalance:  params.BeaconConfig().MaxEffectiveBalance,
@@ -450,13 +450,9 @@ func TestExitedValidatorIndices(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		s, err := state_native.InitializeFromProtoPhase0(tt.state)
+		s, err := state_native.InitializeFromProtoAltair(tt.state)
 		require.NoError(t, err)
-		activeCount, err := helpers.ActiveValidatorCount(context.Background(), s, time.PrevEpoch(s))
-		require.NoError(t, err)
-		activeDeposit, err := helpers.TotalActiveBalance(s)
-		require.NoError(t, err)
-		exitedIndices, err := validators.ExitedValidatorIndices(0, tt.state.Validators, activeCount, activeDeposit)
+		exitedIndices, err := validators.ExitedValidatorIndices(s, tt.state.Validators, false)
 		require.NoError(t, err)
 		assert.DeepEqual(t, tt.wanted, exitedIndices)
 	}
