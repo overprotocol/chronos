@@ -1244,9 +1244,6 @@ func (b *BeaconBlockDeneb) ToConsensus() (*eth.BeaconBlockDeneb, error) {
 	if b.Body.Eth1Data == nil {
 		return nil, server.NewDecodeError(errNilValue, "Body.Eth1Data")
 	}
-	// if b.Body.SyncAggregate == nil {
-	// 	return nil, server.NewDecodeError(errNilValue, "Body.SyncAggregate")
-	// }
 	if b.Body.ExecutionPayload == nil {
 		return nil, server.NewDecodeError(errNilValue, "Body.ExecutionPayload")
 	}

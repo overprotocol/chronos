@@ -919,8 +919,6 @@ func (ve *VoluntaryExit) MarshalJSON() ([]byte, error) {
 	})
 }
 
-// SyncAggregate is a field of Beacon Block Body.
-
 // Eth1Data is a field of Beacon Block Body.
 type Eth1Data struct {
 	*eth.Eth1Data
