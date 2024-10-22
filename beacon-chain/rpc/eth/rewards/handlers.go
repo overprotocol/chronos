@@ -180,11 +180,19 @@ func idealAttRewards(
 	vals []*precompute.Validator,
 ) ([]structs.IdealAttestationReward, bool) {
 	increment := params.BeaconConfig().EffectiveBalanceIncrement / 1e9
-	maxEffectiveBalance := params.BeaconConfig().MaxEffectiveBalance / 1e9
-	ejectionBalance := params.BeaconConfig().EjectionBalance / 1e9
+	var maxEffectiveBalance, minIdealBalance uint64
+	if st.Version() < version.Electra {
+		maxEffectiveBalance = params.BeaconConfig().MinActivationBalance / 1e9
+		// Due to bail out and new penalty mechanism, validator will be exited
+		// before touching few downstairs.
+		minIdealBalance = maxEffectiveBalance - increment
+	} else {
+		maxEffectiveBalance = params.BeaconConfig().MaxEffectiveBalanceElectra / 1e9
+		// Post-Electra, the range of effective balance becomes wider, but the lower bound will be same as pre-Electra.
+		minIdealBalance = params.BeaconConfig().MinActivationBalance - increment
+	}
 
-	idealValsCount := (maxEffectiveBalance - ejectionBalance) / increment
-	minIdealBalance := ejectionBalance + increment
+	idealValsCount := (maxEffectiveBalance - minIdealBalance) / increment
 	maxIdealBalance := maxEffectiveBalance
 
 	idealRewards := make([]structs.IdealAttestationReward, 0, idealValsCount)
