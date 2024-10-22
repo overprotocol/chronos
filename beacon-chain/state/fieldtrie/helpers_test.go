@@ -264,7 +264,7 @@ func TestFieldTrie_NativeState_fieldConvertersNative(t *testing.T) {
 		{
 			name: "Attestations",
 			args: &args{
-				field:   types.FieldIndex(18),
+				field:   types.FieldIndex(17),
 				indices: []uint64{},
 				elements: []*ethpb.PendingAttestation{
 					{
@@ -278,7 +278,7 @@ func TestFieldTrie_NativeState_fieldConvertersNative(t *testing.T) {
 		{
 			name: "Attestations convertAll false",
 			args: &args{
-				field:   types.FieldIndex(18),
+				field:   types.FieldIndex(17),
 				indices: []uint64{1},
 				elements: []*ethpb.PendingAttestation{
 					{
