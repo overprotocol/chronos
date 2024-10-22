@@ -147,25 +147,23 @@ func TestGetSpec(t *testing.T) {
 	config.MaxTokenSupply = 93
 	config.EpochsPerYear = 94
 	config.IssuancePerYear = 95
-	// config.LightLayerWeight = 96
-	config.MaxBailOuts = 97
-	config.MinSlashingPenaltyQuotientElectra = 98
-	config.MaxEffectiveBalanceElectra = 99
+	config.MinSlashingPenaltyQuotientElectra = 96
+	config.MaxEffectiveBalanceElectra = 97
 	config.CompoundingWithdrawalPrefixByte = byte('d')
-	config.WhistleBlowerRewardQuotientElectra = 97
-	config.PendingPartialWithdrawalsLimit = 98
-	config.MinActivationBalance = 99
-	config.PendingDepositLimit = 100
-	config.MaxPendingPartialsPerWithdrawalsSweep = 101
-	config.MaxPartialWithdrawalsPerPayload = 102
-	config.FullExitRequestAmount = 103
-	config.MaxAttesterSlashingsElectra = 104
-	config.MaxAttestationsElectra = 105
-	config.MaxWithdrawalRequestsPerPayload = 106
-	config.MaxCellsInExtendedMatrix = 107
-	config.UnsetDepositRequestsStartIndex = 108
-	config.MaxDepositRequestsPerPayload = 109
-	config.MaxPendingDepositsPerEpoch = 110
+	config.WhistleBlowerRewardQuotientElectra = 98
+	config.PendingPartialWithdrawalsLimit = 99
+	config.MinActivationBalance = 100
+	config.PendingDepositLimit = 101
+	config.MaxPendingPartialsPerWithdrawalsSweep = 102
+	config.MaxPartialWithdrawalsPerPayload = 103
+	config.FullExitRequestAmount = 104
+	config.MaxAttesterSlashingsElectra = 105
+	config.MaxAttestationsElectra = 106
+	config.MaxWithdrawalRequestsPerPayload = 107
+	config.MaxCellsInExtendedMatrix = 108
+	config.UnsetDepositRequestsStartIndex = 109
+	config.MaxDepositRequestsPerPayload = 110
+	config.MaxPendingDepositsPerEpoch = 111
 
 	var dbp [4]byte
 	copy(dbp[:], []byte{'0', '0', '0', '1'})
