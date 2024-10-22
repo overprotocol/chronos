@@ -184,7 +184,7 @@ func TestIncreaseBalance_OK(t *testing.T) {
 	}
 }
 
-func TestIncreaseBalanceAndAdjustDeposit_OK(t *testing.T) {
+func TestIncreaseBalanceAndAdjustPrincipalBalance_OK(t *testing.T) {
 	tests := []struct {
 		i  primitives.ValidatorIndex
 		b  []uint64
@@ -205,14 +205,14 @@ func TestIncreaseBalanceAndAdjustDeposit_OK(t *testing.T) {
 			Balances: test.b,
 		})
 		require.NoError(t, err)
-		require.NoError(t, helpers.IncreaseBalanceAndAdjustDeposit(state, test.i, test.nb))
+		require.NoError(t, helpers.IncreaseBalanceAndAdjustPrincipalBalance(state, test.i, test.nb))
 
 		assert.Equal(t, test.eb, state.Balances()[test.i], "Incorrect Validator balance")
 		assert.Equal(t, test.pb, state.Validators()[test.i].PrincipalBalance, "Incorrect Principal balance")
 	}
 }
 
-func TestIncreaseBalanceAndAdjustDeposit_Overflow(t *testing.T) {
+func TestIncreaseBalanceAndAdjustPrincipalBalance_Overflow(t *testing.T) {
 	tests := []struct {
 		i  primitives.ValidatorIndex
 		b  []uint64
@@ -230,7 +230,7 @@ func TestIncreaseBalanceAndAdjustDeposit_Overflow(t *testing.T) {
 			Balances: test.b,
 		})
 		require.NoError(t, err)
-		require.ErrorContains(t, "addition overflows", helpers.IncreaseBalanceAndAdjustDeposit(state, test.i, test.nb))
+		require.ErrorContains(t, "addition overflows", helpers.IncreaseBalanceAndAdjustPrincipalBalance(state, test.i, test.nb))
 	}
 }
 

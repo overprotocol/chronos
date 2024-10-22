@@ -155,18 +155,25 @@ func IncreaseBalance(state state.BeaconState, idx primitives.ValidatorIndex, del
 	return state.UpdateBalancesAtIndex(idx, newBal)
 }
 
+// IncreaseBalanceAndAdjustPrincipalBalance increase validator with the given 'index' balance by 'delta' in Gwei
+// and adjust the principal balance.
+//
 // Spec pseudocode definition:
 //
-// def increase_balance_and_adjust_deposit(state: BeaconState, index: ValidatorIndex, delta: Gwei) -> None:
-// increase_balance(state, index, delta)
+// def increase_balance_and_adjust_principal_balance(state: BeaconState, index: ValidatorIndex, delta: Gwei) -> None:
 //
-// validator = state.validators[index]
+//	increase_balance(state, index, delta)
 //
-// if state.balances[index] >= validator.deposit + delta:
-// validator.deposit += delta
-// elif state.balances[index] >= validator.deposit:
-// validator.deposit = state.balances[index]
-func IncreaseBalanceAndAdjustDeposit(state state.BeaconState, idx primitives.ValidatorIndex, delta uint64) error {
+//	validator = state.validators[index]
+//
+//	if state.balances[index] >= validator.principal_balance + delta:
+//
+//		validator.principal_balance += delta
+//
+//	elif state.balances[index] >= validator.principal_balance:
+//
+//		validator.principal_balance = state.balances[index]
+func IncreaseBalanceAndAdjustPrincipalBalance(state state.BeaconState, idx primitives.ValidatorIndex, delta uint64) error {
 	if err := IncreaseBalance(state, idx, delta); err != nil {
 		return err
 	}
@@ -224,25 +231,29 @@ func DecreaseBalance(state state.BeaconState, idx primitives.ValidatorIndex, del
 	return state.UpdateBalancesAtIndex(idx, DecreaseBalanceWithVal(balAtIdx, delta))
 }
 
-// def decrease_balance_and_adjust_deposit(state: BeaconState, index: ValidatorIndex, delta: Gwei) -> None:
-// prev_balance = state.balances[index]
-// decrease_balance(state, index, delta)
+// DecreaseBalanceAndAdjustPrincipalBalance decreases validator with the given 'index' balance by 'delta' in Gwei.
+// and adjust the principal balance.
 //
-// validator = state.validators[index]
-// if prev_balance >= MIN_ACTIVATION_BALANCE:
-// validator.deposit = max(validator.deposit * (state.balances[index] / prev_balance), MIN_ACTIVATION_BALANCE)
-// elif validator.deposit != MIN_ACTIVATION_BALANCE:
-// validator.deposit = MIN_ACTIVATION_BALANCE
-func DecreaseBalanceAndAdjustDeposit(state state.BeaconState, idx primitives.ValidatorIndex, delta uint64) error {
+// def decrease_balance_and_adjust_principal_balance(state: BeaconState, index: ValidatorIndex, delta: Gwei) -> None:
+//
+//	prev_balance = state.balances[index]
+//	decrease_balance(state, index, delta)
+//
+//	validator = state.validators[index]
+//	if prev_balance >= MIN_ACTIVATION_BALANCE:
+//		validator.principal_balance = max(validator.principal_balance * (state.balances[index] / prev_balance), MIN_ACTIVATION_BALANCE)
+//	elif validator.principal_balance != MIN_ACTIVATION_BALANCE:
+//		validator.principal_balance = MIN_ACTIVATION_BALANCE
+func DecreaseBalanceAndAdjustPrincipalBalance(state state.BeaconState, idx primitives.ValidatorIndex, delta uint64) error {
 	prevBalance, err := state.BalanceAtIndex(idx)
 	if err != nil {
 		return err
 	}
 
-	err = DecreaseBalance(state, idx, delta)
-	if err != nil {
+	if err = DecreaseBalance(state, idx, delta); err != nil {
 		return err
 	}
+
 	balance, err := state.BalanceAtIndex(idx)
 	if err != nil {
 		return err
