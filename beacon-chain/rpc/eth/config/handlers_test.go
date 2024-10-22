@@ -146,25 +146,25 @@ func TestGetSpec(t *testing.T) {
 	config.EpochsPerYear = 86
 	config.IssuancePerYear = 87
 	config.LightLayerWeight = 88
-	config.MinSlashingPenaltyQuotientElectra = 89
-	config.MaxEffectiveBalanceElectra = 90
+	config.MaxEffectiveBalanceElectra = 89
 	config.CompoundingWithdrawalPrefixByte = byte('d')
-	config.WhistleBlowerRewardQuotientElectra = 92
-	config.PendingPartialWithdrawalsLimit = 93
-	config.MinActivationBalance = 94
-	config.PendingDepositLimit = 95
-	config.MaxPendingPartialsPerWithdrawalsSweep = 96
-	config.MaxPartialWithdrawalsPerPayload = 97
-	config.FullExitRequestAmount = 98
-	config.MaxAttesterSlashingsElectra = 99
-	config.MaxAttestationsElectra = 100
-	config.MaxWithdrawalRequestsPerPayload = 101
-	config.MaxCellsInExtendedMatrix = 102
-	config.UnsetDepositRequestsStartIndex = 103
-	config.MaxDepositRequestsPerPayload = 104
-	config.MaxPendingDepositsPerEpoch = 105
-	config.MinSlashingPenaltyQuotientAlpaca = 106
-	config.WhistleBlowerRewardQuotientAlpaca = 107
+	config.PendingPartialWithdrawalsLimit = 90
+	config.MinActivationBalance = 91
+	config.PendingDepositLimit = 92
+	config.MaxPendingPartialsPerWithdrawalsSweep = 93
+	config.MaxPartialWithdrawalsPerPayload = 94
+	config.FullExitRequestAmount = 95
+	config.MaxAttesterSlashingsElectra = 96
+	config.MaxAttestationsElectra = 97
+	config.MaxWithdrawalRequestsPerPayload = 98
+	config.MaxCellsInExtendedMatrix = 99
+	config.UnsetDepositRequestsStartIndex = 100
+	config.MaxDepositRequestsPerPayload = 101
+	config.MaxPendingDepositsPerEpoch = 102
+	config.MinSlashingPenaltyQuotientAlpaca = 103
+	config.WhistleBlowerRewardQuotientAlpaca = 104
+	config.InactivityPenaltyRate = 105
+	config.InactivityPenaltyRatePrecision = 106
 
 	var dbp [4]byte
 	copy(dbp[:], []byte{'0', '0', '0', '1'})
@@ -203,7 +203,7 @@ func TestGetSpec(t *testing.T) {
 	data, ok := resp.Data.(map[string]interface{})
 	require.Equal(t, true, ok)
 
-	assert.Equal(t, 165, len(data))
+	assert.Equal(t, 163, len(data))
 	for k, v := range data {
 		t.Run(k, func(t *testing.T) {
 			switch k {
@@ -526,44 +526,44 @@ func TestGetSpec(t *testing.T) {
 				assert.Equal(t, "87", v)
 			case "LIGHT_LAYER_WEIGHT":
 				assert.Equal(t, "88", v)
-			case "MIN_SLASHING_PENALTY_QUOTIENT_ELECTRA":
-				assert.Equal(t, "89", v)
 			case "MAX_EFFECTIVE_BALANCE_ELECTRA":
-				assert.Equal(t, "90", v)
+				assert.Equal(t, "89", v)
 			case "COMPOUNDING_WITHDRAWAL_PREFIX":
 				assert.Equal(t, "0x64", v)
-			case "WHISTLEBLOWER_REWARD_QUOTIENT_ELECTRA":
-				assert.Equal(t, "92", v)
 			case "PENDING_PARTIAL_WITHDRAWALS_LIMIT":
-				assert.Equal(t, "93", v)
+				assert.Equal(t, "90", v)
 			case "MIN_ACTIVATION_BALANCE":
-				assert.Equal(t, "94", v)
+				assert.Equal(t, "91", v)
 			case "PENDING_DEPOSITS_LIMIT":
-				assert.Equal(t, "95", v)
+				assert.Equal(t, "92", v)
 			case "MAX_PENDING_PARTIALS_PER_WITHDRAWALS_SWEEP":
-				assert.Equal(t, "96", v)
+				assert.Equal(t, "93", v)
 			case "MAX_PARTIAL_WITHDRAWALS_PER_PAYLOAD":
-				assert.Equal(t, "97", v)
+				assert.Equal(t, "94", v)
 			case "FULL_EXIT_REQUEST_AMOUNT":
-				assert.Equal(t, "98", v)
+				assert.Equal(t, "95", v)
 			case "MAX_ATTESTER_SLASHINGS_ELECTRA":
-				assert.Equal(t, "99", v)
+				assert.Equal(t, "96", v)
 			case "MAX_ATTESTATIONS_ELECTRA":
-				assert.Equal(t, "100", v)
+				assert.Equal(t, "97", v)
 			case "MAX_WITHDRAWAL_REQUESTS_PER_PAYLOAD":
-				assert.Equal(t, "101", v)
+				assert.Equal(t, "98", v)
 			case "MAX_CELLS_IN_EXTENDED_MATRIX":
-				assert.Equal(t, "102", v)
+				assert.Equal(t, "99", v)
 			case "UNSET_DEPOSIT_REQUESTS_START_INDEX":
-				assert.Equal(t, "103", v)
+				assert.Equal(t, "100", v)
 			case "MAX_DEPOSIT_REQUESTS_PER_PAYLOAD":
-				assert.Equal(t, "104", v)
+				assert.Equal(t, "101", v)
 			case "MAX_PENDING_DEPOSITS_PER_EPOCH":
-				assert.Equal(t, "105", v)
+				assert.Equal(t, "102", v)
 			case "MIN_SLASHING_PENALTY_QUOTIENT_ALPACA":
-				assert.Equal(t, "106", v)
+				assert.Equal(t, "103", v)
 			case "WHISTLEBLOWER_REWARD_QUOTIENT_ALPACA":
-				assert.Equal(t, "107", v)
+				assert.Equal(t, "104", v)
+			case "INACTIVITY_PENALTY_RATE":
+				assert.Equal(t, "105", v)
+			case "INACTIVITY_PENALTY_RATE_PRECISION":
+				assert.Equal(t, "106", v)
 			default:
 				t.Errorf("Incorrect key: %s", k)
 			}

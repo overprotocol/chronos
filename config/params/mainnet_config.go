@@ -14,6 +14,7 @@ func MainnetConfig() *BeaconChainConfig {
 		mainnetBeaconConfig.InitializeForkSchedule()
 	}
 	mainnetBeaconConfig.InitializeDepositPlan()
+	mainnetBeaconConfig.InitializeInactivityValues()
 	return mainnetBeaconConfig
 }
 
@@ -238,10 +239,15 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	EpochsPerSyncCommitteePeriod: 256,
 
 	// Updated penalty values.
-	InactivityPenaltyQuotientAltair:     3 * 1 << 24, // 50331648
-	MinSlashingPenaltyQuotientAltair:    64,
-	MinSlashingPenaltyQuotientBellatrix: 32,
-	InactivityPenaltyQuotientBellatrix:  1 << 24,
+	InactivityPenaltyQuotientAltair:      3 * 1 << 24, // 50331648
+	MinSlashingPenaltyQuotientAltair:     64,
+	MinSlashingPenaltyQuotientBellatrix:  32,
+	InactivityPenaltyQuotientBellatrix:   1 << 24,
+	InactivityPenaltyRate:                1,
+	InactivityPenaltyRatePrecision:       100,
+	InactivityPenaltyDuration:            1575, // epochs, 1 week
+	InactivityLeakPenaltyBuffer:          10,   // 10%
+	InactivityLeakPenaltyBufferPrecision: 100,
 
 	// Light client
 	MinSyncCommitteeParticipants: 1,
