@@ -80,9 +80,22 @@ func InitializePrecomputeValidators(ctx context.Context, beaconState state.Beaco
 // For a validator is inactive and the chain fails to finalize, the inactivity score increases by a fixed number, the total loss after N epochs is proportional to N**2/2.
 // For imperfectly active validators. The inactivity score's behavior is specified by this function:
 //
-//	If a validator fails to submit an attestation with the correct target, their inactivity score goes up by 4.
-//	If they successfully submit an attestation with the correct source and target, their inactivity score drops by 1
-//	If the chain has recently finalized, each validator's score drops by 16.
+//	If a validator fails to submit an attestation with the correct target, their inactivity score goes up by 2 (InactivityScoreBias).
+//	If they successfully submit an attestation with the correct source and target, their inactivity score drops by 1 (InactivityScoreRecoveryRate).
+//
+// Spec code:
+// def process_inactivity_updates(state: BeaconState) -> None:
+//
+//	# Skip the genesis epoch as score updates are based on the previous epoch participation
+//	if get_current_epoch(state) == GENESIS_EPOCH:
+//		return
+//
+//	for index in get_eligible_validator_indices(state):
+//		# Increase the inactivity score of inactive validators
+//		if index in get_unslashed_participating_indices(state, TIMELY_TARGET_FLAG_INDEX, get_previous_epoch(state)):
+//			state.inactivity_scores[index] -= min(INACTIVITY_SCORE_RECOVERY_RATE, state.inactivity_scores[index])
+//		else:
+//			state.inactivity_scores[index] += INACTIVITY_SCORE_BIAS
 func ProcessInactivityScores(
 	ctx context.Context,
 	beaconState state.BeaconState,
@@ -103,17 +116,17 @@ func ProcessInactivityScores(
 
 	bias := cfg.InactivityScoreBias
 	recoveryRate := cfg.InactivityScoreRecoveryRate
-	prevEpoch := time.PrevEpoch(beaconState)
-	finalizedEpoch := beaconState.FinalizedCheckpointEpoch()
 	for i, v := range vals {
 		if !precompute.EligibleForRewards(v) {
 			continue
 		}
 
 		if v.IsPrevEpochTargetAttester && !v.IsSlashed {
-			// Decrease inactivity score when validator gets target correct.
-			if v.InactivityScore > 0 {
-				v.InactivityScore -= 1
+			// Decrease inactivity score by InactivityScoreRecoveryRate when validator gets target correct.
+			if v.InactivityScore >= recoveryRate {
+				v.InactivityScore -= recoveryRate
+			} else {
+				v.InactivityScore = 0
 			}
 		} else {
 			v.InactivityScore, err = math.Add64(v.InactivityScore, bias)
@@ -122,14 +135,6 @@ func ProcessInactivityScores(
 			}
 		}
 
-		if !helpers.IsInInactivityLeak(prevEpoch, finalizedEpoch) {
-			score := recoveryRate
-			// Prevents underflow below 0.
-			if score > v.InactivityScore {
-				score = v.InactivityScore
-			}
-			v.InactivityScore -= score
-		}
 		inactivityScores[i] = v.InactivityScore
 	}
 
