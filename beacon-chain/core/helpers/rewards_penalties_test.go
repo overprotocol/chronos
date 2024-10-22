@@ -466,7 +466,7 @@ func TestDecreaseRewardAdjustmentFactor_OK(t *testing.T) {
 		base.RewardAdjustmentFactor = test.rewardFactor
 		beaconState, err := state_native.InitializeFromProtoPhase0(base)
 		require.NoError(t, err)
-		beaconState, err = helpers.DecreaseRewardAdjustmentFactor(beaconState)
+		err = helpers.DecreaseRewardAdjustmentFactor(beaconState)
 		require.NoError(t, err)
 		got := beaconState.RewardAdjustmentFactor()
 		assert.Equal(t, test.want, got, test.name)
@@ -495,7 +495,7 @@ func TestIncreaseRewardAdjustmentFactor_OK(t *testing.T) {
 		base.RewardAdjustmentFactor = test.rewardFactor
 		beaconState, err := state_native.InitializeFromProtoPhase0(base)
 		require.NoError(t, err)
-		beaconState, err = helpers.IncreaseRewardAdjustmentFactor(beaconState)
+		err = helpers.IncreaseRewardAdjustmentFactor(beaconState)
 		require.NoError(t, err)
 		got := beaconState.RewardAdjustmentFactor()
 		assert.Equal(t, test.want, got, test.name)
