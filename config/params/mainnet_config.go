@@ -223,8 +223,8 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	WeightDenominator:  64,
 
 	// Misc values.
-	InactivityScoreBias:         4,
-	InactivityScoreRecoveryRate: 16,
+	InactivityScoreBias:         2,
+	InactivityScoreRecoveryRate: 1,
 
 	// Updated penalty values.
 	InactivityPenaltyQuotientAltair:     3 * 1 << 24, // 50331648

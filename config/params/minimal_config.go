@@ -95,7 +95,7 @@ func MinimalSpecConfig() *BeaconChainConfig {
 	minimalConfig.ElectraForkVersion = []byte{5, 0, 0, 1}
 	minimalConfig.ElectraForkEpoch = math.MaxUint64
 
-	minimalConfig.InactivityScoreBias = 4
+	minimalConfig.InactivityScoreBias = 2
 	minimalConfig.MinEpochsForBlockRequests = 272
 
 	// New Electra params
