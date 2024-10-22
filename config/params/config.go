@@ -107,10 +107,17 @@ type BeaconChainConfig struct {
 	ValidatorRegistryLimit    uint64           `yaml:"VALIDATOR_REGISTRY_LIMIT" spec:"true"`     // ValidatorRegistryLimit defines the upper bound of validators can participate in eth2.
 
 	// Reward and penalty quotients constants.
-	WhistleBlowerRewardQuotient uint64 `yaml:"WHISTLEBLOWER_REWARD_QUOTIENT" spec:"true"` // WhistleBlowerRewardQuotient is used to calculate whistle blower reward.
-	ProposerRewardQuotient      uint64 `yaml:"PROPOSER_REWARD_QUOTIENT" spec:"true"`      // ProposerRewardQuotient is used to calculate the reward for proposers.
-	InactivityPenaltyQuotient   uint64 `yaml:"INACTIVITY_PENALTY_QUOTIENT" spec:"true"`   // InactivityPenaltyQuotient is used to calculate the penalty for a validator that is offline.
-	MinSlashingPenaltyQuotient  uint64 `yaml:"MIN_SLASHING_PENALTY_QUOTIENT" spec:"true"` // MinSlashingPenaltyQuotient is used to calculate the minimum penalty to prevent DoS attacks.
+	WhistleBlowerRewardQuotient          uint64 `yaml:"WHISTLEBLOWER_REWARD_QUOTIENT" spec:"true"`            // WhistleBlowerRewardQuotient is used to calculate whistle blower reward.
+	ProposerRewardQuotient               uint64 `yaml:"PROPOSER_REWARD_QUOTIENT" spec:"true"`                 // ProposerRewardQuotient is used to calculate the reward for proposers.
+	InactivityPenaltyQuotient            uint64 `yaml:"INACTIVITY_PENALTY_QUOTIENT" spec:"true"`              // InactivityPenaltyQuotient is used to calculate the penalty for a validator that is offline.
+	MinSlashingPenaltyQuotient           uint64 `yaml:"MIN_SLASHING_PENALTY_QUOTIENT" spec:"true"`            // MinSlashingPenaltyQuotient is used to calculate the minimum penalty to prevent DoS attacks.
+	InactivityPenaltyRate                uint64 `yaml:"INACTIVITY_PENALTY_RATE" spec:"true"`                  // InactivityPenaltyRate is used to calculate the penalty numerator and bail out.
+	InactivityPenaltyRatePrecision       uint64 `yaml:"INACTIVITY_PENALTY_RATE_PRECISION" spec:"true"`        // InactivityPenaltyRatePrecision is used to calculate the penalty numerator and bail out.
+	InactivityPenaltyDuration            uint64 `yaml:"INACTIVITY_PENALTY_DURATION" spec:"true"`              // InactivityPenaltyDuration defines the maximum duration a validator can be offline before bail out.
+	InactivityScorePenaltyThreshold      uint64 `yaml:"INACTIVITY_SCORE_PENALTY_THRESHOLD" spec:"true"`       // InactivityScorePenaltyThreshold defines the threshold for inactivity accumulated for one day.
+	InactivityLeakPenaltyBuffer          uint64 `yaml:"INACTIVITY_LEAK_PENALTY_BUFFER" spec:"true"`           // InactivityLeakPenaltyBuffer is used to calculate the penalty buffer.
+	InactivityLeakPenaltyBufferPrecision uint64 `yaml:"INACTIVITY_LEAK_PENALTY_BUFFER_PRECISION" spec:"true"` // InactivityLeakPenaltyBufferPrecision is used to calculate the penalty buffer.
+	InactivityLeakBailoutScoreThreshold  uint64 `yaml:"INACTIVITY_LEAK_BAILOUT_SCORE_THRESHOLD" spec:"true"`  // InactivityLeakBailoutScoreThreshold defines the inactivity score accumulated for 15 days.
 
 	// Max operations per block constants.
 	MaxProposerSlashings             uint64 `yaml:"MAX_PROPOSER_SLASHINGS" spec:"true"`         // MaxProposerSlashings defines the maximum number of slashings of proposers possible in a block.
@@ -352,6 +359,12 @@ func (b *BeaconChainConfig) InitializeDolphinDepositPlan() {
 	b.DepositPlanLaterSlope = 100000000 * 1e9 / (b.EpochsPerYear * (b.DepositPlanLaterEnd - b.DepositPlanEarlyEnd))
 	b.DepositPlanLaterOffset = 133333334 * 1e9
 	b.DepositPlanFinal = 300000000 * 1e9
+}
+
+// InitializeInactivityValues initializes INACTIVITY_SCORE_PENALTY_THRESHOLD and INACTIVITY_LEAK_BAILOUT_SCORE_THRESHOLD.
+func (b *BeaconChainConfig) InitializeInactivityValues() {
+	b.InactivityScorePenaltyThreshold = 225 * b.InactivityScoreBias
+	b.InactivityLeakBailoutScoreThreshold = b.InactivityScorePenaltyThreshold + (b.InactivityPenaltyDuration * b.InactivityScoreBias)
 }
 
 // TtfbTimeoutDuration returns the time duration of the timeout.
