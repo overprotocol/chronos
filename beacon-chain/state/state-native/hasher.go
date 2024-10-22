@@ -135,9 +135,9 @@ func ComputeFieldRootsWithHasher(ctx context.Context, state *BeaconState) ([][]b
 	}
 	fieldRoots[types.Balances.RealPosition()] = balancesRoot[:]
 
-	// PreviousEpreservesochReserve root.
-	reserveRoot := ssz.Uint64Root(state.reserves)
-	fieldRoots[types.Reserves.RealPosition()] = reserveRoot[:]
+	// Reserves root.
+	reservesRoot := ssz.Uint64Root(state.reserves)
+	fieldRoots[types.Reserves.RealPosition()] = reservesRoot[:]
 
 	// RandaoMixes array root.
 	randaoRootsRoot, err := stateutil.ArraysRoot(state.randaoMixesVal().Slice(), fieldparams.RandaoMixesLength)

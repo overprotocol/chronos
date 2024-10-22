@@ -135,7 +135,6 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	ValidatorRegistryLimit:    1099511627776,
 
 	// Reward and penalty quotients constants.
-	BaseRewardFactor:            64,
 	WhistleBlowerRewardQuotient: 512,
 	ProposerRewardQuotient:      8,
 	InactivityPenaltyQuotient:   67108864,

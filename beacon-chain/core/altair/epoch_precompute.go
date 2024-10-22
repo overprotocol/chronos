@@ -265,7 +265,7 @@ func ProcessRewardsAndPenaltiesPrecompute(
 	}
 
 	if err := helpers.DecreaseReserves(beaconState, reserveUsage); err != nil {
-		return nil, errors.Wrap(err, "could not set reserves")
+		return nil, errors.Wrap(err, "could not decrease reserves")
 	}
 
 	return beaconState, nil

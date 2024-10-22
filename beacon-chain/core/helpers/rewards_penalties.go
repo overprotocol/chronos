@@ -291,12 +291,12 @@ func ProcessRewardAdjustmentFactor(state state.BeaconState) (state.BeaconState, 
 	}
 	targetDeposit := TargetDepositPlan(time.NextEpoch(state))
 
-	if futureDeposit >= targetDeposit {
+	if futureDeposit > targetDeposit {
 		state, err = DecreaseRewardAdjustmentFactor(state)
 		if err != nil {
 			return nil, err
 		}
-	} else {
+	} else if futureDeposit < targetDeposit {
 		state, err = IncreaseRewardAdjustmentFactor(state)
 		if err != nil {
 			return nil, err
@@ -333,7 +333,7 @@ func IncreaseRewardAdjustmentFactor(state state.BeaconState) (state.BeaconState,
 	epoch := slots.ToEpoch(state.Slot())
 	newFactor := state.RewardAdjustmentFactor() + params.BeaconConfig().RewardAdjustmentFactorDelta
 
-	maxBoostYield := MaxBoostYield(epoch)
+	maxBoostYield := MaxRewardAdjustmentFactor(epoch)
 	if maxBoostYield < newFactor {
 		err := state.SetRewardAdjustmentFactor(maxBoostYield)
 		if err != nil {
@@ -349,8 +349,8 @@ func IncreaseRewardAdjustmentFactor(state state.BeaconState) (state.BeaconState,
 	return state, nil
 }
 
-// MaxBoostYield gets the maximum boost yield of corresponding year for the given epoch.
-func MaxBoostYield(epoch primitives.Epoch) uint64 {
+// MaxRewardAdjustmentFactor gets the maximum reward adjustment factor of corresponding year for the given epoch.
+func MaxRewardAdjustmentFactor(epoch primitives.Epoch) uint64 {
 	cfg := params.BeaconConfig()
 	year := EpochToYear(epoch)
 	if year >= len(cfg.MaxRewardAdjustmentFactors) {

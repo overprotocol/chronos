@@ -852,17 +852,17 @@ func (b *BeaconState) Copy() state.BeaconState {
 		version: b.version,
 
 		// Primitive types, safe to copy.
-		genesisTime:                   b.genesisTime,
-		slot:                          b.slot,
-		eth1DepositIndex:              b.eth1DepositIndex,
-		nextWithdrawalIndex:           b.nextWithdrawalIndex,
-		nextWithdrawalValidatorIndex:  b.nextWithdrawalValidatorIndex,
-		rewardAdjustmentFactor:        b.rewardAdjustmentFactor,
-		reserves:                      b.reserves,
-		depositRequestsStartIndex:     b.depositRequestsStartIndex,
-		depositBalanceToConsume:       b.depositBalanceToConsume,
-		exitBalanceToConsume:          b.exitBalanceToConsume,
-		earliestExitEpoch:             b.earliestExitEpoch,
+		genesisTime:                  b.genesisTime,
+		slot:                         b.slot,
+		eth1DepositIndex:             b.eth1DepositIndex,
+		nextWithdrawalIndex:          b.nextWithdrawalIndex,
+		nextWithdrawalValidatorIndex: b.nextWithdrawalValidatorIndex,
+		rewardAdjustmentFactor:       b.rewardAdjustmentFactor,
+		reserves:                     b.reserves,
+		depositRequestsStartIndex:    b.depositRequestsStartIndex,
+		depositBalanceToConsume:      b.depositBalanceToConsume,
+		exitBalanceToConsume:         b.exitBalanceToConsume,
+		earliestExitEpoch:            b.earliestExitEpoch,
 
 		// Large arrays, infrequently changed, constant size.
 		blockRoots:                b.blockRoots,
