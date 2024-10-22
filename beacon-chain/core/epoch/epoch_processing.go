@@ -33,30 +33,44 @@ import (
 //	     if is_eligible_for_activation_queue(validator):
 //	         validator.activation_eligibility_epoch = get_current_epoch(state) + 1
 //
-//	     if is_active_validator(validator, get_current_epoch(state)) and validator.effective_balance <= EJECTION_BALANCE:
-//	         initiate_validator_exit(state, ValidatorIndex(index))
+//	     bailout_buffer = validator.principal_balance * INACTIVITY_PENALTY_RATE / INACTIVITY_PENALTY_RATE_PRECISION
+//	     if is_active_validator(validator, get_current_epoch(state)) and state.balances[index] + bailout_buffer < validator.principal_balance:
+//	         initiate_validator_exit(state, index)
+//		 elif is_in_inactivity_leak(state) and state.inactivity_scores[index] > INACTIVITY_LEAK_BAILOUT_SCORE_THRESHOLD:
+//		     initiate_validator_exit(state, index)
 //
-//	 # Queue validators eligible for activation and not yet dequeued for activation
-//	 activation_queue = sorted([
-//	     index for index, validator in enumerate(state.validators)
-//	     if is_eligible_for_activation(state, validator)
-//	     # Order by the sequence of activation_eligibility_epoch setting and then index
-//	 ], key=lambda index: (state.validators[index].activation_eligibility_epoch, index))
-//	 # Dequeued validators for activation up to churn limit
-//	 for index in activation_queue[:get_validator_churn_limit(state)]:
-//	     validator = state.validators[index]
-//	     validator.activation_epoch = compute_activation_exit_epoch(get_current_epoch(state))
+// # Queue validators eligible for activation and not yet dequeued for activation
+// activation_queue = sorted([
+//
+//	index for index, validator in enumerate(state.validators)
+//	if is_eligible_for_activation(state, validator)
+//	# Order by the sequence of activation_eligibility_epoch setting and then index
+//
+// ], key=lambda index: (state.validators[index].activation_eligibility_epoch, index))
+// # Dequeued validators for activation up to churn limit
+// for index in activation_queue[:get_validator_churn_limit(state)]:
+//
+//	validator = state.validators[index]
+//	validator.activation_epoch = compute_activation_exit_epoch(get_current_epoch(state))
 func ProcessRegistryUpdates(ctx context.Context, st state.BeaconState) (state.BeaconState, error) {
-	currentEpoch := time.CurrentEpoch(st)
 	var err error
-	ejectionBal := params.BeaconConfig().EjectionBalance
+
+	previousEpoch := time.PrevEpoch(st)
+	currentEpoch := time.CurrentEpoch(st)
+	finalizedEpoch := st.FinalizedCheckpointEpoch()
+
+	isInInactivityLeak := helpers.IsInInactivityLeak(previousEpoch, finalizedEpoch)
+
+	inactivityPenaltyRate := params.BeaconConfig().InactivityPenaltyRate
+	inactivityPenaltyRatePrecision := params.BeaconConfig().InactivityPenaltyRatePrecision
+	inactivityLeakBailoutScoreThreshold := params.BeaconConfig().InactivityLeakBailoutScoreThreshold
 
 	// To avoid copying the state validator set via st.Validators(), we will perform a read only pass
 	// over the validator set while collecting validator indices where the validator copy is actually
 	// necessary, then we will process these operations.
 	eligibleForActivationQ := make([]primitives.ValidatorIndex, 0)
 	eligibleForActivation := make([]primitives.ValidatorIndex, 0)
-	eligibleForEjection := make([]primitives.ValidatorIndex, 0)
+	eligibleForBailout := make([]primitives.ValidatorIndex, 0)
 
 	if err := st.ReadFromEveryValidator(func(idx int, val state.ReadOnlyValidator) error {
 		// Collect validators eligible to enter the activation queue.
@@ -64,11 +78,25 @@ func ProcessRegistryUpdates(ctx context.Context, st state.BeaconState) (state.Be
 			eligibleForActivationQ = append(eligibleForActivationQ, primitives.ValidatorIndex(idx))
 		}
 
-		// Collect validators to eject.
+		// Collect validators to bailout.
 		isActive := helpers.IsActiveValidatorUsingTrie(val, currentEpoch)
-		belowEjectionBalance := val.EffectiveBalance() <= ejectionBal
-		if isActive && belowEjectionBalance {
-			eligibleForEjection = append(eligibleForEjection, primitives.ValidatorIndex(idx))
+		// TODO: use principal_balance and rename this variable.
+		PRINCIPAL_BALANCE := uint64(256000000000)
+		bailoutBuffer := PRINCIPAL_BALANCE * inactivityPenaltyRate / inactivityPenaltyRatePrecision
+		actualBalance, err := st.BalanceAtIndex(primitives.ValidatorIndex(idx))
+		if err != nil {
+			return err
+		}
+		inactivityScore, err := st.InactivityScoreAtIndex(primitives.ValidatorIndex(idx))
+		if err != nil {
+			return err
+		}
+
+		belowThreshold := actualBalance+bailoutBuffer < PRINCIPAL_BALANCE
+		if isActive && belowThreshold {
+			eligibleForBailout = append(eligibleForBailout, primitives.ValidatorIndex(idx))
+		} else if isInInactivityLeak && inactivityScore > inactivityLeakBailoutScoreThreshold {
+			eligibleForBailout = append(eligibleForBailout, primitives.ValidatorIndex(idx))
 		}
 
 		// Collect validators eligible for activation and not yet dequeued for activation.
@@ -94,14 +122,15 @@ func ProcessRegistryUpdates(ctx context.Context, st state.BeaconState) (state.Be
 		}
 	}
 
-	// Process validators eligible for ejection.
-	for _, idx := range eligibleForEjection {
-		// Here is fine to do a quadratic loop since this should
-		// barely happen
+	// Process validators eligible for bailout.
+	// This predicate is needed for calculating max exit epoch and churn efficiently.
+	if len(eligibleForBailout) != 0 {
 		maxExitEpoch, churn := validators.MaxExitEpochAndChurn(st)
-		st, _, err = validators.InitiateValidatorExit(ctx, st, idx, maxExitEpoch, churn)
-		if err != nil && !errors.Is(err, validators.ErrValidatorAlreadyExited) {
-			return nil, errors.Wrapf(err, "could not initiate exit for validator %d", idx)
+		for _, idx := range eligibleForBailout {
+			st, _, err = validators.InitiateValidatorExit(ctx, st, idx, maxExitEpoch, churn)
+			if err != nil && !errors.Is(err, validators.ErrValidatorAlreadyExited) {
+				return nil, errors.Wrapf(err, "could not initiate exit for validator %d", idx)
+			}
 		}
 	}
 
