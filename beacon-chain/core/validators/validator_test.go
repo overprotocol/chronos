@@ -274,7 +274,7 @@ func TestSlashValidator_Electra(t *testing.T) {
 	assert.Equal(t, true, v.Slashed, "Validator not slashed despite supposed to being slashed")
 	assert.Equal(t, time.CurrentEpoch(state)+params.BeaconConfig().MinSlashingWithdrawableDelay, v.WithdrawableEpoch, "Withdrawable epoch not the expected value")
 
-	whistleblowerReward := v.EffectiveBalance / params.BeaconConfig().WhistleBlowerRewardQuotientElectra
+	whistleblowerReward := v.EffectiveBalance / params.BeaconConfig().WhistleBlowerRewardQuotientAlpaca
 	bal, err := state.BalanceAtIndex(proposer)
 	require.NoError(t, err)
 	// The proposer is the whistleblower.
@@ -283,7 +283,7 @@ func TestSlashValidator_Electra(t *testing.T) {
 	require.NoError(t, err)
 	v, err = state.ValidatorAtIndex(slashedIdx)
 	require.NoError(t, err)
-	assert.Equal(t, v.EffectiveBalance-(v.EffectiveBalance/params.BeaconConfig().MinSlashingPenaltyQuotientElectra), bal, "Did not get expected balance for slashed validator")
+	assert.Equal(t, v.EffectiveBalance-(v.EffectiveBalance/params.BeaconConfig().MinSlashingPenaltyQuotientAlpaca), bal, "Did not get expected balance for slashed validator")
 }
 
 func TestActivatedValidatorIndices(t *testing.T) {
