@@ -82,7 +82,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 				}
 				require.NoError(t, s.SetValidators(vals))
 				require.NoError(t, s.SetBalances(balances))
-				expected, _, err := s.ExpectedWithdrawals()
+				expected, _, _, err := s.ExpectedWithdrawals()
 				require.NoError(t, err)
 				require.Equal(t, 0, len(expected))
 			})
@@ -107,7 +107,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 				require.NoError(t, s.SetValidators(vals))
 				require.NoError(t, s.SetBalances(balances))
 
-				expected, _, err := s.ExpectedWithdrawals()
+				expected, _, _, err := s.ExpectedWithdrawals()
 				require.NoError(t, err)
 				require.Equal(t, 1, len(expected))
 				withdrawal := &enginev1.Withdrawal{
@@ -138,7 +138,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 				balances[3] += params.BeaconConfig().MinDepositAmount
 				require.NoError(t, s.SetValidators(vals))
 				require.NoError(t, s.SetBalances(balances))
-				expected, _, err := s.ExpectedWithdrawals()
+				expected, _, _, err := s.ExpectedWithdrawals()
 				require.NoError(t, err)
 				require.Equal(t, 1, len(expected))
 				withdrawal := &enginev1.Withdrawal{
@@ -168,7 +168,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 				vals[7].WithdrawableEpoch = primitives.Epoch(0)
 				require.NoError(t, s.SetValidators(vals))
 				require.NoError(t, s.SetBalances(balances))
-				expected, _, err := s.ExpectedWithdrawals()
+				expected, _, _, err := s.ExpectedWithdrawals()
 				require.NoError(t, err)
 				require.Equal(t, 2, len(expected))
 
@@ -204,7 +204,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 				}
 				require.NoError(t, s.SetValidators(vals))
 				require.NoError(t, s.SetBalances(balances))
-				expected, _, err := s.ExpectedWithdrawals()
+				expected, _, _, err := s.ExpectedWithdrawals()
 				require.NoError(t, err)
 				require.Equal(t, params.BeaconConfig().MaxWithdrawalsPerPayload, uint64(len(expected)))
 				withdrawal := &enginev1.Withdrawal{
@@ -232,7 +232,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 				}
 				require.NoError(t, s.SetValidators(vals))
 				require.NoError(t, s.SetBalances(balances))
-				expected, _, err := s.ExpectedWithdrawals()
+				expected, _, _, err := s.ExpectedWithdrawals()
 				require.NoError(t, err)
 				require.Equal(t, params.BeaconConfig().MaxWithdrawalsPerPayload, uint64(len(expected)))
 				withdrawal := &enginev1.Withdrawal{
@@ -260,7 +260,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 				}
 				require.NoError(t, s.SetValidators(vals))
 				require.NoError(t, s.SetBalances(balances))
-				expected, _, err := s.ExpectedWithdrawals()
+				expected, _, _, err := s.ExpectedWithdrawals()
 				require.NoError(t, err)
 				require.Equal(t, params.BeaconConfig().MaxWithdrawalsPerPayload, uint64(len(expected)))
 				withdrawal := &enginev1.Withdrawal{
@@ -292,7 +292,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 				require.NoError(t, s.SetValidators(vals))
 				require.NoError(t, s.SetBalances(balances))
 
-				expected, _, err := s.ExpectedWithdrawals()
+				expected, _, _, err := s.ExpectedWithdrawals()
 				require.NoError(t, err)
 				require.Equal(t, 0, len(expected))
 			})
@@ -345,7 +345,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 		require.NoError(t, pb.UnmarshalSSZ(serializedSSZ))
 		s, err := state_native.InitializeFromProtoElectra(pb)
 		require.NoError(t, err)
-		expected, partialWithdrawalsCount, err := s.ExpectedWithdrawals()
+		expected, partialWithdrawalsCount, _, err := s.ExpectedWithdrawals()
 		require.NoError(t, err)
 		require.Equal(t, 8, len(expected))
 		require.Equal(t, uint64(8), partialWithdrawalsCount)
@@ -367,7 +367,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 		p, err := s.PendingPartialWithdrawals()
 		require.NoError(t, err)
 		require.NoError(t, s.UpdateBalancesAtIndex(p[0].Index, 0)) // This should still count as partial withdrawal.
-		_, partialWithdrawalsCount, err := s.ExpectedWithdrawals()
+		_, partialWithdrawalsCount, _, err := s.ExpectedWithdrawals()
 		require.NoError(t, err)
 		require.Equal(t, uint64(10), partialWithdrawalsCount)
 	})

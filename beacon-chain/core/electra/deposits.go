@@ -324,7 +324,7 @@ func ProcessPendingDeposits(ctx context.Context, st state.BeaconState, activeBal
 
 		if isValidatorWithdrawn {
 			// note: the validator will never be active, just increase the balance
-			if err := helpers.IncreaseBalance(st, index, pendingDeposit.Amount); err != nil {
+			if err := helpers.IncreaseBalanceAndAdjustDeposit(st, index, pendingDeposit.Amount); err != nil {
 				return errors.Wrap(err, "could not increase balance")
 			}
 		} else if isValidatorExited {
@@ -338,7 +338,7 @@ func ProcessPendingDeposits(ctx context.Context, st state.BeaconState, activeBal
 
 			// note: the following code deviates from the spec in order to perform batch signature verification
 			if found {
-				if err := helpers.IncreaseBalance(st, index, pendingDeposit.Amount); err != nil {
+				if err := helpers.IncreaseBalanceAndAdjustDeposit(st, index, pendingDeposit.Amount); err != nil {
 					return errors.Wrap(err, "could not increase balance")
 				}
 			} else {
@@ -437,7 +437,7 @@ func batchProcessNewPendingDeposits(ctx context.Context, state state.BeaconState
 //	else:
 //	    validator_index = ValidatorIndex(validator_pubkeys.index(deposit.pubkey))
 //	    # Increase balance
-//	    increase_balance(state, validator_index, deposit.amount)
+//	    increase_balance_and_adjust_deposit(state, validator_index, deposit.amount)
 func ApplyPendingDeposit(ctx context.Context, st state.BeaconState, deposit *ethpb.PendingDeposit) error {
 	_, span := trace.StartSpan(ctx, "electra.ApplyPendingDeposit")
 	defer span.End()
@@ -460,7 +460,7 @@ func ApplyPendingDeposit(ctx context.Context, st state.BeaconState, deposit *eth
 		}
 		return nil
 	}
-	return helpers.IncreaseBalance(st, index, deposit.Amount)
+	return helpers.IncreaseBalanceAndAdjustDeposit(st, index, deposit.Amount)
 }
 
 // AddValidatorToRegistry updates the beacon state with validator information
