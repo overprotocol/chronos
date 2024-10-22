@@ -212,6 +212,7 @@ type ReadOnlyParticipation interface {
 // ReadOnlyInactivity defines a struct which only has read access to inactivity methods.
 type ReadOnlyInactivity interface {
 	InactivityScores() ([]uint64, error)
+	InactivityScoreAtIndex(idx primitives.ValidatorIndex) (uint64, error)
 }
 
 // ReadOnlySyncCommittee defines a struct which only has read access to sync committee methods.

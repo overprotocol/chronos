@@ -418,6 +418,34 @@ func (b *BeaconState) inactivityScoresVal() []uint64 {
 	return res
 }
 
+// InactivityScoreAtIndex of validator with the provided index.
+func (b *BeaconState) InactivityScoreAtIndex(idx primitives.ValidatorIndex) (uint64, error) {
+	if b.version == version.Phase0 {
+		return 0, errNotSupported("InactivityScoreAtIndex", b.version)
+	}
+
+	b.lock.RLock()
+	defer b.lock.RUnlock()
+
+	return b.inactivityScoreAtIndex(idx)
+}
+
+func (b *BeaconState) inactivityScoreAtIndex(idx primitives.ValidatorIndex) (uint64, error) {
+	if features.Get().EnableExperimentalState {
+		if b.inactivityScoresMultiValue == nil {
+			return 0, nil
+		}
+		return b.inactivityScoresMultiValue.At(b, uint64(idx))
+	}
+	if b.inactivityScores == nil {
+		return 0, nil
+	}
+	if uint64(len(b.inactivityScores)) <= uint64(idx) {
+		return 0, errors.Wrapf(consensus_types.ErrOutOfBounds, "inactity score index %d does not exist", idx)
+	}
+	return b.inactivityScores[idx], nil
+}
+
 // ActiveBalanceAtIndex returns the active balance for the given validator.
 //
 // Spec definition:
