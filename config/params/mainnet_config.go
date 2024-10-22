@@ -233,8 +233,8 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 
 	// Misc values.
 	SyncCommitteeSize:            512,
-	InactivityScoreBias:          4,
-	InactivityScoreRecoveryRate:  16,
+	InactivityScoreBias:          2,
+	InactivityScoreRecoveryRate:  1,
 	EpochsPerSyncCommitteePeriod: 256,
 
 	// Updated penalty values.
