@@ -14,7 +14,7 @@ import (
 )
 
 // ProcessRegistryUpdates processes all validators eligible for the activation queue, all validators
-// which should be ejected, and all validators which are eligible for activation from the queue.
+// which should be bailed out, and all validators which are eligible for activation from the queue.
 //
 // Spec pseudocode definition:
 //
@@ -24,10 +24,13 @@ import (
 //		        if is_eligible_for_activation_queue(validator):
 //		            validator.activation_eligibility_epoch = get_current_epoch(state) + 1
 //
+//				bailout_buffer = validator.principal_balance * INACTIVITY_PENALTY_RATE / INACTIVITY_PENALTY_RATE_PRECISION
 //		        if (
 //		            is_active_validator(validator, get_current_epoch(state))
-//		            and validator.effective_balance <= EJECTION_BALANCE
+//		            state.balances[index] + bailout_buffer < validator.principal_balance
 //		        ):
+//		            initiate_validator_exit(state, ValidatorIndex(index))
+//				elif is_in_inactivity_leak(state) and state.inactivity_scores[index] > INACTIVITY_LEAK_BAILOUT_SCORE_THRESHOLD:
 //		            initiate_validator_exit(state, ValidatorIndex(index))
 //
 //	         # Activate all eligible validators
@@ -36,15 +39,23 @@ import (
 //	             if is_eligible_for_activation(state, validator):
 //	                 validator.activation_epoch = activation_epoch
 func ProcessRegistryUpdates(ctx context.Context, st state.BeaconState) error {
+	previousEpoch := time.PrevEpoch(st)
 	currentEpoch := time.CurrentEpoch(st)
-	ejectionBal := params.BeaconConfig().EjectionBalance
+	finalizedEpoch := st.FinalizedCheckpointEpoch()
+
 	activationEpoch := helpers.ActivationExitEpoch(currentEpoch)
+
+	isInInactivityLeak := helpers.IsInInactivityLeak(previousEpoch, finalizedEpoch)
+
+	inactivityPenaltyRate := params.BeaconConfig().InactivityPenaltyRate
+	inactivityPenaltyRatePrecision := params.BeaconConfig().InactivityPenaltyRatePrecision
+	inactivityLeakBailoutScoreThreshold := params.BeaconConfig().InactivityLeakBailoutScoreThreshold
 
 	// To avoid copying the state validator set via st.Validators(), we will perform a read only pass
 	// over the validator set while collecting validator indices where the validator copy is actually
 	// necessary, then we will process these operations.
 	eligibleForActivationQ := make([]primitives.ValidatorIndex, 0)
-	eligibleForEjection := make([]primitives.ValidatorIndex, 0)
+	eligibleForBailout := make([]primitives.ValidatorIndex, 0)
 	eligibleForActivation := make([]primitives.ValidatorIndex, 0)
 
 	if err := st.ReadFromEveryValidator(func(idx int, val state.ReadOnlyValidator) error {
@@ -53,9 +64,25 @@ func ProcessRegistryUpdates(ctx context.Context, st state.BeaconState) error {
 			eligibleForActivationQ = append(eligibleForActivationQ, primitives.ValidatorIndex(idx))
 		}
 
-		// Collect validators to eject.
-		if val.EffectiveBalance() <= ejectionBal && helpers.IsActiveValidatorUsingTrie(val, currentEpoch) {
-			eligibleForEjection = append(eligibleForEjection, primitives.ValidatorIndex(idx))
+		// Collect validators to bailout.
+		isActive := helpers.IsActiveValidatorUsingTrie(val, currentEpoch)
+		// TODO: use principal_balance and rename this variable.
+		PRINCIPAL_BALANCE := uint64(256000000000)
+		bailoutBuffer := PRINCIPAL_BALANCE * inactivityPenaltyRate / inactivityPenaltyRatePrecision
+		actualBalance, err := st.BalanceAtIndex(primitives.ValidatorIndex(idx))
+		if err != nil {
+			return err
+		}
+		inactivityScore, err := st.InactivityScoreAtIndex(primitives.ValidatorIndex(idx))
+		if err != nil {
+			return err
+		}
+
+		belowThreshold := actualBalance+bailoutBuffer < PRINCIPAL_BALANCE
+		if isActive && belowThreshold {
+			eligibleForBailout = append(eligibleForBailout, primitives.ValidatorIndex(idx))
+		} else if isInInactivityLeak && inactivityScore > inactivityLeakBailoutScoreThreshold {
+			eligibleForBailout = append(eligibleForBailout, primitives.ValidatorIndex(idx))
 		}
 
 		// Collect validators eligible for activation and not yet dequeued for activation.
@@ -80,8 +107,8 @@ func ProcessRegistryUpdates(ctx context.Context, st state.BeaconState) error {
 		}
 	}
 
-	// Handle validator ejections.
-	for _, idx := range eligibleForEjection {
+	// Handle validator bail outs.
+	for _, idx := range eligibleForBailout {
 		var err error
 		// exitQueueEpoch and churn arguments are not used in electra.
 		st, _, err = validators.InitiateValidatorExit(ctx, st, idx, 0 /*exitQueueEpoch*/, 0 /*churn*/)
