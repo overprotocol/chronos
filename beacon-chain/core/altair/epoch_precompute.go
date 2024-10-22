@@ -264,8 +264,8 @@ func ProcessRewardsAndPenaltiesPrecompute(
 		return nil, errors.Wrap(err, "could not set validator balances")
 	}
 
-	if err := helpers.DecreaseCurrentReserve(beaconState, reserveUsage); err != nil {
-		return nil, errors.Wrap(err, "could not set current epoch reserve")
+	if err := helpers.DecreaseReserves(beaconState, reserveUsage); err != nil {
+		return nil, errors.Wrap(err, "could not decrease reserves")
 	}
 
 	return beaconState, nil

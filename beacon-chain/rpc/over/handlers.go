@@ -175,7 +175,7 @@ func (s *Server) GetEpochReward(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetReserves get reserves data from the requested state.
-// e.g. RewardAdjustmentFactor, PreviousEpochReserve, CurrentEpochReserve, etc.
+// e.g. RewardAdjustmentFactor, Reserves, etc.
 func (s *Server) GetReserves(w http.ResponseWriter, r *http.Request) {
 	ctx, span := trace.StartSpan(r.Context(), "over.GetReserves")
 	defer span.End()
@@ -206,16 +206,14 @@ func (s *Server) GetReserves(w http.ResponseWriter, r *http.Request) {
 	isFinalized := s.FinalizationFetcher.IsFinalized(ctx, blockRoot)
 
 	rewardAdjustmentFactor := st.RewardAdjustmentFactor()
-	previousEpochReserve := st.PreviousEpochReserve()
-	currentEpochReserve := st.CurrentEpochReserve()
+	reserves := st.Reserves()
 
 	httputil.WriteJson(w, &structs.GetReservesResponse{
 		ExecutionOptimistic: isOptimistic,
 		Finalized:           isFinalized,
 		Data: &structs.Reserves{
 			RewardAdjustmentFactor: strconv.FormatUint(rewardAdjustmentFactor, 10),
-			PreviousEpochReserve:   strconv.FormatUint(previousEpochReserve, 10),
-			CurrentEpochReserve:    strconv.FormatUint(currentEpochReserve, 10),
+			Reserves:               strconv.FormatUint(reserves, 10),
 		},
 	})
 }

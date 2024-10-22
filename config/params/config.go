@@ -24,34 +24,33 @@ type BeaconChainConfig struct {
 	JustificationBitsLength  uint64           `yaml:"JUSTIFICATION_BITS_LENGTH"`   // JustificationBitsLength defines number of epochs to track when implementing k-finality in Casper FFG.
 
 	// Misc constants.
-	PresetBase                        string     `yaml:"PRESET_BASE" spec:"true"`                          // PresetBase represents the underlying spec preset this config is based on.
-	ConfigName                        string     `yaml:"CONFIG_NAME" spec:"true"`                          // ConfigName for allowing an easy human-readable way of knowing what chain is being used.
-	TargetCommitteeSize               uint64     `yaml:"TARGET_COMMITTEE_SIZE" spec:"true"`                // TargetCommitteeSize is the number of validators in a committee when the chain is healthy.
-	MaxValidatorsPerCommittee         uint64     `yaml:"MAX_VALIDATORS_PER_COMMITTEE" spec:"true"`         // MaxValidatorsPerCommittee defines the upper bound of the size of a committee.
-	MaxCommitteesPerSlot              uint64     `yaml:"MAX_COMMITTEES_PER_SLOT" spec:"true"`              // MaxCommitteesPerSlot defines the max amount of committee in a single slot.
-	MinPerEpochChurnLimit             uint64     `yaml:"MIN_PER_EPOCH_CHURN_LIMIT" spec:"true"`            // MinPerEpochChurnLimit is the minimum amount of churn allotted for validator rotations.
-	ChurnLimitQuotient                uint64     `yaml:"CHURN_LIMIT_QUOTIENT" spec:"true"`                 // ChurnLimitQuotient is used to determine the limit of how many validators can rotate per epoch.
-	ChurnLimitBias                    uint64     `yaml:"CHURN_LIMIT_BIAS" spec:"true"`                     // ChurnLimitBias is a parameter for dynamic churn limit calculation.
-	ShuffleRoundCount                 uint64     `yaml:"SHUFFLE_ROUND_COUNT" spec:"true"`                  // ShuffleRoundCount is used for retrieving the permuted index.
-	MinGenesisActiveValidatorCount    uint64     `yaml:"MIN_GENESIS_ACTIVE_VALIDATOR_COUNT" spec:"true"`   // MinGenesisActiveValidatorCount defines how many validator deposits needed to kick off beacon chain.
-	MinGenesisTime                    uint64     `yaml:"MIN_GENESIS_TIME" spec:"true"`                     // MinGenesisTime is the time that needed to pass before kicking off beacon chain.
-	TargetAggregatorsPerCommittee     uint64     `yaml:"TARGET_AGGREGATORS_PER_COMMITTEE" spec:"true"`     // TargetAggregatorsPerCommittee defines the number of aggregators inside one committee.
-	HysteresisQuotient                uint64     `yaml:"HYSTERESIS_QUOTIENT" spec:"true"`                  // HysteresisQuotient defines the hysteresis quotient for effective balance calculations.
-	HysteresisDownwardMultiplier      uint64     `yaml:"HYSTERESIS_DOWNWARD_MULTIPLIER" spec:"true"`       // HysteresisDownwardMultiplier defines the hysteresis downward multiplier for effective balance calculations.
-	HysteresisUpwardMultiplier        uint64     `yaml:"HYSTERESIS_UPWARD_MULTIPLIER" spec:"true"`         // HysteresisUpwardMultiplier defines the hysteresis upward multiplier for effective balance calculations.
-	IssuanceRate                      [11]uint64 `yaml:"ISSUANCE_RATE" spec:"true"`                        // IssuanceRate defines the issuance rate for the beacon chain.
-	IssuancePrecision                 uint64     `yaml:"ISSUANCE_PRECISION" spec:"true"`                   // IssuancePrecision defines the precision of the issuance rate.
-	DepositPlanEarlyEnd               uint64     `yaml:"DEPOSIT_PLAN_EARLY_END" spec:"true"`               // DepositPlanEarlyEnd defines the first end of the ~x year deposit plan.
-	DepositPlanEarlySlope             uint64     `yaml:"DEPOSIT_PLAN_EARLY_SLOPE" spec:"true"`             // DepositPlanEarlySlope defines the slope of the ~x year deposit plan.
-	DepositPlanEarlyOffset            uint64     `yaml:"DEPOSIT_PLAN_EARLY_OFFSET" spec:"true"`            // DepositPlanEarlyOffset defines the bias of the ~x year deposit plan.
-	DepositPlanLaterEnd               uint64     `yaml:"DEPOSIT_PLAN_LATER_END" spec:"true"`               // DepositPlanLaterEnd defines the last end of the ~y year deposit plan.
-	DepositPlanLaterSlope             uint64     `yaml:"DEPOSIT_PLAN_LATER_SLOPE" spec:"true"`             // DepositPlanLaterSlope defines the slope of the x~y year deposit plan.
-	DepositPlanLaterOffset            uint64     `yaml:"DEPOSIT_PLAN_LATER_OFFSET" spec:"true"`            // DepositPlanLaterOffset defines the bias of the x~y year deposit plan.
-	DepositPlanFinal                  uint64     `yaml:"DEPOSIT_PLAN_FINAL" spec:"true"`                   // DepositPlanFinal defines the final deposit amount after 6 years.
-	RewardFeedbackPrecision           uint64     `yaml:"REWARD_FEEDBACK_PRECISION" spec:"true"`            // RewardFeedbackPrecision defines the precision of the reward feedback.
-	RewardFeedbackThresholdReciprocal uint64     `yaml:"REWARD_FEEDBACK_THRESHOLD_RECIPROCAL" spec:"true"` // RewardFeedbackThresholdReciprocal defines the reciprocal of threshold in the reward feedback.
-	TargetChangeRate                  uint64     `yaml:"TARGET_CHANGE_RATE" spec:"true"`                   // TargetChangeRate defines the target change rate for the reward feedback.
-	MaxBoostYield                     [11]uint64 `yaml:"MAX_BOOST_YIELD" spec:"true"`                      // MaxBoostYield defines the maximum value(1%) for the reward feedback.
+	PresetBase                      string     `yaml:"PRESET_BASE" spec:"true"`                        // PresetBase represents the underlying spec preset this config is based on.
+	ConfigName                      string     `yaml:"CONFIG_NAME" spec:"true"`                        // ConfigName for allowing an easy human-readable way of knowing what chain is being used.
+	TargetCommitteeSize             uint64     `yaml:"TARGET_COMMITTEE_SIZE" spec:"true"`              // TargetCommitteeSize is the number of validators in a committee when the chain is healthy.
+	MaxValidatorsPerCommittee       uint64     `yaml:"MAX_VALIDATORS_PER_COMMITTEE" spec:"true"`       // MaxValidatorsPerCommittee defines the upper bound of the size of a committee.
+	MaxCommitteesPerSlot            uint64     `yaml:"MAX_COMMITTEES_PER_SLOT" spec:"true"`            // MaxCommitteesPerSlot defines the max amount of committee in a single slot.
+	MinPerEpochChurnLimit           uint64     `yaml:"MIN_PER_EPOCH_CHURN_LIMIT" spec:"true"`          // MinPerEpochChurnLimit is the minimum amount of churn allotted for validator rotations.
+	ChurnLimitQuotient              uint64     `yaml:"CHURN_LIMIT_QUOTIENT" spec:"true"`               // ChurnLimitQuotient is used to determine the limit of how many validators can rotate per epoch.
+	ChurnLimitBias                  uint64     `yaml:"CHURN_LIMIT_BIAS" spec:"true"`                   // ChurnLimitBias is a parameter for dynamic churn limit calculation.
+	ShuffleRoundCount               uint64     `yaml:"SHUFFLE_ROUND_COUNT" spec:"true"`                // ShuffleRoundCount is used for retrieving the permuted index.
+	MinGenesisActiveValidatorCount  uint64     `yaml:"MIN_GENESIS_ACTIVE_VALIDATOR_COUNT" spec:"true"` // MinGenesisActiveValidatorCount defines how many validator deposits needed to kick off beacon chain.
+	MinGenesisTime                  uint64     `yaml:"MIN_GENESIS_TIME" spec:"true"`                   // MinGenesisTime is the time that needed to pass before kicking off beacon chain.
+	TargetAggregatorsPerCommittee   uint64     `yaml:"TARGET_AGGREGATORS_PER_COMMITTEE" spec:"true"`   // TargetAggregatorsPerCommittee defines the number of aggregators inside one committee.
+	HysteresisQuotient              uint64     `yaml:"HYSTERESIS_QUOTIENT" spec:"true"`                // HysteresisQuotient defines the hysteresis quotient for effective balance calculations.
+	HysteresisDownwardMultiplier    uint64     `yaml:"HYSTERESIS_DOWNWARD_MULTIPLIER" spec:"true"`     // HysteresisDownwardMultiplier defines the hysteresis downward multiplier for effective balance calculations.
+	HysteresisUpwardMultiplier      uint64     `yaml:"HYSTERESIS_UPWARD_MULTIPLIER" spec:"true"`       // HysteresisUpwardMultiplier defines the hysteresis upward multiplier for effective balance calculations.
+	IssuanceRate                    [11]uint64 `yaml:"ISSUANCE_RATE" spec:"true"`                      // IssuanceRate defines the issuance rate for the beacon chain.
+	IssuancePrecision               uint64     `yaml:"ISSUANCE_PRECISION" spec:"true"`                 // IssuancePrecision defines the precision of the issuance rate.
+	DepositPlanEarlyEnd             uint64     `yaml:"DEPOSIT_PLAN_EARLY_END" spec:"true"`             // DepositPlanEarlyEnd defines the first end of the ~x year deposit plan.
+	DepositPlanEarlySlope           uint64     `yaml:"DEPOSIT_PLAN_EARLY_SLOPE" spec:"true"`           // DepositPlanEarlySlope defines the slope of the ~x year deposit plan.
+	DepositPlanEarlyOffset          uint64     `yaml:"DEPOSIT_PLAN_EARLY_OFFSET" spec:"true"`          // DepositPlanEarlyOffset defines the bias of the ~x year deposit plan.
+	DepositPlanLaterEnd             uint64     `yaml:"DEPOSIT_PLAN_LATER_END" spec:"true"`             // DepositPlanLaterEnd defines the last end of the ~y year deposit plan.
+	DepositPlanLaterSlope           uint64     `yaml:"DEPOSIT_PLAN_LATER_SLOPE" spec:"true"`           // DepositPlanLaterSlope defines the slope of the x~y year deposit plan.
+	DepositPlanLaterOffset          uint64     `yaml:"DEPOSIT_PLAN_LATER_OFFSET" spec:"true"`          // DepositPlanLaterOffset defines the bias of the x~y year deposit plan.
+	DepositPlanFinal                uint64     `yaml:"DEPOSIT_PLAN_FINAL" spec:"true"`                 // DepositPlanFinal defines the final deposit amount after 6 years.
+	RewardAdjustmentFactorDelta     uint64     `yaml:"REWARD_ADJUSTMENT_FACTOR_DELTA" spec:"true"`     // RewardAdjustmentFactorDelta defines the delta for reward adjustment factor.
+	RewardAdjustmentFactorPrecision uint64     `yaml:"REWARD_ADJUSTMENT_FACTOR_PRECISION" spec:"true"` // RewardAdjustmentFactorPrecision defines the precision of the reward feedback.
+	MaxRewardAdjustmentFactors      [11]uint64 `yaml:"MAX_REWARD_ADJUSTMENT_FACTORS" spec:"true"`      // MaxRewardAdjustmentFactors defines the maximum value(1%) for the reward feedback.
 
 	// Gwei value constants.
 	MinDepositAmount          uint64 `yaml:"MIN_DEPOSIT_AMOUNT" spec:"true"`          // MinDepositAmount is the minimum amount of Gwei a validator can send to the deposit contract at once (lower amounts will be reverted).
@@ -108,7 +107,6 @@ type BeaconChainConfig struct {
 	ValidatorRegistryLimit    uint64           `yaml:"VALIDATOR_REGISTRY_LIMIT" spec:"true"`     // ValidatorRegistryLimit defines the upper bound of validators can participate in eth2.
 
 	// Reward and penalty quotients constants.
-	BaseRewardFactor            uint64 `yaml:"BASE_REWARD_FACTOR" spec:"true"`            // BaseRewardFactor is used to calculate validator per-slot interest rate.
 	WhistleBlowerRewardQuotient uint64 `yaml:"WHISTLEBLOWER_REWARD_QUOTIENT" spec:"true"` // WhistleBlowerRewardQuotient is used to calculate whistle blower reward.
 	ProposerRewardQuotient      uint64 `yaml:"PROPOSER_REWARD_QUOTIENT" spec:"true"`      // ProposerRewardQuotient is used to calculate the reward for proposers.
 	InactivityPenaltyQuotient   uint64 `yaml:"INACTIVITY_PENALTY_QUOTIENT" spec:"true"`   // InactivityPenaltyQuotient is used to calculate the penalty for a validator that is offline.
@@ -352,8 +350,8 @@ func (b *BeaconChainConfig) CurrentEpochAttestationsLength() uint64 {
 
 // InitializeDepositPlan initializes the deposit plan of consensus.
 func (b *BeaconChainConfig) InitializeDepositPlan() {
-	b.DepositPlanEarlySlope = 180000000 * 1e9 / (b.EpochsPerYear * b.DepositPlanEarlyEnd)
-	b.DepositPlanEarlyOffset = 20000000 * 1e9
+	b.DepositPlanEarlySlope = 160000000 * 1e9 / (b.EpochsPerYear * b.DepositPlanEarlyEnd)
+	b.DepositPlanEarlyOffset = 40000000 * 1e9
 	b.DepositPlanLaterSlope = 100000000 * 1e9 / (b.EpochsPerYear * (b.DepositPlanLaterEnd - b.DepositPlanEarlyEnd))
 	b.DepositPlanLaterOffset = 133333334 * 1e9
 	b.DepositPlanFinal = 300000000 * 1e9

@@ -35,11 +35,11 @@ func TestBeaconStateMerkleProofs_altair(t *testing.T) {
 	require.NoError(t, err)
 	t.Run("current sync committee", func(t *testing.T) {
 		results := []string{
-			"0x173669ae8794c057def63b20372114a628abb029354a2ef50d7a1aaa9a3dab4a",
-			"0xf5a5fd42d16a20302798ef6ed309979b43003d2320d9f0e8ea9831a92759fb4b",
+			"0xacff3e632bf8ff27b783ac48086a544d1e920512add91817790d355e09846cd0",
 			"0xdb56114e00fdd4c1f85c892bf35ac9a89289aaecb1ebd0a96cde606a748b5d71",
-			"0x444b03442d619994d80397aac4f24d2a8b8e873dc9978555c0afbe4fd844a540",
-			"0x6e84be54558f6577ea6770acf4062accf291b086abdd724025eb92b99095e266",
+			"0x260573b8c3368abde2e68d9282e184ff623c2067fdd2f6dd0b17ad6f6dac06ea",
+			"0x43058e6846e144df0ba227c7a58e7d4c61c0882818c017209dbefbbc097a3821",
+			"0x77e194167398c2332f6acc3b6b0311ac9a01d17ac1a19120c1a206a6e40f435f",
 		}
 		cscp, err := altair.CurrentSyncCommitteeProof(ctx)
 		require.NoError(t, err)
@@ -50,11 +50,11 @@ func TestBeaconStateMerkleProofs_altair(t *testing.T) {
 	})
 	t.Run("next sync committee", func(t *testing.T) {
 		n_results := []string{
-			"0x173669ae8794c057def63b20372114a628abb029354a2ef50d7a1aaa9a3dab4a",
+			"0x0000000000000000000000000000000000000000000000000000000000000000",
 			"0xf5a5fd42d16a20302798ef6ed309979b43003d2320d9f0e8ea9831a92759fb4b",
 			"0xdb56114e00fdd4c1f85c892bf35ac9a89289aaecb1ebd0a96cde606a748b5d71",
-			"0x444b03442d619994d80397aac4f24d2a8b8e873dc9978555c0afbe4fd844a540",
-			"0x6e84be54558f6577ea6770acf4062accf291b086abdd724025eb92b99095e266",
+			"0x2bd2408b7bd7bc2d3dca7f5feb032195af06ceab3848d3b4a88bf9fadd85112e",
+			"0x77e194167398c2332f6acc3b6b0311ac9a01d17ac1a19120c1a206a6e40f435f",
 		}
 		nscp, err := altair.NextSyncCommitteeProof(ctx)
 		require.NoError(t, err)
@@ -111,11 +111,11 @@ func TestBeaconStateMerkleProofs_bellatrix(t *testing.T) {
 	require.NoError(t, err)
 	t.Run("current sync committee", func(t *testing.T) {
 		results := []string{
-			"0x173669ae8794c057def63b20372114a628abb029354a2ef50d7a1aaa9a3dab4a",
-			"0xb68b2f519878bcdc8fce2bba633a841e89e757c901224e731ec16a2397fdca74",
+			"0xacff3e632bf8ff27b783ac48086a544d1e920512add91817790d355e09846cd0",
 			"0xdb56114e00fdd4c1f85c892bf35ac9a89289aaecb1ebd0a96cde606a748b5d71",
-			"0x444b03442d619994d80397aac4f24d2a8b8e873dc9978555c0afbe4fd844a540",
-			"0x6e84be54558f6577ea6770acf4062accf291b086abdd724025eb92b99095e266",
+			"0x260573b8c3368abde2e68d9282e184ff623c2067fdd2f6dd0b17ad6f6dac06ea",
+			"0x0493908ba862a93eb36ae54c462417a15457080ee7e9ca7dba38b299bca05e25",
+			"0x77e194167398c2332f6acc3b6b0311ac9a01d17ac1a19120c1a206a6e40f435f",
 		}
 		cscp, err := bellatrix.CurrentSyncCommitteeProof(ctx)
 		require.NoError(t, err)
@@ -126,11 +126,11 @@ func TestBeaconStateMerkleProofs_bellatrix(t *testing.T) {
 	})
 	t.Run("next sync committee", func(t *testing.T) {
 		n_results := []string{
-			"0x173669ae8794c057def63b20372114a628abb029354a2ef50d7a1aaa9a3dab4a",
-			"0xb68b2f519878bcdc8fce2bba633a841e89e757c901224e731ec16a2397fdca74",
+			"0x22216a4a17e55cc41ce454600e5deb8aad32f15580a938b1914f93a9652c0e2c",
+			"0xf5a5fd42d16a20302798ef6ed309979b43003d2320d9f0e8ea9831a92759fb4b",
 			"0xdb56114e00fdd4c1f85c892bf35ac9a89289aaecb1ebd0a96cde606a748b5d71",
-			"0x444b03442d619994d80397aac4f24d2a8b8e873dc9978555c0afbe4fd844a540",
-			"0x6e84be54558f6577ea6770acf4062accf291b086abdd724025eb92b99095e266",
+			"0x2bd2408b7bd7bc2d3dca7f5feb032195af06ceab3848d3b4a88bf9fadd85112e",
+			"0x77e194167398c2332f6acc3b6b0311ac9a01d17ac1a19120c1a206a6e40f435f",
 		}
 		nscp, err := bellatrix.NextSyncCommitteeProof(ctx)
 		require.NoError(t, err)
