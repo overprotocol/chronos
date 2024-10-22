@@ -36,5 +36,6 @@ func DolphinConfig() *BeaconChainConfig {
 	cfg.MaxRewardAdjustmentFactors = [11]uint64{1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000}
 	cfg.InitializeForkSchedule()
 	cfg.InitializeDolphinDepositPlan()
+	cfg.InitializeInactivityValues()
 	return cfg
 }
