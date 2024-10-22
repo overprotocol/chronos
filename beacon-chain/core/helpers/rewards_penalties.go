@@ -292,12 +292,12 @@ func ProcessRewardAdjustmentFactor(state state.BeaconState) (state.BeaconState, 
 	targetDeposit := TargetDepositPlan(time.NextEpoch(state))
 
 	if futureDeposit > targetDeposit {
-		state, err = DecreaseRewardAdjustmentFactor(state)
+		err = DecreaseRewardAdjustmentFactor(state)
 		if err != nil {
 			return nil, err
 		}
 	} else if futureDeposit < targetDeposit {
-		state, err = IncreaseRewardAdjustmentFactor(state)
+		err = IncreaseRewardAdjustmentFactor(state)
 		if err != nil {
 			return nil, err
 		}
@@ -308,28 +308,28 @@ func ProcessRewardAdjustmentFactor(state state.BeaconState) (state.BeaconState, 
 
 // DecreaseRewardAdjustmentFactor reduces the RewardAdjustmentFactor with fixed amount.
 // If the RewardAdjustmentFactor is less than the given amount, it sets the RewardAdjustmentFactor to 0.
-func DecreaseRewardAdjustmentFactor(state state.BeaconState) (state.BeaconState, error) {
+func DecreaseRewardAdjustmentFactor(state state.BeaconState) error {
 	delta := params.BeaconConfig().RewardAdjustmentFactorDelta
 	factor := state.RewardAdjustmentFactor()
 	if factor < delta {
 		err := state.SetRewardAdjustmentFactor(0)
 		if err != nil {
-			return nil, err
+			return err
 		}
 	} else {
 		err := state.SetRewardAdjustmentFactor(factor - delta)
 		if err != nil {
-			return nil, err
+			return err
 		}
 	}
 
-	return state, nil
+	return nil
 }
 
 // IncreaseRewardAdjustmentFactor increases the RewardAdjustmentFactor with fixed amount.
 // If the RewardAdjustmentFactor is larger than the MaxRewardAdjustmentFactors[year],
 // it sets the RewardAdjustmentFactor to MaxRewardAdjustmentFactors[year].
-func IncreaseRewardAdjustmentFactor(state state.BeaconState) (state.BeaconState, error) {
+func IncreaseRewardAdjustmentFactor(state state.BeaconState) error {
 	epoch := slots.ToEpoch(state.Slot())
 	newFactor := state.RewardAdjustmentFactor() + params.BeaconConfig().RewardAdjustmentFactorDelta
 
@@ -337,16 +337,16 @@ func IncreaseRewardAdjustmentFactor(state state.BeaconState) (state.BeaconState,
 	if maxBoostYield < newFactor {
 		err := state.SetRewardAdjustmentFactor(maxBoostYield)
 		if err != nil {
-			return nil, err
+			return err
 		}
 	} else {
 		err := state.SetRewardAdjustmentFactor(newFactor)
 		if err != nil {
-			return nil, err
+			return err
 		}
 	}
 
-	return state, nil
+	return nil
 }
 
 // MaxRewardAdjustmentFactor gets the maximum reward adjustment factor of corresponding year for the given epoch.
@@ -369,15 +369,15 @@ func EpochToYear(epoch primitives.Epoch) int {
 
 // DecreaseReserves reduces the reserve by the given amount.
 // If the reserve is less than the given amount, it sets the reserve to 0.
-func DecreaseReserves(state state.BeaconState, sub uint64) error {
+func DecreaseReserves(state state.BeaconState, delta uint64) error {
 	reserve := state.Reserves()
-	if reserve < sub {
+	if reserve < delta {
 		err := state.SetReserves(0)
 		if err != nil {
 			return err
 		}
 	} else {
-		err := state.SetReserves(reserve - sub)
+		err := state.SetReserves(reserve - delta)
 		if err != nil {
 			return err
 		}
