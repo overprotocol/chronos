@@ -16,13 +16,13 @@ import (
 
 const (
 	// number of field roots for the validator object.
-	validatorFieldRoots = 8
+	validatorFieldRoots = 16 // real Field 9  + padding field 7
 
 	// Depth of tree representation of an individual
 	// validator.
 	// NumOfRoots = 2 ^ (TreeDepth)
-	// 8 = 2 ^ 3
-	validatorTreeDepth = 3
+	// 16 = 2 ^ 4
+	validatorTreeDepth = 4
 )
 
 // ValidatorRegistryRoot computes the HashTreeRoot Merkleization of

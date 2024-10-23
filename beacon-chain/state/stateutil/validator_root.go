@@ -48,13 +48,18 @@ func ValidatorFieldRoots(validator *ethpb.Validator) ([][32]byte, error) {
 		var withdrawalBuf [32]byte
 		binary.LittleEndian.PutUint64(withdrawalBuf[:8], uint64(validator.WithdrawableEpoch))
 
+		var principalBalanceBuf [32]byte
+		binary.LittleEndian.PutUint64(principalBalanceBuf[:8], validator.PrincipalBalance)
+
+		var zeroBuf = [32]byte{}
+
 		// Public key.
 		pubKeyRoot, err := merkleizePubkey(pubkey[:])
 		if err != nil {
 			return [][32]byte{}, err
 		}
 		fieldRoots = [][32]byte{pubKeyRoot, withdrawCreds, effectiveBalanceBuf, slashBuf, activationEligibilityBuf,
-			activationBuf, exitBuf, withdrawalBuf}
+			activationBuf, exitBuf, withdrawalBuf, principalBalanceBuf, zeroBuf, zeroBuf, zeroBuf, zeroBuf, zeroBuf, zeroBuf, zeroBuf}
 	}
 	return fieldRoots, nil
 }
