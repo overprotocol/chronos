@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/cache"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/time"
@@ -174,7 +175,12 @@ func IncreaseBalance(state state.BeaconState, idx primitives.ValidatorIndex, del
 //
 //		validator.principal_balance = state.balances[index]
 func IncreaseBalanceAndAdjustPrincipalBalance(state state.BeaconState, idx primitives.ValidatorIndex, delta uint64) error {
-	if err := IncreaseBalance(state, idx, delta); err != nil {
+	prevBalance, err := state.BalanceAtIndex(idx)
+	if err != nil {
+		return err
+	}
+	newBal, err := IncreaseBalanceWithVal(prevBalance, delta)
+	if err != nil {
 		return err
 	}
 
@@ -183,20 +189,33 @@ func IncreaseBalanceAndAdjustPrincipalBalance(state state.BeaconState, idx primi
 		return err
 	}
 
-	balance, err := state.BalanceAtIndex(idx)
-	if err != nil {
+	pbUpdated := false
+	if newBal >= validator.PrincipalBalance+delta {
+		validator.PrincipalBalance += delta
+		pbUpdated = true
+	} else if newBal >= validator.PrincipalBalance {
+		validator.PrincipalBalance = newBal
+		pbUpdated = true
+	}
+
+	// Update the balance in the state
+	if err := state.UpdateBalancesAtIndex(idx, newBal); err != nil {
 		return err
 	}
 
-	if balance >= validator.PrincipalBalance+delta {
-		validator.PrincipalBalance += delta
-	} else if balance >= validator.PrincipalBalance {
-		validator.PrincipalBalance = balance
-	} else {
-		return nil
+	// If principal balance was updated, update the validator as well
+	if pbUpdated {
+		if err := state.UpdateValidatorAtIndex(idx, validator); err != nil {
+			// Rollback balance if validator update fails
+			if rollbackErr := state.UpdateBalancesAtIndex(idx, prevBalance); rollbackErr != nil {
+				// If rollback fails, log or handle it as needed, but return the original error
+				return fmt.Errorf("validator update failed: %w, and rollback failed: %v", err, rollbackErr)
+			}
+			return err
+		}
 	}
-	// only update when changes are made
-	return state.UpdateValidatorAtIndex(idx, validator)
+
+	return nil
 }
 
 // IncreaseBalanceWithVal increases validator with the given 'index' balance by 'delta' in Gwei.
@@ -250,29 +269,40 @@ func DecreaseBalanceAndAdjustPrincipalBalance(state state.BeaconState, idx primi
 		return err
 	}
 
-	if err = DecreaseBalance(state, idx, delta); err != nil {
-		return err
-	}
-
-	balance, err := state.BalanceAtIndex(idx)
-	if err != nil {
-		return err
-	}
+	newBal := DecreaseBalanceWithVal(prevBalance, delta)
 
 	validator, err := state.ValidatorAtIndex(idx)
 	if err != nil {
 		return err
 	}
 
+	pbUpdated := false
 	if prevBalance >= params.BeaconConfig().MinActivationBalance {
-		validator.PrincipalBalance = max(validator.PrincipalBalance*(balance/prevBalance), params.BeaconConfig().MinActivationBalance)
+		validator.PrincipalBalance = max(validator.PrincipalBalance*(newBal/prevBalance), params.BeaconConfig().MinActivationBalance)
+		pbUpdated = true
 	} else if validator.PrincipalBalance != params.BeaconConfig().MinActivationBalance {
 		validator.PrincipalBalance = params.BeaconConfig().MinActivationBalance
-	} else {
-		return nil
+		pbUpdated = true
 	}
-	// only update when changes are made
-	return state.UpdateValidatorAtIndex(idx, validator)
+
+	// Update the balance in the state
+	if err := state.UpdateBalancesAtIndex(idx, newBal); err != nil {
+		return err
+	}
+
+	// If principal balance was updated, update the validator as well
+	if pbUpdated {
+		if err := state.UpdateValidatorAtIndex(idx, validator); err != nil {
+			// Rollback balance if validator update fails
+			if rollbackErr := state.UpdateBalancesAtIndex(idx, prevBalance); rollbackErr != nil {
+				// If rollback fails, log or handle it as needed, but return the original error
+				return fmt.Errorf("validator update failed: %w, and rollback failed: %v", err, rollbackErr)
+			}
+			return err
+		}
+	}
+
+	return nil
 }
 
 // DecreaseBalanceWithVal decreases validator with the given 'index' balance by 'delta' in Gwei.
