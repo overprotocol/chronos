@@ -96,7 +96,6 @@ func TestGetSpec(t *testing.T) {
 	config.MinSlashingWithdrawableDelay = 36
 	config.HistoricalRootsLimit = 37
 	config.ValidatorRegistryLimit = 38
-	config.BaseRewardFactor = 39
 	config.WhistleBlowerRewardQuotient = 40
 	config.ProposerRewardQuotient = 41
 	config.InactivityPenaltyQuotient = 42
@@ -134,10 +133,6 @@ func TestGetSpec(t *testing.T) {
 	config.DepositPlanLaterSlope = 75
 	config.DepositPlanLaterOffset = 76
 	config.DepositPlanFinal = 77
-	config.RewardFeedbackPrecision = 78
-	config.RewardFeedbackThresholdReciprocal = 79
-	config.MaxBoostYield = [11]uint64{80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80}
-	config.TargetChangeRate = 81
 	config.MaxTokenSupply = 82
 	config.EpochsPerYear = 83
 	config.IssuancePerYear = 84
