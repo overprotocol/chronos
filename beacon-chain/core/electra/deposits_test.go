@@ -50,14 +50,14 @@ func TestProcessPendingDeposits(t *testing.T) {
 		{
 			name: "more deposits than balance to consume processes partial deposits",
 			state: func() state.BeaconState {
-				amountAvailForProcessing := helpers.ActivationExitChurnLimit(8_000 * 1e9)
+				amountAvailForProcessing := helpers.ActivationBalanceChurnLimit(8_000 * 1e9)
 				depositAmount := uint64(amountAvailForProcessing) / 10
 				st := stateWithPendingDeposits(t, 8_000, 20, depositAmount)
 				require.NoError(t, st.SetDepositBalanceToConsume(800))
 				return st
 			}(),
 			check: func(t *testing.T, st state.BeaconState) {
-				amountAvailForProcessing := helpers.ActivationExitChurnLimit(8_000 * 1e9)
+				amountAvailForProcessing := helpers.ActivationBalanceChurnLimit(8_000 * 1e9)
 				res, err := st.DepositBalanceToConsume()
 				require.NoError(t, err)
 				require.Equal(t, primitives.Gwei(800), res)
@@ -77,7 +77,7 @@ func TestProcessPendingDeposits(t *testing.T) {
 		{
 			name: "withdrawn validators should not consume churn",
 			state: func() state.BeaconState {
-				amountAvailForProcessing := helpers.ActivationExitChurnLimit(8_000 * 1e9)
+				amountAvailForProcessing := helpers.ActivationBalanceChurnLimit(8_000 * 1e9)
 				depositAmount := uint64(amountAvailForProcessing)
 				// set the pending deposits to the maximum churn limit
 				st := stateWithPendingDeposits(t, 8_000, 2, depositAmount)
@@ -87,7 +87,7 @@ func TestProcessPendingDeposits(t *testing.T) {
 				return st
 			}(),
 			check: func(t *testing.T, st state.BeaconState) {
-				amountAvailForProcessing := helpers.ActivationExitChurnLimit(8_000 * 1e9)
+				amountAvailForProcessing := helpers.ActivationBalanceChurnLimit(8_000 * 1e9)
 				// Validators 0..9 should have their balance increased
 				for i := primitives.ValidatorIndex(0); i < 2; i++ {
 					b, err := st.BalanceAtIndex(i)
@@ -104,14 +104,14 @@ func TestProcessPendingDeposits(t *testing.T) {
 		{
 			name: "less deposits than balance to consume processes all deposits",
 			state: func() state.BeaconState {
-				amountAvailForProcessing := helpers.ActivationExitChurnLimit(8_000 * 1e9)
+				amountAvailForProcessing := helpers.ActivationBalanceChurnLimit(8_000 * 1e9)
 				depositAmount := uint64(amountAvailForProcessing) / 5
 				st := stateWithPendingDeposits(t, 8_000, 5, depositAmount)
 				require.NoError(t, st.SetDepositBalanceToConsume(0))
 				return st
 			}(),
 			check: func(t *testing.T, st state.BeaconState) {
-				amountAvailForProcessing := helpers.ActivationExitChurnLimit(8_000 * 1e9)
+				amountAvailForProcessing := helpers.ActivationBalanceChurnLimit(8_000 * 1e9)
 				res, err := st.DepositBalanceToConsume()
 				require.NoError(t, err)
 				require.Equal(t, primitives.Gwei(0), res)
@@ -128,40 +128,39 @@ func TestProcessPendingDeposits(t *testing.T) {
 				require.Equal(t, 0, len(remaining))
 			},
 		},
-		// TODO: Exit churn limit will be fixed in the future, rollback this.
-		//{
-		//	name: "process pending deposit for unknown key, activates new key",
-		//	state: func() state.BeaconState {
-		//		st := stateWithActiveBalanceETH(t, 0)
-		//		sk, err := bls.RandKey()
-		//		require.NoError(t, err)
-		//		wc := make([]byte, 32)
-		//		wc[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
-		//		wc[31] = byte(0)
-		//		dep := stateTesting.GeneratePendingDeposit(t, sk, params.BeaconConfig().MinActivationBalance, bytesutil.ToBytes32(wc), 0)
-		//		require.NoError(t, st.SetPendingDeposits([]*eth.PendingDeposit{dep}))
-		//		require.Equal(t, 0, len(st.Validators()))
-		//		require.Equal(t, 0, len(st.Balances()))
-		//		return st
-		//	}(),
-		//	check: func(t *testing.T, st state.BeaconState) {
-		//		res, err := st.DepositBalanceToConsume()
-		//		require.NoError(t, err)
-		//		require.Equal(t, primitives.Gwei(0), res)
-		//		b, err := st.BalanceAtIndex(0)
-		//		require.NoError(t, err)
-		//		require.Equal(t, params.BeaconConfig().MinActivationBalance, b)
-		//
-		//		// All of the balance deposits should have been processed.
-		//		remaining, err := st.PendingDeposits()
-		//		require.NoError(t, err)
-		//		require.Equal(t, 0, len(remaining))
-		//
-		//		// validator becomes active
-		//		require.Equal(t, 1, len(st.Validators()))
-		//		require.Equal(t, 1, len(st.Balances()))
-		//	},
-		//},
+		{
+			name: "process pending deposit for unknown key, activates new key",
+			state: func() state.BeaconState {
+				st := stateWithActiveBalanceETH(t, 0)
+				sk, err := bls.RandKey()
+				require.NoError(t, err)
+				wc := make([]byte, 32)
+				wc[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
+				wc[31] = byte(0)
+				dep := stateTesting.GeneratePendingDeposit(t, sk, params.BeaconConfig().MinActivationBalance, bytesutil.ToBytes32(wc), 0)
+				require.NoError(t, st.SetPendingDeposits([]*eth.PendingDeposit{dep}))
+				require.Equal(t, 0, len(st.Validators()))
+				require.Equal(t, 0, len(st.Balances()))
+				return st
+			}(),
+			check: func(t *testing.T, st state.BeaconState) {
+				res, err := st.DepositBalanceToConsume()
+				require.NoError(t, err)
+				require.Equal(t, primitives.Gwei(0), res)
+				b, err := st.BalanceAtIndex(0)
+				require.NoError(t, err)
+				require.Equal(t, params.BeaconConfig().MinActivationBalance, b)
+
+				// All of the balance deposits should have been processed.
+				remaining, err := st.PendingDeposits()
+				require.NoError(t, err)
+				require.Equal(t, 0, len(remaining))
+
+				// validator becomes active
+				require.Equal(t, 1, len(st.Validators()))
+				require.Equal(t, 1, len(st.Balances()))
+			},
+		},
 		{
 			name: "process excess balance that uses a point to infinity signature, processed as a topup",
 			state: func() state.BeaconState {
@@ -198,7 +197,7 @@ func TestProcessPendingDeposits(t *testing.T) {
 		{
 			name: "exiting validator deposit postponed",
 			state: func() state.BeaconState {
-				amountAvailForProcessing := helpers.ActivationExitChurnLimit(8_000 * 1e9)
+				amountAvailForProcessing := helpers.ActivationBalanceChurnLimit(8_000 * 1e9)
 				depositAmount := uint64(amountAvailForProcessing) / 5
 				st := stateWithPendingDeposits(t, 8_000, 5, depositAmount)
 				require.NoError(t, st.SetDepositBalanceToConsume(0))
@@ -210,7 +209,7 @@ func TestProcessPendingDeposits(t *testing.T) {
 				return st
 			}(),
 			check: func(t *testing.T, st state.BeaconState) {
-				amountAvailForProcessing := helpers.ActivationExitChurnLimit(8_000 * 1e9)
+				amountAvailForProcessing := helpers.ActivationBalanceChurnLimit(8_000 * 1e9)
 				res, err := st.DepositBalanceToConsume()
 				require.NoError(t, err)
 				require.Equal(t, primitives.Gwei(0), res)

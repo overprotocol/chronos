@@ -25,7 +25,7 @@ func TestWeakSubjectivity_ComputeWeakSubjectivityPeriod(t *testing.T) {
 		// Asserting that we get the same numbers as defined in the reference table:
 		// https://github.com/ethereum/consensus-specs/blob/master/specs/phase0/weak-subjectivity.md#calculating-the-weak-subjectivity-period
 		{valCount: 32768, avgBalance: 224, want: 504},
-		{valCount: 65536, avgBalance: 224, want: 752},
+		{valCount: 65536, avgBalance: 224, want: 752}, // 65536 * 224 = 14680064
 		{valCount: 131072, avgBalance: 224, want: 1248},
 		{valCount: 262144, avgBalance: 224, want: 2241},
 		{valCount: 524288, avgBalance: 224, want: 2241},

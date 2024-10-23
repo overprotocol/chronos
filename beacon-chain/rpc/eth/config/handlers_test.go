@@ -157,6 +157,7 @@ func TestGetSpec(t *testing.T) {
 	config.UnsetDepositRequestsStartIndex = 100
 	config.MaxDepositRequestsPerPayload = 101
 	config.MaxPendingDepositsPerEpoch = 102
+	config.MaxDepositsAlpaca = 103
 
 	var dbp [4]byte
 	copy(dbp[:], []byte{'0', '0', '0', '1'})
@@ -452,10 +453,10 @@ func TestGetSpec(t *testing.T) {
 				assert.Equal(t, "128", v)
 			case "NUMBER_OF_COLUMNS":
 				assert.Equal(t, "128", v)
-			case "MIN_PER_EPOCH_CHURN_LIMIT_ELECTRA":
-				assert.Equal(t, "128000000000", v)
-			case "MAX_PER_EPOCH_ACTIVATION_EXIT_CHURN_LIMIT":
-				assert.Equal(t, "256000000000", v)
+			case "MIN_PER_EPOCH_CHURN_LIMIT_ALPACA":
+				assert.Equal(t, "1024000000000", v)
+			case "MIN_PER_EPOCH_ACTIVATION_BALANCE_CHURN_LIMIT":
+				assert.Equal(t, "4096000000000", v)
 			case "DATA_COLUMN_SIDECAR_SUBNET_COUNT":
 				assert.Equal(t, "128", v)
 			case "MAX_REQUEST_DATA_COLUMN_SIDECARS":
@@ -536,6 +537,8 @@ func TestGetSpec(t *testing.T) {
 				assert.Equal(t, "101", v)
 			case "MAX_PENDING_DEPOSITS_PER_EPOCH":
 				assert.Equal(t, "102", v)
+				case "MAX_DEPOSITS_ALPACA":
+				assert.Equal(t, "103", v)
 			default:
 				t.Errorf("Incorrect key: %s", k)
 			}

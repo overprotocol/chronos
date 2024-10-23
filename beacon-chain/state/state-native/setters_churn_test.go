@@ -71,7 +71,7 @@ func TestExitEpochAndUpdateChurn(t *testing.T) {
 
 		exitBal := primitives.Gwei(10_000_000)
 
-		wantExitBalToConsume := helpers.ActivationExitChurnLimit(primitives.Gwei(activeBal)) - exitBal
+		wantExitBalToConsume := helpers.ExitBalanceChurnLimit(primitives.Gwei(activeBal)) - exitBal
 
 		ee, err := st.ExitEpochAndUpdateChurn(exitBal)
 		require.NoError(t, err)
@@ -104,7 +104,7 @@ func TestExitEpochAndUpdateChurn(t *testing.T) {
 		activeBal, err := helpers.TotalActiveBalance(st)
 		require.NoError(t, err)
 
-		activationExitChurnLimit := helpers.ActivationExitChurnLimit(primitives.Gwei(activeBal))
+		activationExitChurnLimit := helpers.ExitBalanceChurnLimit(primitives.Gwei(activeBal))
 		exitBal := activationExitChurnLimit * 2
 
 		wantExitBalToConsume := primitives.Gwei(0)
@@ -174,7 +174,7 @@ func TestExitEpochAndUpdateChurn(t *testing.T) {
 		exitBal := primitives.Gwei(40_000_000)
 		activeBal, err := helpers.TotalActiveBalance(st)
 		require.NoError(t, err)
-		activationExitChurnLimit := helpers.ActivationExitChurnLimit(primitives.Gwei(activeBal))
+		activationExitChurnLimit := helpers.ExitBalanceChurnLimit(primitives.Gwei(activeBal))
 		wantExitBalToConsume := activationExitChurnLimit - 20_000_000
 
 		ee, err := st.ExitEpochAndUpdateChurn(exitBal)
