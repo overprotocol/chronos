@@ -2,7 +2,7 @@ package helpers
 
 import (
 	"errors"
-	"fmt"
+	"math/big"
 
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/cache"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/time"
@@ -179,8 +179,8 @@ func IncreaseBalanceAndAdjustPrincipalBalance(state state.BeaconState, idx primi
 	if err != nil {
 		return err
 	}
-	newBal, err := IncreaseBalanceWithVal(prevBalance, delta)
-	if err != nil {
+
+	if err := IncreaseBalance(state, idx, delta); err != nil {
 		return err
 	}
 
@@ -189,30 +189,21 @@ func IncreaseBalanceAndAdjustPrincipalBalance(state state.BeaconState, idx primi
 		return err
 	}
 
-	pbUpdated := false
-	if newBal >= validator.PrincipalBalance+delta {
-		validator.PrincipalBalance += delta
-		pbUpdated = true
-	} else if newBal >= validator.PrincipalBalance {
-		validator.PrincipalBalance = newBal
-		pbUpdated = true
-	}
-
-	// Update the balance in the state
-	if err := state.UpdateBalancesAtIndex(idx, newBal); err != nil {
+	balance, err := state.BalanceAtIndex(idx)
+	if err != nil {
 		return err
 	}
 
-	// If principal balance was updated, update the validator as well
-	if pbUpdated {
-		if err := state.UpdateValidatorAtIndex(idx, validator); err != nil {
-			// Rollback balance if validator update fails
-			if rollbackErr := state.UpdateBalancesAtIndex(idx, prevBalance); rollbackErr != nil {
-				// If rollback fails, log or handle it as needed, but return the original error
-				return fmt.Errorf("validator update failed: %w, and rollback failed: %v", err, rollbackErr)
-			}
-			return err
-		}
+	if balance >= validator.PrincipalBalance+delta {
+		validator.PrincipalBalance += delta
+	} else if balance >= validator.PrincipalBalance {
+		validator.PrincipalBalance = balance
+	} else {
+		return nil
+	}
+	// only update when changes are made
+	if err = state.UpdateValidatorAtIndex(idx, validator); err != nil {
+		return state.UpdateBalancesAtIndex(idx, prevBalance)
 	}
 
 	return nil
@@ -269,39 +260,41 @@ func DecreaseBalanceAndAdjustPrincipalBalance(state state.BeaconState, idx primi
 		return err
 	}
 
-	newBal := DecreaseBalanceWithVal(prevBalance, delta)
+	if err = DecreaseBalance(state, idx, delta); err != nil {
+		return err
+	}
+
+	balance, err := state.BalanceAtIndex(idx)
+	if err != nil {
+		return err
+	}
 
 	validator, err := state.ValidatorAtIndex(idx)
 	if err != nil {
 		return err
 	}
-
-	pbUpdated := false
 	if prevBalance >= params.BeaconConfig().MinActivationBalance {
-		validator.PrincipalBalance = max(validator.PrincipalBalance*(newBal/prevBalance), params.BeaconConfig().MinActivationBalance)
-		pbUpdated = true
+		principalBalance := new(big.Int).SetUint64(validator.PrincipalBalance)
+		balanceBig := new(big.Int).SetUint64(balance)
+		prevBalanceBig := new(big.Int).SetUint64(prevBalance)
+
+		result := new(big.Int).Mul(principalBalance, balanceBig) // Multiply principalBalance by balance
+		result.Div(result, prevBalanceBig)                       // Divide by prevBalance
+
+		minActivationBalance := new(big.Int).SetUint64(params.BeaconConfig().MinActivationBalance)
+		if result.Cmp(minActivationBalance) < 0 {
+			result.Set(minActivationBalance)
+		}
+		validator.PrincipalBalance = result.Uint64()
 	} else if validator.PrincipalBalance != params.BeaconConfig().MinActivationBalance {
 		validator.PrincipalBalance = params.BeaconConfig().MinActivationBalance
-		pbUpdated = true
+	} else {
+		return nil
 	}
-
-	// Update the balance in the state
-	if err := state.UpdateBalancesAtIndex(idx, newBal); err != nil {
-		return err
+	// only update when changes are made
+	if err = state.UpdateValidatorAtIndex(idx, validator); err != nil {
+		return state.UpdateBalancesAtIndex(idx, prevBalance)
 	}
-
-	// If principal balance was updated, update the validator as well
-	if pbUpdated {
-		if err := state.UpdateValidatorAtIndex(idx, validator); err != nil {
-			// Rollback balance if validator update fails
-			if rollbackErr := state.UpdateBalancesAtIndex(idx, prevBalance); rollbackErr != nil {
-				// If rollback fails, log or handle it as needed, but return the original error
-				return rollbackErr
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 
