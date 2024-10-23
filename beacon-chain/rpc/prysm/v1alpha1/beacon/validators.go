@@ -487,7 +487,7 @@ func (bs *Server) GetValidatorQueue(
 		}
 	}
 	// Prevent churn limit from causing index out of bound issues.
-	exitChurnLimit := helpers.ValidatorExitChurnLimit(activeValidatorCount, activeValidatorDeposit, coreTime.CurrentEpoch(headState))
+	exitChurnLimit := helpers.ValidatorExitChurnLimit(activeValidatorCount)
 	if exitChurnLimit < exitQueueChurn {
 		// If we are above the churn limit, we simply increase the churn by one.
 		exitQueueEpoch++
@@ -514,7 +514,7 @@ func (bs *Server) GetValidatorQueue(
 		exitQueueKeys[i] = vals[idx].PublicKey
 	}
 
-	churnLimit := helpers.ValidatorActivationChurnLimit(activeValidatorCount, activeValidatorDeposit, coreTime.CurrentEpoch(headState))
+	churnLimit := helpers.ValidatorActivationChurnLimit(activeValidatorCount)
 	return &ethpb.ValidatorQueue{
 		ChurnLimit:                 churnLimit,
 		ActivationPublicKeys:       activationQueueKeys,
