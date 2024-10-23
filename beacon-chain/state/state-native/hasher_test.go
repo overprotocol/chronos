@@ -17,18 +17,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/testing/util"
 )
 
-func printHexArray(arr [][]byte) {
-	for i := 0; i < len(arr); i++ {
-		fmt.Print("\t{")
-		for j := 0; j < len(arr[i]); j++ {
-			if j != 0 {
-				fmt.Print(", ")
-			}
-			fmt.Printf("0x%02x", arr[i][j]) // Print each byte in hex format
-		}
-		fmt.Println("},")
-	}
-}
 func TestComputeFieldRootsWithHasher_Phase0(t *testing.T) {
 	beaconState, err := util.NewBeaconState(util.FillRootsNaturalOpt)
 	require.NoError(t, err)
