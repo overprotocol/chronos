@@ -175,11 +175,6 @@ func IncreaseBalance(state state.BeaconState, idx primitives.ValidatorIndex, del
 //
 //		validator.principal_balance = state.balances[index]
 func IncreaseBalanceAndAdjustPrincipalBalance(state state.BeaconState, idx primitives.ValidatorIndex, delta uint64) error {
-	prevBalance, err := state.BalanceAtIndex(idx)
-	if err != nil {
-		return err
-	}
-
 	if err := IncreaseBalance(state, idx, delta); err != nil {
 		return err
 	}
@@ -201,12 +196,8 @@ func IncreaseBalanceAndAdjustPrincipalBalance(state state.BeaconState, idx primi
 	} else {
 		return nil
 	}
-	// only update when changes are made
-	if err = state.UpdateValidatorAtIndex(idx, validator); err != nil {
-		return state.UpdateBalancesAtIndex(idx, prevBalance)
-	}
 
-	return nil
+	return state.UpdateValidatorAtIndex(idx, validator)
 }
 
 // IncreaseBalanceWithVal increases validator with the given 'index' balance by 'delta' in Gwei.
@@ -292,10 +283,7 @@ func DecreaseBalanceAndAdjustPrincipalBalance(state state.BeaconState, idx primi
 		return nil
 	}
 	// only update when changes are made
-	if err = state.UpdateValidatorAtIndex(idx, validator); err != nil {
-		return state.UpdateBalancesAtIndex(idx, prevBalance)
-	}
-	return nil
+	return state.UpdateValidatorAtIndex(idx, validator)
 }
 
 // DecreaseBalanceWithVal decreases validator with the given 'index' balance by 'delta' in Gwei.
