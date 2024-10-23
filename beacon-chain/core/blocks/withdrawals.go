@@ -120,36 +120,37 @@ func ValidateBLSToExecutionChange(st state.ReadOnlyBeaconState, signed *ethpb.Si
 //
 // Spec pseudocode definition:
 //
-//	def process_withdrawals(state: BeaconState, payload: ExecutionPayload) -> None:
-//	    expected_withdrawals, partial_withdrawals_count, valid_partial_withdrawals_count = get_expected_withdrawals(state)  # [Modified in Electra:EIP7251]
+// def process_withdrawals(state: BeaconState, payload: ExecutionPayload) -> None:
 //
-//	    assert len(payload.withdrawals) == len(expected_withdrawals)
+//	expected_withdrawals, partial_withdrawals_count, valid_partial_withdrawals_count = get_expected_withdrawals(state)  # [Modified in Electra:EIP7251]
 //
-//	    for i, expected_withdrawal, withdrawal in zip(expected_withdrawals, payload.withdrawals):
-//	        assert withdrawal == expected_withdrawal
-//			if i < valid_partial_withdrawals_count:
-//				decrease_balance_and_adjust_deposit(state, withdrawal.validator_index, withdrawal.amount)
-//			else:
-//				decrease_balance(state, withdrawal.validator_index, withdrawal.amount)
+//	assert len(payload.withdrawals) == len(expected_withdrawals)
 //
-//	    # Update pending partial withdrawals [New in Electra:EIP7251]
-//	    state.pending_partial_withdrawals = state.pending_partial_withdrawals[partial_withdrawals_count:]
+//	for i, expected_withdrawal, withdrawal in zip(expected_withdrawals, payload.withdrawals):
+//	    assert withdrawal == expected_withdrawal
+//	    if i < valid_partial_withdrawals_count:
+//	        decrease_balance_and_adjust_deposit(state, withdrawal.validator_index, withdrawal.amount)
+//	    else:
+//	        decrease_balance(state, withdrawal.validator_index, withdrawal.amount)
 //
-//		# Update the next withdrawal index if this block contained withdrawals
-//		if len(expected_withdrawals) != 0:
-//			latest_withdrawal = expected_withdrawals[-1]
-//			state.next_withdrawal_index = WithdrawalIndex(latest_withdrawal.index + 1)
+//	# Update pending partial withdrawals [New in Electra:EIP7251]
+//	state.pending_partial_withdrawals = state.pending_partial_withdrawals[partial_withdrawals_count:]
 //
-//		# Update the next validator index to start the next withdrawal sweep
-//		if len(expected_withdrawals) == MAX_WITHDRAWALS_PER_PAYLOAD:
-//			# Next sweep starts after the latest withdrawal's validator index
-//			next_validator_index = ValidatorIndex((expected_withdrawals[-1].validator_index + 1) % len(state.validators))
-//			state.next_withdrawal_validator_index = next_validator_index
-//		else:
-//			# Advance sweep by the max length of the sweep if there was not a full set of withdrawals
-//			next_index = state.next_withdrawal_validator_index + MAX_VALIDATORS_PER_WITHDRAWALS_SWEEP
-//			next_validator_index = ValidatorIndex(next_index % len(state.validators))
-//			state.next_withdrawal_validator_index = next_validator_index
+//	# Update the next withdrawal index if this block contained withdrawals
+//	if len(expected_withdrawals) != 0:
+//	    latest_withdrawal = expected_withdrawals[-1]
+//	    state.next_withdrawal_index = WithdrawalIndex(latest_withdrawal.index + 1)
+//
+//	# Update the next validator index to start the next withdrawal sweep
+//	if len(expected_withdrawals) == MAX_WITHDRAWALS_PER_PAYLOAD:
+//	    # Next sweep starts after the latest withdrawal's validator index
+//	    next_validator_index = ValidatorIndex((expected_withdrawals[-1].validator_index + 1) % len(state.validators))
+//	    state.next_withdrawal_validator_index = next_validator_index
+//	else:
+//	    # Advance sweep by the max length of the sweep if there was not a full set of withdrawals
+//	    next_index = state.next_withdrawal_validator_index + MAX_VALIDATORS_PER_WITHDRAWALS_SWEEP
+//	    next_validator_index = ValidatorIndex(next_index % len(state.validators))
+//	    state.next_withdrawal_validator_index = next_validator_index
 func ProcessWithdrawals(st state.BeaconState, executionData interfaces.ExecutionData) (state.BeaconState, error) {
 	expectedWithdrawals, partialWithdrawalsCount, validPartialWithdrawalsCount, err := st.ExpectedWithdrawals()
 	if err != nil {
