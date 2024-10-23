@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 	"github.com/prysmaticlabs/prysm/v5/api/server/structs"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
@@ -40,7 +39,7 @@ func (s *Server) EstimatedActivation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rawId := mux.Vars(r)["validator_id"]
+	rawId := r.PathValue("validator_id")
 	valIndex, err := decodeValidatorId(st, rawId)
 	if err != nil {
 		httputil.WriteError(w, handleWrapError(err, "could not decode validator id from raw id", http.StatusBadRequest))
@@ -137,7 +136,7 @@ func (s *Server) GetEpochReward(w http.ResponseWriter, r *http.Request) {
 	defer span.End()
 
 	var requestedEpoch primitives.Epoch
-	epochId := mux.Vars(r)["epoch"]
+	epochId := r.PathValue("epoch")
 	curEpoch := slots.ToEpoch(s.GenesisTimeFetcher.CurrentSlot())
 
 	if epochId == "latest" {
@@ -181,7 +180,7 @@ func (s *Server) GetReserves(w http.ResponseWriter, r *http.Request) {
 	defer span.End()
 
 	// Retrieve beacon state
-	stateId := mux.Vars(r)["state_id"]
+	stateId := r.PathValue("state_id")
 	if stateId == "" {
 		httputil.HandleError(w, "state_id is required in URL params", http.StatusBadRequest)
 		return

@@ -11,7 +11,6 @@ import (
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/gorilla/mux"
 	"github.com/prysmaticlabs/prysm/v5/api/server/structs"
 	chainMock "github.com/prysmaticlabs/prysm/v5/beacon-chain/blockchain/testing"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
@@ -138,7 +137,7 @@ func TestEstimatedActivation(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			request := httptest.NewRequest(http.MethodPost, "http://example.com//chronos/validator/estimated_activation/{validator_id}", nil)
-			request = mux.SetURLVars(request, map[string]string{"validator_id": tt.input})
+			request.SetPathValue("validator_id", tt.input)
 			writer := httptest.NewRecorder()
 			writer.Body = &bytes.Buffer{}
 
@@ -170,7 +169,7 @@ func TestEstimatedActivation_NoPendingValidators(t *testing.T) {
 
 	t.Run("empty request", func(t *testing.T) {
 		request := httptest.NewRequest(http.MethodPost, "http://example.com//chronos/validator/estimated_activation/{validator_id}", nil)
-		request = mux.SetURLVars(request, map[string]string{"validator_id": ""})
+		request.SetPathValue("validator_id", "")
 		writer := httptest.NewRecorder()
 		writer.Body = &bytes.Buffer{}
 
@@ -227,7 +226,7 @@ func TestGetEpochReward(t *testing.T) {
 
 		request := httptest.NewRequest(
 			"GET", "/chronos/states/epoch_reward/{epoch}", nil)
-		request = mux.SetURLVars(request, map[string]string{"epoch": "100"})
+		request.SetPathValue("epoch", "100")
 		writer := httptest.NewRecorder()
 		writer.Body = &bytes.Buffer{}
 
@@ -254,7 +253,7 @@ func TestGetEpochReward(t *testing.T) {
 
 		request := httptest.NewRequest(
 			"GET", "/chronos/states/epoch_reward/{epoch}", nil)
-		request = mux.SetURLVars(request, map[string]string{"epoch": "latest"})
+		request.SetPathValue("epoch", "latest")
 		writer := httptest.NewRecorder()
 		writer.Body = &bytes.Buffer{}
 
@@ -284,7 +283,7 @@ func TestGetEpochReward(t *testing.T) {
 
 		request := httptest.NewRequest(
 			"GET", "/chronos/states/epoch_reward/{epoch}", nil)
-		request = mux.SetURLVars(request, map[string]string{"epoch": "100"})
+		request.SetPathValue("epoch", "100")
 		writer := httptest.NewRecorder()
 		writer.Body = &bytes.Buffer{}
 
@@ -325,7 +324,7 @@ func TestGetReserves(t *testing.T) {
 		}
 		request := httptest.NewRequest(
 			"GET", "/over/v1/beacon/states/{state_id}/reserves", nil)
-		request = mux.SetURLVars(request, map[string]string{"state_id": "head"})
+		request.SetPathValue("state_id", "head")
 		writer := httptest.NewRecorder()
 		writer.Body = &bytes.Buffer{}
 
@@ -351,7 +350,6 @@ func TestGetReserves(t *testing.T) {
 		}
 		request := httptest.NewRequest(
 			"GET", "/over/v1/beacon/states/{state_id}/reserves", nil)
-		request = mux.SetURLVars(request, map[string]string{})
 		writer := httptest.NewRecorder()
 		writer.Body = &bytes.Buffer{}
 
