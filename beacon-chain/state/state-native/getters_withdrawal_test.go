@@ -1,6 +1,7 @@
 package state_native_test
 
 import (
+	"math"
 	"testing"
 
 	"github.com/golang/snappy"
@@ -378,5 +379,54 @@ func TestExpectedWithdrawals(t *testing.T) {
 		_, partialWithdrawalsCount, _, err := s.ExpectedWithdrawals()
 		require.NoError(t, err)
 		require.Equal(t, uint64(10), partialWithdrawalsCount)
+	})
+	t.Run("ExpectedWithdrawls UnitTest", func(t *testing.T) {
+		pb := &ethpb.BeaconStateElectra{
+			Validators: []*ethpb.Validator{
+				{
+					EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalance,
+					WithdrawalCredentials: make([]byte, 32),
+					PrincipalBalance:      params.BeaconConfig().MaxEffectiveBalance,
+				},
+				{
+					EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalance,
+					WithdrawalCredentials: make([]byte, 32),
+					PrincipalBalance:      params.BeaconConfig().MaxEffectiveBalance,
+					ExitEpoch:             params.BeaconConfig().FarFutureEpoch,
+				},
+				{
+					EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalance,
+					WithdrawalCredentials: make([]byte, 32),
+					PrincipalBalance:      params.BeaconConfig().MaxEffectiveBalance,
+				},
+				{
+					EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalance,
+					WithdrawalCredentials: make([]byte, 32),
+					PrincipalBalance:      params.BeaconConfig().MaxEffectiveBalance,
+				},
+			},
+			Balances: []uint64{
+				55,
+				math.MaxUint64,
+				55,
+				math.MaxUint64,
+			},
+			PendingPartialWithdrawals: []*ethpb.PendingPartialWithdrawal{
+				{
+					Index:  1,
+					Amount: 10,
+				},
+				{
+					Index:  2,
+					Amount: 10,
+				},
+			},
+		}
+		state, err := state_native.InitializeFromProtoUnsafeElectra(pb)
+		require.NoError(t, err)
+		_, partialWithdrawalsCount, valid, err := state.ExpectedWithdrawals()
+		require.NoError(t, err)
+		require.Equal(t, uint64(2), partialWithdrawalsCount)
+		require.Equal(t, uint64(1), valid)
 	})
 }
