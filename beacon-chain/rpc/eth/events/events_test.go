@@ -419,7 +419,7 @@ func TestStreamEvents_OperationsEvents(t *testing.T) {
 
 func TestStuckReader(t *testing.T) {
 	topics, events := operationEventsFixtures(t)
-	require.Equal(t, 8, len(events))
+	require.Equal(t, 7, len(events))
 	// set eventFeedDepth to a number lower than the events we intend to send to force the server to drop the reader.
 	stn := mockChain.NewEventFeedWrapper()
 	opn := mockChain.NewEventFeedWrapper()

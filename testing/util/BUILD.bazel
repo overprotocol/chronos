@@ -22,7 +22,6 @@ go_library(
         "helpers.go",
         "merge.go",
         "state.go",
-        "sync_aggregate.go",
         "wait_timeout.go",
     ],
     importpath = "github.com/prysmaticlabs/prysm/v5/testing/util",

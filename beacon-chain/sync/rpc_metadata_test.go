@@ -205,7 +205,6 @@ func TestMetadataRPCHandler_SendsMetadataAltair(t *testing.T) {
 	p2.LocalMetadata = wrapper.WrappedMetadataV1(&pb.MetaDataV1{
 		SeqNumber: 2,
 		Attnets:   bitfield[:],
-		Syncnets:  []byte{0x0},
 	})
 
 	wg.Add(1)

@@ -215,7 +215,7 @@ func TestProcessBlock_AllEventsTrackedVals(t *testing.T) {
 	root, err := b.GetBlock().HashTreeRoot()
 	require.NoError(t, err)
 	require.NoError(t, s.config.StateGen.SaveState(ctx, root, genesis))
-	wanted1 := fmt.Sprintf("\"Proposed beacon block was included\" balanceChange=100000000 blockRoot=%#x newBalance=256000000000 parentRoot=0x01143291c821 prefix=monitor proposerIndex=21 slot=1 version=1", bytesutil.Trunc(root[:]))
+	wanted1 := fmt.Sprintf("\"Proposed beacon block was included\" balanceChange=100000000 blockRoot=%#x newBalance=256000000000 parentRoot=0xed5f76b5b4ad prefix=monitor proposerIndex=21 slot=1 version=1", bytesutil.Trunc(root[:]))
 	wanted2 := fmt.Sprintf("\"Proposer slashing was included\" bodyRoot1=0x000100000000 bodyRoot2=0x000200000000 prefix=monitor proposerIndex=%d slashingSlot=0 slot=1", idx)
 	wanted3 := "\"Sync committee contribution included\" balanceChange=0 contribCount=3 expectedContribCount=3 newBalance=256000000000 prefix=monitor validatorIndex=1"
 	wanted4 := "\"Sync committee contribution included\" balanceChange=0 contribCount=1 expectedContribCount=1 newBalance=256000000000 prefix=monitor validatorIndex=2"
@@ -257,7 +257,7 @@ func TestLogAggregatedPerformance(t *testing.T) {
 	wanted := "\"Aggregated performance since launch\" attestationInclusion=\"80.00%\"" +
 		" averageInclusionDistance=1.2 balanceChangePct=\"0.95%\" correctlyVotedHeadPct=\"66.67%\" " +
 		"correctlyVotedSourcePct=\"91.67%\" correctlyVotedTargetPct=\"100.00%\" prefix=monitor startBalance=31700000000 " +
-		"startEpoch=0 totalAggregations=0 totalProposedBlocks=1 totalRequested=15 totalSyncContributions=0 " +
+		"startEpoch=0 totalAggregations=0 totalProposedBlocks=1 totalRequested=15 " +
 		"validatorIndex=1"
 	require.LogsContain(t, hook, wanted)
 }

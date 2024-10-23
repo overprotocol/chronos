@@ -101,69 +101,64 @@ func TestGetSpec(t *testing.T) {
 	config.ProposerRewardQuotient = 41
 	config.InactivityPenaltyQuotient = 42
 	config.MinSlashingPenaltyQuotient = 44
-	config.MaxProposerSlashings = 48
-	config.MaxAttesterSlashings = 49
-	config.MaxAttestations = 50
-	config.MaxDeposits = 51
-	config.MaxVoluntaryExits = 52
-	config.TimelyHeadFlagIndex = 53
-	config.TimelySourceFlagIndex = 54
-	config.TimelyTargetFlagIndex = 55
-	config.TimelyHeadWeight = 56
-	config.TimelySourceWeight = 57
-	config.TimelyTargetWeight = 58
-	// config.SyncRewardWeight = 59
-	config.WeightDenominator = 60
-	// config.TargetAggregatorsPerSyncSubcommittee = 61
-	// config.SyncCommitteeSubnetCount = 62
-	// config.SyncCommitteeSize = 63
-	config.InactivityScoreBias = 65
-	// config.EpochsPerSyncCommitteePeriod = 66
-	config.InactivityPenaltyQuotientAltair = 67
-	config.MinSlashingPenaltyQuotientAltair = 68
-	config.InactivityScoreRecoveryRate = 70
-	// config.MinSyncCommitteeParticipants = 71
+	config.MaxProposerSlashings = 45
+	config.MaxAttesterSlashings = 46
+	config.MaxAttestations = 47
+	config.MaxDeposits = 48
+	config.MaxVoluntaryExits = 49
+	config.TimelyHeadFlagIndex = 50
+	config.TimelySourceFlagIndex = 51
+	config.TimelyTargetFlagIndex = 52
+	config.TimelyHeadWeight = 53
+	config.TimelySourceWeight = 54
+	config.TimelyTargetWeight = 55
+	config.WeightDenominator = 56
+	config.InactivityScoreBias = 57
+	config.InactivityPenaltyQuotientAltair = 58
+	config.MinSlashingPenaltyQuotientAltair = 59
+	config.InactivityScoreRecoveryRate = 60
 	config.TerminalBlockHash = common.HexToHash("TerminalBlockHash")
-	config.TerminalBlockHashActivationEpoch = 72
-	config.TerminalTotalDifficulty = "73"
+	config.TerminalBlockHashActivationEpoch = 62
+	config.TerminalTotalDifficulty = "63"
 	config.DefaultFeeRecipient = common.HexToAddress("DefaultFeeRecipient")
-	config.MaxWithdrawalsPerPayload = 74
-	config.MaxBlsToExecutionChanges = 75
-	config.MaxValidatorsPerWithdrawalsSweep = 76
-	config.ChurnLimitBias = 79
-	config.IssuanceRate = [11]uint64{80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80}
-	config.IssuancePrecision = 81
-	config.DepositPlanEarlyEnd = 82
-	config.DepositPlanEarlySlope = 83
-	config.DepositPlanEarlyOffset = 84
-	config.DepositPlanLaterEnd = 85
-	config.DepositPlanLaterSlope = 86
-	config.DepositPlanLaterOffset = 87
-	config.DepositPlanFinal = 88
-	config.RewardFeedbackPrecision = 89
-	config.RewardFeedbackThresholdReciprocal = 90
-	config.MaxBoostYield = [11]uint64{91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91}
-	config.TargetChangeRate = 92
-	config.MaxTokenSupply = 93
-	config.EpochsPerYear = 94
-	config.IssuancePerYear = 95
-	config.MinSlashingPenaltyQuotientElectra = 96
-	config.MaxEffectiveBalanceElectra = 97
+	config.MaxWithdrawalsPerPayload = 65
+	config.MaxBlsToExecutionChanges = 66
+	config.MaxValidatorsPerWithdrawalsSweep = 67
+	config.ChurnLimitBias = 68
+	config.IssuanceRate = [11]uint64{69, 69, 69, 69, 69, 69, 69, 69, 69, 69, 69}
+	config.IssuancePrecision = 70
+	config.DepositPlanEarlyEnd = 71
+	config.DepositPlanEarlySlope = 72
+	config.DepositPlanEarlyOffset = 73
+	config.DepositPlanLaterEnd = 74
+	config.DepositPlanLaterSlope = 75
+	config.DepositPlanLaterOffset = 76
+	config.DepositPlanFinal = 77
+	config.RewardFeedbackPrecision = 78
+	config.RewardFeedbackThresholdReciprocal = 79
+	config.MaxBoostYield = [11]uint64{80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80}
+	config.TargetChangeRate = 81
+	config.MaxTokenSupply = 82
+	config.EpochsPerYear = 83
+	config.IssuancePerYear = 84
+	config.LightLayerWeight = 85
+	config.MinSlashingPenaltyQuotientElectra = 86
+	config.MaxEffectiveBalanceElectra = 87
 	config.CompoundingWithdrawalPrefixByte = byte('d')
-	config.WhistleBlowerRewardQuotientElectra = 98
-	config.PendingPartialWithdrawalsLimit = 99
-	config.MinActivationBalance = 100
-	config.PendingDepositLimit = 101
-	config.MaxPendingPartialsPerWithdrawalsSweep = 102
-	config.MaxPartialWithdrawalsPerPayload = 103
-	config.FullExitRequestAmount = 104
-	config.MaxAttesterSlashingsElectra = 105
-	config.MaxAttestationsElectra = 106
-	config.MaxWithdrawalRequestsPerPayload = 107
-	config.MaxCellsInExtendedMatrix = 108
-	config.UnsetDepositRequestsStartIndex = 109
-	config.MaxDepositRequestsPerPayload = 110
-	config.MaxPendingDepositsPerEpoch = 111
+	config.WhistleBlowerRewardQuotientElectra = 89
+	config.PendingPartialWithdrawalsLimit = 90
+	config.MinActivationBalance = 91
+	config.PendingDepositLimit = 92
+	config.MaxPendingPartialsPerWithdrawalsSweep = 93
+	config.MaxPartialWithdrawalsPerPayload = 94
+	config.FullExitRequestAmount = 95
+	config.MaxAttesterSlashingsElectra = 96
+	config.MaxAttestationsElectra = 97
+	config.MaxWithdrawalRequestsPerPayload = 98
+	config.MaxCellsInExtendedMatrix = 99
+	config.UnsetDepositRequestsStartIndex = 100
+	config.MaxDepositRequestsPerPayload = 101
+	config.MaxPendingDepositsPerEpoch = 102
 
 	var dbp [4]byte
 	copy(dbp[:], []byte{'0', '0', '0', '1'})
@@ -202,7 +197,7 @@ func TestGetSpec(t *testing.T) {
 	data, ok := resp.Data.(map[string]interface{})
 	require.Equal(t, true, ok)
 
-	assert.Equal(t, 167, len(data))
+	assert.Equal(t, 157, len(data))
 	for k, v := range data {
 		t.Run(k, func(t *testing.T) {
 			switch k {
@@ -333,53 +328,37 @@ func TestGetSpec(t *testing.T) {
 			case "HF1_PROPORTIONAL_SLASHING_MULTIPLIER":
 				assert.Equal(t, "47", v)
 			case "MAX_PROPOSER_SLASHINGS":
-				assert.Equal(t, "48", v)
+				assert.Equal(t, "45", v)
 			case "MAX_ATTESTER_SLASHINGS":
-				assert.Equal(t, "49", v)
+				assert.Equal(t, "46", v)
 			case "MAX_ATTESTATIONS":
-				assert.Equal(t, "50", v)
+				assert.Equal(t, "47", v)
 			case "MAX_DEPOSITS":
-				assert.Equal(t, "51", v)
+				assert.Equal(t, "48", v)
 			case "MAX_VOLUNTARY_EXITS":
-				assert.Equal(t, "52", v)
-			case "MAX_BLOBS_PER_BLOCK":
-				assert.Equal(t, "4", v)
+				assert.Equal(t, "49", v)
 			case "TIMELY_HEAD_FLAG_INDEX":
-				assert.Equal(t, "0x35", v)
+				assert.Equal(t, "0x32", v)
 			case "TIMELY_SOURCE_FLAG_INDEX":
-				assert.Equal(t, "0x36", v)
+				assert.Equal(t, "0x33", v)
 			case "TIMELY_TARGET_FLAG_INDEX":
-				assert.Equal(t, "0x37", v)
+				assert.Equal(t, "0x34", v)
 			case "TIMELY_HEAD_WEIGHT":
-				assert.Equal(t, "56", v)
+				assert.Equal(t, "53", v)
 			case "TIMELY_SOURCE_WEIGHT":
-				assert.Equal(t, "57", v)
+				assert.Equal(t, "54", v)
 			case "TIMELY_TARGET_WEIGHT":
-				assert.Equal(t, "58", v)
-			case "SYNC_REWARD_WEIGHT":
-				assert.Equal(t, "59", v)
+				assert.Equal(t, "55", v)
 			case "WEIGHT_DENOMINATOR":
-				assert.Equal(t, "60", v)
-			case "TARGET_AGGREGATORS_PER_SYNC_SUBCOMMITTEE":
-				assert.Equal(t, "61", v)
-			case "SYNC_COMMITTEE_SUBNET_COUNT":
-				assert.Equal(t, "62", v)
-			case "SYNC_COMMITTEE_SIZE":
-				assert.Equal(t, "63", v)
-			case "SYNC_PUBKEYS_PER_AGGREGATE":
-				assert.Equal(t, "64", v)
+				assert.Equal(t, "56", v)
 			case "INACTIVITY_SCORE_BIAS":
-				assert.Equal(t, "65", v)
-			// case "EPOCHS_PER_SYNC_COMMITTEE_PERIOD":
-			// 	assert.Equal(t, "66", v)
+				assert.Equal(t, "57", v)
 			case "INACTIVITY_PENALTY_QUOTIENT_ALTAIR":
-				assert.Equal(t, "67", v)
+				assert.Equal(t, "58", v)
 			case "MIN_SLASHING_PENALTY_QUOTIENT_ALTAIR":
-				assert.Equal(t, "68", v)
+				assert.Equal(t, "59", v)
 			case "INACTIVITY_SCORE_RECOVERY_RATE":
-				assert.Equal(t, "70", v)
-			// case "MIN_SYNC_COMMITTEE_PARTICIPANTS":
-			// 	assert.Equal(t, "71", v)
+				assert.Equal(t, "60", v)
 			case "PROPOSER_WEIGHT":
 				assert.Equal(t, "8", v)
 			case "DOMAIN_BEACON_PROPOSER":
@@ -419,7 +398,7 @@ func TestGetSpec(t *testing.T) {
 				require.Equal(t, true, ok)
 				assert.Equal(t, common.HexToHash("TerminalBlockHash"), common.HexToHash(s))
 			case "TERMINAL_TOTAL_DIFFICULTY":
-				assert.Equal(t, "73", v)
+				assert.Equal(t, "63", v)
 			case "DefaultFeeRecipient":
 				assert.Equal(t, common.HexToAddress("DefaultFeeRecipient"), v)
 			case "MIN_SLASHING_PENALTY_QUOTIENT_BELLATRIX":
@@ -496,75 +475,73 @@ func TestGetSpec(t *testing.T) {
 			case "MAX_REQUEST_DATA_COLUMN_SIDECARS":
 				assert.Equal(t, "16384", v)
 			case "CHURN_LIMIT_BIAS":
-				assert.Equal(t, "77", v)
-			case "ISSUANCE_RATE":
-				assert.Equal(t, "[78,78,78,78,78,78,78,78,78,78,78]", v)
-			case "ISSUANCE_PRECISION":
 				assert.Equal(t, "79", v)
-			case "DEPOSIT_PLAN_EARLY_END":
-				assert.Equal(t, "80", v)
-			case "DEPOSIT_PLAN_EARLY_SLOPE":
+			case "ISSUANCE_RATE":
+				assert.Equal(t, "[80,80,80,80,80,80,80,80,80,80,80]", v)
+			case "ISSUANCE_PRECISION":
 				assert.Equal(t, "81", v)
-			case "DEPOSIT_PLAN_EARLY_OFFSET":
+			case "DEPOSIT_PLAN_EARLY_END":
 				assert.Equal(t, "82", v)
-			case "DEPOSIT_PLAN_LATER_END":
+			case "DEPOSIT_PLAN_EARLY_SLOPE":
 				assert.Equal(t, "83", v)
-			case "DEPOSIT_PLAN_LATER_SLOPE":
+			case "DEPOSIT_PLAN_EARLY_OFFSET":
 				assert.Equal(t, "84", v)
-			case "DEPOSIT_PLAN_LATER_OFFSET":
+			case "DEPOSIT_PLAN_LATER_END":
 				assert.Equal(t, "85", v)
-			case "DEPOSIT_PLAN_FINAL":
+			case "DEPOSIT_PLAN_LATER_SLOPE":
 				assert.Equal(t, "86", v)
-			case "REWARD_FEEDBACK_PRECISION":
+			case "DEPOSIT_PLAN_LATER_OFFSET":
 				assert.Equal(t, "87", v)
-			case "REWARD_FEEDBACK_THRESHOLD_RECIPROCAL":
+			case "DEPOSIT_PLAN_FINAL":
 				assert.Equal(t, "88", v)
-			case "MAX_BOOST_YIELD":
-				assert.Equal(t, "[89,89,89,89,89,89,89,89,89,89,89]", v)
-			case "TARGET_CHANGE_RATE":
+			case "REWARD_FEEDBACK_PRECISION":
+				assert.Equal(t, "89", v)
+			case "REWARD_FEEDBACK_THRESHOLD_RECIPROCAL":
 				assert.Equal(t, "90", v)
-			case "MAX_TOKEN_SUPPLY":
-				assert.Equal(t, "91", v)
-			case "EPOCHS_PER_YEAR":
+			case "MAX_BOOST_YIELD":
+				assert.Equal(t, "[91,91,91,91,91,91,91,91,91,91,91]", v)
+			case "TARGET_CHANGE_RATE":
 				assert.Equal(t, "92", v)
-			case "ISSUANCE_PER_YEAR":
+			case "MAX_TOKEN_SUPPLY":
 				assert.Equal(t, "93", v)
-			case "LIGHT_LAYER_WEIGHT":
+			case "EPOCHS_PER_YEAR":
 				assert.Equal(t, "94", v)
-			case "MIN_SLASHING_PENALTY_QUOTIENT_ELECTRA":
+			case "ISSUANCE_PER_YEAR":
 				assert.Equal(t, "95", v)
-			case "MAX_EFFECTIVE_BALANCE_ELECTRA":
+			case "MIN_SLASHING_PENALTY_QUOTIENT_ELECTRA":
 				assert.Equal(t, "96", v)
+			case "MAX_EFFECTIVE_BALANCE_ELECTRA":
+				assert.Equal(t, "97", v)
 			case "COMPOUNDING_WITHDRAWAL_PREFIX":
 				assert.Equal(t, "0x64", v)
 			case "WHISTLEBLOWER_REWARD_QUOTIENT_ELECTRA":
-				assert.Equal(t, "97", v)
-			case "PENDING_PARTIAL_WITHDRAWALS_LIMIT":
 				assert.Equal(t, "98", v)
-			case "MIN_ACTIVATION_BALANCE":
+			case "PENDING_PARTIAL_WITHDRAWALS_LIMIT":
 				assert.Equal(t, "99", v)
-			case "PENDING_DEPOSITS_LIMIT":
+			case "MIN_ACTIVATION_BALANCE":
 				assert.Equal(t, "100", v)
-			case "MAX_PENDING_PARTIALS_PER_WITHDRAWALS_SWEEP":
+			case "PENDING_DEPOSITS_LIMIT":
 				assert.Equal(t, "101", v)
-			case "MAX_PARTIAL_WITHDRAWALS_PER_PAYLOAD":
+			case "MAX_PENDING_PARTIALS_PER_WITHDRAWALS_SWEEP":
 				assert.Equal(t, "102", v)
-			case "FULL_EXIT_REQUEST_AMOUNT":
+			case "MAX_PARTIAL_WITHDRAWALS_PER_PAYLOAD":
 				assert.Equal(t, "103", v)
-			case "MAX_ATTESTER_SLASHINGS_ELECTRA":
+			case "FULL_EXIT_REQUEST_AMOUNT":
 				assert.Equal(t, "104", v)
-			case "MAX_ATTESTATIONS_ELECTRA":
+			case "MAX_ATTESTER_SLASHINGS_ELECTRA":
 				assert.Equal(t, "105", v)
-			case "MAX_WITHDRAWAL_REQUESTS_PER_PAYLOAD":
+			case "MAX_ATTESTATIONS_ELECTRA":
 				assert.Equal(t, "106", v)
-			case "MAX_CELLS_IN_EXTENDED_MATRIX":
+			case "MAX_WITHDRAWAL_REQUESTS_PER_PAYLOAD":
 				assert.Equal(t, "107", v)
-			case "UNSET_DEPOSIT_REQUESTS_START_INDEX":
+			case "MAX_CELLS_IN_EXTENDED_MATRIX":
 				assert.Equal(t, "108", v)
-			case "MAX_DEPOSIT_REQUESTS_PER_PAYLOAD":
+			case "UNSET_DEPOSIT_REQUESTS_START_INDEX":
 				assert.Equal(t, "109", v)
-			case "MAX_PENDING_DEPOSITS_PER_EPOCH":
+			case "MAX_DEPOSIT_REQUESTS_PER_PAYLOAD":
 				assert.Equal(t, "110", v)
+			case "MAX_PENDING_DEPOSITS_PER_EPOCH":
+				assert.Equal(t, "111", v)
 			default:
 				t.Errorf("Incorrect key: %s", k)
 			}

@@ -17,6 +17,7 @@ var gossipTopicMappings = map[string]func() proto.Message{
 	ExitSubnetTopicFormat:                 func() proto.Message { return &ethpb.SignedVoluntaryExit{} },
 	ProposerSlashingSubnetTopicFormat:     func() proto.Message { return &ethpb.ProposerSlashing{} },
 	AttesterSlashingSubnetTopicFormat:     func() proto.Message { return &ethpb.AttesterSlashing{} },
+	AggregateAndProofSubnetTopicFormat:    func() proto.Message { return &ethpb.SignedAggregateAttestationAndProof{} },
 	BlsToExecutionChangeSubnetTopicFormat: func() proto.Message { return &ethpb.SignedBLSToExecutionChange{} },
 	BlobSubnetTopicFormat:                 func() proto.Message { return &ethpb.BlobSidecar{} },
 }

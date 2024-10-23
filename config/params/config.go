@@ -198,6 +198,7 @@ type BeaconChainConfig struct {
 	TimelyTargetWeight uint64 `yaml:"TIMELY_TARGET_WEIGHT" spec:"true"` // TimelyTargetWeight is the factor of how much target rewards receives.
 	TimelyHeadWeight   uint64 `yaml:"TIMELY_HEAD_WEIGHT" spec:"true"`   // TimelyHeadWeight is the factor of how much head rewards receives.
 	ProposerWeight     uint64 `yaml:"PROPOSER_WEIGHT" spec:"true"`      // ProposerWeight is the factor of how much proposer rewards receives.
+	LightLayerWeight   uint64 `yaml:"LIGHT_LAYER_WEIGHT" spec:"true"`   // LightLayerWeight is the factor of how much light layer rewards receives.
 	WeightDenominator  uint64 `yaml:"WEIGHT_DENOMINATOR" spec:"true"`   // WeightDenominator accounts for total rewards denomination.
 
 	// Misc.

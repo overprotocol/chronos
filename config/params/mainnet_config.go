@@ -184,11 +184,11 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	ConfigName:                     MainnetName,
 	PresetBase:                     "mainnet",
 	BeaconStateFieldCount:          23,
-	BeaconStateAltairFieldCount:    26,
-	BeaconStateBellatrixFieldCount: 27,
-	BeaconStateCapellaFieldCount:   30,
-	BeaconStateDenebFieldCount:     30,
-	BeaconStateElectraFieldCount:   36,
+	BeaconStateAltairFieldCount:    24,
+	BeaconStateBellatrixFieldCount: 25,
+	BeaconStateCapellaFieldCount:   28,
+	BeaconStateDenebFieldCount:     28,
+	BeaconStateElectraFieldCount:   34,
 
 	// Slasher related values.
 	WeakSubjectivityPeriod:          54000,
@@ -223,6 +223,7 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	TimelyTargetWeight: 24,
 	TimelyHeadWeight:   12,
 	ProposerWeight:     8,
+	LightLayerWeight:   8,
 	WeightDenominator:  64,
 
 	// Misc values.

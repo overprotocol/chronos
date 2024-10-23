@@ -6,7 +6,6 @@ import (
 	libp2pcore "github.com/libp2p/go-libp2p/core"
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/pkg/errors"
-	"github.com/prysmaticlabs/go-bitfield"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/p2p"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/p2p/types"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/wrapper"
@@ -66,7 +65,6 @@ func (s *Service) metaDataHandler(_ context.Context, _ interface{}, stream libp2
 				&pb.MetaDataV1{
 					Attnets:   currMd.AttnetsBitfield(),
 					SeqNumber: currMd.SequenceNumber(),
-					Syncnets:  bitfield.Bitvector4{byte(0x00)},
 				})
 		}
 	}

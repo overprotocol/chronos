@@ -119,17 +119,6 @@ func TestTrackedIndex(t *testing.T) {
 	require.Equal(t, s.trackedIndex(primitives.ValidatorIndex(3)), false)
 }
 
-func TestUpdateSyncCommitteeTrackedVals(t *testing.T) {
-	hook := logTest.NewGlobal()
-	s := setupService(t)
-	require.LogsDoNotContain(t, hook, "Sync committee assignments will not be reported")
-	newTrackedSyncIndices := map[primitives.ValidatorIndex][]primitives.CommitteeIndex{
-		1: {1, 3, 4},
-		2: {2},
-	}
-	require.DeepEqual(t, s.trackedSyncCommitteeIndices, newTrackedSyncIndices)
-}
-
 func TestNewService(t *testing.T) {
 	config := &ValidatorMonitorConfig{}
 	var tracked []primitives.ValidatorIndex
