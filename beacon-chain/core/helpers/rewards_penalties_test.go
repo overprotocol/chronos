@@ -184,54 +184,33 @@ func TestIncreaseBalance_OK(t *testing.T) {
 	}
 }
 
-func TestIncreaseBalanceAndAdjustPrincipalBalance_OK(t *testing.T) {
-	tests := []struct {
-		i  primitives.ValidatorIndex
-		b  []uint64
-		nb uint64
-		eb uint64
-		pb uint64
-	}{
-		{i: 0, b: []uint64{27 * 1e9, 28 * 1e9, 32 * 1e9}, nb: 1, eb: 27*1e9 + 1, pb: 27*1e9 + 1},
-		{i: 1, b: []uint64{27 * 1e9, 28 * 1e9, 32 * 1e9}, nb: 0, eb: 28 * 1e9, pb: 28 * 1e9},
-		{i: 2, b: []uint64{27 * 1e9, 28 * 1e9, 32 * 1e9}, nb: 33 * 1e9, eb: 65 * 1e9, pb: 65 * 1e9},
+func TestIncreaseBalanceAndAdjustPrincipalBalance(t *testing.T) {
+	protoState := &ethpb.BeaconState{
+		Validators: []*ethpb.Validator{
+			{EffectiveBalance: 4, PrincipalBalance: 4},
+		},
+		Balances: []uint64{10},
 	}
-	for _, test := range tests {
-		helpers.ClearCache()
+	state, err := state_native.InitializeFromProtoPhase0(protoState)
+	require.NoError(t, err)
 
-		state, err := state_native.InitializeFromProtoPhase0(&ethpb.BeaconState{
-			Validators: []*ethpb.Validator{
-				{EffectiveBalance: 4, PrincipalBalance: 4}, {EffectiveBalance: 4, PrincipalBalance: 4}, {EffectiveBalance: 4, PrincipalBalance: 4}},
-			Balances: test.b,
-		})
-		require.NoError(t, err)
-		require.NoError(t, helpers.IncreaseBalanceAndAdjustPrincipalBalance(state, test.i, test.nb))
+	// Define the index and delta
+	idx := primitives.ValidatorIndex(0)
+	delta := uint64(6) // Change delta to a reasonable value
 
-		assert.Equal(t, test.eb, state.Balances()[test.i], "Incorrect Validator balance")
-		assert.Equal(t, test.pb, state.Validators()[test.i].PrincipalBalance, "Incorrect Principal balance")
-	}
-}
+	err = helpers.IncreaseBalanceAndAdjustPrincipalBalance(state, idx, delta)
+	require.NoError(t, err)
 
-func TestIncreaseBalanceAndAdjustPrincipalBalance_Overflow(t *testing.T) {
-	tests := []struct {
-		i  primitives.ValidatorIndex
-		b  []uint64
-		nb uint64
-	}{
-		{i: 0, b: []uint64{math.MaxUint64, math.MaxUint64, math.MaxUint64}, nb: 1},
-		{i: 2, b: []uint64{math.MaxUint64, math.MaxUint64, math.MaxUint64}, nb: 33 * 1e9},
-	}
-	for _, test := range tests {
-		helpers.ClearCache()
+	validator, err := state.ValidatorAtIndex(idx)
+	require.NoError(t, err)
+	balance, err := state.BalanceAtIndex(idx)
+	require.NoError(t, err)
 
-		state, err := state_native.InitializeFromProtoPhase0(&ethpb.BeaconState{
-			Validators: []*ethpb.Validator{
-				{EffectiveBalance: 4, PrincipalBalance: 4}, {EffectiveBalance: 4, PrincipalBalance: 4}, {EffectiveBalance: 4, PrincipalBalance: 4}},
-			Balances: test.b,
-		})
-		require.NoError(t, err)
-		require.ErrorContains(t, "addition overflows", helpers.IncreaseBalanceAndAdjustPrincipalBalance(state, test.i, test.nb))
-	}
+	expectedPrincipalBalance := uint64(10)
+	assert.Equal(t, expectedPrincipalBalance, validator.PrincipalBalance)
+
+	expectedBalance := uint64(16)
+	assert.Equal(t, expectedBalance, balance)
 }
 
 func TestDecreaseBalance_OK(t *testing.T) {

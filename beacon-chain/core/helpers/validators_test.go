@@ -1093,10 +1093,11 @@ func TestIsPartiallyWithdrawableValidator(t *testing.T) {
 			want:      false,
 		},
 		{
-			name: "No ETH1 prefix",
+			name: "No ETH1 prefix", // TODO this test is not valid in next spec (nathan)
 			validator: &ethpb.Validator{
 				EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalance,
 				WithdrawalCredentials: []byte{0xFA, 0xCC},
+				PrincipalBalance:      params.BeaconConfig().MaxEffectiveBalance,
 			},
 			balance: params.BeaconConfig().MaxEffectiveBalance,
 			epoch:   3,
@@ -1107,6 +1108,7 @@ func TestIsPartiallyWithdrawableValidator(t *testing.T) {
 			validator: &ethpb.Validator{
 				EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalance,
 				WithdrawalCredentials: []byte{params.BeaconConfig().ETH1AddressWithdrawalPrefixByte, 0xCC},
+				PrincipalBalance:      params.BeaconConfig().MaxEffectiveBalance,
 			},
 			balance: 0,
 			epoch:   3,
@@ -1117,6 +1119,7 @@ func TestIsPartiallyWithdrawableValidator(t *testing.T) {
 			validator: &ethpb.Validator{
 				EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalance,
 				WithdrawalCredentials: []byte{params.BeaconConfig().ETH1AddressWithdrawalPrefixByte, 0xCC},
+				PrincipalBalance:      params.BeaconConfig().MaxEffectiveBalance,
 			},
 			balance: params.BeaconConfig().MaxEffectiveBalance * 2,
 			epoch:   3,
@@ -1127,6 +1130,7 @@ func TestIsPartiallyWithdrawableValidator(t *testing.T) {
 			validator: &ethpb.Validator{
 				EffectiveBalance:      params.BeaconConfig().MinActivationBalance,
 				WithdrawalCredentials: []byte{params.BeaconConfig().ETH1AddressWithdrawalPrefixByte, 0xCC},
+				PrincipalBalance:      params.BeaconConfig().MaxEffectiveBalance,
 			},
 			balance: params.BeaconConfig().MinActivationBalance * 2,
 			epoch:   params.BeaconConfig().ElectraForkEpoch,
@@ -1138,6 +1142,7 @@ func TestIsPartiallyWithdrawableValidator(t *testing.T) {
 			validator: &ethpb.Validator{
 				EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalanceElectra,
 				WithdrawalCredentials: []byte{params.BeaconConfig().CompoundingWithdrawalPrefixByte, 0xCC},
+				PrincipalBalance:      params.BeaconConfig().MaxEffectiveBalance,
 			},
 			balance: params.BeaconConfig().MaxEffectiveBalanceElectra * 2,
 			epoch:   params.BeaconConfig().ElectraForkEpoch,

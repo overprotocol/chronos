@@ -15,8 +15,12 @@ import (
 )
 
 const (
-	// number of field roots for the validator object.
-	validatorFieldRoots = 16 // real Field 9  + padding field 7
+	// number of field roots for the validator object. ( validatorFields + validatorPaddingFields)
+	validatorFieldRoots = 16
+
+	validatorFields = 9
+
+	validatorPaddingFields = 7
 
 	// Depth of tree representation of an individual
 	// validator.
