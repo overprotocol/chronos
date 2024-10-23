@@ -242,7 +242,8 @@ func DecreaseBalance(state state.BeaconState, idx primitives.ValidatorIndex, del
 //
 //	validator = state.validators[index]
 //	if prev_balance >= MIN_ACTIVATION_BALANCE:
-//		validator.principal_balance = max(validator.principal_balance * (state.balances[index] / prev_balance), MIN_ACTIVATION_BALANCE)
+//		adjusted_principal_balance = uint256(validator.principal_balance) * uint256(state.balances[index]) / uint256(prev_balance)
+//		validator.principal_balance = max(adjusted_principal_balance, MIN_ACTIVATION_BALANCE)
 //	elif validator.principal_balance != MIN_ACTIVATION_BALANCE:
 //		validator.principal_balance = MIN_ACTIVATION_BALANCE
 func DecreaseBalanceAndAdjustPrincipalBalance(state state.BeaconState, idx primitives.ValidatorIndex, delta uint64) error {
