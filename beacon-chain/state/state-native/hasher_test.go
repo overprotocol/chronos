@@ -2,7 +2,6 @@ package state_native_test
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"github.com/prysmaticlabs/go-bitfield"
