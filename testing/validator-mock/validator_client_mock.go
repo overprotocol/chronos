@@ -379,50 +379,6 @@ func (mr *MockValidatorClientMockRecorder) SubscribeCommitteeSubnets(arg0, arg1,
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SubscribeCommitteeSubnets", reflect.TypeOf((*MockValidatorClient)(nil).SubscribeCommitteeSubnets), arg0, arg1, arg2)
 }
 
-// // SyncCommitteeContribution mocks base method.
-// func (m *MockValidatorClient) SyncCommitteeContribution(arg0 context.Context, arg1 *eth.SyncCommitteeContributionRequest) (*eth.SyncCommitteeContribution, error) {
-// 	m.ctrl.T.Helper()
-// 	ret := m.ctrl.Call(m, "SyncCommitteeContribution", arg0, arg1)
-// 	ret0, _ := ret[0].(*eth.SyncCommitteeContribution)
-// 	ret1, _ := ret[1].(error)
-// 	return ret0, ret1
-// }
-
-// // SyncCommitteeContribution indicates an expected call of SyncCommitteeContribution.
-// func (mr *MockValidatorClientMockRecorder) SyncCommitteeContribution(arg0, arg1 any) *gomock.Call {
-// 	mr.mock.ctrl.T.Helper()
-// 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SyncCommitteeContribution", reflect.TypeOf((*MockValidatorClient)(nil).SyncCommitteeContribution), arg0, arg1)
-// }
-
-// // SyncMessageBlockRoot mocks base method.
-// func (m *MockValidatorClient) SyncMessageBlockRoot(arg0 context.Context, arg1 *emptypb.Empty) (*eth.SyncMessageBlockRootResponse, error) {
-// 	m.ctrl.T.Helper()
-// 	ret := m.ctrl.Call(m, "SyncMessageBlockRoot", arg0, arg1)
-// 	ret0, _ := ret[0].(*eth.SyncMessageBlockRootResponse)
-// 	ret1, _ := ret[1].(error)
-// 	return ret0, ret1
-// }
-
-// SyncMessageBlockRoot indicates an expected call of SyncMessageBlockRoot.
-// func (mr *MockValidatorClientMockRecorder) SyncMessageBlockRoot(arg0, arg1 any) *gomock.Call {
-// 	mr.mock.ctrl.T.Helper()
-// 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SyncMessageBlockRoot", reflect.TypeOf((*MockValidatorClient)(nil).SyncMessageBlockRoot), arg0, arg1)
-// }
-
-// SyncSubcommitteeIndex mocks base method.
-// func (m *MockValidatorClient) SyncSubcommitteeIndex(arg0 context.Context, arg1 *eth.SyncSubcommitteeIndexRequest) (*eth.SyncSubcommitteeIndexResponse, error) {
-// 	m.ctrl.T.Helper()
-// 	ret := m.ctrl.Call(m, "SyncSubcommitteeIndex", arg0, arg1)
-// 	ret0, _ := ret[0].(*eth.SyncSubcommitteeIndexResponse)
-// 	ret1, _ := ret[1].(error)
-// 	return ret0, ret1
-// }
-
-// SyncSubcommitteeIndex indicates an expected call of SyncSubcommitteeIndex.
-// func (mr *MockValidatorClientMockRecorder) SyncSubcommitteeIndex(arg0, arg1 any) *gomock.Call {
-// 	mr.mock.ctrl.T.Helper()
-// 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SyncSubcommitteeIndex", reflect.TypeOf((*MockValidatorClient)(nil).SyncSubcommitteeIndex), arg0, arg1)
-// }
 
 // ValidatorIndex mocks base method.
 func (m *MockValidatorClient) ValidatorIndex(arg0 context.Context, arg1 *eth.ValidatorIndexRequest) (*eth.ValidatorIndexResponse, error) {

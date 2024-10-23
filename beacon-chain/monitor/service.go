@@ -70,25 +70,23 @@ type Service struct {
 	// trackedSyncedCommitteeIndices and lastSyncedEpoch
 	sync.RWMutex
 
-	TrackedValidators           map[primitives.ValidatorIndex]bool
-	latestPerformance           map[primitives.ValidatorIndex]ValidatorLatestPerformance
-	aggregatedPerformance       map[primitives.ValidatorIndex]ValidatorAggregatedPerformance
-	trackedSyncCommitteeIndices map[primitives.ValidatorIndex][]primitives.CommitteeIndex
-	lastSyncedEpoch             primitives.Epoch
+	TrackedValidators     map[primitives.ValidatorIndex]bool
+	latestPerformance     map[primitives.ValidatorIndex]ValidatorLatestPerformance
+	aggregatedPerformance map[primitives.ValidatorIndex]ValidatorAggregatedPerformance
+	lastSyncedEpoch       primitives.Epoch
 }
 
 // NewService sets up a new validator monitor service instance when given a list of validator indices to track.
 func NewService(ctx context.Context, config *ValidatorMonitorConfig, tracked []primitives.ValidatorIndex) (*Service, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	r := &Service{
-		config:                      config,
-		ctx:                         ctx,
-		cancel:                      cancel,
-		TrackedValidators:           make(map[primitives.ValidatorIndex]bool, len(tracked)),
-		latestPerformance:           make(map[primitives.ValidatorIndex]ValidatorLatestPerformance),
-		aggregatedPerformance:       make(map[primitives.ValidatorIndex]ValidatorAggregatedPerformance),
-		trackedSyncCommitteeIndices: make(map[primitives.ValidatorIndex][]primitives.CommitteeIndex),
-		isLogging:                   false,
+		config:                config,
+		ctx:                   ctx,
+		cancel:                cancel,
+		TrackedValidators:     make(map[primitives.ValidatorIndex]bool, len(tracked)),
+		latestPerformance:     make(map[primitives.ValidatorIndex]ValidatorLatestPerformance),
+		aggregatedPerformance: make(map[primitives.ValidatorIndex]ValidatorAggregatedPerformance),
+		isLogging:             false,
 	}
 	for _, idx := range tracked {
 		r.TrackedValidators[idx] = true

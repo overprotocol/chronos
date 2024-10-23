@@ -222,8 +222,6 @@ func TestCreateLocalNode(t *testing.T) {
 			attSubnets := new([]byte)
 			require.NoError(t, localNode.Node().Record().Load(enr.WithEntry(attSubnetEnrKey, attSubnets)))
 			require.DeepSSZEqual(t, []byte{0, 0, 0, 0, 0, 0, 0, 0}, *attSubnets)
-
-			// Check sync committees subnets.
 		})
 	}
 }

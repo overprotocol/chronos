@@ -160,10 +160,6 @@ func (_ *Validator) SubmitAggregateAndProof(_ context.Context, _ primitives.Slot
 	panic("implement me")
 }
 
-func (_ *Validator) SubmitSyncCommitteeMessage(_ context.Context, _ primitives.Slot, _ [48]byte) {
-	panic("implement me")
-}
-
 func (_ *Validator) LogSubmittedAtts(_ primitives.Slot) {
 	panic("implement me")
 }

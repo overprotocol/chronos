@@ -21,7 +21,6 @@ const AggregateReportingPeriod = 5
 // - An attestation by one of our tracked validators was included
 // - An Exit by one of our validators was included
 // - A Slashing by one of our tracked validators was included
-// - A Sync Committee Contribution by one of our tracked validators was included
 func (s *Service) processBlock(ctx context.Context, b interfaces.ReadOnlySignedBeaconBlock) {
 	if b == nil || b.Block() == nil {
 		return

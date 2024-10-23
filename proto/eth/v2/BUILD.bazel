@@ -50,7 +50,6 @@ ssz_gen_marshal(
         "SignedBlsToExecutionChange",
         "SignedBeaconBlockContentsDeneb",
         "BeaconBlockContentsDeneb",
-        "SyncCommittee",
         "BlobIdentifier",
     ],
 )

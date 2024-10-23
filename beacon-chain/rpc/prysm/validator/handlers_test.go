@@ -286,10 +286,6 @@ func TestServer_GetValidatorParticipation_CurrentAndPrevEpochWithBits(t *testing
 		validatorCount := uint64(32)
 		genState, _ := util.DeterministicGenesisStateAltair(t, validatorCount)
 
-		// c, err := altair.NextSyncCommittee(context.Background(), genState)
-		// require.NoError(t, err)
-		// require.NoError(t, genState.SetCurrentSyncCommittee(c))
-
 		bits := make([]byte, validatorCount)
 		for i := range bits {
 			bits[i] = 0xff
@@ -304,9 +300,6 @@ func TestServer_GetValidatorParticipation_CurrentAndPrevEpochWithBits(t *testing
 	t.Run("bellatrix", func(t *testing.T) {
 		validatorCount := uint64(32)
 		genState, _ := util.DeterministicGenesisStateBellatrix(t, validatorCount)
-		// c, err := altair.NextSyncCommittee(context.Background(), genState)
-		// require.NoError(t, err)
-		// require.NoError(t, genState.SetCurrentSyncCommittee(c))
 
 		bits := make([]byte, validatorCount)
 		for i := range bits {
@@ -322,9 +315,6 @@ func TestServer_GetValidatorParticipation_CurrentAndPrevEpochWithBits(t *testing
 	t.Run("capella", func(t *testing.T) {
 		validatorCount := uint64(32)
 		genState, _ := util.DeterministicGenesisStateCapella(t, validatorCount)
-		// c, err := altair.NextSyncCommittee(context.Background(), genState)
-		// require.NoError(t, err)
-		// require.NoError(t, genState.SetCurrentSyncCommittee(c))
 
 		bits := make([]byte, validatorCount)
 		for i := range bits {

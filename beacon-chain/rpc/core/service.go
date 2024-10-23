@@ -11,14 +11,13 @@ import (
 )
 
 type Service struct {
-	BeaconDB           db.ReadOnlyDatabase
-	ChainInfoFetcher   blockchain.ChainInfoFetcher
-	HeadFetcher        blockchain.HeadFetcher
-	FinalizedFetcher   blockchain.FinalizationFetcher
-	GenesisTimeFetcher blockchain.TimeFetcher
-	SyncChecker        sync.Checker
-	Broadcaster        p2p.Broadcaster
-	// SyncCommitteePool     synccommittee.Pool
+	BeaconDB              db.ReadOnlyDatabase
+	ChainInfoFetcher      blockchain.ChainInfoFetcher
+	HeadFetcher           blockchain.HeadFetcher
+	FinalizedFetcher      blockchain.FinalizationFetcher
+	GenesisTimeFetcher    blockchain.TimeFetcher
+	SyncChecker           sync.Checker
+	Broadcaster           p2p.Broadcaster
 	OperationNotifier     opfeed.Notifier
 	AttestationCache      *cache.AttestationCache
 	StateGen              stategen.StateManager

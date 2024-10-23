@@ -178,8 +178,6 @@ func (p *TestP2P) BroadcastAttestation(_ context.Context, _ uint64, _ ethpb.Att)
 	return nil
 }
 
-// BroadcastSyncCommitteeMessage broadcasts a sync committee message.
-
 // BroadcastBlob broadcasts a blob for mock.
 func (p *TestP2P) BroadcastBlob(context.Context, uint64, *ethpb.BlobSidecar) error {
 	p.BroadcastCalled.Store(true)

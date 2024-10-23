@@ -480,7 +480,7 @@ func CompressCommitteeCache() {
 	committeeCache.CompressCommitteeCache()
 }
 
-// ClearCache clears the beacon committee cache and sync committee cache.
+// ClearCache clears the beacon committee cache
 func ClearCache() {
 	committeeCache.Clear()
 	proposerIndicesCache.Prune(0)

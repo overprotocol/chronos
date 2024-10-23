@@ -35,7 +35,6 @@ const (
 var mainnetNetworkConfig = &NetworkConfig{
 	ETH2Key:                    "over",
 	AttSubnetKey:               "attnets",
-	SyncCommsSubnetKey:         "syncnets",
 	MinimumPeersInSubnetSearch: 20,
 	ContractDeploymentBlock:    0, // Note: contract was deployed in genesis block.
 	BootstrapNodes: []string{
@@ -182,11 +181,11 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	ConfigName:                     MainnetName,
 	PresetBase:                     "mainnet",
 	BeaconStateFieldCount:          22,
-	BeaconStateAltairFieldCount:    25,
-	BeaconStateBellatrixFieldCount: 26,
-	BeaconStateCapellaFieldCount:   29,
-	BeaconStateDenebFieldCount:     29,
-	BeaconStateElectraFieldCount:   35,
+	BeaconStateAltairFieldCount:    23,
+	BeaconStateBellatrixFieldCount: 24,
+	BeaconStateCapellaFieldCount:   27,
+	BeaconStateDenebFieldCount:     33,
+	BeaconStateElectraFieldCount:   33,
 
 	// Slasher related values.
 	WeakSubjectivityPeriod:          54000,

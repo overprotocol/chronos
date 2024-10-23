@@ -46,8 +46,6 @@ const (
 	FinalizedCheckpointTopic = "finalized_checkpoint"
 	// ChainReorgTopic represents a chain reorganization event topic.
 	ChainReorgTopic = "chain_reorg"
-	// SyncCommitteeContributionTopic represents a new sync committee contribution event topic.
-	// SyncCommitteeContributionTopic = "contribution_and_proof"
 	// BLSToExecutionChangeTopic represents a new received BLS to execution change event topic.
 	BLSToExecutionChangeTopic = "bls_to_execution_change"
 	// PayloadAttributesTopic represents a new payload attributes for execution payload building event topic.
@@ -84,10 +82,9 @@ type StreamingResponseWriter interface {
 type lazyReader func() io.Reader
 
 var opsFeedEventTopics = map[feed.EventType]string{
-	operation.AggregatedAttReceived:   AttestationTopic,
-	operation.UnaggregatedAttReceived: AttestationTopic,
-	operation.ExitReceived:            VoluntaryExitTopic,
-	// operation.SyncCommitteeContributionReceived: SyncCommitteeContributionTopic,
+	operation.AggregatedAttReceived:        AttestationTopic,
+	operation.UnaggregatedAttReceived:      AttestationTopic,
+	operation.ExitReceived:                 VoluntaryExitTopic,
 	operation.BLSToExecutionChangeReceived: BLSToExecutionChangeTopic,
 	operation.BlobSidecarReceived:          BlobSidecarTopic,
 	operation.AttesterSlashingReceived:     AttesterSlashingTopic,
@@ -98,10 +95,8 @@ var stateFeedEventTopics = map[feed.EventType]string{
 	statefeed.NewHead:             HeadTopic,
 	statefeed.MissedSlot:          PayloadAttributesTopic,
 	statefeed.FinalizedCheckpoint: FinalizedCheckpointTopic,
-	// statefeed.LightClientFinalityUpdate:   LightClientFinalityUpdateTopic,
-	// statefeed.LightClientOptimisticUpdate: LightClientOptimisticUpdateTopic,
-	statefeed.Reorg:          ChainReorgTopic,
-	statefeed.BlockProcessed: BlockTopic,
+	statefeed.Reorg:               ChainReorgTopic,
+	statefeed.BlockProcessed:      BlockTopic,
 }
 
 var topicsForStateFeed = topicsForFeed(stateFeedEventTopics)
@@ -369,8 +364,6 @@ func topicForEvent(event *feed.Event) string {
 		return AttestationTopic
 	case *operation.ExitReceivedData:
 		return VoluntaryExitTopic
-	// case *operation.SyncCommitteeContributionReceivedData:
-	// 	return SyncCommitteeContributionTopic
 	case *operation.BLSToExecutionChangeReceivedData:
 		return BLSToExecutionChangeTopic
 	case *operation.BlobSidecarReceivedData:
@@ -383,10 +376,6 @@ func topicForEvent(event *feed.Event) string {
 		return HeadTopic
 	case *ethpb.EventFinalizedCheckpoint:
 		return FinalizedCheckpointTopic
-	// case *ethpbv2.LightClientFinalityUpdateWithVersion:
-	// 	return LightClientFinalityUpdateTopic
-	// case *ethpbv2.LightClientOptimisticUpdateWithVersion:
-	// 	return LightClientOptimisticUpdateTopic
 	case *ethpb.EventChainReorg:
 		return ChainReorgTopic
 	case *statefeed.BlockProcessedData:
@@ -448,10 +437,6 @@ func (s *Server) lazyReaderForEvent(ctx context.Context, event *feed.Event, topi
 		return func() io.Reader {
 			return jsonMarshalReader(eventName, structs.SignedExitFromConsensus(v.Exit))
 		}, nil
-	// case *operation.SyncCommitteeContributionReceivedData:
-	// 	return func() io.Reader {
-	// 		return jsonMarshalReader(eventName, structs.SignedContributionAndProofFromConsensus(v.Contribution))
-	// 	}, nil
 	case *operation.BLSToExecutionChangeReceivedData:
 		return func() io.Reader {
 			return jsonMarshalReader(eventName, structs.SignedBLSChangeFromConsensus(v.Change))

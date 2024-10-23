@@ -119,16 +119,6 @@ func (s *Service) rewardsEndpoints(blocker lookup.Blocker, stater lookup.Stater,
 			handler: server.AttestationRewards,
 			methods: []string{http.MethodPost},
 		},
-		// {
-		// 	template: "/eth/v1/beacon/rewards/sync_committee/{block_id}",
-		// 	name:     namespace + ".SyncCommitteeRewards",
-		// 	middleware: []middleware.Middleware{
-		// 		middleware.ContentTypeHandler([]string{api.JsonMediaType}),
-		// 		middleware.AcceptHeaderHandler([]string{api.JsonMediaType}),
-		// 	},
-		// 	handler: server.SyncCommitteeRewards,
-		// 	methods: []string{http.MethodPost},
-		// },
 	}
 }
 
@@ -229,25 +219,6 @@ func (s *Service) validatorEndpoints(
 			handler: server.SubmitAggregateAndProofs,
 			methods: []string{http.MethodPost},
 		},
-		// {
-		// 	template: "/eth/v1/validator/sync_committee_contribution",
-		// 	name:     namespace + ".ProduceSyncCommitteeContribution",
-		// 	middleware: []middleware.Middleware{
-		// 		middleware.AcceptHeaderHandler([]string{api.JsonMediaType}),
-		// 	},
-		// 	handler: server.ProduceSyncCommitteeContribution,
-		// 	methods: []string{http.MethodGet},
-		// },
-		// {
-		// 	template: "/eth/v1/validator/sync_committee_subscriptions",
-		// 	name:     namespace + ".SubmitSyncCommitteeSubscription",
-		// 	middleware: []middleware.Middleware{
-		// 		middleware.ContentTypeHandler([]string{api.JsonMediaType}),
-		// 		middleware.AcceptHeaderHandler([]string{api.JsonMediaType}),
-		// 	},
-		// 	handler: server.SubmitSyncCommitteeSubscription,
-		// 	methods: []string{http.MethodPost},
-		// },
 		{
 			template: "/eth/v1/validator/beacon_committee_subscriptions",
 			name:     namespace + ".SubmitBeaconCommitteeSubscription",
@@ -296,16 +267,6 @@ func (s *Service) validatorEndpoints(
 			handler: server.GetProposerDuties,
 			methods: []string{http.MethodGet},
 		},
-		// {
-		// 	template: "/eth/v1/validator/duties/sync/{epoch}",
-		// 	name:     namespace + ".GetSyncCommitteeDuties",
-		// 	middleware: []middleware.Middleware{
-		// 		middleware.ContentTypeHandler([]string{api.JsonMediaType}),
-		// 		middleware.AcceptHeaderHandler([]string{api.JsonMediaType}),
-		// 	},
-		// 	handler: server.GetSyncCommitteeDuties,
-		// 	methods: []string{http.MethodPost},
-		// },
 		{
 			template: "/eth/v1/validator/prepare_beacon_proposer",
 			name:     namespace + ".PrepareBeaconProposer",
@@ -360,15 +321,6 @@ func (s *Service) validatorEndpoints(
 				middleware.ContentTypeHandler([]string{api.JsonMediaType}),
 			},
 			handler: server.BeaconCommitteeSelections,
-			methods: []string{http.MethodPost},
-		},
-		{
-			template: "/eth/v1/validator/sync_committee_selections",
-			name:     namespace + ".SyncCommittee Selections",
-			middleware: []middleware.Middleware{
-				middleware.ContentTypeHandler([]string{api.JsonMediaType}),
-			},
-			handler: server.SyncCommitteeSelections,
 			methods: []string{http.MethodPost},
 		},
 	}
@@ -519,15 +471,6 @@ func (s *Service) beaconEndpoints(
 			handler: server.GetStateRoot,
 			methods: []string{http.MethodGet},
 		},
-		// {
-		// 	template: "/eth/v1/beacon/states/{state_id}/sync_committees",
-		// 	name:     namespace + ".GetSyncCommittees",
-		// 	middleware: []middleware.Middleware{
-		// 		middleware.AcceptHeaderHandler([]string{api.JsonMediaType}),
-		// 	},
-		// 	handler: server.GetSyncCommittees,
-		// 	methods: []string{http.MethodGet},
-		// },
 		{
 			template: "/eth/v1/beacon/states/{state_id}/randao",
 			name:     namespace + ".GetRandao",
@@ -660,16 +603,6 @@ func (s *Service) beaconEndpoints(
 			handler: server.SubmitVoluntaryExit,
 			methods: []string{http.MethodPost},
 		},
-		// {
-		// 	template: "/eth/v1/beacon/pool/sync_committees",
-		// 	name:     namespace + ".SubmitSyncCommitteeSignatures",
-		// 	middleware: []middleware.Middleware{
-		// 		middleware.ContentTypeHandler([]string{api.JsonMediaType}),
-		// 		middleware.AcceptHeaderHandler([]string{api.JsonMediaType}),
-		// 	},
-		// 	handler: server.SubmitSyncCommitteeSignatures,
-		// 	methods: []string{http.MethodPost},
-		// },
 		{
 			template: "/eth/v1/beacon/pool/bls_to_execution_changes",
 			name:     namespace + ".ListBLSToExecutionChanges",

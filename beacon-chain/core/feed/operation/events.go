@@ -18,8 +18,6 @@ const (
 	// ExitReceived is sent after an voluntary exit object has been received from the outside world (eg in RPC or sync)
 	ExitReceived
 
-	// SyncCommitteeContributionReceived is sent after a sync committee contribution object has been received.
-
 	// BLSToExecutionChangeReceived is sent after a BLS to execution change object has been received from gossip or rpc.
 	BLSToExecutionChangeReceived
 

@@ -55,25 +55,6 @@ type Committee struct {
 	Validators []string `json:"validators"`
 }
 
-type SignedContributionAndProof struct {
-	Message   *ContributionAndProof `json:"message"`
-	Signature string                `json:"signature"`
-}
-
-type ContributionAndProof struct {
-	AggregatorIndex string                     `json:"aggregator_index"`
-	Contribution    *SyncCommitteeContribution `json:"contribution"`
-	SelectionProof  string                     `json:"selection_proof"`
-}
-
-type SyncCommitteeContribution struct {
-	Slot              string `json:"slot"`
-	BeaconBlockRoot   string `json:"beacon_block_root"`
-	SubcommitteeIndex string `json:"subcommittee_index"`
-	AggregationBits   string `json:"aggregation_bits"`
-	Signature         string `json:"signature"`
-}
-
 type SignedAggregateAttestationAndProof struct {
 	Message   *AggregateAttestationAndProof `json:"message"`
 	Signature string                        `json:"signature"`
@@ -94,12 +75,6 @@ type AggregateAttestationAndProofElectra struct {
 	AggregatorIndex string              `json:"aggregator_index"`
 	Aggregate       *AttestationElectra `json:"aggregate"`
 	SelectionProof  string              `json:"selection_proof"`
-}
-
-type SyncCommitteeSubscription struct {
-	ValidatorIndex       string   `json:"validator_index"`
-	SyncCommitteeIndices []string `json:"sync_committee_indices"`
-	UntilEpoch           string   `json:"until_epoch"`
 }
 
 type BeaconCommitteeSubscription struct {
@@ -211,11 +186,6 @@ type IndexedAttestationElectra struct {
 	AttestingIndices []string         `json:"attesting_indices"`
 	Data             *AttestationData `json:"data"`
 	Signature        string           `json:"signature"`
-}
-
-type SyncAggregate struct {
-	SyncCommitteeBits      string `json:"sync_committee_bits"`
-	SyncCommitteeSignature string `json:"sync_committee_signature"`
 }
 
 type Withdrawal struct {

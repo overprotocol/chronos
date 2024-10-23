@@ -86,10 +86,6 @@ func setupService(t *testing.T) *Service {
 		2:  {},
 		12: {},
 	}
-	trackedSyncCommitteeIndices := map[primitives.ValidatorIndex][]primitives.CommitteeIndex{
-		1:  {0, 1, 2, 3},
-		12: {4, 5},
-	}
 	return &Service{
 		config: &ValidatorMonitorConfig{
 			StateGen:            stategen.New(beaconDB, doublylinkedtree.New()),
@@ -99,12 +95,11 @@ func setupService(t *testing.T) *Service {
 			InitialSyncComplete: make(chan struct{}),
 		},
 
-		ctx:                         context.Background(),
-		TrackedValidators:           trackedVals,
-		latestPerformance:           latestPerformance,
-		aggregatedPerformance:       aggregatedPerformance,
-		trackedSyncCommitteeIndices: trackedSyncCommitteeIndices,
-		lastSyncedEpoch:             0,
+		ctx:                   context.Background(),
+		TrackedValidators:     trackedVals,
+		latestPerformance:     latestPerformance,
+		aggregatedPerformance: aggregatedPerformance,
+		lastSyncedEpoch:       0,
 	}
 }
 
@@ -241,7 +236,7 @@ func TestMonitorRoutine(t *testing.T) {
 
 	// Wait for Logrus
 	time.Sleep(1000 * time.Millisecond)
-	wanted1 := fmt.Sprintf("\"Proposed beacon block was included\" balanceChange=100000000 blockRoot=%#x newBalance=256000000000 parentRoot=0x2c9dc28c992a prefix=monitor proposerIndex=21 slot=1 version=1", bytesutil.Trunc(root[:]))
+	wanted1 := fmt.Sprintf("\"Proposed beacon block was included\" balanceChange=100000000 blockRoot=%#x newBalance=256000000000 parentRoot=0xb17419cfce79 prefix=monitor proposerIndex=21 slot=1 version=1", bytesutil.Trunc(root[:]))
 	require.LogsContain(t, hook, wanted1)
 
 }

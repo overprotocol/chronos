@@ -90,9 +90,6 @@ func BlockRewardTestSetup(t *testing.T, forkName string) (state.BeaconState, int
 	require.NoError(t, st.SetValidators(validators))
 	require.NoError(t, st.SetBalances(balances))
 	require.NoError(t, st.SetCurrentParticipationBits(make([]byte, valCount)))
-	// syncCommittee, err := altair.NextSyncCommittee(context.Background(), st)
-	// require.NoError(t, err)
-	// require.NoError(t, st.SetCurrentSyncCommittee(syncCommittee))
 	slot0bRoot := bytesutil.PadTo([]byte("slot0root"), 32)
 	bRoots := make([][]byte, fieldparams.BlockRootsLength)
 	bRoots[0] = slot0bRoot
@@ -168,24 +165,6 @@ func BlockRewardTestSetup(t *testing.T, forkName string) (state.BeaconState, int
 			},
 		},
 	})
-	// scBits := bitfield.NewBitvector512()
-	// scBits.SetBitAt(10, true)
-	// scBits.SetBitAt(100, true)
-	// domain, err = signing.Domain(st.Fork(), 0, params.BeaconConfig().DomainSyncCommittee, st.GenesisValidatorsRoot())
-	// require.NoError(t, err)
-	// sszBytes := primitives.SSZBytes(slot0bRoot)
-	// r, err := signing.ComputeSigningRoot(&sszBytes, domain)
-	// require.NoError(t, err)
-	// Bits set in sync committee bits determine which validators will be treated as participating in sync committee.
-	// These validators have to sign the message.
-	// sig1, err := blst.SignatureFromBytes(secretKeys[47].Sign(r[:]).Marshal())
-	// require.NoError(t, err)
-	// sig2, err := blst.SignatureFromBytes(secretKeys[19].Sign(r[:]).Marshal())
-	// require.NoError(t, err)
-	// aggSig := bls.AggregateSignatures([]bls.Signature{sig1, sig2}).Marshal()
-	// err = sbb.SetSyncAggregate(&eth.SyncAggregate{SyncCommitteeBits: scBits, SyncCommitteeSignature: aggSig})
-	// require.NoError(t, err)
-
 	return st, sbb, nil
 }
 

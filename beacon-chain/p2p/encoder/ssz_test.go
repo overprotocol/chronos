@@ -101,8 +101,6 @@ type HistoricalBatchCreator struct{}
 type SigningDataCreator struct{}
 type ForkDataCreator struct{}
 type DepositMessageCreator struct{}
-type SyncCommitteeCreator struct{}
-type SyncAggregatorSelectionDataCreator struct{}
 type BeaconStateBellatrixCreator struct{}
 type BeaconStateCapellaCreator struct{}
 type BeaconStateDenebCreator struct{}
@@ -119,8 +117,6 @@ type MetaDataV0Creator struct{}
 type MetaDataV1Creator struct{}
 type BlobSidecarsByRangeRequestCreator struct{}
 type DepositSnapshotCreator struct{}
-type SyncCommitteeMessageCreator struct{}
-type SyncCommitteeContributionCreator struct{}
 type ContributionAndProofCreator struct{}
 type SignedContributionAndProofCreator struct{}
 type ValidatorCreator struct{}

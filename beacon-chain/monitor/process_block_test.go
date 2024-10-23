@@ -215,17 +215,13 @@ func TestProcessBlock_AllEventsTrackedVals(t *testing.T) {
 	root, err := b.GetBlock().HashTreeRoot()
 	require.NoError(t, err)
 	require.NoError(t, s.config.StateGen.SaveState(ctx, root, genesis))
-	wanted1 := fmt.Sprintf("\"Proposed beacon block was included\" balanceChange=100000000 blockRoot=%#x newBalance=256000000000 parentRoot=0xed5f76b5b4ad prefix=monitor proposerIndex=21 slot=1 version=1", bytesutil.Trunc(root[:]))
+	wanted1 := fmt.Sprintf("\"Proposed beacon block was included\" balanceChange=100000000 blockRoot=%#x newBalance=256000000000 parentRoot=0xb17419cfce79 prefix=monitor proposerIndex=21 slot=1 version=1", bytesutil.Trunc(root[:]))
 	wanted2 := fmt.Sprintf("\"Proposer slashing was included\" bodyRoot1=0x000100000000 bodyRoot2=0x000200000000 prefix=monitor proposerIndex=%d slashingSlot=0 slot=1", idx)
-	wanted3 := "\"Sync committee contribution included\" balanceChange=0 contribCount=3 expectedContribCount=3 newBalance=256000000000 prefix=monitor validatorIndex=1"
-	wanted4 := "\"Sync committee contribution included\" balanceChange=0 contribCount=1 expectedContribCount=1 newBalance=256000000000 prefix=monitor validatorIndex=2"
 	wrapped, err := blocks.NewSignedBeaconBlock(b)
 	require.NoError(t, err)
 	s.processBlock(ctx, wrapped)
 	require.LogsContain(t, hook, wanted1)
 	require.LogsContain(t, hook, wanted2)
-	require.LogsContain(t, hook, wanted3)
-	require.LogsContain(t, hook, wanted4)
 }
 
 func TestLogAggregatedPerformance(t *testing.T) {

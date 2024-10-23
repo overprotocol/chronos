@@ -158,27 +158,27 @@ func (f FieldIndex) RealPosition() int {
 	case FinalizedCheckpoint:
 		return 21
 	case InactivityScores:
-		return 23
+		return 22
 	case LatestExecutionPayloadHeader, LatestExecutionPayloadHeaderCapella, LatestExecutionPayloadHeaderDeneb:
-		return 24
+		return 23
 	case NextWithdrawalIndex:
-		return 25
+		return 24
 	case NextWithdrawalValidatorIndex:
-		return 26
+		return 25
 	case HistoricalSummaries:
-		return 27
+		return 26
 	case DepositRequestsStartIndex:
-		return 28
+		return 27
 	case DepositBalanceToConsume:
-		return 29
+		return 28
 	case ExitBalanceToConsume:
-		return 30
+		return 29
 	case EarliestExitEpoch:
-		return 31
+		return 30
 	case PendingDeposits:
-		return 32
+		return 31
 	case PendingPartialWithdrawals:
-		return 33
+		return 32
 	default:
 		return -1
 	}

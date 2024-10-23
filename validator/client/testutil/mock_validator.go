@@ -190,10 +190,6 @@ func (fv *FakeValidator) ProposeBlock(_ context.Context, slot primitives.Slot, _
 func (*FakeValidator) SubmitAggregateAndProof(_ context.Context, _ primitives.Slot, _ [fieldparams.BLSPubkeyLength]byte) {
 }
 
-// SubmitSyncCommitteeMessage for mocking.
-func (*FakeValidator) SubmitSyncCommitteeMessage(_ context.Context, _ primitives.Slot, _ [fieldparams.BLSPubkeyLength]byte) {
-}
-
 // LogSubmittedAtts for mocking.
 func (*FakeValidator) LogSubmittedAtts(_ primitives.Slot) {}
 

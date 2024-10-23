@@ -410,30 +410,6 @@ func CheckpointFromConsensus(c *eth.Checkpoint) *Checkpoint {
 	}
 }
 
-func (s *SyncCommitteeSubscription) ToConsensus() (*validator.SyncCommitteeSubscription, error) {
-	index, err := strconv.ParseUint(s.ValidatorIndex, 10, 64)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "ValidatorIndex")
-	}
-	scIndices := make([]uint64, len(s.SyncCommitteeIndices))
-	for i, ix := range s.SyncCommitteeIndices {
-		scIndices[i], err = strconv.ParseUint(ix, 10, 64)
-		if err != nil {
-			return nil, server.NewDecodeError(err, fmt.Sprintf("SyncCommitteeIndices[%d]", i))
-		}
-	}
-	epoch, err := strconv.ParseUint(s.UntilEpoch, 10, 64)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "UntilEpoch")
-	}
-
-	return &validator.SyncCommitteeSubscription{
-		ValidatorIndex:       primitives.ValidatorIndex(index),
-		SyncCommitteeIndices: scIndices,
-		UntilEpoch:           primitives.Epoch(epoch),
-	}, nil
-}
-
 func (b *BeaconCommitteeSubscription) ToConsensus() (*validator.BeaconCommitteeSubscription, error) {
 	valIndex, err := strconv.ParseUint(b.ValidatorIndex, 10, 64)
 	if err != nil {

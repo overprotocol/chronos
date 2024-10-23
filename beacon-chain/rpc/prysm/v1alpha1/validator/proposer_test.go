@@ -140,7 +140,6 @@ func TestServer_GetBeaconBlock_Altair(t *testing.T) {
 	altairSlot, err := slots.EpochStart(params.BeaconConfig().AltairForkEpoch)
 	require.NoError(t, err)
 
-	// var scBits [fieldparams.SyncAggregateSyncCommitteeBytesLength]byte
 	genAltair := &ethpb.SignedBeaconBlockAltair{
 		Block: &ethpb.BeaconBlockAltair{
 			Slot:       altairSlot + 1,
@@ -150,7 +149,6 @@ func TestServer_GetBeaconBlock_Altair(t *testing.T) {
 				RandaoReveal: genesis.Block.Body.RandaoReveal,
 				Graffiti:     genesis.Block.Body.Graffiti,
 				Eth1Data:     genesis.Block.Body.Eth1Data,
-				// SyncAggregate: &ethpb.SyncAggregate{SyncCommitteeBits: scBits[:], SyncCommitteeSignature: make([]byte, 96)},
 			},
 		},
 	}
@@ -219,7 +217,6 @@ func TestServer_GetBeaconBlock_Bellatrix(t *testing.T) {
 	bellatrixSlot, err := slots.EpochStart(params.BeaconConfig().BellatrixForkEpoch)
 	require.NoError(t, err)
 
-	// var scBits [fieldparams.SyncAggregateSyncCommitteeBytesLength]byte
 	blk := &ethpb.SignedBeaconBlockBellatrix{
 		Block: &ethpb.BeaconBlockBellatrix{
 			Slot:       bellatrixSlot + 1,
@@ -229,7 +226,6 @@ func TestServer_GetBeaconBlock_Bellatrix(t *testing.T) {
 				RandaoReveal: genesis.Block.Body.RandaoReveal,
 				Graffiti:     genesis.Block.Body.Graffiti,
 				Eth1Data:     genesis.Block.Body.Eth1Data,
-				// SyncAggregate: &ethpb.SyncAggregate{SyncCommitteeBits: scBits[:], SyncCommitteeSignature: make([]byte, 96)},
 				ExecutionPayload: &enginev1.ExecutionPayload{
 					ParentHash:    make([]byte, fieldparams.RootLength),
 					FeeRecipient:  make([]byte, fieldparams.FeeRecipientLength),
@@ -344,7 +340,6 @@ func TestServer_GetBeaconBlock_Capella(t *testing.T) {
 	capellaSlot, err := slots.EpochStart(params.BeaconConfig().CapellaForkEpoch)
 	require.NoError(t, err)
 
-	// var scBits [fieldparams.SyncAggregateSyncCommitteeBytesLength]byte
 	blk := &ethpb.SignedBeaconBlockCapella{
 		Block: &ethpb.BeaconBlockCapella{
 			Slot:       capellaSlot + 1,
@@ -354,7 +349,6 @@ func TestServer_GetBeaconBlock_Capella(t *testing.T) {
 				RandaoReveal: genesis.Block.Body.RandaoReveal,
 				Graffiti:     genesis.Block.Body.Graffiti,
 				Eth1Data:     genesis.Block.Body.Eth1Data,
-				// SyncAggregate: &ethpb.SyncAggregate{SyncCommitteeBits: scBits[:], SyncCommitteeSignature: make([]byte, 96)},
 				ExecutionPayload: &enginev1.ExecutionPayloadCapella{
 					ParentHash:    make([]byte, fieldparams.RootLength),
 					FeeRecipient:  make([]byte, fieldparams.FeeRecipientLength),
@@ -460,7 +454,6 @@ func TestServer_GetBeaconBlock_Deneb(t *testing.T) {
 	denebSlot, err := slots.EpochStart(params.BeaconConfig().DenebForkEpoch)
 	require.NoError(t, err)
 
-	// var scBits [fieldparams.SyncAggregateSyncCommitteeBytesLength]byte
 	blk := &ethpb.SignedBeaconBlockDeneb{
 		Block: &ethpb.BeaconBlockDeneb{
 			Slot:       denebSlot + 1,
@@ -470,7 +463,6 @@ func TestServer_GetBeaconBlock_Deneb(t *testing.T) {
 				RandaoReveal: genesis.Block.Body.RandaoReveal,
 				Graffiti:     genesis.Block.Body.Graffiti,
 				Eth1Data:     genesis.Block.Body.Eth1Data,
-				// SyncAggregate: &ethpb.SyncAggregate{SyncCommitteeBits: scBits[:], SyncCommitteeSignature: make([]byte, 96)},
 				ExecutionPayload: &enginev1.ExecutionPayloadDeneb{
 					ParentHash:    make([]byte, fieldparams.RootLength),
 					FeeRecipient:  make([]byte, fieldparams.FeeRecipientLength),
@@ -584,7 +576,6 @@ func TestServer_GetBeaconBlock_Electra(t *testing.T) {
 	electraSlot, err := slots.EpochStart(params.BeaconConfig().ElectraForkEpoch)
 	require.NoError(t, err)
 
-	// var scBits [fieldparams.SyncAggregateSyncCommitteeBytesLength]byte
 	dr := []*enginev1.DepositRequest{{
 		Pubkey:                bytesutil.PadTo(privKeys[0].PublicKey().Marshal(), 48),
 		WithdrawalCredentials: bytesutil.PadTo([]byte("wc"), 32),
@@ -608,7 +599,6 @@ func TestServer_GetBeaconBlock_Electra(t *testing.T) {
 				RandaoReveal: genesis.Block.Body.RandaoReveal,
 				Graffiti:     genesis.Block.Body.Graffiti,
 				Eth1Data:     genesis.Block.Body.Eth1Data,
-				// SyncAggregate: &ethpb.SyncAggregate{SyncCommitteeBits: scBits[:], SyncCommitteeSignature: make([]byte, 96)},
 				ExecutionPayload: &enginev1.ExecutionPayloadElectra{
 					ParentHash:    make([]byte, fieldparams.RootLength),
 					FeeRecipient:  make([]byte, fieldparams.FeeRecipientLength),
@@ -2782,49 +2772,6 @@ func TestProposer_DeleteAttsInPool_Aggregated(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, 0, len(atts), "Did not delete unaggregated attestation")
 }
-
-// func TestProposer_GetSyncAggregate_OK(t *testing.T) {
-// 	proposerServer := &Server{
-// 		SyncChecker:       &mockSync.Sync{IsSyncing: false},
-// 		SyncCommitteePool: synccommittee.NewStore(),
-// 	}
-
-// 	r := params.BeaconConfig().ZeroHash
-// 	conts := []*ethpb.SyncCommitteeContribution{
-// 		{Slot: 1, SubcommitteeIndex: 0, Signature: bls.NewAggregateSignature().Marshal(), AggregationBits: []byte{0b0001}, BlockRoot: r[:]},
-// 		{Slot: 1, SubcommitteeIndex: 0, Signature: bls.NewAggregateSignature().Marshal(), AggregationBits: []byte{0b1001}, BlockRoot: r[:]},
-// 		{Slot: 1, SubcommitteeIndex: 0, Signature: bls.NewAggregateSignature().Marshal(), AggregationBits: []byte{0b1110}, BlockRoot: r[:]},
-// 		{Slot: 1, SubcommitteeIndex: 1, Signature: bls.NewAggregateSignature().Marshal(), AggregationBits: []byte{0b0001}, BlockRoot: r[:]},
-// 		{Slot: 1, SubcommitteeIndex: 1, Signature: bls.NewAggregateSignature().Marshal(), AggregationBits: []byte{0b1001}, BlockRoot: r[:]},
-// 		{Slot: 1, SubcommitteeIndex: 1, Signature: bls.NewAggregateSignature().Marshal(), AggregationBits: []byte{0b1110}, BlockRoot: r[:]},
-// 		{Slot: 1, SubcommitteeIndex: 2, Signature: bls.NewAggregateSignature().Marshal(), AggregationBits: []byte{0b0001}, BlockRoot: r[:]},
-// 		{Slot: 1, SubcommitteeIndex: 2, Signature: bls.NewAggregateSignature().Marshal(), AggregationBits: []byte{0b1001}, BlockRoot: r[:]},
-// 		{Slot: 1, SubcommitteeIndex: 2, Signature: bls.NewAggregateSignature().Marshal(), AggregationBits: []byte{0b1110}, BlockRoot: r[:]},
-// 		{Slot: 1, SubcommitteeIndex: 3, Signature: bls.NewAggregateSignature().Marshal(), AggregationBits: []byte{0b0001}, BlockRoot: r[:]},
-// 		{Slot: 1, SubcommitteeIndex: 3, Signature: bls.NewAggregateSignature().Marshal(), AggregationBits: []byte{0b1001}, BlockRoot: r[:]},
-// 		{Slot: 1, SubcommitteeIndex: 3, Signature: bls.NewAggregateSignature().Marshal(), AggregationBits: []byte{0b1110}, BlockRoot: r[:]},
-// 		{Slot: 2, SubcommitteeIndex: 0, Signature: bls.NewAggregateSignature().Marshal(), AggregationBits: []byte{0b10101010}, BlockRoot: r[:]},
-// 		{Slot: 2, SubcommitteeIndex: 1, Signature: bls.NewAggregateSignature().Marshal(), AggregationBits: []byte{0b10101010}, BlockRoot: r[:]},
-// 		{Slot: 2, SubcommitteeIndex: 2, Signature: bls.NewAggregateSignature().Marshal(), AggregationBits: []byte{0b10101010}, BlockRoot: r[:]},
-// 		{Slot: 2, SubcommitteeIndex: 3, Signature: bls.NewAggregateSignature().Marshal(), AggregationBits: []byte{0b10101010}, BlockRoot: r[:]},
-// 	}
-
-// 	for _, cont := range conts {
-// 		require.NoError(t, proposerServer.SyncCommitteePool.SaveSyncCommitteeContribution(cont))
-// 	}
-
-// 	aggregate, err := proposerServer.getSyncAggregate(context.Background(), 1, bytesutil.ToBytes32(conts[0].BlockRoot))
-// 	require.NoError(t, err)
-// 	require.DeepEqual(t, bitfield.Bitvector32{0xf, 0xf, 0xf, 0xf}, aggregate.SyncCommitteeBits)
-
-// 	aggregate, err = proposerServer.getSyncAggregate(context.Background(), 2, bytesutil.ToBytes32(conts[0].BlockRoot))
-// 	require.NoError(t, err)
-// 	require.DeepEqual(t, bitfield.Bitvector32{0xaa, 0xaa, 0xaa, 0xaa}, aggregate.SyncCommitteeBits)
-
-// 	aggregate, err = proposerServer.getSyncAggregate(context.Background(), 3, bytesutil.ToBytes32(conts[0].BlockRoot))
-// 	require.NoError(t, err)
-// 	require.DeepEqual(t, bitfield.NewBitvector32(), aggregate.SyncCommitteeBits)
-// }
 
 func TestProposer_PrepareBeaconProposer(t *testing.T) {
 	type args struct {

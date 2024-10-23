@@ -98,7 +98,6 @@ func operationEventsFixtures(t *testing.T) (*topicRequest, []*feed.Event) {
 	topics, err := newTopicRequest([]string{
 		AttestationTopic,
 		VoluntaryExitTopic,
-		// SyncCommitteeContributionTopic,
 		BLSToExecutionChangeTopic,
 		BlobSidecarTopic,
 		AttesterSlashingTopic,
