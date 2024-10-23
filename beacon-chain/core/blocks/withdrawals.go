@@ -192,7 +192,7 @@ func ProcessWithdrawals(st state.BeaconState, executionData interfaces.Execution
 		if uint64(i) < validPartialWithdrawalsCount {
 			err := helpers.DecreaseBalanceAndAdjustPrincipalBalance(st, withdrawal.ValidatorIndex, withdrawal.Amount)
 			if err != nil {
-				return nil, errors.Wrap(err, "could not decrease balance and adjust deposit")
+				return nil, errors.Wrap(err, "could not decrease balance and adjust principal balance")
 			}
 		} else {
 			err := helpers.DecreaseBalance(st, withdrawal.ValidatorIndex, withdrawal.Amount)
