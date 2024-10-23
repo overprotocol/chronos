@@ -469,11 +469,6 @@ func (bs *Server) GetValidatorQueue(
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Could not get active validator count: %v", err)
 	}
-	activeValidatorDeposit, err := helpers.TotalActiveBalance(headState)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "could not calculate active balance: %v", err)
-	}
-
 	exitQueueEpoch := primitives.Epoch(0)
 	for _, i := range exitEpochs {
 		if exitQueueEpoch < i {
