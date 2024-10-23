@@ -15,8 +15,7 @@ type BeaconState struct {
 	Eth1DepositIndex            string                `json:"eth1_deposit_index"`
 	Validators                  []*Validator          `json:"validators"`
 	Balances                    []string              `json:"balances"`
-	PreviousEpochReserve        uint64                `json:"previous_epoch_reserve"`
-	CurrentEpochReserve         uint64                `json:"current_epoch_reserve"`
+	Reserves                    uint64                `json:"reserves"`
 	RandaoMixes                 []string              `json:"randao_mixes"`
 	PreviousEpochAttestations   []*PendingAttestation `json:"previous_epoch_attestations"`
 	CurrentEpochAttestations    []*PendingAttestation `json:"current_epoch_attestations"`
@@ -41,8 +40,7 @@ type BeaconStateAltair struct {
 	Eth1DepositIndex            string             `json:"eth1_deposit_index"`
 	Validators                  []*Validator       `json:"validators"`
 	Balances                    []string           `json:"balances"`
-	PreviousEpochReserve        uint64             `json:"previous_epoch_reserve"`
-	CurrentEpochReserve         uint64             `json:"current_epoch_reserve"`
+	Reserves                    uint64             `json:"reserves"`
 	RandaoMixes                 []string           `json:"randao_mixes"`
 	PreviousEpochParticipation  []string           `json:"previous_epoch_participation"`
 	CurrentEpochParticipation   []string           `json:"current_epoch_participation"`
@@ -68,8 +66,7 @@ type BeaconStateBellatrix struct {
 	Eth1DepositIndex             string                  `json:"eth1_deposit_index"`
 	Validators                   []*Validator            `json:"validators"`
 	Balances                     []string                `json:"balances"`
-	PreviousEpochReserve         uint64                  `json:"previous_epoch_reserve"`
-	CurrentEpochReserve          uint64                  `json:"current_epoch_reserve"`
+	Reserves                     uint64                  `json:"reserves"`
 	RandaoMixes                  []string                `json:"randao_mixes"`
 	PreviousEpochParticipation   []string                `json:"previous_epoch_participation"`
 	CurrentEpochParticipation    []string                `json:"current_epoch_participation"`
@@ -96,8 +93,7 @@ type BeaconStateCapella struct {
 	Eth1DepositIndex             string                         `json:"eth1_deposit_index"`
 	Validators                   []*Validator                   `json:"validators"`
 	Balances                     []string                       `json:"balances"`
-	PreviousEpochReserve         uint64                         `json:"previous_epoch_reserve"`
-	CurrentEpochReserve          uint64                         `json:"current_epoch_reserve"`
+	Reserves                     uint64                         `json:"reserves"`
 	RandaoMixes                  []string                       `json:"randao_mixes"`
 	PreviousEpochParticipation   []string                       `json:"previous_epoch_participation"`
 	CurrentEpochParticipation    []string                       `json:"current_epoch_participation"`
@@ -127,8 +123,7 @@ type BeaconStateDeneb struct {
 	Eth1DepositIndex             string                       `json:"eth1_deposit_index"`
 	Validators                   []*Validator                 `json:"validators"`
 	Balances                     []string                     `json:"balances"`
-	PreviousEpochReserve         uint64                       `json:"previous_epoch_reserve"`
-	CurrentEpochReserve          uint64                       `json:"current_epoch_reserve"`
+	Reserves                     uint64                       `json:"reserves"`
 	RandaoMixes                  []string                     `json:"randao_mixes"`
 	PreviousEpochParticipation   []string                     `json:"previous_epoch_participation"`
 	CurrentEpochParticipation    []string                     `json:"current_epoch_participation"`
@@ -158,8 +153,7 @@ type BeaconStateElectra struct {
 	Eth1DepositIndex             string                         `json:"eth1_deposit_index"`
 	Validators                   []*Validator                   `json:"validators"`
 	Balances                     []string                       `json:"balances"`
-	PreviousEpochReserve         uint64                         `json:"previous_epoch_reserve"`
-	CurrentEpochReserve          uint64                         `json:"current_epoch_reserve"`
+	Reserves                     uint64                         `json:"reserves"`
 	RandaoMixes                  []string                       `json:"randao_mixes"`
 	PreviousEpochParticipation   []string                       `json:"previous_epoch_participation"`
 	CurrentEpochParticipation    []string                       `json:"current_epoch_participation"`

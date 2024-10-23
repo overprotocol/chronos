@@ -111,8 +111,7 @@ func NewBeaconState(options ...NewBeaconStateOption) (state.BeaconState, error) 
 		CurrentEpochAttestations:    make([]*ethpb.PendingAttestation, 0),
 		PreviousJustifiedCheckpoint: &ethpb.Checkpoint{Root: make([]byte, fieldparams.RootLength)},
 		RewardAdjustmentFactor:      0,
-		PreviousEpochReserve:        0,
-		CurrentEpochReserve:         0,
+		Reserves:                    0,
 	}
 
 	for _, opt := range options {
@@ -158,8 +157,7 @@ func NewBeaconStateAltair(options ...func(state *ethpb.BeaconStateAltair) error)
 		LatestBlockHeader:           HydrateBeaconHeader(&ethpb.BeaconBlockHeader{}),
 		PreviousJustifiedCheckpoint: &ethpb.Checkpoint{Root: make([]byte, fieldparams.RootLength)},
 		RewardAdjustmentFactor:      0,
-		PreviousEpochReserve:        0,
-		CurrentEpochReserve:         0,
+		Reserves:                    0,
 		PreviousEpochParticipation:  make([]byte, 0),
 		CurrentEpochParticipation:   make([]byte, 0),
 	}
@@ -207,8 +205,7 @@ func NewBeaconStateBellatrix(options ...func(state *ethpb.BeaconStateBellatrix) 
 		LatestBlockHeader:           HydrateBeaconHeader(&ethpb.BeaconBlockHeader{}),
 		PreviousJustifiedCheckpoint: &ethpb.Checkpoint{Root: make([]byte, fieldparams.RootLength)},
 		RewardAdjustmentFactor:      0,
-		PreviousEpochReserve:        0,
-		CurrentEpochReserve:         0,
+		Reserves:                    0,
 		PreviousEpochParticipation:  make([]byte, 0),
 		CurrentEpochParticipation:   make([]byte, 0),
 		LatestExecutionPayloadHeader: &enginev1.ExecutionPayloadHeader{
@@ -268,8 +265,7 @@ func NewBeaconStateCapella(options ...func(state *ethpb.BeaconStateCapella) erro
 		LatestBlockHeader:           HydrateBeaconHeader(&ethpb.BeaconBlockHeader{}),
 		PreviousJustifiedCheckpoint: &ethpb.Checkpoint{Root: make([]byte, fieldparams.RootLength)},
 		RewardAdjustmentFactor:      0,
-		PreviousEpochReserve:        0,
-		CurrentEpochReserve:         0,
+		Reserves:                    0,
 		PreviousEpochParticipation:  make([]byte, 0),
 		CurrentEpochParticipation:   make([]byte, 0),
 		LatestExecutionPayloadHeader: &enginev1.ExecutionPayloadHeaderCapella{
@@ -328,8 +324,7 @@ func NewBeaconStateDeneb(options ...func(state *ethpb.BeaconStateDeneb) error) (
 		JustificationBits:           bitfield.Bitvector4{0x0},
 		FinalizedCheckpoint:         &ethpb.Checkpoint{Root: make([]byte, fieldparams.RootLength)},
 		RewardAdjustmentFactor:      0,
-		PreviousEpochReserve:        0,
-		CurrentEpochReserve:         0,
+		Reserves:                    0,
 		LatestBlockHeader:           HydrateBeaconHeader(&ethpb.BeaconBlockHeader{}),
 		PreviousJustifiedCheckpoint: &ethpb.Checkpoint{Root: make([]byte, fieldparams.RootLength)},
 		PreviousEpochParticipation:  make([]byte, 0),
@@ -392,8 +387,7 @@ func NewBeaconStateElectra(options ...func(state *ethpb.BeaconStateElectra) erro
 		LatestBlockHeader:           HydrateBeaconHeader(&ethpb.BeaconBlockHeader{}),
 		PreviousJustifiedCheckpoint: &ethpb.Checkpoint{Root: make([]byte, fieldparams.RootLength)},
 		RewardAdjustmentFactor:      0,
-		PreviousEpochReserve:        0,
-		CurrentEpochReserve:         0,
+		Reserves:                    0,
 		PreviousEpochParticipation:  make([]byte, 0),
 		CurrentEpochParticipation:   make([]byte, 0),
 		LatestExecutionPayloadHeader: &enginev1.ExecutionPayloadHeaderElectra{

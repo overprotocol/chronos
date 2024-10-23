@@ -124,7 +124,6 @@ func compareConfigs(t *testing.T, expected, actual *BeaconChainConfig) {
 	require.DeepEqual(t, expected.MinSlashingWithdrawableDelay, actual.MinSlashingWithdrawableDelay)
 	require.DeepEqual(t, expected.HistoricalRootsLimit, actual.HistoricalRootsLimit)
 	require.DeepEqual(t, expected.ValidatorRegistryLimit, actual.ValidatorRegistryLimit)
-	require.DeepEqual(t, expected.BaseRewardFactor, actual.BaseRewardFactor)
 	require.DeepEqual(t, expected.WhistleBlowerRewardQuotient, actual.WhistleBlowerRewardQuotient)
 	require.DeepEqual(t, expected.ProposerRewardQuotient, actual.ProposerRewardQuotient)
 	require.DeepEqual(t, expected.InactivityPenaltyQuotient, actual.InactivityPenaltyQuotient)

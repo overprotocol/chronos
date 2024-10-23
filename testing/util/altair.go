@@ -142,8 +142,7 @@ func buildGenesisBeaconState(genesisTime uint64, preState state.BeaconState, eth
 		// Validator registry fields.
 		Validators:                 preState.Validators(),
 		Balances:                   preState.Balances(),
-		PreviousEpochReserve:       preState.PreviousEpochReserve(),
-		CurrentEpochReserve:        preState.CurrentEpochReserve(),
+		Reserves:                   preState.Reserves(),
 		PreviousEpochParticipation: prevEpochParticipation,
 		CurrentEpochParticipation:  currEpochParticipation,
 		InactivityScores:           scores,
@@ -207,11 +206,10 @@ func emptyGenesisState() (state.BeaconState, error) {
 			Epoch:           0,
 		},
 		// Validator registry fields.
-		Validators:           []*ethpb.Validator{},
-		Balances:             []uint64{},
-		PreviousEpochReserve: 0,
-		CurrentEpochReserve:  0,
-		InactivityScores:     []uint64{},
+		Validators:       []*ethpb.Validator{},
+		Balances:         []uint64{},
+		Reserves:         0,
+		InactivityScores: []uint64{},
 
 		JustificationBits:          []byte{0},
 		HistoricalRoots:            [][]byte{},

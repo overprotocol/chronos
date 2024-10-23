@@ -54,27 +54,26 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	GenesisDelay:             30, // 30 seconds
 
 	// Misc constant.
-	TargetCommitteeSize:               128,
-	MaxValidatorsPerCommittee:         2048,
-	MaxCommitteesPerSlot:              64,
-	MinPerEpochChurnLimit:             4,
-	ChurnLimitQuotient:                1 << 16,
-	ChurnLimitBias:                    1,
-	ShuffleRoundCount:                 90,
-	MinGenesisActiveValidatorCount:    16384,
-	MinGenesisTime:                    1718690400, // Jun 19, 2024, 00 AM UTC+9.
-	TargetAggregatorsPerCommittee:     16,
-	HysteresisQuotient:                4,
-	HysteresisDownwardMultiplier:      1,
-	HysteresisUpwardMultiplier:        5,
-	IssuanceRate:                      [11]uint64{20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 0},
-	IssuancePrecision:                 1000,
-	DepositPlanEarlyEnd:               4,
-	DepositPlanLaterEnd:               10,
-	RewardFeedbackPrecision:           1000000000000,
-	RewardFeedbackThresholdReciprocal: 10,
-	TargetChangeRate:                  1500000,
-	MaxBoostYield:                     [11]uint64{10000000000, 10000000000, 10000000000, 10000000000, 10000000000, 10000000000, 10000000000, 10000000000, 10000000000, 10000000000, 10000000000},
+	TargetCommitteeSize:             128,
+	MaxValidatorsPerCommittee:       2048,
+	MaxCommitteesPerSlot:            64,
+	MinPerEpochChurnLimit:           4,
+	ChurnLimitQuotient:              1 << 16,
+	ChurnLimitBias:                  1,
+	ShuffleRoundCount:               90,
+	MinGenesisActiveValidatorCount:  16384,
+	MinGenesisTime:                  1718690400, // Jun 19, 2024, 00 AM UTC+9.
+	TargetAggregatorsPerCommittee:   16,
+	HysteresisQuotient:              4,
+	HysteresisDownwardMultiplier:    1,
+	HysteresisUpwardMultiplier:      5,
+	IssuanceRate:                    [11]uint64{20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 0},
+	IssuancePrecision:               1000,
+	DepositPlanEarlyEnd:             4,
+	DepositPlanLaterEnd:             10,
+	RewardAdjustmentFactorDelta:     150,
+	RewardAdjustmentFactorPrecision: 100000000,
+	MaxRewardAdjustmentFactors:      [11]uint64{1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000},
 
 	// Gwei value constants.
 	MinDepositAmount:          1 * 1e9,
@@ -136,7 +135,6 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	ValidatorRegistryLimit:    1099511627776,
 
 	// Reward and penalty quotients constants.
-	BaseRewardFactor:            64,
 	WhistleBlowerRewardQuotient: 512,
 	ProposerRewardQuotient:      8,
 	InactivityPenaltyQuotient:   67108864,
@@ -168,7 +166,7 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	DomainBLSToExecutionChange: bytesutil.Uint32ToBytes4(0x0A000000),
 
 	// Prysm constants.
-	GenesisValidatorsRoot:          [32]byte{118, 108, 170, 30, 97, 71, 222, 85, 164, 205, 177, 224, 150, 138, 131, 9, 155, 19, 122, 134, 198, 109, 194, 232, 131, 10, 92, 39, 12, 13, 79, 216},
+	GenesisValidatorsRoot:          [32]byte{196, 103, 59, 160, 53, 79, 210, 65, 149, 165, 252, 152, 52, 203, 144, 124, 187, 49, 189, 214, 222, 236, 5, 205, 202, 90, 60, 212, 255, 150, 230, 225},
 	GweiPerEth:                     1000000000,
 	BLSSecretKeyLength:             32,
 	BLSPubkeyLength:                48,
@@ -183,12 +181,12 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	GenesisCountdownInterval:       time.Minute,
 	ConfigName:                     MainnetName,
 	PresetBase:                     "mainnet",
-	BeaconStateFieldCount:          23,
-	BeaconStateAltairFieldCount:    24,
-	BeaconStateBellatrixFieldCount: 25,
-	BeaconStateCapellaFieldCount:   28,
-	BeaconStateDenebFieldCount:     28,
-	BeaconStateElectraFieldCount:   34,
+	BeaconStateFieldCount:          22,
+	BeaconStateAltairFieldCount:    25,
+	BeaconStateBellatrixFieldCount: 26,
+	BeaconStateCapellaFieldCount:   29,
+	BeaconStateDenebFieldCount:     29,
+	BeaconStateElectraFieldCount:   35,
 
 	// Slasher related values.
 	WeakSubjectivityPeriod:          54000,

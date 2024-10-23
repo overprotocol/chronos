@@ -270,8 +270,8 @@ func TestGetEpochReward(t *testing.T) {
 	})
 
 	t.Run("correctly get epoch reward when boost", func(t *testing.T) {
-		require.NoError(t, st.SetRewardAdjustmentFactor(uint64(200000)))
-		require.NoError(t, st.SetPreviousEpochReserve(uint64(10000000)))
+		require.NoError(t, st.SetRewardAdjustmentFactor(uint64(20)))
+		require.NoError(t, st.SetReserves(uint64(10000000)))
 
 		chainService := &chainMock.ChainService{Slot: &currentSlot, State: st, Optimistic: true}
 
@@ -310,13 +310,11 @@ func TestGetReserves(t *testing.T) {
 
 		var (
 			wantRewardAdjustmentFactor = uint64(200000)
-			wantPreviousEpochReserve   = uint64(10000000)
-			wantCurrentEpochReserve    = uint64(9000000)
+			wantReserves               = uint64(10000000)
 		)
 
 		require.NoError(t, st.SetRewardAdjustmentFactor(wantRewardAdjustmentFactor))
-		require.NoError(t, st.SetPreviousEpochReserve(wantPreviousEpochReserve))
-		require.NoError(t, st.SetCurrentEpochReserve(wantCurrentEpochReserve))
+		require.NoError(t, st.SetReserves(wantReserves))
 
 		s := &Server{
 			FinalizationFetcher:   mockChainService,
@@ -337,8 +335,7 @@ func TestGetReserves(t *testing.T) {
 		assert.Equal(t, false, resp.Finalized)
 		expectedReserves := &structs.Reserves{
 			RewardAdjustmentFactor: strconv.FormatUint(wantRewardAdjustmentFactor, 10),
-			PreviousEpochReserve:   strconv.FormatUint(wantPreviousEpochReserve, 10),
-			CurrentEpochReserve:    strconv.FormatUint(wantCurrentEpochReserve, 10),
+			Reserves:               strconv.FormatUint(wantReserves, 10),
 		}
 		require.DeepEqual(t, expectedReserves, resp.Data)
 	})

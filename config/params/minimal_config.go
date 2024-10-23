@@ -54,7 +54,6 @@ func MinimalSpecConfig() *BeaconChainConfig {
 	minimalConfig.ValidatorRegistryLimit = 1099511627776
 
 	// Reward and penalty quotients
-	minimalConfig.BaseRewardFactor = 64
 	minimalConfig.WhistleBlowerRewardQuotient = 512
 	minimalConfig.ProposerRewardQuotient = 8
 	minimalConfig.InactivityPenaltyQuotient = 33554432

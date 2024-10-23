@@ -56,13 +56,13 @@ func TestGetSpec(t *testing.T) {
 	config.HysteresisQuotient = 9
 	config.HysteresisDownwardMultiplier = 10
 	config.HysteresisUpwardMultiplier = 11
-	config.Eth1FollowDistance = 13
-	config.TargetAggregatorsPerCommittee = 14
-	config.RandomSubnetsPerValidator = 15
-	config.EpochsPerRandomSubnetSubscription = 16
-	config.SecondsPerETH1Block = 17
-	config.DepositChainID = 18
-	config.DepositNetworkID = 19
+	config.Eth1FollowDistance = 12
+	config.TargetAggregatorsPerCommittee = 13
+	config.RandomSubnetsPerValidator = 14
+	config.EpochsPerRandomSubnetSubscription = 15
+	config.SecondsPerETH1Block = 16
+	config.DepositChainID = 17
+	config.DepositNetworkID = 18
 	config.DepositContractAddress = "DepositContractAddress"
 	config.MinDepositAmount = 20
 	config.MaxEffectiveBalance = 21
@@ -74,11 +74,11 @@ func TestGetSpec(t *testing.T) {
 	config.BellatrixForkVersion = []byte("BellatrixForkVersion")
 	config.BellatrixForkEpoch = 101
 	config.CapellaForkVersion = []byte("CapellaForkVersion")
-	config.CapellaForkEpoch = 103
+	config.CapellaForkEpoch = 102
 	config.DenebForkVersion = []byte("DenebForkVersion")
-	config.DenebForkEpoch = 105
+	config.DenebForkEpoch = 103
 	config.ElectraForkVersion = []byte("ElectraForkVersion")
-	config.ElectraForkEpoch = 107
+	config.ElectraForkEpoch = 104
 	config.BLSWithdrawalPrefixByte = byte('b')
 	config.ETH1AddressWithdrawalPrefixByte = byte('c')
 	config.GenesisDelay = 24
@@ -230,19 +230,19 @@ func TestGetSpec(t *testing.T) {
 			case "SAFE_SLOTS_TO_UPDATE_JUSTIFIED":
 				assert.Equal(t, "0", v)
 			case "ETH1_FOLLOW_DISTANCE":
-				assert.Equal(t, "13", v)
+				assert.Equal(t, "12", v)
 			case "TARGET_AGGREGATORS_PER_COMMITTEE":
-				assert.Equal(t, "14", v)
+				assert.Equal(t, "13", v)
 			case "RANDOM_SUBNETS_PER_VALIDATOR":
-				assert.Equal(t, "15", v)
+				assert.Equal(t, "14", v)
 			case "EPOCHS_PER_RANDOM_SUBNET_SUBSCRIPTION":
-				assert.Equal(t, "16", v)
+				assert.Equal(t, "15", v)
 			case "SECONDS_PER_ETH1_BLOCK":
-				assert.Equal(t, "17", v)
+				assert.Equal(t, "16", v)
 			case "DEPOSIT_CHAIN_ID":
-				assert.Equal(t, "18", v)
+				assert.Equal(t, "17", v)
 			case "DEPOSIT_NETWORK_ID":
-				assert.Equal(t, "19", v)
+				assert.Equal(t, "18", v)
 			case "DEPOSIT_CONTRACT_ADDRESS":
 				assert.Equal(t, "DepositContractAddress", v)
 			case "MIN_DEPOSIT_AMOUNT":
@@ -266,15 +266,15 @@ func TestGetSpec(t *testing.T) {
 			case "CAPELLA_FORK_VERSION":
 				assert.Equal(t, "0x"+hex.EncodeToString([]byte("CapellaForkVersion")), v)
 			case "CAPELLA_FORK_EPOCH":
-				assert.Equal(t, "103", v)
+				assert.Equal(t, "102", v)
 			case "DENEB_FORK_VERSION":
 				assert.Equal(t, "0x"+hex.EncodeToString([]byte("DenebForkVersion")), v)
 			case "DENEB_FORK_EPOCH":
-				assert.Equal(t, "105", v)
+				assert.Equal(t, "103", v)
 			case "ELECTRA_FORK_VERSION":
 				assert.Equal(t, "0x"+hex.EncodeToString([]byte("ElectraForkVersion")), v)
 			case "ELECTRA_FORK_EPOCH":
-				assert.Equal(t, "107", v)
+				assert.Equal(t, "104", v)
 			case "MIN_ANCHOR_POW_BLOCK_DIFFICULTY":
 				assert.Equal(t, "1000", v)
 			case "BLS_WITHDRAWAL_PREFIX":
@@ -311,18 +311,16 @@ func TestGetSpec(t *testing.T) {
 				assert.Equal(t, "37", v)
 			case "VALIDATOR_REGISTRY_LIMIT":
 				assert.Equal(t, "38", v)
-			case "BASE_REWARD_FACTOR":
-				assert.Equal(t, "39", v)
 			case "WHISTLEBLOWER_REWARD_QUOTIENT":
-				assert.Equal(t, "40", v)
+				assert.Equal(t, "39", v)
 			case "PROPOSER_REWARD_QUOTIENT":
-				assert.Equal(t, "41", v)
+				assert.Equal(t, "40", v)
 			case "INACTIVITY_PENALTY_QUOTIENT":
-				assert.Equal(t, "42", v)
+				assert.Equal(t, "41", v)
 			case "HF1_INACTIVITY_PENALTY_QUOTIENT":
-				assert.Equal(t, "43", v)
+				assert.Equal(t, "41", v)
 			case "MIN_SLASHING_PENALTY_QUOTIENT":
-				assert.Equal(t, "44", v)
+				assert.Equal(t, "42", v)
 			case "HF1_MIN_SLASHING_PENALTY_QUOTIENT":
 				assert.Equal(t, "45", v)
 			case "HF1_PROPORTIONAL_SLASHING_MULTIPLIER":
@@ -389,10 +387,8 @@ func TestGetSpec(t *testing.T) {
 				assert.Equal(t, "0x00000001", v)
 			case "DOMAIN_BLOB_SIDECAR":
 				assert.Equal(t, "0x00000000", v)
-			case "TRANSITION_TOTAL_DIFFICULTY":
-				assert.Equal(t, "0", v)
 			case "TERMINAL_BLOCK_HASH_ACTIVATION_EPOCH":
-				assert.Equal(t, "72", v)
+				assert.Equal(t, "66", v)
 			case "TERMINAL_BLOCK_HASH":
 				s, ok := v.(string)
 				require.Equal(t, true, ok)
@@ -410,11 +406,11 @@ func TestGetSpec(t *testing.T) {
 			case "INTERVALS_PER_SLOT":
 				assert.Equal(t, "3", v)
 			case "MAX_WITHDRAWALS_PER_PAYLOAD":
-				assert.Equal(t, "74", v)
+				assert.Equal(t, "69", v)
 			case "MAX_BLS_TO_EXECUTION_CHANGES":
-				assert.Equal(t, "75", v)
+				assert.Equal(t, "70", v)
 			case "MAX_VALIDATORS_PER_WITHDRAWALS_SWEEP":
-				assert.Equal(t, "76", v)
+				assert.Equal(t, "71", v)
 			case "REORG_MAX_EPOCHS_SINCE_FINALIZATION":
 				assert.Equal(t, "2", v)
 			case "REORG_WEIGHT_THRESHOLD":
