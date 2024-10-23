@@ -296,7 +296,7 @@ func DecreaseBalanceAndAdjustPrincipalBalance(state state.BeaconState, idx primi
 			// Rollback balance if validator update fails
 			if rollbackErr := state.UpdateBalancesAtIndex(idx, prevBalance); rollbackErr != nil {
 				// If rollback fails, log or handle it as needed, but return the original error
-				return fmt.Errorf("validator update failed: %w, and rollback failed: %v", err, rollbackErr)
+				return rollbackErr
 			}
 			return err
 		}

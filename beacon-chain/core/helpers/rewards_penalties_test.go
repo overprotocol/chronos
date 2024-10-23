@@ -213,6 +213,35 @@ func TestIncreaseBalanceAndAdjustPrincipalBalance(t *testing.T) {
 	assert.Equal(t, expectedBalance, balance)
 }
 
+func TestIncreaseBalanceAndAdjustPrincipalBalance2(t *testing.T) {
+	protoState := &ethpb.BeaconState{
+		Validators: []*ethpb.Validator{
+			{EffectiveBalance: 4, PrincipalBalance: 14},
+		},
+		Balances: []uint64{10},
+	}
+	state, err := state_native.InitializeFromProtoPhase0(protoState)
+	require.NoError(t, err)
+
+	// Define the index and delta
+	idx := primitives.ValidatorIndex(0)
+	delta := uint64(6) // Change delta to a reasonable value
+
+	err = helpers.IncreaseBalanceAndAdjustPrincipalBalance(state, idx, delta)
+	require.NoError(t, err)
+
+	validator, err := state.ValidatorAtIndex(idx)
+	require.NoError(t, err)
+	balance, err := state.BalanceAtIndex(idx)
+	require.NoError(t, err)
+
+	expectedPrincipalBalance := uint64(16)
+	assert.Equal(t, expectedPrincipalBalance, validator.PrincipalBalance)
+
+	expectedBalance := uint64(16)
+	assert.Equal(t, expectedBalance, balance)
+}
+
 func TestDecreaseBalance_OK(t *testing.T) {
 	tests := []struct {
 		i  primitives.ValidatorIndex
