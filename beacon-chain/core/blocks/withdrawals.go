@@ -124,10 +124,9 @@ func ValidateBLSToExecutionChange(st state.ReadOnlyBeaconState, signed *ethpb.Si
 //
 //	expected_withdrawals, partial_withdrawals_count, valid_partial_withdrawals_count = get_expected_withdrawals(state)  # [Modified in Electra:EIP7251]
 //
-//	assert len(payload.withdrawals) == len(expected_withdrawals)
+//	assert payload.withdrawals == expected_withdrawals
 //
-//	for i, expected_withdrawal, withdrawal in zip(expected_withdrawals, payload.withdrawals):
-//	    assert withdrawal == expected_withdrawal
+//	for i, withdrawal in enumerate(expected_withdrawals):
 //	    if i < valid_partial_withdrawals_count:
 //	        decrease_balance_and_adjust_deposit(state, withdrawal.validator_index, withdrawal.amount)
 //	    else:
