@@ -2286,6 +2286,9 @@ func (v *Validator) MarshalSSZTo(buf []byte) (dst []byte, err error) {
 	// Field (7) 'WithdrawableEpoch'
 	dst = ssz.MarshalUint64(dst, uint64(v.WithdrawableEpoch))
 
+	// Field (8) 'PrincipalBalance'
+	dst = ssz.MarshalUint64(dst, v.PrincipalBalance)
+
 	return
 }
 
@@ -2293,7 +2296,7 @@ func (v *Validator) MarshalSSZTo(buf []byte) (dst []byte, err error) {
 func (v *Validator) UnmarshalSSZ(buf []byte) error {
 	var err error
 	size := uint64(len(buf))
-	if size != 121 {
+	if size != 129 {
 		return ssz.ErrSize
 	}
 
@@ -2330,12 +2333,15 @@ func (v *Validator) UnmarshalSSZ(buf []byte) error {
 	// Field (7) 'WithdrawableEpoch'
 	v.WithdrawableEpoch = github_com_prysmaticlabs_prysm_v5_consensus_types_primitives.Epoch(ssz.UnmarshallUint64(buf[113:121]))
 
+	// Field (8) 'PrincipalBalance'
+	v.PrincipalBalance = ssz.UnmarshallUint64(buf[121:129])
+
 	return err
 }
 
 // SizeSSZ returns the ssz encoded size in bytes for the Validator object
 func (v *Validator) SizeSSZ() (size int) {
-	size = 121
+	size = 129
 	return
 }
 
@@ -2379,6 +2385,9 @@ func (v *Validator) HashTreeRootWith(hh *ssz.Hasher) (err error) {
 
 	// Field (7) 'WithdrawableEpoch'
 	hh.PutUint64(uint64(v.WithdrawableEpoch))
+
+	// Field (8) 'PrincipalBalance'
+	hh.PutUint64(v.PrincipalBalance)
 
 	hh.Merkleize(indx)
 	return

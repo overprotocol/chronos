@@ -1547,7 +1547,7 @@ func (b *BeaconStateBellatrix) MarshalSSZTo(buf []byte) (dst []byte, err error) 
 
 	// Offset (12) 'Validators'
 	dst = ssz.WriteOffset(dst, offset)
-	offset += len(b.Validators) * 121
+	offset += len(b.Validators) * 129
 
 	// Offset (13) 'Balances'
 	dst = ssz.WriteOffset(dst, offset)
@@ -1888,7 +1888,7 @@ func (b *BeaconStateBellatrix) UnmarshalSSZ(buf []byte) error {
 	// Field (12) 'Validators'
 	{
 		buf = tail[o12:o13]
-		num, err := ssz.DivideInt2(len(buf), 121, 1099511627776)
+		num, err := ssz.DivideInt2(len(buf), 129, 1099511627776)
 		if err != nil {
 			return err
 		}
@@ -1897,7 +1897,7 @@ func (b *BeaconStateBellatrix) UnmarshalSSZ(buf []byte) error {
 			if b.Validators[ii] == nil {
 				b.Validators[ii] = new(Validator)
 			}
-			if err = b.Validators[ii].UnmarshalSSZ(buf[ii*121 : (ii+1)*121]); err != nil {
+			if err = b.Validators[ii].UnmarshalSSZ(buf[ii*129 : (ii+1)*129]); err != nil {
 				return err
 			}
 		}
@@ -1977,7 +1977,7 @@ func (b *BeaconStateBellatrix) SizeSSZ() (size int) {
 	size += len(b.Eth1DataVotes) * 72
 
 	// Field (12) 'Validators'
-	size += len(b.Validators) * 121
+	size += len(b.Validators) * 129
 
 	// Field (13) 'Balances'
 	size += len(b.Balances) * 8
@@ -2321,7 +2321,7 @@ func (b *BeaconStateOldBellatrix) MarshalSSZTo(buf []byte) (dst []byte, err erro
 
 	// Offset (11) 'Validators'
 	dst = ssz.WriteOffset(dst, offset)
-	offset += len(b.Validators) * 121
+	offset += len(b.Validators) * 129
 
 	// Offset (12) 'Balances'
 	dst = ssz.WriteOffset(dst, offset)
@@ -2653,7 +2653,7 @@ func (b *BeaconStateOldBellatrix) UnmarshalSSZ(buf []byte) error {
 	// Field (11) 'Validators'
 	{
 		buf = tail[o11:o12]
-		num, err := ssz.DivideInt2(len(buf), 121, 1099511627776)
+		num, err := ssz.DivideInt2(len(buf), 129, 1099511627776)
 		if err != nil {
 			return err
 		}
@@ -2662,7 +2662,7 @@ func (b *BeaconStateOldBellatrix) UnmarshalSSZ(buf []byte) error {
 			if b.Validators[ii] == nil {
 				b.Validators[ii] = new(Validator)
 			}
-			if err = b.Validators[ii].UnmarshalSSZ(buf[ii*121 : (ii+1)*121]); err != nil {
+			if err = b.Validators[ii].UnmarshalSSZ(buf[ii*129 : (ii+1)*129]); err != nil {
 				return err
 			}
 		}
@@ -2742,7 +2742,7 @@ func (b *BeaconStateOldBellatrix) SizeSSZ() (size int) {
 	size += len(b.Eth1DataVotes) * 72
 
 	// Field (11) 'Validators'
-	size += len(b.Validators) * 121
+	size += len(b.Validators) * 129
 
 	// Field (12) 'Balances'
 	size += len(b.Balances) * 8

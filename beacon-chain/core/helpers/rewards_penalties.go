@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"errors"
+	"math/big"
 
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/cache"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/time"
@@ -155,6 +156,50 @@ func IncreaseBalance(state state.BeaconState, idx primitives.ValidatorIndex, del
 	return state.UpdateBalancesAtIndex(idx, newBal)
 }
 
+// IncreaseBalanceAndAdjustPrincipalBalance increase validator with the given 'index' balance by 'delta' in Gwei
+// and adjust the principal balance.
+//
+// Spec pseudocode definition:
+//
+// def increase_balance_and_adjust_principal_balance(state: BeaconState, index: ValidatorIndex, delta: Gwei) -> None:
+//
+//	increase_balance(state, index, delta)
+//
+//	validator = state.validators[index]
+//
+//	if state.balances[index] >= validator.principal_balance + delta:
+//
+//		validator.principal_balance += delta
+//
+//	elif state.balances[index] >= validator.principal_balance:
+//
+//		validator.principal_balance = state.balances[index]
+func IncreaseBalanceAndAdjustPrincipalBalance(state state.BeaconState, idx primitives.ValidatorIndex, delta uint64) error {
+	if err := IncreaseBalance(state, idx, delta); err != nil {
+		return err
+	}
+
+	validator, err := state.ValidatorAtIndex(idx)
+	if err != nil {
+		return err
+	}
+
+	balance, err := state.BalanceAtIndex(idx)
+	if err != nil {
+		return err
+	}
+
+	if balance >= validator.PrincipalBalance+delta {
+		validator.PrincipalBalance += delta
+	} else if balance >= validator.PrincipalBalance {
+		validator.PrincipalBalance = balance
+	} else {
+		return nil
+	}
+
+	return state.UpdateValidatorAtIndex(idx, validator)
+}
+
 // IncreaseBalanceWithVal increases validator with the given 'index' balance by 'delta' in Gwei.
 // This method is flattened version of the spec method, taking in the raw balance and returning
 // the post balance.
@@ -185,6 +230,61 @@ func DecreaseBalance(state state.BeaconState, idx primitives.ValidatorIndex, del
 		return err
 	}
 	return state.UpdateBalancesAtIndex(idx, DecreaseBalanceWithVal(balAtIdx, delta))
+}
+
+// DecreaseBalanceAndAdjustPrincipalBalance decreases validator with the given 'index' balance by 'delta' in Gwei.
+// and adjust the principal balance.
+//
+// def decrease_balance_and_adjust_principal_balance(state: BeaconState, index: ValidatorIndex, delta: Gwei) -> None:
+//
+//	prev_balance = state.balances[index]
+//	decrease_balance(state, index, delta)
+//
+//	validator = state.validators[index]
+//	if prev_balance >= MIN_ACTIVATION_BALANCE:
+//		adjusted_principal_balance = uint256(validator.principal_balance) * uint256(state.balances[index]) / uint256(prev_balance)
+//		validator.principal_balance = max(adjusted_principal_balance, MIN_ACTIVATION_BALANCE)
+//	elif validator.principal_balance != MIN_ACTIVATION_BALANCE:
+//		validator.principal_balance = MIN_ACTIVATION_BALANCE
+func DecreaseBalanceAndAdjustPrincipalBalance(state state.BeaconState, idx primitives.ValidatorIndex, delta uint64) error {
+	prevBalance, err := state.BalanceAtIndex(idx)
+	if err != nil {
+		return err
+	}
+
+	if err = DecreaseBalance(state, idx, delta); err != nil {
+		return err
+	}
+
+	balance, err := state.BalanceAtIndex(idx)
+	if err != nil {
+		return err
+	}
+
+	validator, err := state.ValidatorAtIndex(idx)
+	if err != nil {
+		return err
+	}
+	if prevBalance >= params.BeaconConfig().MinActivationBalance {
+		principalBalance := new(big.Int).SetUint64(validator.PrincipalBalance)
+		balanceBig := new(big.Int).SetUint64(balance)
+		prevBalanceBig := new(big.Int).SetUint64(prevBalance)
+
+		result := new(big.Int).Mul(principalBalance, balanceBig) // Multiply principalBalance by balance
+		result.Div(result, prevBalanceBig)                       // Divide by prevBalance
+
+		minActivationBalance := new(big.Int).SetUint64(params.BeaconConfig().MinActivationBalance)
+		if result.Cmp(minActivationBalance) < 0 {
+			result.Set(minActivationBalance)
+		}
+		validator.PrincipalBalance = result.Uint64()
+	} else if validator.PrincipalBalance != params.BeaconConfig().MinActivationBalance {
+		validator.PrincipalBalance = params.BeaconConfig().MinActivationBalance
+	} else {
+		return nil
+	}
+	// only update when changes are made
+	return state.UpdateValidatorAtIndex(idx, validator)
 }
 
 // DecreaseBalanceWithVal decreases validator with the given 'index' balance by 'delta' in Gwei.

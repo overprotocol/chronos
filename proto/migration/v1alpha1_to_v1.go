@@ -59,5 +59,6 @@ func V1ValidatorToV1Alpha1(v1Validator *ethpbv1.Validator) *ethpbalpha.Validator
 		ActivationEpoch:            v1Validator.ActivationEpoch,
 		ExitEpoch:                  v1Validator.ExitEpoch,
 		WithdrawableEpoch:          v1Validator.WithdrawableEpoch,
+		PrincipalBalance:           v1Validator.PrincipalBalance,
 	}
 }

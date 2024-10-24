@@ -88,6 +88,10 @@ func (v readOnlyValidator) IsNil() bool {
 	return v.validator == nil
 }
 
+func (v readOnlyValidator) PrincipalBalance() uint64 {
+	return v.validator.PrincipalBalance
+}
+
 // Copy returns a new validator from the read only validator
 func (v readOnlyValidator) Copy() *ethpb.Validator {
 	pubKey := v.PublicKey()
@@ -101,5 +105,6 @@ func (v readOnlyValidator) Copy() *ethpb.Validator {
 		ActivationEpoch:            v.ActivationEpoch(),
 		ExitEpoch:                  v.ExitEpoch(),
 		WithdrawableEpoch:          v.WithdrawableEpoch(),
+		PrincipalBalance:           v.PrincipalBalance(),
 	}
 }

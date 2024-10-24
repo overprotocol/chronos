@@ -1,6 +1,7 @@
 package state_native_test
 
 import (
+	"math"
 	"testing"
 
 	"github.com/golang/snappy"
@@ -76,13 +77,14 @@ func TestExpectedWithdrawals(t *testing.T) {
 						WithdrawalCredentials: make([]byte, 32),
 						EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalance,
 						WithdrawableEpoch:     primitives.Epoch(1),
+						PrincipalBalance:      params.BeaconConfig().MaxEffectiveBalance,
 					}
 					val.WithdrawalCredentials[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
 					vals[i] = val
 				}
 				require.NoError(t, s.SetValidators(vals))
 				require.NoError(t, s.SetBalances(balances))
-				expected, _, err := s.ExpectedWithdrawals()
+				expected, _, _, err := s.ExpectedWithdrawals()
 				require.NoError(t, err)
 				require.Equal(t, 0, len(expected))
 			})
@@ -98,6 +100,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 						WithdrawalCredentials: make([]byte, 32),
 						EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalance,
 						WithdrawableEpoch:     primitives.Epoch(1),
+						PrincipalBalance:      params.BeaconConfig().MaxEffectiveBalance,
 					}
 					val.WithdrawalCredentials[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
 
@@ -107,7 +110,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 				require.NoError(t, s.SetValidators(vals))
 				require.NoError(t, s.SetBalances(balances))
 
-				expected, _, err := s.ExpectedWithdrawals()
+				expected, _, _, err := s.ExpectedWithdrawals()
 				require.NoError(t, err)
 				require.Equal(t, 1, len(expected))
 				withdrawal := &enginev1.Withdrawal{
@@ -130,6 +133,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 						WithdrawalCredentials: make([]byte, 32),
 						EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalance,
 						WithdrawableEpoch:     primitives.Epoch(1),
+						PrincipalBalance:      params.BeaconConfig().MaxEffectiveBalance,
 					}
 					val.WithdrawalCredentials[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
 
@@ -138,7 +142,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 				balances[3] += params.BeaconConfig().MinDepositAmount
 				require.NoError(t, s.SetValidators(vals))
 				require.NoError(t, s.SetBalances(balances))
-				expected, _, err := s.ExpectedWithdrawals()
+				expected, _, _, err := s.ExpectedWithdrawals()
 				require.NoError(t, err)
 				require.Equal(t, 1, len(expected))
 				withdrawal := &enginev1.Withdrawal{
@@ -159,6 +163,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 						WithdrawalCredentials: make([]byte, 32),
 						EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalance,
 						WithdrawableEpoch:     primitives.Epoch(1),
+						PrincipalBalance:      params.BeaconConfig().MaxEffectiveBalance,
 					}
 					val.WithdrawalCredentials[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
 					val.WithdrawalCredentials[31] = byte(i)
@@ -168,7 +173,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 				vals[7].WithdrawableEpoch = primitives.Epoch(0)
 				require.NoError(t, s.SetValidators(vals))
 				require.NoError(t, s.SetBalances(balances))
-				expected, _, err := s.ExpectedWithdrawals()
+				expected, _, _, err := s.ExpectedWithdrawals()
 				require.NoError(t, err)
 				require.Equal(t, 2, len(expected))
 
@@ -197,6 +202,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 						WithdrawalCredentials: make([]byte, 32),
 						EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalance,
 						WithdrawableEpoch:     primitives.Epoch(1),
+						PrincipalBalance:      params.BeaconConfig().MaxEffectiveBalance,
 					}
 					val.WithdrawalCredentials[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
 					val.WithdrawalCredentials[31] = byte(i)
@@ -204,7 +210,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 				}
 				require.NoError(t, s.SetValidators(vals))
 				require.NoError(t, s.SetBalances(balances))
-				expected, _, err := s.ExpectedWithdrawals()
+				expected, _, _, err := s.ExpectedWithdrawals()
 				require.NoError(t, err)
 				require.Equal(t, params.BeaconConfig().MaxWithdrawalsPerPayload, uint64(len(expected)))
 				withdrawal := &enginev1.Withdrawal{
@@ -225,6 +231,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 						WithdrawalCredentials: make([]byte, 32),
 						EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalance,
 						WithdrawableEpoch:     primitives.Epoch(0),
+						PrincipalBalance:      params.BeaconConfig().MaxEffectiveBalance,
 					}
 					val.WithdrawalCredentials[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
 					val.WithdrawalCredentials[31] = byte(i)
@@ -232,7 +239,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 				}
 				require.NoError(t, s.SetValidators(vals))
 				require.NoError(t, s.SetBalances(balances))
-				expected, _, err := s.ExpectedWithdrawals()
+				expected, _, _, err := s.ExpectedWithdrawals()
 				require.NoError(t, err)
 				require.Equal(t, params.BeaconConfig().MaxWithdrawalsPerPayload, uint64(len(expected)))
 				withdrawal := &enginev1.Withdrawal{
@@ -260,7 +267,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 				}
 				require.NoError(t, s.SetValidators(vals))
 				require.NoError(t, s.SetBalances(balances))
-				expected, _, err := s.ExpectedWithdrawals()
+				expected, _, _, err := s.ExpectedWithdrawals()
 				require.NoError(t, err)
 				require.Equal(t, params.BeaconConfig().MaxWithdrawalsPerPayload, uint64(len(expected)))
 				withdrawal := &enginev1.Withdrawal{
@@ -282,6 +289,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 						WithdrawalCredentials: make([]byte, 32),
 						EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalance,
 						WithdrawableEpoch:     primitives.Epoch(1),
+						PrincipalBalance:      params.BeaconConfig().MaxEffectiveBalance,
 					}
 					val.WithdrawalCredentials[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
 					val.WithdrawalCredentials[31] = byte(i)
@@ -292,7 +300,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 				require.NoError(t, s.SetValidators(vals))
 				require.NoError(t, s.SetBalances(balances))
 
-				expected, _, err := s.ExpectedWithdrawals()
+				expected, _, _, err := s.ExpectedWithdrawals()
 				require.NoError(t, err)
 				require.Equal(t, 0, len(expected))
 			})
@@ -306,6 +314,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 						WithdrawalCredentials: make([]byte, 32),
 						EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalance,
 						WithdrawableEpoch:     primitives.Epoch(1),
+						PrincipalBalance:      params.BeaconConfig().MaxEffectiveBalance,
 					}
 					val.WithdrawalCredentials[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
 					val.WithdrawalCredentials[31] = byte(i)
@@ -317,7 +326,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 				require.NoError(t, s.SetBalances(balances))
 				saved := params.BeaconConfig().MaxValidatorsPerWithdrawalsSweep
 				params.BeaconConfig().MaxValidatorsPerWithdrawalsSweep = 10
-				expected, _, err := s.ExpectedWithdrawals()
+				expected, _, _, err := s.ExpectedWithdrawals()
 				require.NoError(t, err)
 				require.Equal(t, 1, len(expected))
 				withdrawal := &enginev1.Withdrawal{
@@ -345,7 +354,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 		require.NoError(t, pb.UnmarshalSSZ(serializedSSZ))
 		s, err := state_native.InitializeFromProtoElectra(pb)
 		require.NoError(t, err)
-		expected, partialWithdrawalsCount, err := s.ExpectedWithdrawals()
+		expected, partialWithdrawalsCount, _, err := s.ExpectedWithdrawals()
 		require.NoError(t, err)
 		require.Equal(t, 8, len(expected))
 		require.Equal(t, uint64(8), partialWithdrawalsCount)
@@ -367,8 +376,57 @@ func TestExpectedWithdrawals(t *testing.T) {
 		p, err := s.PendingPartialWithdrawals()
 		require.NoError(t, err)
 		require.NoError(t, s.UpdateBalancesAtIndex(p[0].Index, 0)) // This should still count as partial withdrawal.
-		_, partialWithdrawalsCount, err := s.ExpectedWithdrawals()
+		_, partialWithdrawalsCount, _, err := s.ExpectedWithdrawals()
 		require.NoError(t, err)
 		require.Equal(t, uint64(10), partialWithdrawalsCount)
+	})
+	t.Run("one valid withdrawal with two pending partial withdrawal", func(t *testing.T) {
+		pb := &ethpb.BeaconStateElectra{
+			Validators: []*ethpb.Validator{
+				{
+					EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalance,
+					WithdrawalCredentials: make([]byte, 32),
+					PrincipalBalance:      params.BeaconConfig().MaxEffectiveBalance,
+				},
+				{
+					EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalance,
+					WithdrawalCredentials: make([]byte, 32),
+					PrincipalBalance:      params.BeaconConfig().MaxEffectiveBalance,
+					ExitEpoch:             params.BeaconConfig().FarFutureEpoch,
+				},
+				{
+					EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalance,
+					WithdrawalCredentials: make([]byte, 32),
+					PrincipalBalance:      params.BeaconConfig().MaxEffectiveBalance,
+				},
+				{
+					EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalance,
+					WithdrawalCredentials: make([]byte, 32),
+					PrincipalBalance:      params.BeaconConfig().MaxEffectiveBalance,
+				},
+			},
+			Balances: []uint64{
+				55,
+				math.MaxUint64,
+				55,
+				math.MaxUint64,
+			},
+			PendingPartialWithdrawals: []*ethpb.PendingPartialWithdrawal{
+				{
+					Index:  1,
+					Amount: 10,
+				},
+				{
+					Index:  2,
+					Amount: 10,
+				},
+			},
+		}
+		state, err := state_native.InitializeFromProtoUnsafeElectra(pb)
+		require.NoError(t, err)
+		_, partialWithdrawalsCount, valid, err := state.ExpectedWithdrawals()
+		require.NoError(t, err)
+		require.Equal(t, uint64(2), partialWithdrawalsCount)
+		require.Equal(t, uint64(1), valid)
 	})
 }

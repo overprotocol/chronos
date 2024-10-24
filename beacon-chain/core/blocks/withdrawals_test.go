@@ -602,6 +602,7 @@ func TestProcessBlindWithdrawals(t *testing.T) {
 			v.WithdrawableEpoch = epochInFuture
 			v.WithdrawalCredentials = make([]byte, 32)
 			v.WithdrawalCredentials[31] = byte(i)
+			v.PrincipalBalance = maxEffectiveBalance
 			st.Balances[i] = v.EffectiveBalance - uint64(rand.Intn(1000))
 			validators[i] = v
 		}
@@ -1055,6 +1056,7 @@ func TestProcessWithdrawals(t *testing.T) {
 			v.WithdrawableEpoch = epochInFuture
 			v.WithdrawalCredentials = make([]byte, 32)
 			v.WithdrawalCredentials[31] = byte(i)
+			v.PrincipalBalance = v.EffectiveBalance
 			if err := st.UpdateBalancesAtIndex(primitives.ValidatorIndex(i), v.EffectiveBalance-uint64(rand.Intn(1000))); err != nil {
 				return err
 			}

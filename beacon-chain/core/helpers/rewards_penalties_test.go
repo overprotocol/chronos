@@ -184,6 +184,79 @@ func TestIncreaseBalance_OK(t *testing.T) {
 	}
 }
 
+func TestIncreaseBalanceAndAdjustPrincipalBalance(t *testing.T) {
+	// Define the test cases
+	tests := []struct {
+		name                     string
+		initialEffectiveBalance  uint64
+		initialPrincipalBalance  uint64
+		initialBalance           uint64
+		delta                    uint64
+		expectedPrincipalBalance uint64
+		expectedBalance          uint64
+	}{
+		{
+			name:                     "principal balance < balance",
+			initialEffectiveBalance:  10,
+			initialPrincipalBalance:  8,
+			initialBalance:           10,
+			delta:                    6,
+			expectedPrincipalBalance: 14,
+			expectedBalance:          16,
+		},
+		{
+			name:                     "balance < principal balance < balance + delta",
+			initialEffectiveBalance:  8,
+			initialPrincipalBalance:  10,
+			initialBalance:           8,
+			delta:                    6,
+			expectedPrincipalBalance: 14,
+			expectedBalance:          14,
+		},
+		{
+			name:                     "balance + delta < principal balance",
+			initialEffectiveBalance:  10,
+			initialPrincipalBalance:  10,
+			initialBalance:           3,
+			delta:                    6,
+			expectedPrincipalBalance: 10,
+			expectedBalance:          9,
+		},
+	}
+
+	// Iterate through test cases
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			// Setup initial state for each test case
+			protoState := &ethpb.BeaconState{
+				Validators: []*ethpb.Validator{
+					{EffectiveBalance: tc.initialEffectiveBalance, PrincipalBalance: tc.initialPrincipalBalance},
+				},
+				Balances: []uint64{tc.initialBalance},
+			}
+			state, err := state_native.InitializeFromProtoPhase0(protoState)
+			require.NoError(t, err)
+
+			// Define the index
+			idx := primitives.ValidatorIndex(0)
+
+			// Call the function under test
+			err = helpers.IncreaseBalanceAndAdjustPrincipalBalance(state, idx, tc.delta)
+			require.NoError(t, err)
+
+			// Fetch updated validator and balance
+			validator, err := state.ValidatorAtIndex(idx)
+			require.NoError(t, err)
+			balance, err := state.BalanceAtIndex(idx)
+			require.NoError(t, err)
+
+			// Assert that the principal balance and balance are as expected
+			assert.Equal(t, tc.expectedPrincipalBalance, validator.PrincipalBalance)
+			assert.Equal(t, tc.expectedBalance, balance)
+		})
+	}
+}
+
 func TestDecreaseBalance_OK(t *testing.T) {
 	tests := []struct {
 		i  primitives.ValidatorIndex
@@ -207,6 +280,70 @@ func TestDecreaseBalance_OK(t *testing.T) {
 		require.NoError(t, err)
 		require.NoError(t, helpers.DecreaseBalance(state, test.i, test.nb))
 		assert.Equal(t, test.eb, state.Balances()[test.i], "Incorrect Validator balance")
+	}
+}
+
+func TestDecreaseBalanceAndAdjustPrincipalBalance(t *testing.T) {
+	// Define the test cases
+	tests := []struct {
+		name                     string
+		initialEffectiveBalance  uint64
+		initialPrincipalBalance  uint64
+		initialBalance           uint64
+		delta                    uint64
+		expectedPrincipalBalance uint64
+		expectedBalance          uint64
+	}{
+		{
+			name:                     "Test Case 1 - Decrease below Principal Balance",
+			initialEffectiveBalance:  300_000_000_000,
+			initialPrincipalBalance:  300_000_000_000,
+			initialBalance:           400_000_000_000,
+			delta:                    40_000_000_000,
+			expectedPrincipalBalance: 270_000_000_000, // Still above min activation balance, so it shouldn't change
+			expectedBalance:          360_000_000_000,
+		},
+		{
+			name:                     "Test Case 2 - Decrease below Min Activation Balance",
+			initialEffectiveBalance:  256_000_000_000,
+			initialPrincipalBalance:  300_000_000_000,
+			initialBalance:           255_000_000_000,
+			delta:                    100_000_000_000,
+			expectedPrincipalBalance: 256_000_000_000, // Principal balance set to min activation balance
+			expectedBalance:          155_000_000_000,
+		},
+	}
+
+	// Iterate through test cases
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			// Setup initial state for each test case
+			protoState := &ethpb.BeaconState{
+				Validators: []*ethpb.Validator{
+					{EffectiveBalance: tc.initialEffectiveBalance, PrincipalBalance: tc.initialPrincipalBalance},
+				},
+				Balances: []uint64{tc.initialBalance},
+			}
+			state, err := state_native.InitializeFromProtoPhase0(protoState)
+			require.NoError(t, err)
+
+			// Define the index
+			idx := primitives.ValidatorIndex(0)
+
+			// Call the function under test
+			err = helpers.DecreaseBalanceAndAdjustPrincipalBalance(state, idx, tc.delta)
+			require.NoError(t, err)
+
+			// Fetch updated validator and balance
+			validator, err := state.ValidatorAtIndex(idx)
+			require.NoError(t, err)
+			balance, err := state.BalanceAtIndex(idx)
+			require.NoError(t, err)
+
+			// Assert that the principal balance and balance are as expected
+			assert.Equal(t, tc.expectedPrincipalBalance, validator.PrincipalBalance)
+			assert.Equal(t, tc.expectedBalance, balance)
+		})
 	}
 }
 
