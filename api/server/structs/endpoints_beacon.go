@@ -32,10 +32,6 @@ type ListVoluntaryExitsResponse struct {
 	Data []*SignedVoluntaryExit `json:"data"`
 }
 
-type SubmitSyncCommitteeSignaturesRequest struct {
-	Data []*SyncCommitteeMessage `json:"data"`
-}
-
 type GetStateForkResponse struct {
 	Data                *Fork `json:"data"`
 	ExecutionOptimistic bool  `json:"execution_optimistic"`
@@ -158,17 +154,6 @@ type GetRandaoResponse struct {
 
 type Randao struct {
 	Randao string `json:"randao"`
-}
-
-type GetSyncCommitteeResponse struct {
-	ExecutionOptimistic bool                     `json:"execution_optimistic"`
-	Finalized           bool                     `json:"finalized"`
-	Data                *SyncCommitteeValidators `json:"data"`
-}
-
-type SyncCommitteeValidators struct {
-	Validators          []string   `json:"validators"`
-	ValidatorAggregates [][]string `json:"validator_aggregates"`
 }
 
 type BLSToExecutionChangesPoolResponse struct {

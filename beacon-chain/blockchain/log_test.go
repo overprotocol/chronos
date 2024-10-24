@@ -14,7 +14,6 @@ import (
 func Test_logStateTransitionData(t *testing.T) {
 	payloadBlk := &ethpb.BeaconBlockBellatrix{
 		Body: &ethpb.BeaconBlockBodyBellatrix{
-			SyncAggregate: &ethpb.SyncAggregate{},
 			ExecutionPayload: &enginev1.ExecutionPayload{
 				BlockHash:    []byte{1, 2, 3},
 				Transactions: [][]byte{{}, {}},

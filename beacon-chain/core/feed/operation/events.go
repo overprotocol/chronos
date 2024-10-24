@@ -18,9 +18,6 @@ const (
 	// ExitReceived is sent after an voluntary exit object has been received from the outside world (eg in RPC or sync)
 	ExitReceived
 
-	// SyncCommitteeContributionReceived is sent after a sync committee contribution object has been received.
-	SyncCommitteeContributionReceived
-
 	// BLSToExecutionChangeReceived is sent after a BLS to execution change object has been received from gossip or rpc.
 	BLSToExecutionChangeReceived
 
@@ -50,12 +47,6 @@ type AggregatedAttReceivedData struct {
 type ExitReceivedData struct {
 	// Exit is the voluntary exit object.
 	Exit *ethpb.SignedVoluntaryExit
-}
-
-// SyncCommitteeContributionReceivedData is the data sent with SyncCommitteeContributionReceived objects.
-type SyncCommitteeContributionReceivedData struct {
-	// Contribution is the sync committee contribution object.
-	Contribution *ethpb.SignedContributionAndProof
 }
 
 // BLSToExecutionChangeReceivedData is the data sent with BLSToExecutionChangeReceived events.

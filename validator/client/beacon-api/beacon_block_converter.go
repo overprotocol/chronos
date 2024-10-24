@@ -152,20 +152,6 @@ func (c beaconApiBeaconBlockConverter) ConvertRESTAltairBlockToProto(block *stru
 		return nil, errors.Wrap(err, "failed to get the phase0 fields of the altair block")
 	}
 
-	if block.Body.SyncAggregate == nil {
-		return nil, errors.New("sync aggregate is nil")
-	}
-
-	syncCommitteeBits, err := hexutil.Decode(block.Body.SyncAggregate.SyncCommitteeBits)
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to decode sync committee bits `%s`", block.Body.SyncAggregate.SyncCommitteeBits)
-	}
-
-	syncCommitteeSignature, err := hexutil.Decode(block.Body.SyncAggregate.SyncCommitteeSignature)
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to decode sync committee signature `%s`", block.Body.SyncAggregate.SyncCommitteeSignature)
-	}
-
 	return &ethpb.BeaconBlockAltair{
 		Slot:          phase0Block.Slot,
 		ProposerIndex: phase0Block.ProposerIndex,
@@ -180,10 +166,6 @@ func (c beaconApiBeaconBlockConverter) ConvertRESTAltairBlockToProto(block *stru
 			Attestations:      phase0Block.Body.Attestations,
 			Deposits:          phase0Block.Body.Deposits,
 			VoluntaryExits:    phase0Block.Body.VoluntaryExits,
-			SyncAggregate: &ethpb.SyncAggregate{
-				SyncCommitteeBits:      syncCommitteeBits,
-				SyncCommitteeSignature: syncCommitteeSignature,
-			},
 		},
 	}, nil
 }
@@ -210,7 +192,6 @@ func (c beaconApiBeaconBlockConverter) ConvertRESTBellatrixBlockToProto(block *s
 			Attestations:      block.Body.Attestations,
 			Deposits:          block.Body.Deposits,
 			VoluntaryExits:    block.Body.VoluntaryExits,
-			SyncAggregate:     block.Body.SyncAggregate,
 		},
 	})
 	if err != nil {
@@ -305,7 +286,6 @@ func (c beaconApiBeaconBlockConverter) ConvertRESTBellatrixBlockToProto(block *s
 			Attestations:      altairBlock.Body.Attestations,
 			Deposits:          altairBlock.Body.Deposits,
 			VoluntaryExits:    altairBlock.Body.VoluntaryExits,
-			SyncAggregate:     altairBlock.Body.SyncAggregate,
 			ExecutionPayload: &enginev1.ExecutionPayload{
 				ParentHash:    parentHash,
 				FeeRecipient:  feeRecipient,
@@ -352,7 +332,6 @@ func (c beaconApiBeaconBlockConverter) ConvertRESTCapellaBlockToProto(block *str
 			Attestations:      block.Body.Attestations,
 			Deposits:          block.Body.Deposits,
 			VoluntaryExits:    block.Body.VoluntaryExits,
-			SyncAggregate:     block.Body.SyncAggregate,
 			ExecutionPayload: &structs.ExecutionPayload{
 				ParentHash:    block.Body.ExecutionPayload.ParentHash,
 				FeeRecipient:  block.Body.ExecutionPayload.FeeRecipient,
@@ -399,7 +378,6 @@ func (c beaconApiBeaconBlockConverter) ConvertRESTCapellaBlockToProto(block *str
 			Attestations:      bellatrixBlock.Body.Attestations,
 			Deposits:          bellatrixBlock.Body.Deposits,
 			VoluntaryExits:    bellatrixBlock.Body.VoluntaryExits,
-			SyncAggregate:     bellatrixBlock.Body.SyncAggregate,
 			ExecutionPayload: &enginev1.ExecutionPayloadCapella{
 				ParentHash:    bellatrixBlock.Body.ExecutionPayload.ParentHash,
 				FeeRecipient:  bellatrixBlock.Body.ExecutionPayload.FeeRecipient,

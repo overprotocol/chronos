@@ -42,20 +42,6 @@ func (m *MockBeaconNodeValidatorServer) EXPECT() *MockBeaconNodeValidatorServerM
 	return m.recorder
 }
 
-// AggregatedSigAndAggregationBits mocks base method.
-func (m *MockBeaconNodeValidatorServer) AggregatedSigAndAggregationBits(arg0 context.Context, arg1 *eth.AggregatedSigAndAggregationBitsRequest) (*eth.AggregatedSigAndAggregationBitsResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AggregatedSigAndAggregationBits", arg0, arg1)
-	ret0, _ := ret[0].(*eth.AggregatedSigAndAggregationBitsResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// AggregatedSigAndAggregationBits indicates an expected call of AggregatedSigAndAggregationBits.
-func (mr *MockBeaconNodeValidatorServerMockRecorder) AggregatedSigAndAggregationBits(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AggregatedSigAndAggregationBits", reflect.TypeOf((*MockBeaconNodeValidatorServer)(nil).AggregatedSigAndAggregationBits), arg0, arg1)
-}
 
 // AssignValidatorToSubnet mocks base method.
 func (m *MockBeaconNodeValidatorServer) AssignValidatorToSubnet(arg0 context.Context, arg1 *eth.AssignValidatorToSubnetRequest) (*emptypb.Empty, error) {
@@ -160,51 +146,6 @@ func (m *MockBeaconNodeValidatorServer) GetFeeRecipientByPubKey(arg0 context.Con
 func (mr *MockBeaconNodeValidatorServerMockRecorder) GetFeeRecipientByPubKey(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeeRecipientByPubKey", reflect.TypeOf((*MockBeaconNodeValidatorServer)(nil).GetFeeRecipientByPubKey), arg0, arg1)
-}
-
-// GetSyncCommitteeContribution mocks base method.
-func (m *MockBeaconNodeValidatorServer) GetSyncCommitteeContribution(arg0 context.Context, arg1 *eth.SyncCommitteeContributionRequest) (*eth.SyncCommitteeContribution, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetSyncCommitteeContribution", arg0, arg1)
-	ret0, _ := ret[0].(*eth.SyncCommitteeContribution)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetSyncCommitteeContribution indicates an expected call of GetSyncCommitteeContribution.
-func (mr *MockBeaconNodeValidatorServerMockRecorder) GetSyncCommitteeContribution(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSyncCommitteeContribution", reflect.TypeOf((*MockBeaconNodeValidatorServer)(nil).GetSyncCommitteeContribution), arg0, arg1)
-}
-
-// GetSyncMessageBlockRoot mocks base method.
-func (m *MockBeaconNodeValidatorServer) GetSyncMessageBlockRoot(arg0 context.Context, arg1 *emptypb.Empty) (*eth.SyncMessageBlockRootResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetSyncMessageBlockRoot", arg0, arg1)
-	ret0, _ := ret[0].(*eth.SyncMessageBlockRootResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetSyncMessageBlockRoot indicates an expected call of GetSyncMessageBlockRoot.
-func (mr *MockBeaconNodeValidatorServerMockRecorder) GetSyncMessageBlockRoot(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSyncMessageBlockRoot", reflect.TypeOf((*MockBeaconNodeValidatorServer)(nil).GetSyncMessageBlockRoot), arg0, arg1)
-}
-
-// GetSyncSubcommitteeIndex mocks base method.
-func (m *MockBeaconNodeValidatorServer) GetSyncSubcommitteeIndex(arg0 context.Context, arg1 *eth.SyncSubcommitteeIndexRequest) (*eth.SyncSubcommitteeIndexResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetSyncSubcommitteeIndex", arg0, arg1)
-	ret0, _ := ret[0].(*eth.SyncSubcommitteeIndexResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetSyncSubcommitteeIndex indicates an expected call of GetSyncSubcommitteeIndex.
-func (mr *MockBeaconNodeValidatorServerMockRecorder) GetSyncSubcommitteeIndex(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSyncSubcommitteeIndex", reflect.TypeOf((*MockBeaconNodeValidatorServer)(nil).GetSyncSubcommitteeIndex), arg0, arg1)
 }
 
 // MultipleValidatorStatus mocks base method.
@@ -383,36 +324,6 @@ func (m *MockBeaconNodeValidatorServer) SubmitSignedAggregateSelectionProofElect
 func (mr *MockBeaconNodeValidatorServerMockRecorder) SubmitSignedAggregateSelectionProofElectra(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SubmitSignedAggregateSelectionProofElectra", reflect.TypeOf((*MockBeaconNodeValidatorServer)(nil).SubmitSignedAggregateSelectionProofElectra), arg0, arg1)
-}
-
-// SubmitSignedContributionAndProof mocks base method.
-func (m *MockBeaconNodeValidatorServer) SubmitSignedContributionAndProof(arg0 context.Context, arg1 *eth.SignedContributionAndProof) (*emptypb.Empty, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SubmitSignedContributionAndProof", arg0, arg1)
-	ret0, _ := ret[0].(*emptypb.Empty)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// SubmitSignedContributionAndProof indicates an expected call of SubmitSignedContributionAndProof.
-func (mr *MockBeaconNodeValidatorServerMockRecorder) SubmitSignedContributionAndProof(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SubmitSignedContributionAndProof", reflect.TypeOf((*MockBeaconNodeValidatorServer)(nil).SubmitSignedContributionAndProof), arg0, arg1)
-}
-
-// SubmitSyncMessage mocks base method.
-func (m *MockBeaconNodeValidatorServer) SubmitSyncMessage(arg0 context.Context, arg1 *eth.SyncCommitteeMessage) (*emptypb.Empty, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SubmitSyncMessage", arg0, arg1)
-	ret0, _ := ret[0].(*emptypb.Empty)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// SubmitSyncMessage indicates an expected call of SubmitSyncMessage.
-func (mr *MockBeaconNodeValidatorServerMockRecorder) SubmitSyncMessage(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SubmitSyncMessage", reflect.TypeOf((*MockBeaconNodeValidatorServer)(nil).SubmitSyncMessage), arg0, arg1)
 }
 
 // SubmitValidatorRegistrations mocks base method.

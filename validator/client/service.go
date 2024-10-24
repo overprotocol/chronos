@@ -208,7 +208,6 @@ func (v *ValidatorService) Start() {
 		aggregatedSlotCommitteeIDCache: aggregatedSlotCommitteeIDCache,
 		domainDataCache:                cache,
 		voteStats:                      voteStats{startEpoch: primitives.Epoch(^uint64(0))},
-		syncCommitteeStats:             syncCommitteeStats{},
 		submittedAtts:                  make(map[submittedAttKey]*submittedAtt),
 		submittedAggregates:            make(map[submittedAttKey]*submittedAtt),
 		logValidatorPerformance:        v.logValidatorPerformance,

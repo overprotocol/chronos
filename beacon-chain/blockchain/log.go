@@ -38,13 +38,6 @@ func logStateTransitionData(b interfaces.ReadOnlyBeaconBlock) error {
 	if len(b.Body().VoluntaryExits()) > 0 {
 		log = log.WithField("voluntaryExits", len(b.Body().VoluntaryExits()))
 	}
-	if b.Version() >= version.Altair {
-		agg, err := b.Body().SyncAggregate()
-		if err != nil {
-			return err
-		}
-		log = log.WithField("syncBitsCount", agg.SyncCommitteeBits.Count())
-	}
 	if b.Version() >= version.Bellatrix {
 		p, err := b.Body().Execution()
 		if err != nil {

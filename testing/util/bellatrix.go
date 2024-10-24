@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"github.com/pkg/errors"
-	"github.com/prysmaticlabs/go-bitfield"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/time"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/transition"
@@ -146,20 +145,6 @@ func GenerateFullBlockBellatrix(
 		Timestamp:     uint64(timestamp.Unix()),
 		Transactions:  newTransactions,
 	}
-	var syncCommitteeBits []byte
-	currSize := new(ethpb.SyncAggregate).SyncCommitteeBits.Len()
-	switch currSize {
-	case 512:
-		syncCommitteeBits = bitfield.NewBitvector512()
-	case 32:
-		syncCommitteeBits = bitfield.NewBitvector32()
-	default:
-		return nil, errors.New("invalid bit vector size")
-	}
-	newSyncAggregate := &ethpb.SyncAggregate{
-		SyncCommitteeBits:      syncCommitteeBits,
-		SyncCommitteeSignature: append([]byte{0xC0}, make([]byte, 95)...),
-	}
 
 	newHeader := bState.LatestBlockHeader()
 	prevStateRoot, err := bState.HashTreeRoot(ctx)
@@ -199,7 +184,6 @@ func GenerateFullBlockBellatrix(
 			VoluntaryExits:    exits,
 			Deposits:          newDeposits,
 			Graffiti:          make([]byte, fieldparams.RootLength),
-			SyncAggregate:     newSyncAggregate,
 			ExecutionPayload:  newExecutionPayload,
 		},
 	}

@@ -50,7 +50,6 @@ type BeaconBlockBody struct {
 	attestationsElectra      []*eth.AttestationElectra
 	deposits                 []*eth.Deposit
 	voluntaryExits           []*eth.SignedVoluntaryExit
-	syncAggregate            *eth.SyncAggregate
 	executionPayload         interfaces.ExecutionData
 	executionPayloadHeader   interfaces.ExecutionData
 	blsToExecutionChanges    []*eth.SignedBLSToExecutionChange

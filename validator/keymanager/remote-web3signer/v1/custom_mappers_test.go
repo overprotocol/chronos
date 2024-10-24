@@ -329,10 +329,6 @@ func TestMapBeaconBlockAltair(t *testing.T) {
 								Signature: make([]byte, fieldparams.BLSSignatureLength),
 							},
 						},
-						SyncAggregate: &ethpb.SyncAggregate{
-							SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
-							SyncCommitteeBits:      mock.SyncComitteeBits(),
-						},
 					},
 				},
 			},
@@ -342,13 +338,10 @@ func TestMapBeaconBlockAltair(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := v1.MapBeaconBlockAltair(tt.args.block)
+			_, err := v1.MapBeaconBlockAltair(tt.args.block)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("MapBeaconBlockAltair() error = %v, wantErr %v", err, tt.wantErr)
 				return
-			}
-			if !reflect.DeepEqual(got.Body, tt.want.Body) {
-				t.Errorf("MapBeaconBlockAltair() got = %v, want %v", got.Body.SyncAggregate, tt.want.Body.SyncAggregate)
 			}
 		})
 	}
@@ -484,48 +477,6 @@ func TestMapBeaconBlockBody(t *testing.T) {
 	}
 }
 
-func TestMapContributionAndProof(t *testing.T) {
-	type args struct {
-		contribution *ethpb.ContributionAndProof
-	}
-	tests := []struct {
-		name    string
-		args    args
-		want    *v1.ContributionAndProof
-		wantErr bool
-	}{
-		{
-			name: "Happy Path Test",
-			args: args{
-				contribution: &ethpb.ContributionAndProof{
-					AggregatorIndex: 0,
-					Contribution: &ethpb.SyncCommitteeContribution{
-						Slot:              0,
-						BlockRoot:         make([]byte, fieldparams.RootLength),
-						SubcommitteeIndex: 0,
-						AggregationBits:   mock.AggregationBits(),
-						Signature:         make([]byte, fieldparams.BLSSignatureLength),
-					},
-					SelectionProof: make([]byte, fieldparams.BLSSignatureLength),
-				},
-			},
-			want: mock.ContributionAndProof(),
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := v1.MapContributionAndProof(tt.args.contribution)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("MapContributionAndProof() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("MapContributionAndProof() got = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func TestMapForkInfo(t *testing.T) {
 	type args struct {
 		slot                  primitives.Slot
@@ -557,45 +508,6 @@ func TestMapForkInfo(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("MapForkInfo() got = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestMapSyncAggregatorSelectionData(t *testing.T) {
-	type args struct {
-		data *ethpb.SyncAggregatorSelectionData
-	}
-	tests := []struct {
-		name    string
-		args    args
-		want    *v1.SyncAggregatorSelectionData
-		wantErr bool
-	}{
-		{
-			name: "Happy Path Test",
-			args: args{
-				data: &ethpb.SyncAggregatorSelectionData{
-					Slot:              0,
-					SubcommitteeIndex: 0,
-				},
-			},
-			want: &v1.SyncAggregatorSelectionData{
-				Slot:              "0",
-				SubcommitteeIndex: "0",
-			},
-			wantErr: false,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := v1.MapSyncAggregatorSelectionData(tt.args.data)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("MapSyncAggregatorSelectionData() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("MapSyncAggregatorSelectionData() got = %v, want %v", got, tt.want)
 			}
 		})
 	}

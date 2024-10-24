@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/prysmaticlabs/go-bitfield"
-	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
 	"github.com/prysmaticlabs/prysm/v5/crypto/bls"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	"github.com/prysmaticlabs/prysm/v5/time"
@@ -90,18 +89,4 @@ func MakeAttestationsFromBitlists(bl []bitfield.Bitlist) []ethpb.Att {
 		}
 	}
 	return atts
-}
-
-// MakeSyncContributionsFromBitVector creates list of sync contributions from list of bitvector.
-func MakeSyncContributionsFromBitVector(bl []bitfield.Bitvector128) []*ethpb.SyncCommitteeContribution {
-	c := make([]*ethpb.SyncCommitteeContribution, len(bl))
-	for i, b := range bl {
-		c[i] = &ethpb.SyncCommitteeContribution{
-			Slot:              primitives.Slot(1),
-			SubcommitteeIndex: 2,
-			AggregationBits:   b,
-			Signature:         bls.NewAggregateSignature().Marshal(),
-		}
-	}
-	return c
 }

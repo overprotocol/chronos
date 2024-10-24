@@ -44,10 +44,6 @@ func TestProposeBeaconBlock_BlindedBellatrix(t *testing.T) {
 				ProposerSlashings: jsonifyProposerSlashings(blindedBellatrixBlock.BlindedBellatrix.Block.Body.ProposerSlashings),
 				RandaoReveal:      hexutil.Encode(blindedBellatrixBlock.BlindedBellatrix.Block.Body.RandaoReveal),
 				VoluntaryExits:    JsonifySignedVoluntaryExits(blindedBellatrixBlock.BlindedBellatrix.Block.Body.VoluntaryExits),
-				SyncAggregate: &structs.SyncAggregate{
-					SyncCommitteeBits:      hexutil.Encode(blindedBellatrixBlock.BlindedBellatrix.Block.Body.SyncAggregate.SyncCommitteeBits),
-					SyncCommitteeSignature: hexutil.Encode(blindedBellatrixBlock.BlindedBellatrix.Block.Body.SyncAggregate.SyncCommitteeSignature),
-				},
 				ExecutionPayloadHeader: &structs.ExecutionPayloadHeader{
 					BaseFeePerGas:    bytesutil.LittleEndianBytesToBigInt(blindedBellatrixBlock.BlindedBellatrix.Block.Body.ExecutionPayloadHeader.BaseFeePerGas).String(),
 					BlockHash:        hexutil.Encode(blindedBellatrixBlock.BlindedBellatrix.Block.Body.ExecutionPayloadHeader.BlockHash),
@@ -302,10 +298,6 @@ func generateSignedBlindedBellatrixBlock() *ethpb.GenericSignedBeaconBlock_Blind
 							},
 							Signature: testhelpers.FillByteSlice(96, 109),
 						},
-					},
-					SyncAggregate: &ethpb.SyncAggregate{
-						SyncCommitteeBits:      testhelpers.FillByteSlice(64, 110),
-						SyncCommitteeSignature: testhelpers.FillByteSlice(96, 111),
 					},
 					ExecutionPayloadHeader: &enginev1.ExecutionPayloadHeader{
 						ParentHash:       testhelpers.FillByteSlice(32, 112),

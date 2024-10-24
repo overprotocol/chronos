@@ -30,7 +30,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/attestations"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/blstoexec"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/slashings"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/synccommittee"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/voluntaryexits"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/p2p"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/rpc/core"
@@ -120,7 +119,6 @@ type Config struct {
 	AttestationsPool              attestations.Pool
 	ExitPool                      voluntaryexits.PoolManager
 	SlashingsPool                 slashings.PoolManager
-	SyncCommitteeObjectPool       synccommittee.Pool
 	BLSChangesPool                blstoexec.PoolManager
 	SyncService                   chainSync.Checker
 	Broadcaster                   p2p.Broadcaster
@@ -224,7 +222,6 @@ func NewService(ctx context.Context, cfg *Config) *Service {
 		GenesisTimeFetcher:    s.cfg.GenesisTimeFetcher,
 		SyncChecker:           s.cfg.SyncService,
 		Broadcaster:           s.cfg.Broadcaster,
-		SyncCommitteePool:     s.cfg.SyncCommitteeObjectPool,
 		OperationNotifier:     s.cfg.OperationNotifier,
 		AttestationCache:      cache.NewAttestationCache(),
 		StateGen:              s.cfg.StateGen,
@@ -260,7 +257,6 @@ func NewService(ctx context.Context, cfg *Config) *Service {
 		PendingDepositsFetcher: s.cfg.PendingDepositFetcher,
 		SlashingsPool:          s.cfg.SlashingsPool,
 		StateGen:               s.cfg.StateGen,
-		SyncCommitteePool:      s.cfg.SyncCommitteeObjectPool,
 		ReplayerBuilder:        ch,
 		ExecutionEngineCaller:  s.cfg.ExecutionEngineCaller,
 		BeaconDB:               s.cfg.BeaconDB,

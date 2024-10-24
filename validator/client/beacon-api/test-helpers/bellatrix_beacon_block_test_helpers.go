@@ -213,10 +213,6 @@ func GenerateProtoBellatrixBeaconBlock() *ethpb.BeaconBlockBellatrix {
 					Signature: FillByteSlice(96, 109),
 				},
 			},
-			SyncAggregate: &ethpb.SyncAggregate{
-				SyncCommitteeBits:      FillByteSlice(64, 110),
-				SyncCommitteeSignature: FillByteSlice(96, 111),
-			},
 			ExecutionPayload: &enginev1.ExecutionPayload{
 				ParentHash:    FillByteSlice(32, 112),
 				FeeRecipient:  FillByteSlice(20, 113),
@@ -446,10 +442,6 @@ func GenerateProtoBlindedBellatrixBeaconBlock() *ethpb.BlindedBeaconBlockBellatr
 					Signature: FillByteSlice(96, 109),
 				},
 			},
-			SyncAggregate: &ethpb.SyncAggregate{
-				SyncCommitteeBits:      FillByteSlice(64, 110),
-				SyncCommitteeSignature: FillByteSlice(96, 111),
-			},
 			ExecutionPayloadHeader: &enginev1.ExecutionPayloadHeader{
 				ParentHash:       FillByteSlice(32, 112),
 				FeeRecipient:     FillByteSlice(20, 113),
@@ -675,10 +667,6 @@ func GenerateJsonBellatrixBeaconBlock() *structs.BeaconBlockBellatrix {
 					},
 					Signature: FillEncodedByteSlice(96, 109),
 				},
-			},
-			SyncAggregate: &structs.SyncAggregate{
-				SyncCommitteeBits:      FillEncodedByteSlice(64, 110),
-				SyncCommitteeSignature: FillEncodedByteSlice(96, 111),
 			},
 			ExecutionPayload: &structs.ExecutionPayload{
 				ParentHash:    FillEncodedByteSlice(32, 112),
@@ -908,10 +896,6 @@ func GenerateJsonBlindedBellatrixBeaconBlock() *structs.BlindedBeaconBlockBellat
 					},
 					Signature: FillEncodedByteSlice(96, 109),
 				},
-			},
-			SyncAggregate: &structs.SyncAggregate{
-				SyncCommitteeBits:      FillEncodedByteSlice(64, 110),
-				SyncCommitteeSignature: FillEncodedByteSlice(96, 111),
 			},
 			ExecutionPayloadHeader: &structs.ExecutionPayloadHeader{
 				ParentHash:       FillEncodedByteSlice(32, 112),

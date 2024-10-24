@@ -123,7 +123,6 @@ func metaDataFromConfig(cfg *Config) (metadata.Metadata, error) {
 	defaultMd := &pb.MetaDataV1{
 		SeqNumber: 0,
 		Attnets:   bitfield.NewBitvector64(),
-		Syncnets:  bitfield.NewBitvector4(),
 	}
 	wrappedDefaultMd := wrapper.WrappedMetadataV1(defaultMd)
 
@@ -232,7 +231,6 @@ func migrateFromProtoToSsz(path string) (metadata.Metadata, error) {
 	newMd := &pb.MetaDataV1{
 		SeqNumber: seqNum,
 		Attnets:   wmd.AttnetsBitfield().Bytes(),
-		Syncnets:  bitfield.NewBitvector4(),
 	}
 	wrappedNewMd := wrapper.WrappedMetadataV1(newMd)
 

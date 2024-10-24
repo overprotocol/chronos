@@ -44,10 +44,6 @@ func Test_MerkleProofKZGCommitment(t *testing.T) {
 	_, err = rand.Read(kzgs[2])
 	require.NoError(t, err)
 	pbBody := &ethpb.BeaconBlockBodyDeneb{
-		SyncAggregate: &ethpb.SyncAggregate{
-			SyncCommitteeBits:      make([]byte, fieldparams.SyncAggregateSyncCommitteeBytesLength),
-			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
-		},
 		ExecutionPayload: &enginev1.ExecutionPayloadDeneb{
 			ParentHash:    make([]byte, fieldparams.RootLength),
 			FeeRecipient:  make([]byte, 20),
@@ -162,10 +158,6 @@ func Benchmark_MerkleProofKZGCommitment(b *testing.B) {
 	_, err = rand.Read(kzgs[2])
 	require.NoError(b, err)
 	pbBody := &ethpb.BeaconBlockBodyDeneb{
-		SyncAggregate: &ethpb.SyncAggregate{
-			SyncCommitteeBits:      make([]byte, fieldparams.SyncAggregateSyncCommitteeBytesLength),
-			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
-		},
 		ExecutionPayload: &enginev1.ExecutionPayloadDeneb{
 			ParentHash:    make([]byte, fieldparams.RootLength),
 			FeeRecipient:  make([]byte, 20),
@@ -207,10 +199,6 @@ func Test_VerifyKZGInclusionProof(t *testing.T) {
 	_, err = rand.Read(kzgs[2])
 	require.NoError(t, err)
 	pbBody := &ethpb.BeaconBlockBodyDeneb{
-		SyncAggregate: &ethpb.SyncAggregate{
-			SyncCommitteeBits:      make([]byte, fieldparams.SyncAggregateSyncCommitteeBytesLength),
-			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
-		},
 		ExecutionPayload: &enginev1.ExecutionPayloadDeneb{
 			ParentHash:    make([]byte, fieldparams.RootLength),
 			FeeRecipient:  make([]byte, 20),

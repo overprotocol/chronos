@@ -11,7 +11,6 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/pkg/errors"
 	"github.com/prysmaticlabs/prysm/v5/api/server/structs"
-	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/validator"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
@@ -21,7 +20,6 @@ import (
 type dutiesProvider interface {
 	AttesterDuties(ctx context.Context, epoch primitives.Epoch, validatorIndices []primitives.ValidatorIndex) ([]*structs.AttesterDuty, error)
 	ProposerDuties(ctx context.Context, epoch primitives.Epoch) ([]*structs.ProposerDuty, error)
-	SyncDuties(ctx context.Context, epoch primitives.Epoch, validatorIndices []primitives.ValidatorIndex) ([]*structs.SyncCommitteeDuty, error)
 	Committees(ctx context.Context, epoch primitives.Epoch) ([]*structs.Committee, error)
 }
 
@@ -46,14 +44,11 @@ func (c *beaconApiValidatorClient) duties(ctx context.Context, in *ethpb.DutiesR
 		return nil, errors.Wrap(err, "failed to get validators for duties")
 	}
 
-	// Sync committees are an Altair feature
-	fetchSyncDuties := in.Epoch >= params.BeaconConfig().AltairForkEpoch
-
 	errCh := make(chan error, 1)
 
 	var currentEpochDuties []*ethpb.DutiesResponse_Duty
 	go func() {
-		currentEpochDuties, err = c.dutiesForEpoch(ctx, in.Epoch, vals, fetchSyncDuties)
+		currentEpochDuties, err = c.dutiesForEpoch(ctx, in.Epoch, vals)
 		if err != nil {
 			errCh <- errors.Wrapf(err, "failed to get duties for current epoch `%d`", in.Epoch)
 			return
@@ -61,7 +56,7 @@ func (c *beaconApiValidatorClient) duties(ctx context.Context, in *ethpb.DutiesR
 		errCh <- nil
 	}()
 
-	nextEpochDuties, err := c.dutiesForEpoch(ctx, in.Epoch+1, vals, fetchSyncDuties)
+	nextEpochDuties, err := c.dutiesForEpoch(ctx, in.Epoch+1, vals)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to get duties for next epoch `%d`", in.Epoch+1)
 	}
@@ -80,7 +75,6 @@ func (c *beaconApiValidatorClient) dutiesForEpoch(
 	ctx context.Context,
 	epoch primitives.Epoch,
 	vals []validatorForDuty,
-	fetchSyncDuties bool,
 ) ([]*ethpb.DutiesResponse_Duty, error) {
 	indices := make([]primitives.ValidatorIndex, len(vals))
 	for i, v := range vals {
@@ -93,8 +87,6 @@ func (c *beaconApiValidatorClient) dutiesForEpoch(
 
 	// Mapping from a validator index to its attesting committee's index and slot
 	attesterDutiesMapping := make(map[primitives.ValidatorIndex]committeeIndexSlotPair)
-	// Set containing all validator indices that are part of a sync committee for this epoch
-	syncDutiesMapping := make(map[primitives.ValidatorIndex]bool)
 	// Mapping from a validator index to its proposal slot
 	proposerDutySlots := make(map[primitives.ValidatorIndex][]primitives.Slot)
 	// Mapping from the {committeeIndex, slot} to each of the committee's validator indices
@@ -128,24 +120,6 @@ func (c *beaconApiValidatorClient) dutiesForEpoch(
 		}
 		return nil
 	})
-
-	if fetchSyncDuties {
-		wg.Go(func() error {
-			syncDuties, err := c.dutiesProvider.SyncDuties(ctx, epoch, indices)
-			if err != nil {
-				return errors.Wrapf(err, "failed to get sync duties for epoch `%d`", epoch)
-			}
-
-			for _, syncDuty := range syncDuties {
-				validatorIndex, err := strconv.ParseUint(syncDuty.ValidatorIndex, 10, 64)
-				if err != nil {
-					return errors.Wrapf(err, "failed to parse sync validator index `%s`", syncDuty.ValidatorIndex)
-				}
-				syncDutiesMapping[primitives.ValidatorIndex(validatorIndex)] = true
-			}
-			return nil
-		})
-	}
 
 	wg.Go(func() error {
 		proposerDuties, err := c.dutiesProvider.ProposerDuties(ctx, epoch)
@@ -234,7 +208,6 @@ func (c *beaconApiValidatorClient) dutiesForEpoch(
 			PublicKey:        v.pubkey,
 			Status:           v.status,
 			ValidatorIndex:   v.index,
-			IsSyncCommittee:  syncDutiesMapping[v.index],
 			CommitteesAtSlot: slotCommittees[strconv.FormatUint(uint64(attesterSlot), 10)],
 		}
 	}
@@ -361,40 +334,4 @@ func (c beaconApiDutiesProvider) ProposerDuties(ctx context.Context, epoch primi
 	}
 
 	return proposerDuties.Data, nil
-}
-
-// GetSyncDuties retrieves the sync committee duties for the given epoch and validatorIndices
-func (c beaconApiDutiesProvider) SyncDuties(ctx context.Context, epoch primitives.Epoch, validatorIndices []primitives.ValidatorIndex) ([]*structs.SyncCommitteeDuty, error) {
-	jsonValidatorIndices := make([]string, len(validatorIndices))
-	for index, validatorIndex := range validatorIndices {
-		jsonValidatorIndices[index] = strconv.FormatUint(uint64(validatorIndex), 10)
-	}
-
-	validatorIndicesBytes, err := json.Marshal(jsonValidatorIndices)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to marshal validator indices")
-	}
-
-	syncDuties := structs.GetSyncCommitteeDutiesResponse{}
-	if err = c.jsonRestHandler.Post(
-		ctx,
-		fmt.Sprintf("/eth/v1/validator/duties/sync/%d", epoch),
-		nil,
-		bytes.NewBuffer(validatorIndicesBytes),
-		&syncDuties,
-	); err != nil {
-		return nil, err
-	}
-
-	if syncDuties.Data == nil {
-		return nil, errors.New("sync duties data is nil")
-	}
-
-	for index, syncDuty := range syncDuties.Data {
-		if syncDuty == nil {
-			return nil, errors.Errorf("sync duty at index `%d` is nil", index)
-		}
-	}
-
-	return syncDuties.Data, nil
 }

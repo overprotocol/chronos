@@ -8,14 +8,11 @@ import (
 	"github.com/prysmaticlabs/go-bitfield"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/altair"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/signing"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/time"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/transition"
-	p2pType "github.com/prysmaticlabs/prysm/v5/beacon-chain/p2p/types"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/blocks"
-	"github.com/prysmaticlabs/prysm/v5/crypto/bls"
 	"github.com/prysmaticlabs/prysm/v5/encoding/bytesutil"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	"github.com/prysmaticlabs/prysm/v5/testing/assert"
@@ -26,10 +23,6 @@ import (
 
 func TestExecuteAltairStateTransitionNoVerify_FullProcess(t *testing.T) {
 	beaconState, privKeys := util.DeterministicGenesisStateAltair(t, 100)
-
-	syncCommittee, err := altair.NextSyncCommittee(context.Background(), beaconState)
-	require.NoError(t, err)
-	require.NoError(t, beaconState.SetCurrentSyncCommittee(syncCommittee))
 
 	eth1Data := &ethpb.Eth1Data{
 		DepositCount: 100,
@@ -68,29 +61,10 @@ func TestExecuteAltairStateTransitionNoVerify_FullProcess(t *testing.T) {
 	for i := range syncBits {
 		syncBits[i] = 0xff
 	}
-	indices, err := altair.NextSyncCommitteeIndices(context.Background(), beaconState)
-	require.NoError(t, err)
 	h := beaconState.LatestBlockHeader().Copy()
 	prevStateRoot, err := beaconState.HashTreeRoot(context.Background())
 	require.NoError(t, err)
 	h.StateRoot = prevStateRoot[:]
-	pbr, err := h.HashTreeRoot()
-	require.NoError(t, err)
-	syncSigs := make([]bls.Signature, len(indices))
-	for i, indice := range indices {
-		b := p2pType.SSZBytes(pbr[:])
-		sb, err := signing.ComputeDomainAndSign(beaconState, time.CurrentEpoch(beaconState), &b, params.BeaconConfig().DomainSyncCommittee, privKeys[indice])
-		require.NoError(t, err)
-		sig, err := bls.SignatureFromBytes(sb)
-		require.NoError(t, err)
-		syncSigs[i] = sig
-	}
-	aggregatedSig := bls.AggregateSignatures(syncSigs).Marshal()
-	syncAggregate := &ethpb.SyncAggregate{
-		SyncCommitteeBits:      syncBits,
-		SyncCommitteeSignature: aggregatedSig,
-	}
-	block.Block.Body.SyncAggregate = syncAggregate
 	wsb, err := blocks.NewSignedBeaconBlock(block)
 	require.NoError(t, err)
 	stateRoot, err := transition.CalculateStateRoot(context.Background(), beaconState, wsb)
@@ -114,10 +88,6 @@ func TestExecuteAltairStateTransitionNoVerify_FullProcess(t *testing.T) {
 func TestExecuteAltairStateTransitionNoVerifySignature_CouldNotVerifyStateRoot(t *testing.T) {
 	beaconState, privKeys := util.DeterministicGenesisStateAltair(t, 100)
 
-	syncCommittee, err := altair.NextSyncCommittee(context.Background(), beaconState)
-	require.NoError(t, err)
-	require.NoError(t, beaconState.SetCurrentSyncCommittee(syncCommittee))
-
 	eth1Data := &ethpb.Eth1Data{
 		DepositCount: 100,
 		DepositRoot:  bytesutil.PadTo([]byte{2}, 32),
@@ -155,29 +125,10 @@ func TestExecuteAltairStateTransitionNoVerifySignature_CouldNotVerifyStateRoot(t
 	for i := range syncBits {
 		syncBits[i] = 0xff
 	}
-	indices, err := altair.NextSyncCommitteeIndices(context.Background(), beaconState)
-	require.NoError(t, err)
 	h := beaconState.LatestBlockHeader().Copy()
 	prevStateRoot, err := beaconState.HashTreeRoot(context.Background())
 	require.NoError(t, err)
 	h.StateRoot = prevStateRoot[:]
-	pbr, err := h.HashTreeRoot()
-	require.NoError(t, err)
-	syncSigs := make([]bls.Signature, len(indices))
-	for i, indice := range indices {
-		b := p2pType.SSZBytes(pbr[:])
-		sb, err := signing.ComputeDomainAndSign(beaconState, time.CurrentEpoch(beaconState), &b, params.BeaconConfig().DomainSyncCommittee, privKeys[indice])
-		require.NoError(t, err)
-		sig, err := bls.SignatureFromBytes(sb)
-		require.NoError(t, err)
-		syncSigs[i] = sig
-	}
-	aggregatedSig := bls.AggregateSignatures(syncSigs).Marshal()
-	syncAggregate := &ethpb.SyncAggregate{
-		SyncCommitteeBits:      syncBits,
-		SyncCommitteeSignature: aggregatedSig,
-	}
-	block.Block.Body.SyncAggregate = syncAggregate
 
 	wsb, err := blocks.NewSignedBeaconBlock(block)
 	require.NoError(t, err)
@@ -233,9 +184,6 @@ func TestProcessEpoch_BadBalanceAltair(t *testing.T) {
 func createFullAltairBlockWithOperations(t *testing.T) (state.BeaconState,
 	*ethpb.SignedBeaconBlockAltair) {
 	beaconState, privKeys := util.DeterministicGenesisStateAltair(t, 32)
-	sCom, err := altair.NextSyncCommittee(context.Background(), beaconState)
-	assert.NoError(t, err)
-	assert.NoError(t, beaconState.SetCurrentSyncCommittee(sCom))
 	tState := beaconState.Copy()
 	blk, err := util.GenerateFullBlockAltair(tState, privKeys,
 		&util.BlockGenConfig{NumAttestations: 1, NumVoluntaryExits: 0, NumDeposits: 0}, 1)

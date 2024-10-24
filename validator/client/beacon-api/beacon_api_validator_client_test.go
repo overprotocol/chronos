@@ -100,7 +100,7 @@ func TestBeaconApiValidatorClient_GetFeeRecipientByPubKey(t *testing.T) {
 func TestBeaconApiValidatorClient_DomainDataValid(t *testing.T) {
 	const genesisValidatorRoot = "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2"
 	epoch := params.BeaconConfig().AltairForkEpoch
-	domainType := params.BeaconConfig().DomainSyncCommittee[:]
+	domainType := params.BeaconConfig().DomainDeposit[:]
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()

@@ -9,7 +9,6 @@ import (
 
 	"github.com/pkg/errors"
 	ssz "github.com/prysmaticlabs/fastssz"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/altair"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/crypto/hash"
@@ -75,27 +74,6 @@ func (s *Service) BroadcastAttestation(ctx context.Context, subnet uint64, att e
 	return nil
 }
 
-// BroadcastSyncCommitteeMessage broadcasts a sync committee message to the p2p network, the message is assumed to be
-// broadcasted to the current fork.
-func (s *Service) BroadcastSyncCommitteeMessage(ctx context.Context, subnet uint64, sMsg *ethpb.SyncCommitteeMessage) error {
-	if sMsg == nil {
-		return errors.New("attempted to broadcast nil sync committee message")
-	}
-	ctx, span := trace.StartSpan(ctx, "p2p.BroadcastSyncCommitteeMessage")
-	defer span.End()
-	forkDigest, err := s.currentForkDigest()
-	if err != nil {
-		err := errors.Wrap(err, "could not retrieve fork digest")
-		tracing.AnnotateError(span, err)
-		return err
-	}
-
-	// Non-blocking broadcast, with attempts to discover a subnet peer if none available.
-	go s.broadcastSyncCommittee(ctx, subnet, sMsg, forkDigest)
-
-	return nil
-}
-
 func (s *Service) internalBroadcastAttestation(ctx context.Context, subnet uint64, att ethpb.Att, forkDigest [4]byte) {
 	_, span := trace.StartSpan(ctx, "p2p.internalBroadcastAttestation")
 	defer span.End()
@@ -148,61 +126,6 @@ func (s *Service) internalBroadcastAttestation(ctx context.Context, subnet uint6
 
 	if err := s.broadcastObject(ctx, att, attestationToTopic(subnet, forkDigest)); err != nil {
 		log.WithError(err).Error("Failed to broadcast attestation")
-		tracing.AnnotateError(span, err)
-	}
-}
-
-func (s *Service) broadcastSyncCommittee(ctx context.Context, subnet uint64, sMsg *ethpb.SyncCommitteeMessage, forkDigest [4]byte) {
-	_, span := trace.StartSpan(ctx, "p2p.broadcastSyncCommittee")
-	defer span.End()
-	ctx = trace.NewContext(context.Background(), span) // clear parent context / deadline.
-
-	oneSlot := time.Duration(1*params.BeaconConfig().SecondsPerSlot) * time.Second
-	ctx, cancel := context.WithTimeout(ctx, oneSlot)
-	defer cancel()
-
-	// Ensure we have peers with this subnet.
-	// This adds in a special value to the subnet
-	// to ensure that we can re-use the same subnet locker.
-	wrappedSubIdx := subnet + syncLockerVal
-	s.subnetLocker(wrappedSubIdx).RLock()
-	hasPeer := s.hasPeerWithSubnet(syncCommitteeToTopic(subnet, forkDigest))
-	s.subnetLocker(wrappedSubIdx).RUnlock()
-
-	span.SetAttributes(
-		trace.BoolAttribute("hasPeer", hasPeer),
-		trace.Int64Attribute("slot", int64(sMsg.Slot)), // lint:ignore uintcast -- It's safe to do this for tracing.
-		trace.Int64Attribute("subnet", int64(subnet)),  // lint:ignore uintcast -- It's safe to do this for tracing.
-	)
-
-	if !hasPeer {
-		syncCommitteeBroadcastAttempts.Inc()
-		if err := func() error {
-			s.subnetLocker(wrappedSubIdx).Lock()
-			defer s.subnetLocker(wrappedSubIdx).Unlock()
-			ok, err := s.FindPeersWithSubnet(ctx, syncCommitteeToTopic(subnet, forkDigest), subnet, 1)
-			if err != nil {
-				return err
-			}
-			if ok {
-				savedSyncCommitteeBroadcasts.Inc()
-				return nil
-			}
-			return errors.New("failed to find peers for subnet")
-		}(); err != nil {
-			log.WithError(err).Error("Failed to find peers")
-			tracing.AnnotateError(span, err)
-		}
-	}
-	// In the event our sync message is outdated and beyond the
-	// acceptable threshold, we exit early and do not broadcast it.
-	if err := altair.ValidateSyncMessageTime(sMsg.Slot, s.genesisTime, params.BeaconConfig().MaximumGossipClockDisparityDuration()); err != nil {
-		log.WithError(err).Warn("Sync Committee Message is too old to broadcast, discarding it")
-		return
-	}
-
-	if err := s.broadcastObject(ctx, sMsg, syncCommitteeToTopic(subnet, forkDigest)); err != nil {
-		log.WithError(err).Error("Failed to broadcast sync committee message")
 		tracing.AnnotateError(span, err)
 	}
 }
@@ -299,10 +222,6 @@ func (s *Service) broadcastObject(ctx context.Context, obj ssz.Marshaler, topic 
 
 func attestationToTopic(subnet uint64, forkDigest [4]byte) string {
 	return fmt.Sprintf(AttestationSubnetTopicFormat, forkDigest, subnet)
-}
-
-func syncCommitteeToTopic(subnet uint64, forkDigest [4]byte) string {
-	return fmt.Sprintf(SyncCommitteeSubnetTopicFormat, forkDigest, subnet)
 }
 
 func blobSubnetToTopic(subnet uint64, forkDigest [4]byte) string {

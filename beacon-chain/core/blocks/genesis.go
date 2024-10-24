@@ -74,10 +74,6 @@ func NewGenesisBlockForState(ctx context.Context, st state.BeaconState) (interfa
 						BlockHash:   make([]byte, 32),
 					},
 					Graffiti: make([]byte, 32),
-					SyncAggregate: &ethpb.SyncAggregate{
-						SyncCommitteeBits:      make([]byte, fieldparams.SyncCommitteeLength/8),
-						SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
-					},
 				},
 			},
 			Signature: params.BeaconConfig().EmptySignature[:],
@@ -94,10 +90,6 @@ func NewGenesisBlockForState(ctx context.Context, st state.BeaconState) (interfa
 						BlockHash:   make([]byte, 32),
 					},
 					Graffiti: make([]byte, 32),
-					SyncAggregate: &ethpb.SyncAggregate{
-						SyncCommitteeBits:      make([]byte, fieldparams.SyncCommitteeLength/8),
-						SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
-					},
 					ExecutionPayload: &enginev1.ExecutionPayload{
 						ParentHash:    make([]byte, 32),
 						FeeRecipient:  make([]byte, 20),
@@ -126,10 +118,6 @@ func NewGenesisBlockForState(ctx context.Context, st state.BeaconState) (interfa
 						BlockHash:   make([]byte, 32),
 					},
 					Graffiti: make([]byte, 32),
-					SyncAggregate: &ethpb.SyncAggregate{
-						SyncCommitteeBits:      make([]byte, fieldparams.SyncCommitteeLength/8),
-						SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
-					},
 					ExecutionPayload: &enginev1.ExecutionPayloadCapella{
 						ParentHash:    make([]byte, 32),
 						FeeRecipient:  make([]byte, 20),
@@ -159,10 +147,6 @@ func NewGenesisBlockForState(ctx context.Context, st state.BeaconState) (interfa
 						BlockHash:   make([]byte, 32),
 					},
 					Graffiti: make([]byte, 32),
-					SyncAggregate: &ethpb.SyncAggregate{
-						SyncCommitteeBits:      make([]byte, fieldparams.SyncCommitteeLength/8),
-						SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
-					},
 					ExecutionPayload: &enginev1.ExecutionPayloadDeneb{
 						ParentHash:    make([]byte, 32),
 						FeeRecipient:  make([]byte, 20),
@@ -194,10 +178,6 @@ func NewGenesisBlockForState(ctx context.Context, st state.BeaconState) (interfa
 						BlockHash:   make([]byte, 32),
 					},
 					Graffiti: make([]byte, 32),
-					SyncAggregate: &ethpb.SyncAggregate{
-						SyncCommitteeBits:      make([]byte, fieldparams.SyncCommitteeLength/8),
-						SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
-					},
 					ExecutionPayload: &enginev1.ExecutionPayloadElectra{
 						ParentHash:    make([]byte, 32),
 						FeeRecipient:  make([]byte, 20),

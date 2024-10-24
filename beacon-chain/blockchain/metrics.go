@@ -134,14 +134,6 @@ var (
 			Buckets: []float64{1, 2, 3, 4, 6, 32, 64},
 		},
 	)
-	syncHeadStateMiss = promauto.NewCounter(prometheus.CounterOpts{
-		Name: "sync_head_state_miss",
-		Help: "The number of sync head state requests that are not present in the cache.",
-	})
-	syncHeadStateHit = promauto.NewCounter(prometheus.CounterOpts{
-		Name: "sync_head_state_hit",
-		Help: "The number of sync head state requests that are present in the cache.",
-	})
 	newPayloadValidNodeCount = promauto.NewCounter(prometheus.CounterOpts{
 		Name: "new_payload_valid_node_count",
 		Help: "Count the number of valid nodes after newPayload EE call",

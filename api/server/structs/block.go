@@ -80,7 +80,6 @@ type BeaconBlockBodyAltair struct {
 	Attestations      []*Attestation         `json:"attestations"`
 	Deposits          []*Deposit             `json:"deposits"`
 	VoluntaryExits    []*SignedVoluntaryExit `json:"voluntary_exits"`
-	SyncAggregate     *SyncAggregate         `json:"sync_aggregate"`
 }
 
 type SignedBeaconBlockBellatrix struct {
@@ -115,7 +114,6 @@ type BeaconBlockBodyBellatrix struct {
 	Attestations      []*Attestation         `json:"attestations"`
 	Deposits          []*Deposit             `json:"deposits"`
 	VoluntaryExits    []*SignedVoluntaryExit `json:"voluntary_exits"`
-	SyncAggregate     *SyncAggregate         `json:"sync_aggregate"`
 	ExecutionPayload  *ExecutionPayload      `json:"execution_payload"`
 }
 
@@ -151,7 +149,6 @@ type BlindedBeaconBlockBodyBellatrix struct {
 	Attestations           []*Attestation          `json:"attestations"`
 	Deposits               []*Deposit              `json:"deposits"`
 	VoluntaryExits         []*SignedVoluntaryExit  `json:"voluntary_exits"`
-	SyncAggregate          *SyncAggregate          `json:"sync_aggregate"`
 	ExecutionPayloadHeader *ExecutionPayloadHeader `json:"execution_payload_header"`
 }
 
@@ -187,7 +184,6 @@ type BeaconBlockBodyCapella struct {
 	Attestations          []*Attestation                `json:"attestations"`
 	Deposits              []*Deposit                    `json:"deposits"`
 	VoluntaryExits        []*SignedVoluntaryExit        `json:"voluntary_exits"`
-	SyncAggregate         *SyncAggregate                `json:"sync_aggregate"`
 	ExecutionPayload      *ExecutionPayloadCapella      `json:"execution_payload"`
 	BLSToExecutionChanges []*SignedBLSToExecutionChange `json:"bls_to_execution_changes"`
 }
@@ -224,7 +220,6 @@ type BlindedBeaconBlockBodyCapella struct {
 	Attestations           []*Attestation                 `json:"attestations"`
 	Deposits               []*Deposit                     `json:"deposits"`
 	VoluntaryExits         []*SignedVoluntaryExit         `json:"voluntary_exits"`
-	SyncAggregate          *SyncAggregate                 `json:"sync_aggregate"`
 	ExecutionPayloadHeader *ExecutionPayloadHeaderCapella `json:"execution_payload_header"`
 	BLSToExecutionChanges  []*SignedBLSToExecutionChange  `json:"bls_to_execution_changes"`
 }
@@ -273,7 +268,6 @@ type BeaconBlockBodyDeneb struct {
 	Attestations          []*Attestation                `json:"attestations"`
 	Deposits              []*Deposit                    `json:"deposits"`
 	VoluntaryExits        []*SignedVoluntaryExit        `json:"voluntary_exits"`
-	SyncAggregate         *SyncAggregate                `json:"sync_aggregate"`
 	ExecutionPayload      *ExecutionPayloadDeneb        `json:"execution_payload"`
 	BLSToExecutionChanges []*SignedBLSToExecutionChange `json:"bls_to_execution_changes"`
 	BlobKzgCommitments    []string                      `json:"blob_kzg_commitments"`
@@ -311,7 +305,6 @@ type BlindedBeaconBlockBodyDeneb struct {
 	Attestations           []*Attestation                `json:"attestations"`
 	Deposits               []*Deposit                    `json:"deposits"`
 	VoluntaryExits         []*SignedVoluntaryExit        `json:"voluntary_exits"`
-	SyncAggregate          *SyncAggregate                `json:"sync_aggregate"`
 	ExecutionPayloadHeader *ExecutionPayloadHeaderDeneb  `json:"execution_payload_header"`
 	BLSToExecutionChanges  []*SignedBLSToExecutionChange `json:"bls_to_execution_changes"`
 	BlobKzgCommitments     []string                      `json:"blob_kzg_commitments"`
@@ -361,7 +354,6 @@ type BeaconBlockBodyElectra struct {
 	Attestations          []*AttestationElectra         `json:"attestations"`
 	Deposits              []*Deposit                    `json:"deposits"`
 	VoluntaryExits        []*SignedVoluntaryExit        `json:"voluntary_exits"`
-	SyncAggregate         *SyncAggregate                `json:"sync_aggregate"`
 	ExecutionPayload      *ExecutionPayloadElectra      `json:"execution_payload"`
 	BLSToExecutionChanges []*SignedBLSToExecutionChange `json:"bls_to_execution_changes"`
 	BlobKzgCommitments    []string                      `json:"blob_kzg_commitments"`
@@ -400,7 +392,6 @@ type BlindedBeaconBlockBodyElectra struct {
 	Attestations           []*AttestationElectra          `json:"attestations"`
 	Deposits               []*Deposit                     `json:"deposits"`
 	VoluntaryExits         []*SignedVoluntaryExit         `json:"voluntary_exits"`
-	SyncAggregate          *SyncAggregate                 `json:"sync_aggregate"`
 	ExecutionPayloadHeader *ExecutionPayloadHeaderElectra `json:"execution_payload_header"`
 	BLSToExecutionChanges  []*SignedBLSToExecutionChange  `json:"bls_to_execution_changes"`
 	BlobKzgCommitments     []string                       `json:"blob_kzg_commitments"`

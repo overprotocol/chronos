@@ -1304,21 +1304,6 @@ func TestEth1DataMarshal(t *testing.T) {
 	require.Equal(t, expected, string(b))
 }
 
-func pbSyncAggregate() *eth.SyncAggregate {
-	return &eth.SyncAggregate{
-		SyncCommitteeSignature: make([]byte, 48),
-		SyncCommitteeBits:      bitfield.Bitvector512{0x01},
-	}
-}
-
-func TestSyncAggregate_MarshalJSON(t *testing.T) {
-	sa := &SyncAggregate{pbSyncAggregate()}
-	b, err := json.Marshal(sa)
-	require.NoError(t, err)
-	expected := `{"sync_committee_bits":"0x01","sync_committee_signature":"0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"}`
-	require.Equal(t, expected, string(b))
-}
-
 func pbDeposit(t *testing.T) *eth.Deposit {
 	return &eth.Deposit{
 		Proof: [][]byte{ezDecode(t, "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2")},
@@ -1734,7 +1719,6 @@ func TestMarshalBlindedBeaconBlockBodyBellatrix(t *testing.T) {
 			Attestations:           []*eth.Attestation{pbAttestation(t)},
 			Deposits:               []*eth.Deposit{pbDeposit(t)},
 			VoluntaryExits:         []*eth.SignedVoluntaryExit{pbSignedVoluntaryExit(t)},
-			SyncAggregate:          pbSyncAggregate(),
 			ExecutionPayloadHeader: pbExecutionPayloadHeader(t),
 		},
 	})
@@ -1764,7 +1748,6 @@ func TestMarshalBlindedBeaconBlockBodyCapella(t *testing.T) {
 			Attestations:           []*eth.Attestation{pbAttestation(t)},
 			Deposits:               []*eth.Deposit{pbDeposit(t)},
 			VoluntaryExits:         []*eth.SignedVoluntaryExit{pbSignedVoluntaryExit(t)},
-			SyncAggregate:          pbSyncAggregate(),
 			ExecutionPayloadHeader: pbExecutionPayloadHeaderCapella(t),
 		},
 	})

@@ -85,18 +85,3 @@ func (mr *MockdutiesProviderMockRecorder) ProposerDuties(ctx, epoch any) *gomock
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProposerDuties", reflect.TypeOf((*MockdutiesProvider)(nil).ProposerDuties), ctx, epoch)
 }
-
-// SyncDuties mocks base method.
-func (m *MockdutiesProvider) SyncDuties(ctx context.Context, epoch primitives.Epoch, validatorIndices []primitives.ValidatorIndex) ([]*structs.SyncCommitteeDuty, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SyncDuties", ctx, epoch, validatorIndices)
-	ret0, _ := ret[0].([]*structs.SyncCommitteeDuty)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// SyncDuties indicates an expected call of SyncDuties.
-func (mr *MockdutiesProviderMockRecorder) SyncDuties(ctx, epoch, validatorIndices any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SyncDuties", reflect.TypeOf((*MockdutiesProvider)(nil).SyncDuties), ctx, epoch, validatorIndices)
-}

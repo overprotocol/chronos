@@ -38,8 +38,6 @@ type SpecParametersProvider interface {
 // StateProver defines the ability to create Merkle proofs for beacon state fields.
 type Prover interface {
 	FinalizedRootProof(ctx context.Context) ([][]byte, error)
-	CurrentSyncCommitteeProof(ctx context.Context) ([][]byte, error)
-	NextSyncCommitteeProof(ctx context.Context) ([][]byte, error)
 }
 
 // ReadOnlyBeaconState defines a struct which only has read access to beacon state methods.
@@ -56,7 +54,6 @@ type ReadOnlyBeaconState interface {
 	ReadOnlyWithdrawals
 	ReadOnlyParticipation
 	ReadOnlyInactivity
-	ReadOnlySyncCommittee
 	ReadOnlyDeposits
 	ToProtoUnsafe() interface{}
 	ToProto() interface{}
@@ -89,7 +86,6 @@ type WriteOnlyBeaconState interface {
 	WriteOnlyAttestations
 	WriteOnlyParticipation
 	WriteOnlyInactivity
-	WriteOnlySyncCommittee
 	WriteOnlyWithdrawals
 	WriteOnlyDeposits
 	SetGenesisTime(val uint64) error
@@ -214,12 +210,6 @@ type ReadOnlyInactivity interface {
 	InactivityScores() ([]uint64, error)
 }
 
-// ReadOnlySyncCommittee defines a struct which only has read access to sync committee methods.
-type ReadOnlySyncCommittee interface {
-	CurrentSyncCommittee() (*ethpb.SyncCommittee, error)
-	NextSyncCommittee() (*ethpb.SyncCommittee, error)
-}
-
 type ReadOnlyDeposits interface {
 	DepositBalanceToConsume() (primitives.Gwei, error)
 	DepositRequestsStartIndex() (uint64, error)
@@ -299,12 +289,6 @@ type WriteOnlyParticipation interface {
 type WriteOnlyInactivity interface {
 	AppendInactivityScore(s uint64) error
 	SetInactivityScores(val []uint64) error
-}
-
-// WriteOnlySyncCommittee defines a struct which only has write access to sync committee methods.
-type WriteOnlySyncCommittee interface {
-	SetCurrentSyncCommittee(val *ethpb.SyncCommittee) error
-	SetNextSyncCommittee(val *ethpb.SyncCommittee) error
 }
 
 type WriteOnlyWithdrawals interface {

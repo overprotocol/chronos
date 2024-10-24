@@ -44,14 +44,6 @@ const (
 	AttestationSignature = "attestation signature"
 	// BlsChangeSignature represents signature to BLSToExecutionChange
 	BlsChangeSignature = "blschange signature"
-	// SyncCommitteeSignature represents sync committee signature
-	SyncCommitteeSignature = "sync committee signature"
-	// SyncSelectionProof represents sync committee selection proof
-	SyncSelectionProof = "sync selection proof"
-	// ContributionSignature represents sync committee contributor's signature
-	ContributionSignature = "sync committee contribution signature"
-	// SyncAggregateSignature represents sync committee aggregator's signature
-	SyncAggregateSignature = "sync committee aggregator signature"
 )
 
 // ComputeDomainAndSign computes the domain and signing root and sign it using the passed in private key.

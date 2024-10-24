@@ -311,9 +311,6 @@ func (s *PremineGenesisConfig) populate(g state.BeaconState) error {
 	if err := s.setPrevEpochParticipation(g); err != nil {
 		return err
 	}
-	if err := s.setSyncCommittees(g); err != nil {
-		return err
-	}
 	if err := s.setExecutionPayload(g); err != nil {
 		return err
 	}
@@ -411,20 +408,6 @@ func (s *PremineGenesisConfig) setPrevEpochParticipation(g state.BeaconState) er
 	return g.SetPreviousParticipationBits(p)
 }
 
-func (s *PremineGenesisConfig) setSyncCommittees(g state.BeaconState) error {
-	if s.Version < version.Altair {
-		return nil
-	}
-	sc, err := altair.NextSyncCommittee(context.Background(), g)
-	if err != nil {
-		return err
-	}
-	if err = g.SetNextSyncCommittee(sc); err != nil {
-		return err
-	}
-	return g.SetCurrentSyncCommittee(sc)
-}
-
 type rooter interface {
 	HashTreeRoot() ([32]byte, error)
 }
@@ -449,10 +432,6 @@ func (s *PremineGenesisConfig) setLatestBlockHeader(g state.BeaconState) error {
 				BlockHash:   make([]byte, 32),
 			},
 			Graffiti: make([]byte, 32),
-			SyncAggregate: &ethpb.SyncAggregate{
-				SyncCommitteeBits:      make([]byte, fieldparams.SyncCommitteeLength/8),
-				SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
-			},
 		}
 	case version.Bellatrix:
 		body = &ethpb.BeaconBlockBodyBellatrix{
@@ -462,10 +441,6 @@ func (s *PremineGenesisConfig) setLatestBlockHeader(g state.BeaconState) error {
 				BlockHash:   make([]byte, 32),
 			},
 			Graffiti: make([]byte, 32),
-			SyncAggregate: &ethpb.SyncAggregate{
-				SyncCommitteeBits:      make([]byte, fieldparams.SyncCommitteeLength/8),
-				SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
-			},
 			ExecutionPayload: &enginev1.ExecutionPayload{
 				ParentHash:    make([]byte, 32),
 				FeeRecipient:  make([]byte, 20),
@@ -487,10 +462,6 @@ func (s *PremineGenesisConfig) setLatestBlockHeader(g state.BeaconState) error {
 				BlockHash:   make([]byte, 32),
 			},
 			Graffiti: make([]byte, 32),
-			SyncAggregate: &ethpb.SyncAggregate{
-				SyncCommitteeBits:      make([]byte, fieldparams.SyncCommitteeLength/8),
-				SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
-			},
 			ExecutionPayload: &enginev1.ExecutionPayloadCapella{
 				ParentHash:    make([]byte, 32),
 				FeeRecipient:  make([]byte, 20),
@@ -514,10 +485,6 @@ func (s *PremineGenesisConfig) setLatestBlockHeader(g state.BeaconState) error {
 				BlockHash:   make([]byte, 32),
 			},
 			Graffiti: make([]byte, 32),
-			SyncAggregate: &ethpb.SyncAggregate{
-				SyncCommitteeBits:      make([]byte, fieldparams.SyncCommitteeLength/8),
-				SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
-			},
 			ExecutionPayload: &enginev1.ExecutionPayloadDeneb{
 				ParentHash:    make([]byte, 32),
 				FeeRecipient:  make([]byte, 20),
@@ -542,10 +509,6 @@ func (s *PremineGenesisConfig) setLatestBlockHeader(g state.BeaconState) error {
 				BlockHash:   make([]byte, 32),
 			},
 			Graffiti: make([]byte, 32),
-			SyncAggregate: &ethpb.SyncAggregate{
-				SyncCommitteeBits:      make([]byte, fieldparams.SyncCommitteeLength/8),
-				SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
-			},
 			ExecutionPayload: &enginev1.ExecutionPayloadElectra{
 				ParentHash:    make([]byte, 32),
 				FeeRecipient:  make([]byte, 20),

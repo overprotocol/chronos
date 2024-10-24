@@ -66,18 +66,6 @@ var (
 		Name: "remote_web3signer_voluntary_exit_sign_requests_total",
 		Help: "Total number of voluntary exit sign requests",
 	})
-	syncCommitteeMessageSignRequestsTotal = promauto.NewCounter(prometheus.CounterOpts{
-		Name: "remote_web3signer_sync_committee_message_sign_requests_total",
-		Help: "Total number of sync committee message sign requests",
-	})
-	syncCommitteeSelectionProofSignRequestsTotal = promauto.NewCounter(prometheus.CounterOpts{
-		Name: "remote_web3signer_sync_committee_selection_proof_sign_requests_total",
-		Help: "Total number of sync committee selection proof sign requests",
-	})
-	syncCommitteeContributionAndProofSignRequestsTotal = promauto.NewCounter(prometheus.CounterOpts{
-		Name: "remote_web3signer_sync_committee_contribution_and_proof_sign_requests_total",
-		Help: "Total number of sync committee contribution and proof sign requests",
-	})
 	validatorRegistrationSignRequestsTotal = promauto.NewCounter(prometheus.CounterOpts{
 		Name: "remote_web3signer_validator_registration_sign_requests_total",
 		Help: "Total number of validator registration sign requests",

@@ -28,7 +28,6 @@ type ChainInfoFetcher interface {
 	FinalizationFetcher
 	CanonicalFetcher
 	ForkFetcher
-	HeadDomainFetcher
 	ForkchoiceFetcher
 }
 
@@ -78,8 +77,6 @@ type HeadFetcher interface {
 	HeadValidatorIndexToPublicKey(ctx context.Context, index primitives.ValidatorIndex) ([fieldparams.BLSPubkeyLength]byte, error)
 	ChainHeads() ([][32]byte, []primitives.Slot)
 	TargetRootForEpoch([32]byte, primitives.Epoch) ([32]byte, error)
-	HeadSyncCommitteeFetcher
-	HeadDomainFetcher
 }
 
 // ForkFetcher retrieves the current fork information of the Ethereum beacon chain.

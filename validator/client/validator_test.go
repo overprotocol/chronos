@@ -7,7 +7,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"math"
 	"os"
 	"path/filepath"
 	"sort"
@@ -470,15 +469,6 @@ func TestUpdateDuties_OK(t *testing.T) {
 	var wg sync.WaitGroup
 	wg.Add(1)
 
-	client.EXPECT().SubscribeCommitteeSubnets(
-		gomock.Any(),
-		gomock.Any(),
-		gomock.Any(),
-	).DoAndReturn(func(_ context.Context, _ *ethpb.CommitteeSubnetsSubscribeRequest, _ []*ethpb.DutiesResponse_Duty) (*emptypb.Empty, error) {
-		wg.Done()
-		return nil, nil
-	})
-
 	require.NoError(t, v.UpdateDuties(context.Background(), slot), "Could not update assignments")
 
 	util.WaitTimeout(&wg, 2*time.Second)
@@ -518,14 +508,6 @@ func TestUpdateDuties_OK_FilterBlacklistedPublicKeys(t *testing.T) {
 
 	var wg sync.WaitGroup
 	wg.Add(1)
-	client.EXPECT().SubscribeCommitteeSubnets(
-		gomock.Any(),
-		gomock.Any(),
-		gomock.Any(),
-	).DoAndReturn(func(_ context.Context, _ *ethpb.CommitteeSubnetsSubscribeRequest, _ []*ethpb.DutiesResponse_Duty) (*emptypb.Empty, error) {
-		wg.Done()
-		return nil, nil
-	})
 
 	require.NoError(t, v.UpdateDuties(context.Background(), slot), "Could not update assignments")
 
@@ -650,15 +632,6 @@ func TestUpdateDuties_Distributed(t *testing.T) {
 	var wg sync.WaitGroup
 	wg.Add(1)
 
-	client.EXPECT().SubscribeCommitteeSubnets(
-		gomock.Any(),
-		gomock.Any(),
-		gomock.Any(),
-	).DoAndReturn(func(_ context.Context, _ *ethpb.CommitteeSubnetsSubscribeRequest, _ []*ethpb.DutiesResponse_Duty) (*emptypb.Empty, error) {
-		wg.Done()
-		return nil, nil
-	})
-
 	require.NoError(t, v.UpdateDuties(context.Background(), slot), "Could not update assignments")
 	util.WaitTimeout(&wg, 2*time.Second)
 	require.Equal(t, 2, len(v.attSelections))
@@ -673,18 +646,16 @@ func TestRolesAt_OK(t *testing.T) {
 			v.duties = &ethpb.DutiesResponse{
 				CurrentEpochDuties: []*ethpb.DutiesResponse_Duty{
 					{
-						CommitteeIndex:  1,
-						AttesterSlot:    1,
-						PublicKey:       validatorKey.PublicKey().Marshal(),
-						IsSyncCommittee: true,
+						CommitteeIndex: 1,
+						AttesterSlot:   1,
+						PublicKey:      validatorKey.PublicKey().Marshal(),
 					},
 				},
 				NextEpochDuties: []*ethpb.DutiesResponse_Duty{
 					{
-						CommitteeIndex:  1,
-						AttesterSlot:    1,
-						PublicKey:       validatorKey.PublicKey().Marshal(),
-						IsSyncCommittee: true,
+						CommitteeIndex: 1,
+						AttesterSlot:   1,
+						PublicKey:      validatorKey.PublicKey().Marshal(),
 					},
 				},
 			}
@@ -694,52 +665,12 @@ func TestRolesAt_OK(t *testing.T) {
 				gomock.Any(), // epoch
 			).Return(&ethpb.DomainResponse{SignatureDomain: make([]byte, 32)}, nil /*err*/)
 
-			m.validatorClient.EXPECT().SyncSubcommitteeIndex(
-				gomock.Any(), // ctx
-				&ethpb.SyncSubcommitteeIndexRequest{
-					PublicKey: validatorKey.PublicKey().Marshal(),
-					Slot:      1,
-				},
-			).Return(&ethpb.SyncSubcommitteeIndexResponse{}, nil /*err*/)
-
 			roleMap, err := v.RolesAt(context.Background(), 1)
 			require.NoError(t, err)
 
 			assert.Equal(t, iface.RoleAttester, roleMap[bytesutil.ToBytes48(validatorKey.PublicKey().Marshal())][0])
 			assert.Equal(t, iface.RoleAggregator, roleMap[bytesutil.ToBytes48(validatorKey.PublicKey().Marshal())][1])
-			assert.Equal(t, iface.RoleSyncCommittee, roleMap[bytesutil.ToBytes48(validatorKey.PublicKey().Marshal())][2])
 
-			// Test sync committee role at epoch boundary.
-			v.duties = &ethpb.DutiesResponse{
-				CurrentEpochDuties: []*ethpb.DutiesResponse_Duty{
-					{
-						CommitteeIndex:  1,
-						AttesterSlot:    1,
-						PublicKey:       validatorKey.PublicKey().Marshal(),
-						IsSyncCommittee: false,
-					},
-				},
-				NextEpochDuties: []*ethpb.DutiesResponse_Duty{
-					{
-						CommitteeIndex:  1,
-						AttesterSlot:    1,
-						PublicKey:       validatorKey.PublicKey().Marshal(),
-						IsSyncCommittee: true,
-					},
-				},
-			}
-
-			m.validatorClient.EXPECT().SyncSubcommitteeIndex(
-				gomock.Any(), // ctx
-				&ethpb.SyncSubcommitteeIndexRequest{
-					PublicKey: validatorKey.PublicKey().Marshal(),
-					Slot:      31,
-				},
-			).Return(&ethpb.SyncSubcommitteeIndexResponse{}, nil /*err*/)
-
-			roleMap, err = v.RolesAt(context.Background(), params.BeaconConfig().SlotsPerEpoch-1)
-			require.NoError(t, err)
-			assert.Equal(t, iface.RoleSyncCommittee, roleMap[bytesutil.ToBytes48(validatorKey.PublicKey().Marshal())][0])
 		})
 	}
 }
@@ -1192,121 +1123,6 @@ func createAttestation(source, target primitives.Epoch) *ethpb.IndexedAttestatio
 			BeaconBlockRoot: make([]byte, 32),
 		},
 		Signature: make([]byte, fieldparams.BLSSignatureLength),
-	}
-}
-
-func TestIsSyncCommitteeAggregator_OK(t *testing.T) {
-	for _, isSlashingProtectionMinimal := range [...]bool{false, true} {
-		t.Run(fmt.Sprintf("SlashingProtectionMinimal:%v", isSlashingProtectionMinimal), func(t *testing.T) {
-			params.SetupTestConfigCleanup(t)
-			v, m, validatorKey, finish := setup(t, isSlashingProtectionMinimal)
-			defer finish()
-
-			slot := primitives.Slot(1)
-			pubKey := validatorKey.PublicKey().Marshal()
-
-			m.validatorClient.EXPECT().SyncSubcommitteeIndex(
-				gomock.Any(), // ctx
-				&ethpb.SyncSubcommitteeIndexRequest{
-					PublicKey: validatorKey.PublicKey().Marshal(),
-					Slot:      1,
-				},
-			).Return(&ethpb.SyncSubcommitteeIndexResponse{}, nil /*err*/)
-
-			aggregator, err := v.isSyncCommitteeAggregator(context.Background(), slot, map[primitives.ValidatorIndex][fieldparams.BLSPubkeyLength]byte{
-				0: bytesutil.ToBytes48(pubKey),
-			})
-			require.NoError(t, err)
-			require.Equal(t, false, aggregator[0])
-
-			c := params.BeaconConfig().Copy()
-			c.TargetAggregatorsPerSyncSubcommittee = math.MaxUint64
-			params.OverrideBeaconConfig(c)
-
-			m.validatorClient.EXPECT().DomainData(
-				gomock.Any(), // ctx
-				gomock.Any(), // epoch
-			).Return(&ethpb.DomainResponse{SignatureDomain: make([]byte, 32)}, nil /*err*/)
-
-			m.validatorClient.EXPECT().SyncSubcommitteeIndex(
-				gomock.Any(), // ctx
-				&ethpb.SyncSubcommitteeIndexRequest{
-					PublicKey: validatorKey.PublicKey().Marshal(),
-					Slot:      1,
-				},
-			).Return(&ethpb.SyncSubcommitteeIndexResponse{Indices: []primitives.CommitteeIndex{0}}, nil /*err*/)
-
-			aggregator, err = v.isSyncCommitteeAggregator(context.Background(), slot, map[primitives.ValidatorIndex][fieldparams.BLSPubkeyLength]byte{
-				0: bytesutil.ToBytes48(pubKey),
-			})
-			require.NoError(t, err)
-			require.Equal(t, true, aggregator[0])
-		})
-	}
-}
-
-func TestIsSyncCommitteeAggregator_Distributed_OK(t *testing.T) {
-	for _, isSlashingProtectionMinimal := range [...]bool{false, true} {
-		t.Run(fmt.Sprintf("SlashingProtectionMinimal:%v", isSlashingProtectionMinimal), func(t *testing.T) {
-			params.SetupTestConfigCleanup(t)
-			v, m, validatorKey, finish := setup(t, isSlashingProtectionMinimal)
-			defer finish()
-
-			v.distributed = true
-			slot := primitives.Slot(1)
-			pubKey := validatorKey.PublicKey().Marshal()
-
-			m.validatorClient.EXPECT().SyncSubcommitteeIndex(
-				gomock.Any(), // ctx
-				&ethpb.SyncSubcommitteeIndexRequest{
-					PublicKey: validatorKey.PublicKey().Marshal(),
-					Slot:      1,
-				},
-			).Return(&ethpb.SyncSubcommitteeIndexResponse{}, nil /*err*/)
-
-			aggregator, err := v.isSyncCommitteeAggregator(context.Background(), slot, map[primitives.ValidatorIndex][fieldparams.BLSPubkeyLength]byte{
-				0: bytesutil.ToBytes48(pubKey),
-			})
-			require.NoError(t, err)
-			require.Equal(t, false, aggregator[0])
-
-			c := params.BeaconConfig().Copy()
-			c.TargetAggregatorsPerSyncSubcommittee = math.MaxUint64
-			params.OverrideBeaconConfig(c)
-
-			m.validatorClient.EXPECT().DomainData(
-				gomock.Any(), // ctx
-				gomock.Any(), // epoch
-			).Return(&ethpb.DomainResponse{SignatureDomain: make([]byte, 32)}, nil /*err*/).Times(2)
-
-			m.validatorClient.EXPECT().SyncSubcommitteeIndex(
-				gomock.Any(), // ctx
-				&ethpb.SyncSubcommitteeIndexRequest{
-					PublicKey: validatorKey.PublicKey().Marshal(),
-					Slot:      1,
-				},
-			).Return(&ethpb.SyncSubcommitteeIndexResponse{Indices: []primitives.CommitteeIndex{0}}, nil /*err*/)
-
-			sig, err := v.signSyncSelectionData(context.Background(), bytesutil.ToBytes48(pubKey), 0, slot)
-			require.NoError(t, err)
-
-			selection := iface.SyncCommitteeSelection{
-				SelectionProof:    sig,
-				Slot:              1,
-				ValidatorIndex:    123,
-				SubcommitteeIndex: 0,
-			}
-			m.validatorClient.EXPECT().AggregatedSyncSelections(
-				gomock.Any(), // ctx
-				[]iface.SyncCommitteeSelection{selection},
-			).Return([]iface.SyncCommitteeSelection{selection}, nil)
-
-			aggregator, err = v.isSyncCommitteeAggregator(context.Background(), slot, map[primitives.ValidatorIndex][fieldparams.BLSPubkeyLength]byte{
-				123: bytesutil.ToBytes48(pubKey),
-			})
-			require.NoError(t, err)
-			require.Equal(t, true, aggregator[123])
-		})
 	}
 }
 

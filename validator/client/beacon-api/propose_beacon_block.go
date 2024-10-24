@@ -190,10 +190,6 @@ func marshallBeaconBlockAltair(block *ethpb.SignedBeaconBlockAltair) ([]byte, er
 				ProposerSlashings: jsonifyProposerSlashings(block.Block.Body.ProposerSlashings),
 				RandaoReveal:      hexutil.Encode(block.Block.Body.RandaoReveal),
 				VoluntaryExits:    JsonifySignedVoluntaryExits(block.Block.Body.VoluntaryExits),
-				SyncAggregate: &structs.SyncAggregate{
-					SyncCommitteeBits:      hexutil.Encode(block.Block.Body.SyncAggregate.SyncCommitteeBits),
-					SyncCommitteeSignature: hexutil.Encode(block.Block.Body.SyncAggregate.SyncCommitteeSignature),
-				},
 			},
 		},
 	}
@@ -218,10 +214,6 @@ func marshallBeaconBlockBellatrix(block *ethpb.SignedBeaconBlockBellatrix) ([]by
 				ProposerSlashings: jsonifyProposerSlashings(block.Block.Body.ProposerSlashings),
 				RandaoReveal:      hexutil.Encode(block.Block.Body.RandaoReveal),
 				VoluntaryExits:    JsonifySignedVoluntaryExits(block.Block.Body.VoluntaryExits),
-				SyncAggregate: &structs.SyncAggregate{
-					SyncCommitteeBits:      hexutil.Encode(block.Block.Body.SyncAggregate.SyncCommitteeBits),
-					SyncCommitteeSignature: hexutil.Encode(block.Block.Body.SyncAggregate.SyncCommitteeSignature),
-				},
 				ExecutionPayload: &structs.ExecutionPayload{
 					ParentHash:    hexutil.Encode(block.Block.Body.ExecutionPayload.ParentHash),
 					FeeRecipient:  hexutil.Encode(block.Block.Body.ExecutionPayload.FeeRecipient),
@@ -262,10 +254,6 @@ func marshallBeaconBlockBlindedBellatrix(block *ethpb.SignedBlindedBeaconBlockBe
 				ProposerSlashings: jsonifyProposerSlashings(block.Block.Body.ProposerSlashings),
 				RandaoReveal:      hexutil.Encode(block.Block.Body.RandaoReveal),
 				VoluntaryExits:    JsonifySignedVoluntaryExits(block.Block.Body.VoluntaryExits),
-				SyncAggregate: &structs.SyncAggregate{
-					SyncCommitteeBits:      hexutil.Encode(block.Block.Body.SyncAggregate.SyncCommitteeBits),
-					SyncCommitteeSignature: hexutil.Encode(block.Block.Body.SyncAggregate.SyncCommitteeSignature),
-				},
 				ExecutionPayloadHeader: &structs.ExecutionPayloadHeader{
 					ParentHash:       hexutil.Encode(block.Block.Body.ExecutionPayloadHeader.ParentHash),
 					FeeRecipient:     hexutil.Encode(block.Block.Body.ExecutionPayloadHeader.FeeRecipient),
@@ -306,10 +294,6 @@ func marshallBeaconBlockCapella(block *ethpb.SignedBeaconBlockCapella) ([]byte, 
 				ProposerSlashings: jsonifyProposerSlashings(block.Block.Body.ProposerSlashings),
 				RandaoReveal:      hexutil.Encode(block.Block.Body.RandaoReveal),
 				VoluntaryExits:    JsonifySignedVoluntaryExits(block.Block.Body.VoluntaryExits),
-				SyncAggregate: &structs.SyncAggregate{
-					SyncCommitteeBits:      hexutil.Encode(block.Block.Body.SyncAggregate.SyncCommitteeBits),
-					SyncCommitteeSignature: hexutil.Encode(block.Block.Body.SyncAggregate.SyncCommitteeSignature),
-				},
 				ExecutionPayload: &structs.ExecutionPayloadCapella{
 					ParentHash:    hexutil.Encode(block.Block.Body.ExecutionPayload.ParentHash),
 					FeeRecipient:  hexutil.Encode(block.Block.Body.ExecutionPayload.FeeRecipient),
@@ -352,10 +336,6 @@ func marshallBeaconBlockBlindedCapella(block *ethpb.SignedBlindedBeaconBlockCape
 				ProposerSlashings: jsonifyProposerSlashings(block.Block.Body.ProposerSlashings),
 				RandaoReveal:      hexutil.Encode(block.Block.Body.RandaoReveal),
 				VoluntaryExits:    JsonifySignedVoluntaryExits(block.Block.Body.VoluntaryExits),
-				SyncAggregate: &structs.SyncAggregate{
-					SyncCommitteeBits:      hexutil.Encode(block.Block.Body.SyncAggregate.SyncCommitteeBits),
-					SyncCommitteeSignature: hexutil.Encode(block.Block.Body.SyncAggregate.SyncCommitteeSignature),
-				},
 				ExecutionPayloadHeader: &structs.ExecutionPayloadHeaderCapella{
 					ParentHash:       hexutil.Encode(block.Block.Body.ExecutionPayloadHeader.ParentHash),
 					FeeRecipient:     hexutil.Encode(block.Block.Body.ExecutionPayloadHeader.FeeRecipient),

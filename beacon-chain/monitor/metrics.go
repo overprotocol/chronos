@@ -78,16 +78,4 @@ var (
 			"validator_index",
 		},
 	)
-	// syncCommitteeContributionCounter used to track sync committee
-	// contributions
-	syncCommitteeContributionCounter = promauto.NewCounterVec(
-		prometheus.CounterOpts{
-			Namespace: "monitor",
-			Name:      "sync_committee_contributions_total",
-			Help:      "Number of Sync committee contributions performed",
-		},
-		[]string{
-			"validator_index",
-		},
-	)
 )

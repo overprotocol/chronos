@@ -55,11 +55,6 @@ func (mb *mockBroadcaster) BroadcastAttestation(_ context.Context, _ uint64, _ e
 	return nil
 }
 
-func (mb *mockBroadcaster) BroadcastSyncCommitteeMessage(_ context.Context, _ uint64, _ *ethpb.SyncCommitteeMessage) error {
-	mb.broadcastCalled = true
-	return nil
-}
-
 func (mb *mockBroadcaster) BroadcastBlob(_ context.Context, _ uint64, _ *ethpb.BlobSidecar) error {
 	mb.broadcastCalled = true
 	return nil

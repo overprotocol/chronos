@@ -42,7 +42,6 @@ type Flags struct {
 	EnableExperimentalState             bool // EnableExperimentalState turns on the latest and greatest (but potentially unstable) changes to the beacon state.
 	WriteSSZStateTransitions            bool // WriteSSZStateTransitions to tmp directory.
 	EnablePeerScorer                    bool // EnablePeerScorer enables experimental peer scoring in p2p.
-	EnableLightClient                   bool // EnableLightClient enables light client APIs.
 	EnableQUIC                          bool // EnableQUIC specifies whether to enable QUIC transport for libp2p.
 	WriteWalletPasswordOnWebOnboarding  bool // WriteWalletPasswordOnWebOnboarding writes the password to disk after Prysm web signup.
 	EnableDoppelGanger                  bool // EnableDoppelGanger enables doppelganger protection on startup for the validator.
@@ -234,10 +233,6 @@ func ConfigureBeaconChain(ctx *cli.Context) error {
 	if ctx.IsSet(disableResourceManager.Name) {
 		logEnabled(disableResourceManager)
 		cfg.DisableResourceManager = true
-	}
-	if ctx.IsSet(EnableLightClient.Name) {
-		logEnabled(EnableLightClient)
-		cfg.EnableLightClient = true
 	}
 	if ctx.IsSet(BlobSaveFsync.Name) {
 		logEnabled(BlobSaveFsync)

@@ -80,10 +80,6 @@ func (f FieldIndex) String() string {
 		return "finalizedCheckpoint"
 	case InactivityScores:
 		return "inactivityScores"
-	case CurrentSyncCommittee:
-		return "currentSyncCommittee"
-	case NextSyncCommittee:
-		return "nextSyncCommittee"
 	case LatestExecutionPayloadHeader:
 		return "latestExecutionPayloadHeader"
 	case LatestExecutionPayloadHeaderCapella:
@@ -163,30 +159,26 @@ func (f FieldIndex) RealPosition() int {
 		return 21
 	case InactivityScores:
 		return 22
-	case CurrentSyncCommittee:
-		return 23
-	case NextSyncCommittee:
-		return 24
 	case LatestExecutionPayloadHeader, LatestExecutionPayloadHeaderCapella, LatestExecutionPayloadHeaderDeneb:
-		return 25
+		return 23
 	case NextWithdrawalIndex:
-		return 26
+		return 24
 	case NextWithdrawalValidatorIndex:
-		return 27
+		return 25
 	case HistoricalSummaries:
-		return 28
+		return 26
 	case DepositRequestsStartIndex:
-		return 29
+		return 27
 	case DepositBalanceToConsume:
-		return 30
+		return 28
 	case ExitBalanceToConsume:
-		return 31
+		return 29
 	case EarliestExitEpoch:
-		return 32
+		return 30
 	case PendingDeposits:
-		return 33
+		return 31
 	case PendingPartialWithdrawals:
-		return 34
+		return 32
 	default:
 		return -1
 	}
@@ -235,8 +227,6 @@ const (
 	CurrentJustifiedCheckpoint
 	FinalizedCheckpoint
 	InactivityScores
-	CurrentSyncCommittee
-	NextSyncCommittee
 	LatestExecutionPayloadHeader
 	LatestExecutionPayloadHeaderCapella
 	LatestExecutionPayloadHeaderDeneb

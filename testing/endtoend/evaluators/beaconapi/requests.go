@@ -48,12 +48,6 @@ var getRequests = map[string]endpoint{
 		withParams(func(_ primitives.Epoch) []string {
 			return []string{"head"}
 		})),
-	"/beacon/states/{param1}/sync_committees": newMetadata[structs.GetSyncCommitteeResponse](
-		v1PathTemplate,
-		withStart(params.BeaconConfig().AltairForkEpoch),
-		withParams(func(_ primitives.Epoch) []string {
-			return []string{"head"}
-		})),
 	"/beacon/states/{param1}/randao": newMetadata[structs.GetRandaoResponse](
 		v1PathTemplate,
 		withParams(func(_ primitives.Epoch) []string {
@@ -235,19 +229,6 @@ var postRequests = map[string]endpoint{
 		}())),
 	"/validator/duties/attester/{param1}": newMetadata[structs.GetAttesterDutiesResponse](
 		v1PathTemplate,
-		withParams(func(currentEpoch primitives.Epoch) []string {
-			return []string{fmt.Sprintf("%v", currentEpoch)}
-		}),
-		withPOSTObj(func() []string {
-			validatorIndices := make([]string, 64)
-			for i := range validatorIndices {
-				validatorIndices[i] = fmt.Sprintf("%d", i)
-			}
-			return validatorIndices
-		}())),
-	"/validator/duties/sync/{param1}": newMetadata[structs.GetSyncCommitteeDutiesResponse](
-		v1PathTemplate,
-		withStart(params.AltairE2EForkEpoch),
 		withParams(func(currentEpoch primitives.Epoch) []string {
 			return []string{fmt.Sprintf("%v", currentEpoch)}
 		}),

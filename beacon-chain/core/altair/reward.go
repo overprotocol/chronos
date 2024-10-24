@@ -18,8 +18,7 @@ import (
 //	  Return the base reward for the validator defined by ``index`` with respect to the current ``state``.
 //
 //	  Note: An optimally performing validator can earn one base reward per epoch over a long time horizon.
-//	  This takes into account both per-epoch (e.g. attestation) and intermittent duties (e.g. block proposal
-//	  and sync committees).
+//	  This takes into account both per-epoch (e.g. attestation) and intermittent duties (e.g. block proposal).
 //	  """
 //	  increments = state.validators[index].effective_balance // EFFECTIVE_BALANCE_INCREMENT
 //	  return Gwei(increments * get_base_reward_per_increment(state))

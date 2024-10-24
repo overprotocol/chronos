@@ -82,7 +82,6 @@ func TestMetaDataFromFile(t *testing.T) {
 	md := &pb.MetaDataV1{
 		SeqNumber: seqNum,
 		Attnets:   bitfield.NewBitvector64(),
-		Syncnets:  bitfield.NewBitvector4(),
 	}
 	metaData := wrapper.WrappedMetadataV1(md)
 

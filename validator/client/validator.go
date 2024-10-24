@@ -26,7 +26,6 @@ import (
 	eventClient "github.com/prysmaticlabs/prysm/v5/api/client/event"
 	"github.com/prysmaticlabs/prysm/v5/api/server/structs"
 	"github.com/prysmaticlabs/prysm/v5/async/event"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/altair"
 	"github.com/prysmaticlabs/prysm/v5/cmd"
 	"github.com/prysmaticlabs/prysm/v5/config/features"
 	fieldparams "github.com/prysmaticlabs/prysm/v5/config/fieldparams"
@@ -98,7 +97,6 @@ type validator struct {
 	aggregatedSlotCommitteeIDCache       *lru.Cache
 	domainDataCache                      *ristretto.Cache
 	voteStats                            voteStats
-	syncCommitteeStats                   syncCommitteeStats
 	submittedAtts                        map[submittedAttKey]*submittedAtt
 	submittedAggregates                  map[submittedAttKey]*submittedAtt
 	logValidatorPerformance              bool
@@ -715,13 +713,9 @@ func (v *validator) RolesAt(ctx context.Context, slot primitives.Slot) (map[[fie
 
 	var (
 		rolesAt = make(map[[fieldparams.BLSPubkeyLength]byte][]iface.ValidatorRole)
-
-		// store sync committee duties pubkeys and share indices in slices for
-		// potential DV processing
-		syncCommitteeValidators = make(map[primitives.ValidatorIndex][fieldparams.BLSPubkeyLength]byte)
 	)
 
-	for validator, duty := range v.duties.CurrentEpochDuties {
+	for _, duty := range v.duties.CurrentEpochDuties {
 		var roles []iface.ValidatorRole
 
 		if duty == nil {
@@ -749,26 +743,6 @@ func (v *validator) RolesAt(ctx context.Context, slot primitives.Slot) (map[[fie
 			}
 		}
 
-		// Being assigned to a sync committee for a given slot means that the validator produces and
-		// broadcasts signatures for `slot - 1` for inclusion in `slot`. At the last slot of the epoch,
-		// the validator checks whether it's in the sync committee of following epoch.
-		inSyncCommittee := false
-		if slots.IsEpochEnd(slot) {
-			if v.duties.NextEpochDuties[validator].IsSyncCommittee {
-				roles = append(roles, iface.RoleSyncCommittee)
-				inSyncCommittee = true
-			}
-		} else {
-			if duty.IsSyncCommittee {
-				roles = append(roles, iface.RoleSyncCommittee)
-				inSyncCommittee = true
-			}
-		}
-
-		if inSyncCommittee {
-			syncCommitteeValidators[duty.ValidatorIndex] = bytesutil.ToBytes48(duty.PublicKey)
-		}
-
 		if len(roles) == 0 {
 			roles = append(roles, iface.RoleUnknown)
 		}
@@ -776,31 +750,6 @@ func (v *validator) RolesAt(ctx context.Context, slot primitives.Slot) (map[[fie
 		var pubKey [fieldparams.BLSPubkeyLength]byte
 		copy(pubKey[:], duty.PublicKey)
 		rolesAt[pubKey] = roles
-	}
-
-	aggregator, err := v.isSyncCommitteeAggregator(
-		ctx,
-		slot,
-		syncCommitteeValidators,
-	)
-
-	if err != nil {
-		log.WithError(err).Error("Could not check if any validator is a sync committee aggregator")
-		return rolesAt, nil
-	}
-
-	for valIdx, isAgg := range aggregator {
-		if isAgg {
-			valPubkey, ok := syncCommitteeValidators[valIdx]
-			if !ok {
-				log.
-					WithField("pubkey", fmt.Sprintf("%#x", bytesutil.Trunc(valPubkey[:]))).
-					Warn("Validator is marked as sync committee aggregator but cannot be found in sync committee validator list")
-				continue
-			}
-
-			rolesAt[bytesutil.ToBytes48(valPubkey[:])] = append(rolesAt[bytesutil.ToBytes48(valPubkey[:])], iface.RoleSyncCommitteeAggregator)
-		}
 	}
 
 	return rolesAt, nil
@@ -852,71 +801,6 @@ func (v *validator) isAggregator(
 	return binary.LittleEndian.Uint64(b[:8])%modulo == 0, nil
 }
 
-// isSyncCommitteeAggregator checks if a validator in an aggregator of a subcommittee for sync committee.
-// it uses a modulo calculated by validator count in committee and samples randomness around it.
-//
-// Spec code:
-// def is_sync_committee_aggregator(signature: BLSSignature) -> bool:
-//
-//	modulo = max(1, SYNC_COMMITTEE_SIZE // SYNC_COMMITTEE_SUBNET_COUNT // TARGET_AGGREGATORS_PER_SYNC_SUBCOMMITTEE)
-//	return bytes_to_uint64(hash(signature)[0:8]) % modulo == 0
-func (v *validator) isSyncCommitteeAggregator(ctx context.Context, slot primitives.Slot, validators map[primitives.ValidatorIndex][fieldparams.BLSPubkeyLength]byte) (map[primitives.ValidatorIndex]bool, error) {
-	ctx, span := trace.StartSpan(ctx, "validator.isSyncCommitteeAggregator")
-	defer span.End()
-
-	var (
-		selections []iface.SyncCommitteeSelection
-		isAgg      = make(map[primitives.ValidatorIndex]bool)
-	)
-
-	for valIdx, pubKey := range validators {
-		res, err := v.validatorClient.SyncSubcommitteeIndex(ctx, &ethpb.SyncSubcommitteeIndexRequest{
-			PublicKey: pubKey[:],
-			Slot:      slot,
-		})
-
-		if err != nil {
-			return nil, errors.Wrap(err, "can't fetch sync subcommittee index")
-		}
-
-		for _, index := range res.Indices {
-			subCommitteeSize := params.BeaconConfig().SyncCommitteeSize / params.BeaconConfig().SyncCommitteeSubnetCount
-			subnet := uint64(index) / subCommitteeSize
-			sig, err := v.signSyncSelectionData(ctx, pubKey, subnet, slot)
-			if err != nil {
-				return nil, errors.Wrap(err, "can't sign selection data")
-			}
-
-			selections = append(selections, iface.SyncCommitteeSelection{
-				SelectionProof:    sig,
-				Slot:              slot,
-				SubcommitteeIndex: primitives.CommitteeIndex(subnet),
-				ValidatorIndex:    valIdx,
-			})
-		}
-	}
-
-	// Override selections with aggregated ones if the node is part of a Distributed Validator.
-	if v.distributed && len(selections) > 0 {
-		var err error
-		selections, err = v.validatorClient.AggregatedSyncSelections(ctx, selections)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to get aggregated sync selections")
-		}
-	}
-
-	for _, s := range selections {
-		isAggregator, err := altair.IsSyncCommitteeAggregator(s.SelectionProof)
-		if err != nil {
-			return nil, errors.Wrap(err, "can't detect sync committee aggregator")
-		}
-
-		isAgg[s.ValidatorIndex] = isAggregator
-	}
-
-	return isAgg, nil
-}
-
 // UpdateDomainDataCaches by making calls for all of the possible domain data. These can change when
 // the fork version changes which can happen once per epoch. Although changing for the fork version
 // is very rare, a validator should check these data every epoch to be sure the validator is
@@ -931,9 +815,6 @@ func (v *validator) UpdateDomainDataCaches(ctx context.Context, slot primitives.
 		params.BeaconConfig().DomainBeaconProposer[:],
 		params.BeaconConfig().DomainSelectionProof[:],
 		params.BeaconConfig().DomainAggregateAndProof[:],
-		params.BeaconConfig().DomainSyncCommittee[:],
-		params.BeaconConfig().DomainSyncCommitteeSelectionProof[:],
-		params.BeaconConfig().DomainContributionAndProof[:],
 	} {
 		_, err := v.domainData(ctx, slots.ToEpoch(slot), d)
 		if err != nil {
@@ -1016,12 +897,6 @@ func (v *validator) logDuties(slot primitives.Slot, currentEpochDuties []*ethpb.
 				ValidatorNextAttestationSlotGaugeVec.WithLabelValues(pubkey).Set(float64(duty.AttesterSlot))
 			}
 		}
-		if v.emitAccountMetrics && duty.IsSyncCommittee {
-			ValidatorInSyncCommitteeGaugeVec.WithLabelValues(pubkey).Set(float64(1))
-		} else if v.emitAccountMetrics && !duty.IsSyncCommittee {
-			// clear the metric out if the validator is not in the current sync committee anymore otherwise it will be left at 1
-			ValidatorInSyncCommitteeGaugeVec.WithLabelValues(pubkey).Set(float64(0))
-		}
 
 		for _, proposerSlot := range duty.ProposerSlots {
 			proposerSlotInEpoch := proposerSlot - epochStartSlot
@@ -1036,24 +911,6 @@ func (v *validator) logDuties(slot primitives.Slot, currentEpochDuties []*ethpb.
 			}
 		}
 	}
-	for _, duty := range nextEpochDuties {
-		// for the next epoch, currently we are only interested in whether the validator is in the next sync committee or not
-		pubkey := fmt.Sprintf("%#x", duty.PublicKey)
-
-		// Only interested in validators who are attesting/proposing.
-		// Note that slashed validators will have duties but their results are ignored by the network so we don't bother with them.
-		if duty.Status != ethpb.ValidatorStatus_ACTIVE && duty.Status != ethpb.ValidatorStatus_EXITING {
-			continue
-		}
-
-		if v.emitAccountMetrics && duty.IsSyncCommittee {
-			ValidatorInNextSyncCommitteeGaugeVec.WithLabelValues(pubkey).Set(float64(1))
-		} else if v.emitAccountMetrics && !duty.IsSyncCommittee {
-			// clear the metric out if the validator is now not in the next sync committee otherwise it will be left at 1
-			ValidatorInNextSyncCommitteeGaugeVec.WithLabelValues(pubkey).Set(float64(0))
-		}
-	}
-
 	log.WithFields(logrus.Fields{
 		"proposerCount": totalProposingKeys,
 		"attesterCount": totalAttestingKeys,
@@ -1512,9 +1369,4 @@ type voteStats struct {
 	totalCorrectSource  uint64
 	totalCorrectTarget  uint64
 	totalCorrectHead    uint64
-}
-
-// This tracks all validators' submissions for sync committees.
-type syncCommitteeStats struct {
-	totalMessagesSubmitted uint64
 }

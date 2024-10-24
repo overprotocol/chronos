@@ -11,7 +11,6 @@ go_library(
         "committee.go",
         "committee_disabled.go",  # keep
         "committees.go",
-        "common.go",
         "doc.go",
         "error.go",
         "interfaces.go",
@@ -22,10 +21,6 @@ go_library(
         "registration.go",
         "skip_slot_cache.go",
         "subnet_ids.go",
-        "sync_committee.go",
-        "sync_committee_disabled.go",  # keep
-        "sync_committee_head_state.go",
-        "sync_subnet_ids.go",
         "tracked_validators.go",
     ],
     importpath = "github.com/prysmaticlabs/prysm/v5/beacon-chain/cache",
@@ -73,11 +68,8 @@ go_test(
         "private_access_test.go",
         "proposer_indices_test.go",
         "registration_test.go",
-        "skip_slot_cache_test.go",
         "subnet_ids_test.go",
-        "sync_committee_head_state_test.go",
-        "sync_committee_test.go",
-        "sync_subnet_ids_test.go",
+        "skip_slot_cache_test.go",
     ],
     embed = [":go_default_library"],
     deps = [

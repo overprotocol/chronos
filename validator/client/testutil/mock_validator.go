@@ -76,9 +76,6 @@ func (fv *FakeValidator) WaitForKeymanagerInitialization(_ context.Context) erro
 	return nil
 }
 
-// LogSubmittedSyncCommitteeMessages --
-func (fv *FakeValidator) LogSubmittedSyncCommitteeMessages() {}
-
 // WaitForChainStart for mocking.
 func (fv *FakeValidator) WaitForChainStart(_ context.Context) error {
 	fv.WaitForChainStartCalled++
@@ -193,10 +190,6 @@ func (fv *FakeValidator) ProposeBlock(_ context.Context, slot primitives.Slot, _
 func (*FakeValidator) SubmitAggregateAndProof(_ context.Context, _ primitives.Slot, _ [fieldparams.BLSPubkeyLength]byte) {
 }
 
-// SubmitSyncCommitteeMessage for mocking.
-func (*FakeValidator) SubmitSyncCommitteeMessage(_ context.Context, _ primitives.Slot, _ [fieldparams.BLSPubkeyLength]byte) {
-}
-
 // LogSubmittedAtts for mocking.
 func (*FakeValidator) LogSubmittedAtts(_ primitives.Slot) {}
 
@@ -242,10 +235,6 @@ func (fv *FakeValidator) HandleKeyReload(_ context.Context, newKeys [][fieldpara
 		}
 	}
 	return false, nil
-}
-
-// SubmitSignedContributionAndProof for mocking
-func (*FakeValidator) SubmitSignedContributionAndProof(_ context.Context, _ primitives.Slot, _ [fieldparams.BLSPubkeyLength]byte) {
 }
 
 // HasProposerSettings for mocking
