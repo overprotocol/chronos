@@ -66,9 +66,8 @@ func ProcessRegistryUpdates(ctx context.Context, st state.BeaconState) error {
 
 		// Collect validators to bailout.
 		isActive := helpers.IsActiveValidatorUsingTrie(val, currentEpoch)
-		// TODO: use principal_balance and rename this variable.
-		PRINCIPAL_BALANCE := uint64(256000000000)
-		bailoutBuffer := PRINCIPAL_BALANCE * inactivityPenaltyRate / inactivityPenaltyRatePrecision
+		pb := val.PrincipalBalance()
+		bailoutBuffer := pb * inactivityPenaltyRate / inactivityPenaltyRatePrecision
 		actualBalance, err := st.BalanceAtIndex(primitives.ValidatorIndex(idx))
 		if err != nil {
 			return err
@@ -78,7 +77,7 @@ func ProcessRegistryUpdates(ctx context.Context, st state.BeaconState) error {
 			return err
 		}
 
-		belowThreshold := actualBalance+bailoutBuffer < PRINCIPAL_BALANCE
+		belowThreshold := actualBalance+bailoutBuffer < pb
 		if isActive && belowThreshold {
 			eligibleForBailout = append(eligibleForBailout, primitives.ValidatorIndex(idx))
 		} else if isInInactivityLeak && inactivityScore > inactivityLeakBailoutScoreThreshold {
