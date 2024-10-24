@@ -66,7 +66,6 @@ func TestGetSpec(t *testing.T) {
 	config.DepositContractAddress = "DepositContractAddress"
 	config.MinDepositAmount = 20
 	config.MaxEffectiveBalance = 21
-	config.EjectionBalance = 22
 	config.EffectiveBalanceIncrement = 23
 	config.GenesisForkVersion = []byte("GenesisForkVersion")
 	config.AltairForkVersion = []byte("AltairForkVersion")
@@ -248,8 +247,6 @@ func TestGetSpec(t *testing.T) {
 				assert.Equal(t, "20", v)
 			case "MAX_EFFECTIVE_BALANCE":
 				assert.Equal(t, "21", v)
-			case "EJECTION_BALANCE":
-				assert.Equal(t, "22", v)
 			case "EFFECTIVE_BALANCE_INCREMENT":
 				assert.Equal(t, "23", v)
 			case "GENESIS_FORK_VERSION":

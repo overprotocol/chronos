@@ -134,7 +134,7 @@ func TestInitiateValidatorExitAltair_ChurnOverflow(t *testing.T) {
 func TestInitiateValidatorExit_WithdrawalOverflows(t *testing.T) {
 	base := &ethpb.BeaconState{Validators: []*ethpb.Validator{
 		{ExitEpoch: params.BeaconConfig().FarFutureEpoch - 1},
-		{EffectiveBalance: params.BeaconConfig().EjectionBalance, ExitEpoch: params.BeaconConfig().FarFutureEpoch},
+		{EffectiveBalance: params.BeaconConfig().MinActivationBalance, ExitEpoch: params.BeaconConfig().FarFutureEpoch},
 	}}
 	state, err := state_native.InitializeFromProtoPhase0(base)
 	require.NoError(t, err)

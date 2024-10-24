@@ -123,6 +123,6 @@ type ActiveSetChanges struct {
 	ExitedIndices       []string `json:"exited_indices"`
 	SlashedPublicKeys   []string `json:"slashed_public_keys"`
 	SlashedIndices      []string `json:"slashed_indices"`
-	EjectedPublicKeys   []string `json:"ejected_public_keys"`
-	EjectedIndices      []string `json:"ejected_indices"`
+	BailedOutPublicKeys []string `json:"bailed_out_public_keys"`
+	BailedOutIndices    []string `json:"bailed_out_indices"`
 }

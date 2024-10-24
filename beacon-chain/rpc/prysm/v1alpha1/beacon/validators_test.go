@@ -1233,12 +1233,13 @@ func TestServer_GetValidator(t *testing.T) {
 	}
 }
 
+// TODO: fix me
 func TestServer_GetValidatorActiveSetChanges(t *testing.T) {
 	beaconDB := dbTest.SetupDB(t)
 
 	ctx := context.Background()
 	validators := make([]*ethpb.Validator, 8)
-	headState, err := util.NewBeaconState()
+	headState, err := util.NewBeaconStateDeneb()
 	require.NoError(t, err)
 	require.NoError(t, headState.SetSlot(0))
 	require.NoError(t, headState.SetValidators(validators))
@@ -1247,7 +1248,7 @@ func TestServer_GetValidatorActiveSetChanges(t *testing.T) {
 		withdrawableEpoch := params.BeaconConfig().FarFutureEpoch
 		exitEpoch := params.BeaconConfig().FarFutureEpoch
 		slashed := false
-		balance := params.BeaconConfig().MaxEffectiveBalance
+		balance := params.BeaconConfig().MinActivationBalance
 		// Mark indices divisible by two as activated.
 		if i%2 == 0 {
 			activationEpoch = 0
@@ -1260,10 +1261,9 @@ func TestServer_GetValidatorActiveSetChanges(t *testing.T) {
 			exitEpoch = 0
 			withdrawableEpoch = params.BeaconConfig().MinValidatorWithdrawabilityDelay
 		} else if i%7 == 0 {
-			// Mark indices divisible by 7 as ejected.
+			// Mark indices divisible by 7 as bailed out.
 			exitEpoch = 0
 			withdrawableEpoch = params.BeaconConfig().MinValidatorWithdrawabilityDelay
-			balance = params.BeaconConfig().EjectionBalance
 		}
 		err := headState.UpdateValidatorAtIndex(primitives.ValidatorIndex(i), &ethpb.Validator{
 			ActivationEpoch:       activationEpoch,
@@ -1276,7 +1276,7 @@ func TestServer_GetValidatorActiveSetChanges(t *testing.T) {
 		})
 		require.NoError(t, err)
 	}
-	b := util.NewBeaconBlock()
+	b := util.NewBeaconBlockDeneb()
 	util.SaveBlock(t, ctx, beaconDB, b)
 
 	gRoot, err := b.Block.HashTreeRoot()
@@ -1312,10 +1312,10 @@ func TestServer_GetValidatorActiveSetChanges(t *testing.T) {
 		pubKey(3),
 	}
 	wantedSlashedIndices := []primitives.ValidatorIndex{3}
-	wantedEjected := [][]byte{
+	wantedBailedOut := [][]byte{
 		pubKey(7),
 	}
-	wantedEjectedIndices := []primitives.ValidatorIndex{7}
+	wantedBailedOutIndices := []primitives.ValidatorIndex{7}
 	wanted := &ethpb.ActiveSetChanges{
 		Epoch:               0,
 		ActivatedPublicKeys: wantedActive,
@@ -1324,8 +1324,8 @@ func TestServer_GetValidatorActiveSetChanges(t *testing.T) {
 		ExitedIndices:       wantedExitedIndices,
 		SlashedPublicKeys:   wantedSlashed,
 		SlashedIndices:      wantedSlashedIndices,
-		EjectedPublicKeys:   wantedEjected,
-		EjectedIndices:      wantedEjectedIndices,
+		BailedOutPublicKeys: wantedBailedOut,
+		BailedOutIndices:    wantedBailedOutIndices,
 	}
 	if !proto.Equal(wanted, res) {
 		t.Errorf("Wanted \n%v, received \n%v", wanted, res)

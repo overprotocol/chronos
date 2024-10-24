@@ -654,7 +654,7 @@ func (s *Service) ValidatorActiveSetChanges(
 	bailedOutIndices, err := validators.BailedOutValidatorIndices(requestedState, vs, isInInactivityLeak)
 	if err != nil {
 		return nil, &RpcError{
-			Err:    errors.Wrap(err, "could not determine ejected validator indices"),
+			Err:    errors.Wrap(err, "could not determine bailed out validator indices"),
 			Reason: Internal,
 		}
 	}
@@ -681,7 +681,6 @@ func (s *Service) ValidatorActiveSetChanges(
 		bailedOutKeys[i] = pubkey[:]
 	}
 
-	// TODO: change proto file
 	return &ethpb.ActiveSetChanges{
 		Epoch:               requestedEpoch,
 		ActivatedPublicKeys: activatedKeys,
@@ -690,7 +689,7 @@ func (s *Service) ValidatorActiveSetChanges(
 		ExitedIndices:       exitedIndices,
 		SlashedPublicKeys:   slashedKeys,
 		SlashedIndices:      slashedIndices,
-		EjectedPublicKeys:   bailedOutKeys,
-		EjectedIndices:      bailedOutIndices,
+		BailedOutPublicKeys: bailedOutKeys,
+		BailedOutIndices:    bailedOutIndices,
 	}, nil
 }

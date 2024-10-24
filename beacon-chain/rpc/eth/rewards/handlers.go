@@ -172,7 +172,7 @@ func attRewardsBalancesAndVals(
 }
 
 // idealAttRewards returns rewards for hypothetical, perfectly voting validators
-// whose effective balances are over EJECTION_BALANCE and match balances in passed in validators.
+// whose effective balances are over minIdealBalance and match balances in passed in validators.
 func idealAttRewards(
 	w http.ResponseWriter,
 	st state.BeaconState,

@@ -123,22 +123,28 @@ func TestProcessRegistryUpdates_ActivationCompletes(t *testing.T) {
 	}
 }
 
-func TestProcessRegistryUpdates_ValidatorsEjected(t *testing.T) {
-	base := &ethpb.BeaconState{
+func TestProcessRegistryUpdates_ValidatorsBailedOut(t *testing.T) {
+	principalBalance := params.BeaconConfig().MinActivationBalance
+	bailoutBuffer := principalBalance * params.BeaconConfig().InactivityPenaltyRate / params.BeaconConfig().InactivityPenaltyRatePrecision
+	actualBalance := principalBalance - bailoutBuffer - 1
+	base := &ethpb.BeaconStateDeneb{
 		Slot: 0,
 		Validators: []*ethpb.Validator{
 			{
 				ExitEpoch:        params.BeaconConfig().FarFutureEpoch,
-				EffectiveBalance: params.BeaconConfig().EjectionBalance - 1,
+				EffectiveBalance: principalBalance,
+				PrincipalBalance: principalBalance,
 			},
 			{
 				ExitEpoch:        params.BeaconConfig().FarFutureEpoch,
-				EffectiveBalance: params.BeaconConfig().EjectionBalance - 1,
+				EffectiveBalance: principalBalance,
+				PrincipalBalance: principalBalance,
 			},
 		},
+		Balances:            []uint64{actualBalance, actualBalance},
 		FinalizedCheckpoint: &ethpb.Checkpoint{Root: make([]byte, fieldparams.RootLength)},
 	}
-	beaconState, err := state_native.InitializeFromProtoPhase0(base)
+	beaconState, err := state_native.InitializeFromProtoDeneb(base)
 	require.NoError(t, err)
 	newState, err := epoch.ProcessRegistryUpdates(context.Background(), beaconState)
 	require.NoError(t, err)
