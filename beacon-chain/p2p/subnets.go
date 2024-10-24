@@ -28,13 +28,6 @@ var attestationSubnetCount = params.BeaconConfig().AttestationSubnetCount
 
 var attSubnetEnrKey = params.BeaconNetworkConfig().AttSubnetKey
 
-// The value used with the subnet, in order
-// to create an appropriate key to retrieve
-// the relevant lock. This is used to differentiate
-// sync subnets from attestation subnets. This is deliberately
-// chosen as more than 64(attestation subnet count).
-const syncLockerVal = 100
-
 // The value used with the blob sidecar subnet, in order
 // to create an appropriate key to retrieve
 // the relevant lock. This is used to differentiate

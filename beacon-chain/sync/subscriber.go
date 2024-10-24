@@ -624,8 +624,5 @@ func multiAddr(pid peer.ID, stat *peers.Status) string {
 }
 
 func errorIsIgnored(err error) bool {
-	if errors.Is(err, helpers.ErrTooLate) {
-		return true
-	}
-	return false
+	return errors.Is(err, helpers.ErrTooLate)
 }

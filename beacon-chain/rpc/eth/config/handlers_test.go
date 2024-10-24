@@ -133,6 +133,9 @@ func TestGetSpec(t *testing.T) {
 	config.DepositPlanLaterSlope = 75
 	config.DepositPlanLaterOffset = 76
 	config.DepositPlanFinal = 77
+	config.RewardAdjustmentFactorDelta = 78
+	config.RewardAdjustmentFactorPrecision = 79
+	config.MaxRewardAdjustmentFactors = [11]uint64{80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80}
 	config.MaxTokenSupply = 82
 	config.EpochsPerYear = 83
 	config.IssuancePerYear = 84
@@ -379,7 +382,7 @@ func TestGetSpec(t *testing.T) {
 			case "DOMAIN_BLOB_SIDECAR":
 				assert.Equal(t, "0x00000000", v)
 			case "TERMINAL_BLOCK_HASH_ACTIVATION_EPOCH":
-				assert.Equal(t, "66", v)
+				assert.Equal(t, "62", v)
 			case "TERMINAL_BLOCK_HASH":
 				s, ok := v.(string)
 				require.Equal(t, true, ok)
@@ -397,11 +400,11 @@ func TestGetSpec(t *testing.T) {
 			case "INTERVALS_PER_SLOT":
 				assert.Equal(t, "3", v)
 			case "MAX_WITHDRAWALS_PER_PAYLOAD":
-				assert.Equal(t, "69", v)
+				assert.Equal(t, "65", v)
 			case "MAX_BLS_TO_EXECUTION_CHANGES":
-				assert.Equal(t, "70", v)
+				assert.Equal(t, "66", v)
 			case "MAX_VALIDATORS_PER_WITHDRAWALS_SWEEP":
-				assert.Equal(t, "71", v)
+				assert.Equal(t, "67", v)
 			case "REORG_MAX_EPOCHS_SINCE_FINALIZATION":
 				assert.Equal(t, "2", v)
 			case "REORG_WEIGHT_THRESHOLD":
@@ -481,6 +484,12 @@ func TestGetSpec(t *testing.T) {
 				assert.Equal(t, "76", v)
 			case "DEPOSIT_PLAN_FINAL":
 				assert.Equal(t, "77", v)
+			case "REWARD_ADJUSTMENT_FACTOR_DELTA":
+				assert.Equal(t, "78", v)
+			case "REWARD_ADJUSTMENT_FACTOR_PRECISION":
+				assert.Equal(t, "79", v)
+			case "MAX_REWARD_ADJUSTMENT_FACTORS":
+				assert.Equal(t, "[80,80,80,80,80,80,80,80,80,80,80]", v)
 			case "REWARD_FEEDBACK_PRECISION":
 				assert.Equal(t, "89", v)
 			case "REWARD_FEEDBACK_THRESHOLD_RECIPROCAL":
@@ -495,10 +504,12 @@ func TestGetSpec(t *testing.T) {
 				assert.Equal(t, "83", v)
 			case "ISSUANCE_PER_YEAR":
 				assert.Equal(t, "84", v)
+			case "LIGHT_LAYER_WEIGHT":
+				assert.Equal(t, "85", v)
 			case "MIN_SLASHING_PENALTY_QUOTIENT_ELECTRA":
-				assert.Equal(t, "96", v)
+				assert.Equal(t, "86", v)
 			case "MAX_EFFECTIVE_BALANCE_ELECTRA":
-				assert.Equal(t, "97", v)
+				assert.Equal(t, "87", v)
 			case "COMPOUNDING_WITHDRAWAL_PREFIX":
 				assert.Equal(t, "0x64", v)
 			case "WHISTLEBLOWER_REWARD_QUOTIENT_ELECTRA":

@@ -10,7 +10,6 @@ import (
 	"time"
 
 	lru "github.com/hashicorp/golang-lru"
-	pubsub "github.com/libp2p/go-libp2p-pubsub"
 	libp2pcore "github.com/libp2p/go-libp2p/core"
 	"github.com/libp2p/go-libp2p/core/peer"
 	gcache "github.com/patrickmn/go-cache"
@@ -70,7 +69,7 @@ var (
 )
 
 // Common type for functional p2p validation options.
-type validationFn func(ctx context.Context) (pubsub.ValidationResult, error)
+// type validationFn func(ctx context.Context) (pubsub.ValidationResult, error)
 
 // config to hold dependencies for the sync service.
 type config struct {
@@ -139,7 +138,6 @@ type Service struct {
 	seenProposerSlashingCache        *lru.Cache
 	seenAttesterSlashingLock         sync.RWMutex
 	seenAttesterSlashingCache        map[uint64]bool
-	seenSyncMessageLock              sync.RWMutex
 	badBlockCache                    *lru.Cache
 	badBlockLock                     sync.RWMutex
 	signatureChan                    chan *signatureVerifier
