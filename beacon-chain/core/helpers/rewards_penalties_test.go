@@ -223,7 +223,6 @@ func TestIncreaseBalanceAndAdjustPrincipalBalance(t *testing.T) {
 			expectedBalance:          9,
 		},
 	}
-	}
 
 	// Iterate through test cases
 	for _, tc := range tests {
