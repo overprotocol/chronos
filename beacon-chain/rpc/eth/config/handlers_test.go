@@ -307,15 +307,15 @@ func TestGetSpec(t *testing.T) {
 			case "VALIDATOR_REGISTRY_LIMIT":
 				assert.Equal(t, "38", v)
 			case "WHISTLEBLOWER_REWARD_QUOTIENT":
-				assert.Equal(t, "39", v)
-			case "PROPOSER_REWARD_QUOTIENT":
 				assert.Equal(t, "40", v)
-			case "INACTIVITY_PENALTY_QUOTIENT":
+			case "PROPOSER_REWARD_QUOTIENT":
 				assert.Equal(t, "41", v)
+			case "INACTIVITY_PENALTY_QUOTIENT":
+				assert.Equal(t, "42", v)
 			case "HF1_INACTIVITY_PENALTY_QUOTIENT":
 				assert.Equal(t, "41", v)
 			case "MIN_SLASHING_PENALTY_QUOTIENT":
-				assert.Equal(t, "42", v)
+				assert.Equal(t, "44", v)
 			case "HF1_MIN_SLASHING_PENALTY_QUOTIENT":
 				assert.Equal(t, "45", v)
 			case "HF1_PROPORTIONAL_SLASHING_MULTIPLIER":
@@ -462,7 +462,7 @@ func TestGetSpec(t *testing.T) {
 			case "MAX_REQUEST_DATA_COLUMN_SIDECARS":
 				assert.Equal(t, "16384", v)
 			case "CHURN_LIMIT_BIAS":
-				assert.Equal(t, "79", v)
+				assert.Equal(t, "68", v)
 			case "ISSUANCE_RATE":
 				assert.Equal(t, "[80,80,80,80,80,80,80,80,80,80,80]", v)
 			case "ISSUANCE_PRECISION":
@@ -470,17 +470,17 @@ func TestGetSpec(t *testing.T) {
 			case "DEPOSIT_PLAN_EARLY_END":
 				assert.Equal(t, "82", v)
 			case "DEPOSIT_PLAN_EARLY_SLOPE":
-				assert.Equal(t, "83", v)
+				assert.Equal(t, "72", v)
 			case "DEPOSIT_PLAN_EARLY_OFFSET":
-				assert.Equal(t, "84", v)
+				assert.Equal(t, "73", v)
 			case "DEPOSIT_PLAN_LATER_END":
-				assert.Equal(t, "85", v)
+				assert.Equal(t, "74", v)
 			case "DEPOSIT_PLAN_LATER_SLOPE":
-				assert.Equal(t, "86", v)
+				assert.Equal(t, "75", v)
 			case "DEPOSIT_PLAN_LATER_OFFSET":
-				assert.Equal(t, "87", v)
+				assert.Equal(t, "76", v)
 			case "DEPOSIT_PLAN_FINAL":
-				assert.Equal(t, "88", v)
+				assert.Equal(t, "77", v)
 			case "REWARD_FEEDBACK_PRECISION":
 				assert.Equal(t, "89", v)
 			case "REWARD_FEEDBACK_THRESHOLD_RECIPROCAL":
@@ -490,11 +490,11 @@ func TestGetSpec(t *testing.T) {
 			case "TARGET_CHANGE_RATE":
 				assert.Equal(t, "92", v)
 			case "MAX_TOKEN_SUPPLY":
-				assert.Equal(t, "93", v)
+				assert.Equal(t, "82", v)
 			case "EPOCHS_PER_YEAR":
-				assert.Equal(t, "94", v)
+				assert.Equal(t, "83", v)
 			case "ISSUANCE_PER_YEAR":
-				assert.Equal(t, "95", v)
+				assert.Equal(t, "84", v)
 			case "MIN_SLASHING_PENALTY_QUOTIENT_ELECTRA":
 				assert.Equal(t, "96", v)
 			case "MAX_EFFECTIVE_BALANCE_ELECTRA":
@@ -502,33 +502,33 @@ func TestGetSpec(t *testing.T) {
 			case "COMPOUNDING_WITHDRAWAL_PREFIX":
 				assert.Equal(t, "0x64", v)
 			case "WHISTLEBLOWER_REWARD_QUOTIENT_ELECTRA":
-				assert.Equal(t, "98", v)
+				assert.Equal(t, "89", v)
 			case "PENDING_PARTIAL_WITHDRAWALS_LIMIT":
-				assert.Equal(t, "99", v)
+				assert.Equal(t, "90", v)
 			case "MIN_ACTIVATION_BALANCE":
-				assert.Equal(t, "100", v)
+				assert.Equal(t, "91", v)
 			case "PENDING_DEPOSITS_LIMIT":
-				assert.Equal(t, "101", v)
+				assert.Equal(t, "92", v)
 			case "MAX_PENDING_PARTIALS_PER_WITHDRAWALS_SWEEP":
-				assert.Equal(t, "102", v)
+				assert.Equal(t, "93", v)
 			case "MAX_PARTIAL_WITHDRAWALS_PER_PAYLOAD":
-				assert.Equal(t, "103", v)
+				assert.Equal(t, "94", v)
 			case "FULL_EXIT_REQUEST_AMOUNT":
-				assert.Equal(t, "104", v)
+				assert.Equal(t, "95", v)
 			case "MAX_ATTESTER_SLASHINGS_ELECTRA":
-				assert.Equal(t, "105", v)
+				assert.Equal(t, "96", v)
 			case "MAX_ATTESTATIONS_ELECTRA":
-				assert.Equal(t, "106", v)
+				assert.Equal(t, "97", v)
 			case "MAX_WITHDRAWAL_REQUESTS_PER_PAYLOAD":
-				assert.Equal(t, "107", v)
+				assert.Equal(t, "98", v)
 			case "MAX_CELLS_IN_EXTENDED_MATRIX":
-				assert.Equal(t, "108", v)
+				assert.Equal(t, "99", v)
 			case "UNSET_DEPOSIT_REQUESTS_START_INDEX":
-				assert.Equal(t, "109", v)
+				assert.Equal(t, "100", v)
 			case "MAX_DEPOSIT_REQUESTS_PER_PAYLOAD":
-				assert.Equal(t, "110", v)
+				assert.Equal(t, "101", v)
 			case "MAX_PENDING_DEPOSITS_PER_EPOCH":
-				assert.Equal(t, "111", v)
+				assert.Equal(t, "102", v)
 			default:
 				t.Errorf("Incorrect key: %s", k)
 			}
