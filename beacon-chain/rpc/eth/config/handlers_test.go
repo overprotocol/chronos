@@ -98,7 +98,6 @@ func TestGetSpec(t *testing.T) {
 	config.ValidatorRegistryLimit = 38
 	config.WhistleBlowerRewardQuotient = 40
 	config.ProposerRewardQuotient = 41
-	config.InactivityPenaltyQuotient = 42
 	config.MinSlashingPenaltyQuotient = 44
 	config.MaxProposerSlashings = 45
 	config.MaxAttesterSlashings = 46

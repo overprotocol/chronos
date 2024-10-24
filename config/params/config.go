@@ -109,7 +109,6 @@ type BeaconChainConfig struct {
 	// Reward and penalty quotients constants.
 	WhistleBlowerRewardQuotient          uint64 `yaml:"WHISTLEBLOWER_REWARD_QUOTIENT" spec:"true"`            // WhistleBlowerRewardQuotient is used to calculate whistle blower reward.
 	ProposerRewardQuotient               uint64 `yaml:"PROPOSER_REWARD_QUOTIENT" spec:"true"`                 // ProposerRewardQuotient is used to calculate the reward for proposers.
-	InactivityPenaltyQuotient            uint64 `yaml:"INACTIVITY_PENALTY_QUOTIENT" spec:"true"`              // InactivityPenaltyQuotient is used to calculate the penalty for a validator that is offline.
 	MinSlashingPenaltyQuotient           uint64 `yaml:"MIN_SLASHING_PENALTY_QUOTIENT" spec:"true"`            // MinSlashingPenaltyQuotient is used to calculate the minimum penalty to prevent DoS attacks.
 	InactivityPenaltyRate                uint64 `yaml:"INACTIVITY_PENALTY_RATE" spec:"true"`                  // InactivityPenaltyRate is used to calculate the penalty numerator and bail out.
 	InactivityPenaltyRatePrecision       uint64 `yaml:"INACTIVITY_PENALTY_RATE_PRECISION" spec:"true"`        // InactivityPenaltyRatePrecision is used to calculate the penalty numerator and bail out.
@@ -211,10 +210,8 @@ type BeaconChainConfig struct {
 
 	// Updated penalty values. This moves penalty parameters toward their final, maximum security values.
 	// Note: We do not override previous configuration values but instead creates new values and replaces usage throughout.
-	InactivityPenaltyQuotientAltair     uint64 `yaml:"INACTIVITY_PENALTY_QUOTIENT_ALTAIR" spec:"true"`      // InactivityPenaltyQuotientAltair for penalties during inactivity post Altair hard fork.
 	MinSlashingPenaltyQuotientAltair    uint64 `yaml:"MIN_SLASHING_PENALTY_QUOTIENT_ALTAIR" spec:"true"`    // MinSlashingPenaltyQuotientAltair for slashing penalties post Altair hard fork.
 	MinSlashingPenaltyQuotientBellatrix uint64 `yaml:"MIN_SLASHING_PENALTY_QUOTIENT_BELLATRIX" spec:"true"` // MinSlashingPenaltyQuotientBellatrix for slashing penalties post Bellatrix hard fork.
-	InactivityPenaltyQuotientBellatrix  uint64 `yaml:"INACTIVITY_PENALTY_QUOTIENT_BELLATRIX" spec:"true"`   // InactivityPenaltyQuotientBellatrix for penalties during inactivity post Bellatrix hard fork.
 
 	// Bellatrix
 	TerminalBlockHash                common.Hash      `yaml:"TERMINAL_BLOCK_HASH" spec:"true"`                  // TerminalBlockHash of beacon chain.

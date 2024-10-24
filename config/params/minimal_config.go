@@ -56,7 +56,6 @@ func MinimalSpecConfig() *BeaconChainConfig {
 	// Reward and penalty quotients
 	minimalConfig.WhistleBlowerRewardQuotient = 512
 	minimalConfig.ProposerRewardQuotient = 8
-	minimalConfig.InactivityPenaltyQuotient = 33554432
 	minimalConfig.MinSlashingPenaltyQuotient = 64
 
 	// Max operations per block
