@@ -196,23 +196,33 @@ func TestIncreaseBalanceAndAdjustPrincipalBalance(t *testing.T) {
 		expectedBalance          uint64
 	}{
 		{
-			name:                     "balance < principal balance < balance + delta",
-			initialEffectiveBalance:  4,
-			initialPrincipalBalance:  4,
+			name:                     "principal balance < balance",
+			initialEffectiveBalance:  10,
+			initialPrincipalBalance:  8,
 			initialBalance:           10,
 			delta:                    6,
-			expectedPrincipalBalance: 10,
+			expectedPrincipalBalance: 14,
 			expectedBalance:          16,
 		},
 		{
-			name:                     "balance < balance + delta < principal balance",
-			initialEffectiveBalance:  4,
-			initialPrincipalBalance:  14,
-			initialBalance:           10,
+			name:                     "balance < principal balance < balance + delta",
+			initialEffectiveBalance:  8,
+			initialPrincipalBalance:  10,
+			initialBalance:           8,
 			delta:                    6,
-			expectedPrincipalBalance: 16,
-			expectedBalance:          16,
+			expectedPrincipalBalance: 14,
+			expectedBalance:          14,
 		},
+		{
+			name:                     "balance + delta < principal balance",
+			initialEffectiveBalance:  10,
+			initialPrincipalBalance:  10,
+			initialBalance:           3,
+			delta:                    6,
+			expectedPrincipalBalance: 10,
+			expectedBalance:          9,
+		},
+	}
 	}
 
 	// Iterate through test cases
