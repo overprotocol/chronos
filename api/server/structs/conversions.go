@@ -31,6 +31,7 @@ func ValidatorFromConsensus(v *eth.Validator) *Validator {
 		ActivationEpoch:            fmt.Sprintf("%d", v.ActivationEpoch),
 		ExitEpoch:                  fmt.Sprintf("%d", v.ExitEpoch),
 		WithdrawableEpoch:          fmt.Sprintf("%d", v.WithdrawableEpoch),
+		PrincipalBalance:           fmt.Sprintf("%d", v.PrincipalBalance),
 	}
 }
 

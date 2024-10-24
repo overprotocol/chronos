@@ -1702,6 +1702,7 @@ type Validator struct {
 	ActivationEpoch            github_com_prysmaticlabs_prysm_v5_consensus_types_primitives.Epoch `protobuf:"varint,6,opt,name=activation_epoch,json=activationEpoch,proto3" json:"activation_epoch,omitempty" cast-type:"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives.Epoch"`
 	ExitEpoch                  github_com_prysmaticlabs_prysm_v5_consensus_types_primitives.Epoch `protobuf:"varint,7,opt,name=exit_epoch,json=exitEpoch,proto3" json:"exit_epoch,omitempty" cast-type:"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives.Epoch"`
 	WithdrawableEpoch          github_com_prysmaticlabs_prysm_v5_consensus_types_primitives.Epoch `protobuf:"varint,8,opt,name=withdrawable_epoch,json=withdrawableEpoch,proto3" json:"withdrawable_epoch,omitempty" cast-type:"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives.Epoch"`
+	PrincipalBalance           uint64                                                             `protobuf:"varint,9,opt,name=principal_balance,json=principalBalance,proto3" json:"principal_balance,omitempty"`
 }
 
 func (x *Validator) Reset() {
@@ -1790,6 +1791,13 @@ func (x *Validator) GetWithdrawableEpoch() github_com_prysmaticlabs_prysm_v5_con
 		return x.WithdrawableEpoch
 	}
 	return github_com_prysmaticlabs_prysm_v5_consensus_types_primitives.Epoch(0)
+}
+
+func (x *Validator) GetPrincipalBalance() uint64 {
+	if x != nil {
+		return x.PrincipalBalance
+	}
+	return 0
 }
 
 type ValidatorParticipation struct {

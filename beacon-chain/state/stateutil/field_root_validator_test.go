@@ -1,12 +1,12 @@
 package stateutil
 
 import (
+	"math"
 	"reflect"
 	"strings"
 	"sync"
 	"testing"
 
-	mathutil "github.com/prysmaticlabs/prysm/v5/math"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	"github.com/prysmaticlabs/prysm/v5/testing/assert"
 	"github.com/prysmaticlabs/prysm/v5/testing/require"
@@ -26,8 +26,9 @@ func TestValidatorConstants(t *testing.T) {
 		}
 		numOfValFields++
 	}
-	assert.Equal(t, validatorFieldRoots, numOfValFields)
-	assert.Equal(t, uint64(validatorFieldRoots), mathutil.PowerOf2(validatorTreeDepth))
+	assert.Equal(t, validatorFields, numOfValFields)
+	expectedTreeDepth := math.Ceil(math.Log2(float64(validatorFieldRoots)))
+	assert.Equal(t, validatorTreeDepth, int(expectedTreeDepth))
 
 	_, err := ValidatorRegistryRoot([]*ethpb.Validator{v})
 	assert.NoError(t, err)
