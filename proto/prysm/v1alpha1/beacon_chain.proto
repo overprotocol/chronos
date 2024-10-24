@@ -182,7 +182,7 @@ service BeaconChain {
     // Retrieve the active set changes for a given epoch.
     //
     // This data includes any activations, voluntary exits, and involuntary
-    // ejections. This endpoint allows for retrieval of genesis
+    // bailouts. This endpoint allows for retrieval of genesis
     // information via a boolean query filter.
     rpc GetValidatorActiveSetChanges(GetValidatorActiveSetChangesRequest) returns (ActiveSetChanges) {
         option (google.api.http) = {
@@ -662,11 +662,11 @@ message ActiveSetChanges {
     // Indices of validators slashed in the given epoch.
     repeated uint64 slashed_indices = 7 [(ethereum.eth.ext.cast_type) = "github.com/prysmaticlabs/prysm/v5/consensus-types/primitives.ValidatorIndex"];
 
-    // 48 byte validator public keys that have been involuntarily ejected in this epoch.
-    repeated bytes ejected_public_keys = 8 [(ethereum.eth.ext.ssz_size) = "?,48"];
+    // 48 byte validator public keys that have been involuntarily bailed out in this epoch.
+    repeated bytes bailed_out_public_keys = 8 [(ethereum.eth.ext.ssz_size) = "?,48"];
 
-    // Indices of validators ejected in the given epoch.
-    repeated uint64 ejected_indices = 9 [(ethereum.eth.ext.cast_type) = "github.com/prysmaticlabs/prysm/v5/consensus-types/primitives.ValidatorIndex"];
+    // Indices of validators bailed out in the given epoch.
+    repeated uint64 bailed_out_indices = 9 [(ethereum.eth.ext.cast_type) = "github.com/prysmaticlabs/prysm/v5/consensus-types/primitives.ValidatorIndex"];
 }
 
 message ValidatorPerformanceRequest {

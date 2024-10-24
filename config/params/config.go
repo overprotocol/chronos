@@ -56,7 +56,6 @@ type BeaconChainConfig struct {
 	MinDepositAmount          uint64 `yaml:"MIN_DEPOSIT_AMOUNT" spec:"true"`          // MinDepositAmount is the minimum amount of Gwei a validator can send to the deposit contract at once (lower amounts will be reverted).
 	MinActivationBalance      uint64 `yaml:"MIN_ACTIVATION_BALANCE" spec:"true"`      // MinActivationBalance is the minimum amount of Gwei a validator must have to be activated in the beacon state.
 	MaxEffectiveBalance       uint64 `yaml:"MAX_EFFECTIVE_BALANCE" spec:"true"`       // MaxEffectiveBalance is the maximal amount of Gwei that is effective for staking.
-	EjectionBalance           uint64 `yaml:"EJECTION_BALANCE" spec:"true"`            // EjectionBalance is the minimal GWei a validator needs to have before ejected.
 	EffectiveBalanceIncrement uint64 `yaml:"EFFECTIVE_BALANCE_INCREMENT" spec:"true"` // EffectiveBalanceIncrement is used for converting the high balance into the low balance for validators.
 	MaxTokenSupply            uint64 `yaml:"MAX_TOKEN_SUPPLY" spec:"true"`            // MaxTokenSupply defines the target maximum number of tokens that can be issued in GWei.
 	IssuancePerYear           uint64 `yaml:"ISSUANCE_PER_YEAR" spec:"true"`           // IssuancePerYear defines the issuance of tokens per year in GWei.
