@@ -25,7 +25,6 @@ func MinimalSpecConfig() *BeaconChainConfig {
 	// Gwei values
 	minimalConfig.MinDepositAmount = 1e9
 	minimalConfig.MaxEffectiveBalance = 256e9
-	minimalConfig.EjectionBalance = 16e9
 	minimalConfig.EffectiveBalanceIncrement = 1e9
 
 	// Initial values
@@ -56,7 +55,6 @@ func MinimalSpecConfig() *BeaconChainConfig {
 	// Reward and penalty quotients
 	minimalConfig.WhistleBlowerRewardQuotient = 512
 	minimalConfig.ProposerRewardQuotient = 8
-	minimalConfig.InactivityPenaltyQuotient = 33554432
 	minimalConfig.MinSlashingPenaltyQuotient = 64
 
 	// Max operations per block
@@ -96,7 +94,7 @@ func MinimalSpecConfig() *BeaconChainConfig {
 	minimalConfig.ElectraForkEpoch = math.MaxUint64
 
 	minimalConfig.SyncCommitteeSize = 32
-	minimalConfig.InactivityScoreBias = 4
+	minimalConfig.InactivityScoreBias = 2
 	minimalConfig.EpochsPerSyncCommitteePeriod = 8
 	minimalConfig.MinEpochsForBlockRequests = 272
 

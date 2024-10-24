@@ -438,6 +438,7 @@ func TestServer_GetValidatorActiveSetChanges_NoState(t *testing.T) {
 	require.StringContains(t, "state_id is required in URL params", writer.Body.String())
 }
 
+// TODO: fix me
 func TestServer_GetValidatorActiveSetChanges(t *testing.T) {
 	beaconDB := dbTest.SetupDB(t)
 
@@ -465,10 +466,9 @@ func TestServer_GetValidatorActiveSetChanges(t *testing.T) {
 			exitEpoch = 0
 			withdrawableEpoch = params.BeaconConfig().MinValidatorWithdrawabilityDelay
 		} else if i%7 == 0 {
-			// Mark indices divisible by 7 as ejected.
+			// Mark indices divisible by 7 as bailed out.
 			exitEpoch = 0
 			withdrawableEpoch = params.BeaconConfig().MinValidatorWithdrawabilityDelay
-			balance = params.BeaconConfig().EjectionBalance
 		}
 		err := headState.UpdateValidatorAtIndex(primitives.ValidatorIndex(i), &ethpb.Validator{
 			ActivationEpoch:       activationEpoch,
@@ -528,10 +528,10 @@ func TestServer_GetValidatorActiveSetChanges(t *testing.T) {
 		hexutil.Encode(pubKey(3)),
 	}
 	wantedSlashedIndices := []string{"3"}
-	wantedEjected := []string{
+	wantedBailedOut := []string{
 		hexutil.Encode(pubKey(7)),
 	}
-	wantedEjectedIndices := []string{"7"}
+	wantedBailedOutIndices := []string{"7"}
 	want := &structs.ActiveSetChanges{
 		Epoch:               "0",
 		ActivatedPublicKeys: wantedActive,
@@ -540,8 +540,8 @@ func TestServer_GetValidatorActiveSetChanges(t *testing.T) {
 		ExitedIndices:       wantedExitedIndices,
 		SlashedPublicKeys:   wantedSlashed,
 		SlashedIndices:      wantedSlashedIndices,
-		EjectedPublicKeys:   wantedEjected,
-		EjectedIndices:      wantedEjectedIndices,
+		BailedOutPublicKeys: wantedBailedOut,
+		BailedOutIndices:    wantedBailedOutIndices,
 	}
 
 	var as *structs.ActiveSetChanges

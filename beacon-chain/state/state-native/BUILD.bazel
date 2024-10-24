@@ -40,7 +40,6 @@ go_library(
         "setters_sync_committee.go",
         "setters_validator.go",
         "setters_withdrawal.go",
-        "spec_parameters.go",
         "ssz.go",
         "state_trie.go",
         "types.go",

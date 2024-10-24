@@ -221,7 +221,7 @@ func TestAttestationsDelta(t *testing.T) {
 	totalReserve := uint64(0)
 	for i, d := range deltas {
 		rewards[i] = d.HeadReward + d.SourceReward + d.TargetReward
-		penalties[i] = d.SourcePenalty + d.TargetPenalty + d.InactivityPenalty
+		penalties[i] = d.SourcePenalty + d.TargetPenalty
 		totalReserve += rDeltas[i]
 	}
 
@@ -261,7 +261,7 @@ func TestAttestationsDeltaBellatrix(t *testing.T) {
 	totalReserve := uint64(0)
 	for i, d := range deltas {
 		rewards[i] = d.HeadReward + d.SourceReward + d.TargetReward
-		penalties[i] = d.SourcePenalty + d.TargetPenalty + d.InactivityPenalty
+		penalties[i] = d.SourcePenalty + d.TargetPenalty
 		totalReserve += rDeltas[i]
 	}
 
@@ -311,7 +311,7 @@ func TestProcessRewardsAndPenaltiesPrecompute_Ok(t *testing.T) {
 	totalReserve := uint64(0)
 	for i, d := range deltas {
 		rewards[i] = d.HeadReward + d.SourceReward + d.TargetReward
-		penalties[i] = d.SourcePenalty + d.TargetPenalty + d.InactivityPenalty
+		penalties[i] = d.SourcePenalty + d.TargetPenalty
 		totalReserve += rDeltas[i]
 	}
 	for i := range rewards {

@@ -126,54 +126,6 @@ func TestAttestationDeltas_ZeroInclusionDelay(t *testing.T) {
 	require.ErrorContains(t, "attestation with inclusion delay of 0", err)
 }
 
-func TestProcessRewardsAndPenaltiesPrecompute_SlashedInactivePenalty(t *testing.T) {
-	e := params.BeaconConfig().SlotsPerEpoch
-	validatorCount := uint64(2048)
-	base := buildState(e+3, validatorCount)
-	atts := make([]*ethpb.PendingAttestation, 3)
-	for i := 0; i < len(atts); i++ {
-		atts[i] = &ethpb.PendingAttestation{
-			Data: &ethpb.AttestationData{
-				Target: &ethpb.Checkpoint{Root: make([]byte, fieldparams.RootLength)},
-				Source: &ethpb.Checkpoint{Root: make([]byte, fieldparams.RootLength)},
-			},
-			AggregationBits: bitfield.Bitlist{0x00, 0x00, 0x00, 0x00, 0xC0, 0xC0, 0xC0, 0xC0, 0x01},
-			InclusionDelay:  1,
-		}
-	}
-	base.PreviousEpochAttestations = atts
-
-	beaconState, err := state_native.InitializeFromProtoPhase0(base)
-	require.NoError(t, err)
-	require.NoError(t, beaconState.SetSlot(params.BeaconConfig().SlotsPerEpoch*10))
-
-	slashedAttestedIndices := []primitives.ValidatorIndex{14, 37, 68, 77, 139}
-	for _, i := range slashedAttestedIndices {
-		vs := beaconState.Validators()
-		vs[i].Slashed = true
-		require.NoError(t, beaconState.SetValidators(vs))
-	}
-
-	vp, bp, err := New(context.Background(), beaconState)
-	require.NoError(t, err)
-	vp, bp, err = ProcessAttestations(context.Background(), beaconState, vp, bp)
-	require.NoError(t, err)
-	rewards, penalties, _, err := AttestationsDelta(beaconState, bp, vp)
-	require.NoError(t, err)
-
-	finalityDelay := time.PrevEpoch(beaconState) - beaconState.FinalizedCheckpointEpoch()
-	for _, i := range slashedAttestedIndices {
-		base, err := baseReward(beaconState, i)
-		require.NoError(t, err, "Could not get base reward")
-		penalty := 3 * base
-		proposerReward := base / params.BeaconConfig().ProposerRewardQuotient
-		penalty += params.BeaconConfig().BaseRewardsPerEpoch*base - proposerReward
-		penalty += vp[i].CurrentEpochEffectiveBalance / params.BeaconConfig().EffectiveBalanceIncrement * uint64(finalityDelay) / params.BeaconConfig().InactivityPenaltyQuotient
-		assert.Equal(t, penalty, penalties[i], "Unexpected slashed indices penalty balance")
-		assert.Equal(t, uint64(0), rewards[i], "Unexpected slashed indices reward balance")
-	}
-}
-
 func buildState(slot primitives.Slot, validatorCount uint64) *ethpb.BeaconState {
 	validators := make([]*ethpb.Validator, validatorCount)
 	for i := 0; i < len(validators); i++ {
