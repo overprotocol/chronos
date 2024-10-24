@@ -138,10 +138,6 @@ var (
 		Name:  "prepare-all-payloads",
 		Usage: "Informs the engine to prepare all local payloads. Useful for relayers and builders.",
 	}
-	EnableLightClient = &cli.BoolFlag{
-		Name:  "enable-lightclient",
-		Usage: "Enables the light client support in the beacon node",
-	}
 	disableResourceManager = &cli.BoolFlag{
 		Name:  "disable-resource-manager",
 		Usage: "Disables running the libp2p resource manager.",
@@ -220,7 +216,6 @@ var BeaconChainFlags = append(deprecatedBeaconFlags, append(deprecatedFlags, []c
 	aggregateThirdInterval,
 	disableResourceManager,
 	DisableRegistrationCache,
-	EnableLightClient,
 	BlobSaveFsync,
 	EnableQUIC,
 	DisableCommitteeAwarePacking,

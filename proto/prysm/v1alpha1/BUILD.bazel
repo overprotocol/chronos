@@ -83,8 +83,6 @@ ssz_altair_objs = [
     "BeaconStateAltair",
     "BeaconStateOldAltair",
     "SignedBeaconBlockAltair",
-    "SignedContributionAndProof",
-    "SyncAggregate",
     "SyncAggregatorSelectionData",
 ]
 
@@ -143,8 +141,6 @@ ssz_electra_objs = [
     "BlindedBeaconBlockBodyElectra",
     "BlindedBeaconBlockElectra",
     "IndexedAttestationElectra",
-    "LightClientBootstrapElectra",
-    "LightClientUpdateElectra",
     "PendingDeposit",
     "PendingDeposits",
     "PendingPartialWithdrawal",

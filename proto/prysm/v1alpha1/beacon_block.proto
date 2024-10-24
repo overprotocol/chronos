@@ -187,7 +187,6 @@ message BeaconBlockBody {
 
 
 // The block body of an (HF1) beacon block.
-// The new addition is SyncAggregate for light client support.
 message BeaconBlockBodyAltair {
     // The validators RANDAO reveal 96 byte value.
     bytes randao_reveal = 1 [(ethereum.eth.ext.ssz_size) = "96"];

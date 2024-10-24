@@ -40,7 +40,6 @@ type BlockGenConfig struct {
 	NumVoluntaryExits    uint64
 
 	NumTransactions       uint64 // Only for post Bellatrix blocks
-	FullSyncAggregate     bool
 	NumBLSChanges         uint64 // Only for post Capella blocks
 	NumWithdrawals        uint64
 	NumDepositRequests    uint64 // Only for post Electra blocks

@@ -223,7 +223,6 @@ func TestBlockRewards(t *testing.T) {
 		assert.Equal(t, "12", resp.Data.ProposerIndex)
 		assert.Equal(t, "1237823438", resp.Data.Total)
 		assert.Equal(t, "237823438", resp.Data.Attestations)
-		// assert.Equal(t, "0", resp.Data.SyncAggregate)
 		assert.Equal(t, "500000000", resp.Data.AttesterSlashings)
 		assert.Equal(t, "500000000", resp.Data.ProposerSlashings)
 		assert.Equal(t, true, resp.ExecutionOptimistic)

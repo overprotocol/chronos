@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"strconv"
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -15,7 +14,6 @@ import (
 	chainMock "github.com/prysmaticlabs/prysm/v5/beacon-chain/blockchain/testing"
 	dbTest "github.com/prysmaticlabs/prysm/v5/beacon-chain/db/testing"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/rpc/testutil"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
 	"github.com/prysmaticlabs/prysm/v5/encoding/bytesutil"
@@ -301,29 +299,4 @@ func TestGetRandao(t *testing.T) {
 		require.NoError(t, json.Unmarshal(writer.Body.Bytes(), resp))
 		assert.DeepEqual(t, true, resp.Finalized)
 	})
-}
-
-type futureSyncMockFetcher struct {
-	BeaconState     state.BeaconState
-	BeaconStateRoot []byte
-}
-
-func (m *futureSyncMockFetcher) State(_ context.Context, stateId []byte) (state.BeaconState, error) {
-	expectedRequest := []byte(strconv.FormatUint(uint64(0), 10))
-	res := bytes.Compare(stateId, expectedRequest)
-	if res != 0 {
-		return nil, fmt.Errorf(
-			"requested wrong epoch for next sync committee (expected %#x, received %#x)",
-			expectedRequest,
-			stateId,
-		)
-	}
-	return m.BeaconState, nil
-}
-func (m *futureSyncMockFetcher) StateRoot(context.Context, []byte) ([]byte, error) {
-	return m.BeaconStateRoot, nil
-}
-
-func (m *futureSyncMockFetcher) StateBySlot(context.Context, primitives.Slot) (state.BeaconState, error) {
-	return m.BeaconState, nil
 }

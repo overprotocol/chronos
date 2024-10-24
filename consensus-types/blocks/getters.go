@@ -1069,14 +1069,6 @@ func (b *BeaconBlockBody) VoluntaryExits() []*eth.SignedVoluntaryExit {
 	return b.voluntaryExits
 }
 
-// SyncAggregate returns the sync aggregate in the block.
-// func (b *BeaconBlockBody) SyncAggregate() (*eth.SyncAggregate, error) {
-// 	if b.version == version.Phase0 {
-// 		return nil, consensus_types.ErrNotSupported("SyncAggregate", b.version)
-// 	}
-// 	return b.syncAggregate, nil
-// }
-
 // Execution returns the execution payload of the block body.
 func (b *BeaconBlockBody) Execution() (interfaces.ExecutionData, error) {
 	switch b.version {

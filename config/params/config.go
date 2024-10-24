@@ -133,7 +133,6 @@ type BeaconChainConfig struct {
 	DomainVoluntaryExit        [4]byte `yaml:"DOMAIN_VOLUNTARY_EXIT" spec:"true"`          // DomainVoluntaryExit defines the BLS signature domain for exit verification.
 	DomainSelectionProof       [4]byte `yaml:"DOMAIN_SELECTION_PROOF" spec:"true"`         // DomainSelectionProof defines the BLS signature domain for selection proof.
 	DomainAggregateAndProof    [4]byte `yaml:"DOMAIN_AGGREGATE_AND_PROOF" spec:"true"`     // DomainAggregateAndProof defines the BLS signature domain for aggregate and proof.
-	DomainContributionAndProof [4]byte `yaml:"DOMAIN_CONTRIBUTION_AND_PROOF" spec:"true"`  // DomainAggregateAndProof defines the BLS signature domain for contribution and proof.
 	DomainApplicationMask      [4]byte `yaml:"DOMAIN_APPLICATION_MASK" spec:"true"`        // DomainApplicationMask defines the BLS signature domain for application mask.
 	DomainApplicationBuilder   [4]byte `yaml:"DOMAIN_APPLICATION_BUILDER" spec:"true"`     // DomainApplicationBuilder defines the BLS signature domain for application builder.
 	DomainBLSToExecutionChange [4]byte `yaml:"DOMAIN_BLS_TO_EXECUTION_CHANGE" spec:"true"` // DomainBLSToExecutionChange defines the BLS signature domain to change withdrawal addresses to ETH1 prefix

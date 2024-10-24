@@ -56,10 +56,6 @@ const (
 	ProposerSlashingTopic = "proposer_slashing"
 	// AttesterSlashingTopic represents a new attester slashing event topic
 	AttesterSlashingTopic = "attester_slashing"
-	// // LightClientFinalityUpdateTopic represents a new light client finality update event topic.
-	// LightClientFinalityUpdateTopic = "light_client_finality_update"
-	// // LightClientOptimisticUpdateTopic represents a new light client optimistic update event topic.
-	// LightClientOptimisticUpdateTopic = "light_client_optimistic_update"
 )
 
 var (
@@ -468,30 +464,6 @@ func (s *Server) lazyReaderForEvent(ctx context.Context, event *feed.Event, topi
 		return func() io.Reader {
 			return jsonMarshalReader(eventName, structs.FinalizedCheckpointEventFromV1(v))
 		}, nil
-	// case *ethpbv2.LightClientFinalityUpdateWithVersion:
-	// 	cv, err := structs.LightClientFinalityUpdateFromConsensus(v.Data)
-	// 	if err != nil {
-	// 		return nil, errors.Wrap(err, "LightClientFinalityUpdateWithVersion event conversion failure")
-	// 	}
-	// 	ev := &structs.LightClientFinalityUpdateEvent{
-	// 		Version: version.String(int(v.Version)),
-	// 		Data:    cv,
-	// 	}
-	// 	return func() io.Reader {
-	// 		return jsonMarshalReader(eventName, ev)
-	// 	}, nil
-	// case *ethpbv2.LightClientOptimisticUpdateWithVersion:
-	// 	cv, err := structs.LightClientOptimisticUpdateFromConsensus(v.Data)
-	// 	if err != nil {
-	// 		return nil, errors.Wrap(err, "LightClientOptimisticUpdateWithVersion event conversion failure")
-	// 	}
-	// 	ev := &structs.LightClientOptimisticUpdateEvent{
-	// 		Version: version.String(int(v.Version)),
-	// 		Data:    cv,
-	// 	}
-	// 	return func() io.Reader {
-	// 		return jsonMarshalReader(eventName, ev)
-	// 	}, nil
 	case *ethpb.EventChainReorg:
 		return func() io.Reader {
 			return jsonMarshalReader(eventName, structs.EventChainReorgFromV1(v))

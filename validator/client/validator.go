@@ -815,7 +815,6 @@ func (v *validator) UpdateDomainDataCaches(ctx context.Context, slot primitives.
 		params.BeaconConfig().DomainBeaconProposer[:],
 		params.BeaconConfig().DomainSelectionProof[:],
 		params.BeaconConfig().DomainAggregateAndProof[:],
-		params.BeaconConfig().DomainContributionAndProof[:],
 	} {
 		_, err := v.domainData(ctx, slots.ToEpoch(slot), d)
 		if err != nil {

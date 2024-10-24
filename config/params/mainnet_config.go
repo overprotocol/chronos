@@ -159,7 +159,6 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	DomainVoluntaryExit:        bytesutil.Uint32ToBytes4(0x04000000),
 	DomainSelectionProof:       bytesutil.Uint32ToBytes4(0x05000000),
 	DomainAggregateAndProof:    bytesutil.Uint32ToBytes4(0x06000000),
-	DomainContributionAndProof: bytesutil.Uint32ToBytes4(0x09000000),
 	DomainApplicationMask:      bytesutil.Uint32ToBytes4(0x00000001),
 	DomainApplicationBuilder:   bytesutil.Uint32ToBytes4(0x00000001),
 	DomainBLSToExecutionChange: bytesutil.Uint32ToBytes4(0x0A000000),

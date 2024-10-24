@@ -97,7 +97,6 @@ func compareConfigs(t *testing.T, expected, actual *params.BeaconChainConfig) {
 	require.DeepEqual(t, expected.DomainVoluntaryExit, actual.DomainVoluntaryExit)
 	require.DeepEqual(t, expected.DomainSelectionProof, actual.DomainSelectionProof)
 	require.DeepEqual(t, expected.DomainAggregateAndProof, actual.DomainAggregateAndProof)
-	require.DeepEqual(t, expected.DomainContributionAndProof, actual.DomainContributionAndProof)
 	require.DeepEqual(t, expected.GweiPerEth, actual.GweiPerEth)
 	require.DeepEqual(t, expected.BLSSecretKeyLength, actual.BLSSecretKeyLength)
 	require.DeepEqual(t, expected.BLSPubkeyLength, actual.BLSPubkeyLength)

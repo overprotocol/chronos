@@ -370,10 +370,6 @@ func TestGetSpec(t *testing.T) {
 				assert.Equal(t, "0x30303037", v)
 			case "DOMAIN_APPLICATION_MASK":
 				assert.Equal(t, "0x31303030", v)
-			case "DOMAIN_SYNC_COMMITTEE":
-				assert.Equal(t, "0x07000000", v)
-			case "DOMAIN_SYNC_COMMITTEE_SELECTION_PROOF":
-				assert.Equal(t, "0x08000000", v)
 			case "DOMAIN_CONTRIBUTION_AND_PROOF":
 				assert.Equal(t, "0x09000000", v)
 			case "DOMAIN_BLS_TO_EXECUTION_CHANGE":

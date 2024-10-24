@@ -55,12 +55,6 @@ import (
 //	)
 //	# Fill in previous epoch participation from the pre state's pending attestations
 //	translate_participation(post, pre.previous_epoch_attestations)
-//
-//	# Fill in sync committees
-//	# Note: A duplicate committee is assigned for the current and next committee at the fork boundary
-//	post.current_sync_committee = get_next_sync_committee(post)
-//	post.next_sync_committee = get_next_sync_committee(post)
-//	return post
 func UpgradeToAltair(ctx context.Context, state state.BeaconState) (state.BeaconState, error) {
 	epoch := time.CurrentEpoch(state)
 

@@ -58,7 +58,6 @@ type BeaconBlockHeaderCreator struct{}
 type SignedBeaconBlockHeaderCreator struct{}
 type IndexedAttestationCreator struct{}
 type IndexedAttestationElectraCreator struct{}
-type SyncAggregateCreator struct{}
 type SignedBeaconBlockBellatrixCreator struct{}
 type BeaconBlockBellatrixCreator struct{}
 type BeaconBlockBodyBellatrixCreator struct{}
@@ -117,8 +116,6 @@ type MetaDataV0Creator struct{}
 type MetaDataV1Creator struct{}
 type BlobSidecarsByRangeRequestCreator struct{}
 type DepositSnapshotCreator struct{}
-type ContributionAndProofCreator struct{}
-type SignedContributionAndProofCreator struct{}
 type ValidatorCreator struct{}
 type BLSToExecutionChangeCreator struct{}
 type SignedBLSToExecutionChangeCreator struct{}

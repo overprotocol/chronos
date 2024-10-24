@@ -23,7 +23,6 @@ const (
 	EventAttesterSlashing     = "attester_slashing"
 	EventFinalizedCheckpoint  = "finalized_checkpoint"
 	EventChainReorg           = "chain_reorg"
-	EventContributionAndProof = "contribution_and_proof"
 	EventPayloadAttributes    = "payload_attributes"
 	EventBlobSidecar          = "blob_sidecar"
 	EventError                = "error"

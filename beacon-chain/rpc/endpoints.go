@@ -69,7 +69,6 @@ func (s *Service) endpoints(
 	endpoints = append(endpoints, s.nodeEndpoints()...)
 	endpoints = append(endpoints, s.beaconEndpoints(ch, stater, blocker, validatorServer, coreService)...)
 	endpoints = append(endpoints, s.configEndpoints()...)
-	// endpoints = append(endpoints, s.lightClientEndpoints(blocker, stater)...)
 	endpoints = append(endpoints, s.eventsEndpoints()...)
 	endpoints = append(endpoints, s.prysmBeaconEndpoints(ch, stater, coreService)...)
 	endpoints = append(endpoints, s.prysmNodeEndpoints()...)
@@ -199,16 +198,6 @@ func (s *Service) validatorEndpoints(
 			handler: server.GetAggregateAttestation,
 			methods: []string{http.MethodGet},
 		},
-		// {
-		// 	template: "/eth/v1/validator/contribution_and_proofs",
-		// 	name:     namespace + ".SubmitContributionAndProofs",
-		// 	middleware: []middleware.Middleware{
-		// 		middleware.ContentTypeHandler([]string{api.JsonMediaType}),
-		// 		middleware.AcceptHeaderHandler([]string{api.JsonMediaType}),
-		// 	},
-		// 	handler: server.SubmitContributionAndProofs,
-		// 	methods: []string{http.MethodPost},
-		// },
 		{
 			template: "/eth/v1/validator/aggregate_and_proofs",
 			name:     namespace + ".SubmitAggregateAndProofs",
@@ -788,55 +777,6 @@ func (*Service) configEndpoints() []endpoint {
 		},
 	}
 }
-
-// func (s *Service) lightClientEndpoints(blocker lookup.Blocker, stater lookup.Stater) []endpoint {
-// 	server := &lightclient.Server{
-// 		Blocker:     blocker,
-// 		Stater:      stater,
-// 		HeadFetcher: s.cfg.HeadFetcher,
-// 		BeaconDB:    s.cfg.BeaconDB,
-// 	}
-
-// 	const namespace = "lightclient"
-// 	return []endpoint{
-// 		{
-// 			template: "/eth/v1/beacon/light_client/bootstrap/{block_root}",
-// 			name:     namespace + ".GetLightClientBootstrap",
-// 			middleware: []middleware.Middleware{
-// 				middleware.AcceptHeaderHandler([]string{api.JsonMediaType, api.OctetStreamMediaType}),
-// 			},
-// 			handler: server.GetLightClientBootstrap,
-// 			methods: []string{http.MethodGet},
-// 		},
-// 		{
-// 			template: "/eth/v1/beacon/light_client/updates",
-// 			name:     namespace + ".GetLightClientUpdatesByRange",
-// 			middleware: []middleware.Middleware{
-// 				middleware.AcceptHeaderHandler([]string{api.JsonMediaType, api.OctetStreamMediaType}),
-// 			},
-// 			handler: server.GetLightClientUpdatesByRange,
-// 			methods: []string{http.MethodGet},
-// 		},
-// 		{
-// 			template: "/eth/v1/beacon/light_client/finality_update",
-// 			name:     namespace + ".GetLightClientFinalityUpdate",
-// 			middleware: []middleware.Middleware{
-// 				middleware.AcceptHeaderHandler([]string{api.JsonMediaType, api.OctetStreamMediaType}),
-// 			},
-// 			handler: server.GetLightClientFinalityUpdate,
-// 			methods: []string{http.MethodGet},
-// 		},
-// 		{
-// 			template: "/eth/v1/beacon/light_client/optimistic_update",
-// 			name:     namespace + ".GetLightClientOptimisticUpdate",
-// 			middleware: []middleware.Middleware{
-// 				middleware.AcceptHeaderHandler([]string{api.JsonMediaType, api.OctetStreamMediaType}),
-// 			},
-// 			handler: server.GetLightClientOptimisticUpdate,
-// 			methods: []string{http.MethodGet},
-// 		},
-// 	}
-// }
 
 func (s *Service) debugEndpoints(stater lookup.Stater) []endpoint {
 	server := &debug.Server{

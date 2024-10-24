@@ -79,9 +79,6 @@ import (
 //	    finalized_checkpoint=pre.finalized_checkpoint,
 //	    # Inactivity
 //	    inactivity_scores=pre.inactivity_scores,
-//	    # Sync
-//	    current_sync_committee=pre.current_sync_committee,
-//	    next_sync_committee=pre.next_sync_committee,
 //	    # Execution-layer
 //	    latest_execution_payload_header=latest_execution_payload_header,  # [Modified in Electra:EIP6110:EIP7002]
 //	    # Withdrawals
