@@ -16,7 +16,7 @@ import (
 
 const (
 	// number of field roots for the validator object. ( validatorFields + validatorPaddingFields)
-	validatorFieldRoots = 16
+	validatorFieldRoots = validatorFields + validatorPaddingFields
 
 	validatorFields = 9
 
