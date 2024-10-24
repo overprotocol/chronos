@@ -30,6 +30,7 @@ func InitializePrecomputeValidators(ctx context.Context, beaconState state.Beaco
 	bal := &precompute.Balance{}
 	prevEpoch := time.PrevEpoch(beaconState)
 	currentEpoch := time.CurrentEpoch(beaconState)
+	actualBalances := beaconState.Balances()
 	inactivityScores, err := beaconState.InactivityScores()
 	if err != nil {
 		return nil, nil, err
@@ -48,6 +49,8 @@ func InitializePrecomputeValidators(ctx context.Context, beaconState state.Beaco
 			InactivityScore:              inactivityScores[idx],
 			IsSlashed:                    val.Slashed(),
 			IsWithdrawableCurrentEpoch:   currentEpoch >= val.WithdrawableEpoch(),
+			PrincipalBalance:             val.PrincipalBalance(),
+			ActualBalance:                actualBalances[idx],
 		}
 		// Set validator's active status for current epoch.
 		if helpers.IsActiveValidatorUsingTrie(val, currentEpoch) {
@@ -317,6 +320,9 @@ func attestationDelta(
 	baseReward := (effectiveBalance / increment) * baseRewardPerIncrement
 	activeIncrement := bal.ActiveCurrentEpoch / increment
 
+	penaltyNumerator := val.PrincipalBalance * cfg.InactivityPenaltyRate / cfg.InactivityPenaltyRatePrecision
+	bufferInLeak := penaltyNumerator * cfg.InactivityLeakPenaltyBuffer / cfg.InactivityLeakPenaltyBufferPrecision
+
 	weightDenominator := cfg.WeightDenominator
 	srcWeight := cfg.TimelySourceWeight
 	tgtWeight := cfg.TimelyTargetWeight
@@ -329,8 +335,15 @@ func attestationDelta(
 			n := baseReward * srcWeight * (bal.PrevEpochAttested / increment)
 			attDelta.SourceReward += n / (activeIncrement * weightDenominator)
 		}
-	} else {
-		attDelta.SourcePenalty += baseReward * srcWeight / weightDenominator
+	} else if val.InactivityScore > cfg.InactivityScorePenaltyThreshold {
+		denominator := (srcWeight + tgtWeight) * cfg.InactivityPenaltyDuration
+		penaltyDelta := (penaltyNumerator * srcWeight) / denominator
+
+		if inactivityLeak && val.PrincipalBalance < val.ActualBalance+bufferInLeak+penaltyDelta {
+			attDelta.SourcePenalty += penaltyDelta
+		} else {
+			attDelta.SourcePenalty += penaltyDelta
+		}
 	}
 
 	// Process target reward / penalty
@@ -339,8 +352,15 @@ func attestationDelta(
 			n := baseReward * tgtWeight * (bal.PrevEpochTargetAttested / increment)
 			attDelta.TargetReward += n / (activeIncrement * weightDenominator)
 		}
-	} else {
-		attDelta.TargetPenalty += baseReward * tgtWeight / weightDenominator
+	} else if val.InactivityScore > cfg.InactivityScorePenaltyThreshold {
+		denominator := (srcWeight + tgtWeight) * cfg.InactivityPenaltyDuration
+		penaltyDelta := (penaltyNumerator * tgtWeight) / denominator
+
+		if inactivityLeak && val.PrincipalBalance < val.ActualBalance+bufferInLeak+penaltyDelta {
+			attDelta.TargetPenalty += penaltyDelta
+		} else {
+			attDelta.TargetPenalty += penaltyDelta
+		}
 	}
 
 	// Process head reward / penalty with light layer reward
