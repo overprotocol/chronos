@@ -15,12 +15,11 @@ import (
 
 // AttDelta contains rewards and penalties for a single attestation.
 type AttDelta struct {
-	HeadReward        uint64
-	SourceReward      uint64
-	SourcePenalty     uint64
-	TargetReward      uint64
-	TargetPenalty     uint64
-	InactivityPenalty uint64
+	HeadReward    uint64
+	SourceReward  uint64
+	SourcePenalty uint64
+	TargetReward  uint64
+	TargetPenalty uint64
 }
 
 // InitializePrecomputeValidators precomputes individual validator for its attested balances and the total sum of validators attested balances of the epoch.
@@ -259,7 +258,7 @@ func ProcessRewardsAndPenaltiesPrecompute(
 		if err != nil {
 			return nil, err
 		}
-		balances[i] = helpers.DecreaseBalanceWithVal(balances[i], delta.SourcePenalty+delta.TargetPenalty+delta.InactivityPenalty)
+		balances[i] = helpers.DecreaseBalanceWithVal(balances[i], delta.SourcePenalty+delta.TargetPenalty)
 
 		vals[i].AfterEpochTransitionBalance = balances[i]
 		reserveUsage += attReserves[i]
@@ -282,7 +281,6 @@ func AttestationsDelta(beaconState state.BeaconState, bal *precompute.Balance, v
 	attDeltas := make([]*AttDelta, len(vals))
 	attReserveDeltas := make([]uint64, len(vals))
 
-	cfg := params.BeaconConfig()
 	prevEpoch := time.PrevEpoch(beaconState)
 	finalizedEpoch := beaconState.FinalizedCheckpointEpoch()
 	baseRewardPerIncrement, reserveUsagePerIncrement, err := BaseRewardPerIncrement(beaconState, bal.ActiveCurrentEpoch)
@@ -291,16 +289,8 @@ func AttestationsDelta(beaconState state.BeaconState, bal *precompute.Balance, v
 	}
 	leak := helpers.IsInInactivityLeak(prevEpoch, finalizedEpoch)
 
-	// Modified in Altair and Bellatrix.
-	bias := cfg.InactivityScoreBias
-	inactivityPenaltyQuotient, err := beaconState.InactivityPenaltyQuotient()
-	if err != nil {
-		return nil, nil, err
-	}
-	inactivityDenominator := bias * inactivityPenaltyQuotient
-
 	for i, v := range vals {
-		attDeltas[i], err = attestationDelta(bal, v, baseRewardPerIncrement, inactivityDenominator, leak)
+		attDeltas[i], err = attestationDelta(bal, v, baseRewardPerIncrement, leak)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -313,7 +303,7 @@ func AttestationsDelta(beaconState state.BeaconState, bal *precompute.Balance, v
 func attestationDelta(
 	bal *precompute.Balance,
 	val *precompute.Validator,
-	baseRewardPerIncrement, inactivityDenominator uint64,
+	baseRewardPerIncrement uint64,
 	inactivityLeak bool) (*AttDelta, error) {
 	eligible := val.IsActivePrevEpoch || (val.IsSlashed && !val.IsWithdrawableCurrentEpoch)
 	// Per spec `ActiveCurrentEpoch` can't be 0 to process attestation delta.
@@ -359,16 +349,6 @@ func attestationDelta(
 			n := baseReward * (headWeight + lightLayerWeight) * (bal.PrevEpochHeadAttested / increment)
 			attDelta.HeadReward += n / (activeIncrement * weightDenominator)
 		}
-	}
-
-	// Process finality delay penalty
-	// Apply an additional penalty to validators that did not vote on the correct target or slashed
-	if !val.IsPrevEpochTargetAttester || val.IsSlashed {
-		n, err := math.Mul64(effectiveBalance, val.InactivityScore)
-		if err != nil {
-			return &AttDelta{}, err
-		}
-		attDelta.InactivityPenalty = n / inactivityDenominator
 	}
 
 	return attDelta, nil

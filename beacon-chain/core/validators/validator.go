@@ -256,7 +256,7 @@ func ExitedValidatorIndices(st state.BeaconState, validators []*ethpb.Validator,
 			return nil, err
 		}
 
-		pb := val.PrincipalBalance()
+		pb := val.PrincipalBalance
 		bailoutBuffer := pb * inactivityPenaltyRate / inactivityPenaltyRatePrecision
 		belowThreshold := actualBalance+bailoutBuffer < pb
 		isBailout := belowThreshold || (isInInactivityLeak && inactivityScore > inactivityLeakBailoutScoreThreshold)
@@ -289,7 +289,7 @@ func BailedOutValidatorIndices(st state.BeaconState, validators []*ethpb.Validat
 			return nil, err
 		}
 
-		pb := val.PrincipalBalance()
+		pb := val.PrincipalBalance
 		bailoutBuffer := pb * inactivityPenaltyRate / inactivityPenaltyRatePrecision
 		belowThreshold := actualBalance+bailoutBuffer < pb
 		isBailout := belowThreshold || (isInInactivityLeak && inactivityScore > inactivityLeakBailoutScoreThreshold)
