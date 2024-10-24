@@ -117,6 +117,7 @@ type ReadOnlyValidator interface {
 	Copy() *ethpb.Validator
 	Slashed() bool
 	IsNil() bool
+	PrincipalBalance() uint64
 }
 
 // ReadOnlyValidators defines a struct which only has read access to validators methods.
@@ -193,7 +194,7 @@ type ReadOnlyAttestations interface {
 
 // ReadOnlyWithdrawals defines a struct which only has read access to withdrawal methods.
 type ReadOnlyWithdrawals interface {
-	ExpectedWithdrawals() ([]*enginev1.Withdrawal, uint64, error)
+	ExpectedWithdrawals() ([]*enginev1.Withdrawal, uint64, uint64, error)
 	NextWithdrawalValidatorIndex() (primitives.ValidatorIndex, error)
 	NextWithdrawalIndex() (uint64, error)
 	PendingBalanceToWithdraw(idx primitives.ValidatorIndex) (uint64, error)

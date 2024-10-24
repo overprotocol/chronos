@@ -9,6 +9,7 @@ type Validator struct {
 	ActivationEpoch            string `json:"activation_epoch"`
 	ExitEpoch                  string `json:"exit_epoch"`
 	WithdrawableEpoch          string `json:"withdrawable_epoch"`
+	PrincipalBalance           string `json:"principal_balance"`
 }
 
 type PendingAttestation struct {

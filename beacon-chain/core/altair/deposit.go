@@ -192,6 +192,7 @@ func AddValidatorToRegistry(beaconState state.BeaconState, pubKey []byte, withdr
 //	    exit_epoch=FAR_FUTURE_EPOCH,
 //	    withdrawable_epoch=FAR_FUTURE_EPOCH,
 //	    effective_balance=effective_balance,
+//	    principal_balance=amount,
 //	)
 func GetValidatorFromDeposit(pubKey []byte, withdrawalCredentials []byte, amount uint64) *ethpb.Validator {
 	effectiveBalance := amount - (amount % params.BeaconConfig().EffectiveBalanceIncrement)
@@ -207,5 +208,6 @@ func GetValidatorFromDeposit(pubKey []byte, withdrawalCredentials []byte, amount
 		ExitEpoch:                  params.BeaconConfig().FarFutureEpoch,
 		WithdrawableEpoch:          params.BeaconConfig().FarFutureEpoch,
 		EffectiveBalance:           effectiveBalance,
+		PrincipalBalance:           amount,
 	}
 }

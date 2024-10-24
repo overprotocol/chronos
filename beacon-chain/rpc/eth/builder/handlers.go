@@ -95,7 +95,7 @@ func (s *Server) ExpectedWithdrawals(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	withdrawals, _, err := st.ExpectedWithdrawals()
+	withdrawals, _, _, err := st.ExpectedWithdrawals()
 	if err != nil {
 		httputil.WriteError(w, &httputil.DefaultJsonError{
 			Message: "could not get expected withdrawals",

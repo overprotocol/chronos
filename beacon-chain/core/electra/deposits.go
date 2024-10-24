@@ -205,15 +205,6 @@ func verifyDepositDataSigningRoot(obj *ethpb.Deposit_Data, domain []byte) error 
 //	finalized_slot = compute_start_slot_at_epoch(state.finalized_checkpoint.epoch)
 //
 //	for deposit in state.pending_deposits:
-//	    # Do not process deposit requests if Eth1 bridge deposits are not yet applied.
-//	    if (
-//	        # Is deposit request
-//	        deposit.slot > GENESIS_SLOT and
-//	        # There are pending Eth1 bridge deposits
-//	        state.eth1_deposit_index < state.deposit_requests_start_index
-//	    ):
-//	        break
-//
 //	    # Check if deposit has been finalized, otherwise, stop processing.
 //	    if deposit.slot > finalized_slot:
 //	        break
@@ -285,21 +276,11 @@ func ProcessPendingDeposits(ctx context.Context, st state.BeaconState, activeBal
 		return errors.Wrap(err, "could not get finalized slot")
 	}
 
-	startIndex, err := st.DepositRequestsStartIndex()
-	if err != nil {
-		return errors.Wrap(err, "could not get starting pendingDeposit index")
-	}
-
 	pendingDeposits, err := st.PendingDeposits()
 	if err != nil {
 		return err
 	}
 	for _, pendingDeposit := range pendingDeposits {
-		// Do not process pendingDeposit requests if Eth1 bridge deposits are not yet applied.
-		if pendingDeposit.Slot > params.BeaconConfig().GenesisSlot && st.Eth1DepositIndex() < startIndex {
-			break
-		}
-
 		// Check if pendingDeposit has been finalized, otherwise, stop processing.
 		if pendingDeposit.Slot > finalizedSlot {
 			break
@@ -324,7 +305,7 @@ func ProcessPendingDeposits(ctx context.Context, st state.BeaconState, activeBal
 
 		if isValidatorWithdrawn {
 			// note: the validator will never be active, just increase the balance
-			if err := helpers.IncreaseBalance(st, index, pendingDeposit.Amount); err != nil {
+			if err := helpers.IncreaseBalanceAndAdjustPrincipalBalance(st, index, pendingDeposit.Amount); err != nil {
 				return errors.Wrap(err, "could not increase balance")
 			}
 		} else if isValidatorExited {
@@ -338,7 +319,7 @@ func ProcessPendingDeposits(ctx context.Context, st state.BeaconState, activeBal
 
 			// note: the following code deviates from the spec in order to perform batch signature verification
 			if found {
-				if err := helpers.IncreaseBalance(st, index, pendingDeposit.Amount); err != nil {
+				if err := helpers.IncreaseBalanceAndAdjustPrincipalBalance(st, index, pendingDeposit.Amount); err != nil {
 					return errors.Wrap(err, "could not increase balance")
 				}
 			} else {
@@ -437,7 +418,7 @@ func batchProcessNewPendingDeposits(ctx context.Context, state state.BeaconState
 //	else:
 //	    validator_index = ValidatorIndex(validator_pubkeys.index(deposit.pubkey))
 //	    # Increase balance
-//	    increase_balance(state, validator_index, deposit.amount)
+//	    increase_balance_and_adjust_deposit(state, validator_index, deposit.amount)
 func ApplyPendingDeposit(ctx context.Context, st state.BeaconState, deposit *ethpb.PendingDeposit) error {
 	_, span := trace.StartSpan(ctx, "electra.ApplyPendingDeposit")
 	defer span.End()
@@ -460,7 +441,7 @@ func ApplyPendingDeposit(ctx context.Context, st state.BeaconState, deposit *eth
 		}
 		return nil
 	}
-	return helpers.IncreaseBalance(st, index, deposit.Amount)
+	return helpers.IncreaseBalanceAndAdjustPrincipalBalance(st, index, deposit.Amount)
 }
 
 // AddValidatorToRegistry updates the beacon state with validator information
@@ -509,11 +490,13 @@ func AddValidatorToRegistry(beaconState state.BeaconState, pubKey []byte, withdr
 //	    exit_epoch=FAR_FUTURE_EPOCH,
 //	    withdrawable_epoch=FAR_FUTURE_EPOCH,
 //	    effective_balance=Gwei(0),
+//	    principal_balance=Gwei(0),
 //	)
 //
 //	# [Modified in Electra:EIP7251]
 //	max_effective_balance = get_max_effective_balance(validator)
 //	validator.effective_balance = min(amount - amount % EFFECTIVE_BALANCE_INCREMENT, max_effective_balance)
+//	validator.principal_balance = amount
 //
 //	return validator
 func GetValidatorFromDeposit(pubKey []byte, withdrawalCredentials []byte, amount uint64) *ethpb.Validator {
@@ -525,9 +508,11 @@ func GetValidatorFromDeposit(pubKey []byte, withdrawalCredentials []byte, amount
 		ExitEpoch:                  params.BeaconConfig().FarFutureEpoch,
 		WithdrawableEpoch:          params.BeaconConfig().FarFutureEpoch,
 		EffectiveBalance:           0,
+		PrincipalBalance:           0,
 	}
 	maxEffectiveBalance := helpers.ValidatorMaxEffectiveBalance(validator)
 	validator.EffectiveBalance = min(amount-(amount%params.BeaconConfig().EffectiveBalanceIncrement), maxEffectiveBalance)
+	validator.PrincipalBalance = amount
 	return validator
 }
 
