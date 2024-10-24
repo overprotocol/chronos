@@ -118,7 +118,6 @@ import (
 //
 //	return post
 func UpgradeToElectra(beaconState state.BeaconState) (state.BeaconState, error) {
-
 	prevEpochParticipation, err := beaconState.PreviousEpochParticipation()
 	if err != nil {
 		return nil, err
