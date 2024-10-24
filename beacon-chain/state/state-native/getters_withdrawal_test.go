@@ -380,7 +380,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, uint64(10), partialWithdrawalsCount)
 	})
-	t.Run("ExpectedWithdrawls UnitTest", func(t *testing.T) {
+	t.Run("one valid withdrawal with two pending partial withdrawal", func(t *testing.T) {
 		pb := &ethpb.BeaconStateElectra{
 			Validators: []*ethpb.Validator{
 				{

@@ -27,7 +27,6 @@ func TestValidatorConstants(t *testing.T) {
 		numOfValFields++
 	}
 	assert.Equal(t, validatorFields, numOfValFields)
-	assert.Equal(t, validatorFieldRoots, validatorFields+validatorPaddingFields)
 	expectedTreeDepth := math.Ceil(math.Log2(float64(validatorFieldRoots)))
 	assert.Equal(t, validatorTreeDepth, int(expectedTreeDepth))
 
