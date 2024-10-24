@@ -274,7 +274,7 @@ func decodeValidatorId(st state.ReadOnlyBeaconState, rawId string) (idx primitiv
 
 // calculateWaitingEpoch returns a waiting epoch based on given state regarding with validators.
 func calculateWaitingEpoch(activeCount, pendingQueuedCount uint64) uint64 {
-	activationsPerEpoch := helpers.ValidatorExitNoBiasChurnLimit(activeCount)
+	activationsPerEpoch := helpers.ValidatorExitChurnLimit(activeCount)
 	return (pendingQueuedCount+activationsPerEpoch)/activationsPerEpoch + uint64(params.BeaconConfig().MaxSeedLookahead)
 }
 

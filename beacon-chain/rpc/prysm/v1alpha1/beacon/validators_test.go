@@ -1375,9 +1375,7 @@ func TestServer_GetValidatorQueue_PendingActivation(t *testing.T) {
 	}
 	activeValidatorCount, err := helpers.ActiveValidatorCount(context.Background(), headState, coreTime.CurrentEpoch(headState))
 	require.NoError(t, err)
-	activeValidatorDeposit, err := helpers.TotalActiveBalance(headState)
-	require.NoError(t, err)
-	wantChurn := helpers.ValidatorActivationChurnLimit(activeValidatorCount, activeValidatorDeposit, coreTime.CurrentEpoch(headState))
+	wantChurn := helpers.ValidatorActivationChurnLimit(activeValidatorCount)
 	assert.Equal(t, wantChurn, res.ChurnLimit)
 	assert.DeepEqual(t, wanted, res.ActivationPublicKeys)
 	wantedActiveIndices := []primitives.ValidatorIndex{2, 1, 0}
@@ -1418,9 +1416,7 @@ func TestServer_GetValidatorQueue_ExitedValidatorLeavesQueue(t *testing.T) {
 	}
 	activeValidatorCount, err := helpers.ActiveValidatorCount(context.Background(), headState, coreTime.CurrentEpoch(headState))
 	require.NoError(t, err)
-	activeValidatorDeposit, err := helpers.TotalActiveBalance(headState)
-	require.NoError(t, err)
-	wantChurn := helpers.ValidatorActivationChurnLimit(activeValidatorCount, activeValidatorDeposit, coreTime.CurrentEpoch(headState))
+	wantChurn := helpers.ValidatorActivationChurnLimit(activeValidatorCount)
 	assert.Equal(t, wantChurn, res.ChurnLimit)
 	assert.DeepEqual(t, wanted, res.ExitPublicKeys)
 	wantedExitIndices := []primitives.ValidatorIndex{1}
@@ -1479,9 +1475,7 @@ func TestServer_GetValidatorQueue_PendingExit(t *testing.T) {
 	}
 	activeValidatorCount, err := helpers.ActiveValidatorCount(context.Background(), headState, coreTime.CurrentEpoch(headState))
 	require.NoError(t, err)
-	activeValidatorDeposit, err := helpers.TotalActiveBalance(headState)
-	require.NoError(t, err)
-	wantChurn := helpers.ValidatorActivationChurnLimit(activeValidatorCount, activeValidatorDeposit, coreTime.CurrentEpoch(headState))
+	wantChurn := helpers.ValidatorActivationChurnLimit(activeValidatorCount)
 	assert.Equal(t, wantChurn, res.ChurnLimit)
 	assert.DeepEqual(t, wanted, res.ExitPublicKeys)
 }

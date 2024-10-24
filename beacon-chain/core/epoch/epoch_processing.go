@@ -114,12 +114,7 @@ func ProcessRegistryUpdates(ctx context.Context, st state.BeaconState) (state.Be
 	if err != nil {
 		return nil, errors.Wrap(err, "could not get active validator count")
 	}
-	activeValidatorDeposit, err := helpers.TotalActiveBalance(st)
-	if err != nil {
-		return nil, errors.Wrap(err, "could not calculate active balance")
-	}
-
-	churnLimit := helpers.ValidatorActivationChurnLimit(activeValidatorCount, activeValidatorDeposit, currentEpoch)
+	churnLimit := helpers.ValidatorActivationChurnLimit(activeValidatorCount)
 
 	// Prevent churn limit cause index out of bound.
 	if churnLimit < limit {
