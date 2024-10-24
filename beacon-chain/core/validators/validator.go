@@ -256,10 +256,9 @@ func ExitedValidatorIndices(st state.BeaconState, validators []*ethpb.Validator,
 			return nil, err
 		}
 
-		// TODO: use principal_balance and rename this variable.
-		PRINCIPAL_BALANCE := uint64(256000000000)
-		bailoutBuffer := PRINCIPAL_BALANCE * inactivityPenaltyRate / inactivityPenaltyRatePrecision
-		belowThreshold := actualBalance+bailoutBuffer < PRINCIPAL_BALANCE
+		pb := val.PrincipalBalance()
+		bailoutBuffer := pb * inactivityPenaltyRate / inactivityPenaltyRatePrecision
+		belowThreshold := actualBalance+bailoutBuffer < pb
 		isBailout := belowThreshold || (isInInactivityLeak && inactivityScore > inactivityLeakBailoutScoreThreshold)
 
 		if val.ExitEpoch == epoch && val.WithdrawableEpoch == withdrawableEpoch && isBailout {
@@ -290,10 +289,9 @@ func BailedOutValidatorIndices(st state.BeaconState, validators []*ethpb.Validat
 			return nil, err
 		}
 
-		// TODO: use principal_balance and rename this variable.
-		PRINCIPAL_BALANCE := uint64(256000000000)
-		bailoutBuffer := PRINCIPAL_BALANCE * inactivityPenaltyRate / inactivityPenaltyRatePrecision
-		belowThreshold := actualBalance+bailoutBuffer < PRINCIPAL_BALANCE
+		pb := val.PrincipalBalance()
+		bailoutBuffer := pb * inactivityPenaltyRate / inactivityPenaltyRatePrecision
+		belowThreshold := actualBalance+bailoutBuffer < pb
 		isBailout := belowThreshold || (isInInactivityLeak && inactivityScore > inactivityLeakBailoutScoreThreshold)
 
 		if val.ExitEpoch == epoch && val.WithdrawableEpoch == withdrawableEpoch && !isBailout {
