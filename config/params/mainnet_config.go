@@ -138,7 +138,6 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	// Reward and penalty quotients constants.
 	WhistleBlowerRewardQuotient: 512,
 	ProposerRewardQuotient:      8,
-	InactivityPenaltyQuotient:   67108864,
 	MinSlashingPenaltyQuotient:  128,
 
 	// Max operations per block constants.
@@ -239,10 +238,8 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	EpochsPerSyncCommitteePeriod: 256,
 
 	// Updated penalty values.
-	InactivityPenaltyQuotientAltair:      3 * 1 << 24, // 50331648
 	MinSlashingPenaltyQuotientAltair:     64,
 	MinSlashingPenaltyQuotientBellatrix:  32,
-	InactivityPenaltyQuotientBellatrix:   1 << 24,
 	InactivityPenaltyRate:                1,
 	InactivityPenaltyRatePrecision:       100,
 	InactivityPenaltyDuration:            1575, // epochs, 1 week

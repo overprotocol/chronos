@@ -124,8 +124,6 @@ func assertEqualConfigs(t *testing.T, name string, fields []string, expected, ac
 	// Reward and penalty quotients.
 	assert.Equal(t, expected.WhistleBlowerRewardQuotient, actual.WhistleBlowerRewardQuotient, "%s: WhistleBlowerRewardQuotient", name)
 	assert.Equal(t, expected.ProposerRewardQuotient, actual.ProposerRewardQuotient, "%s: ProposerRewardQuotient", name)
-	assert.Equal(t, expected.InactivityPenaltyQuotient, actual.InactivityPenaltyQuotient, "%s: InactivityPenaltyQuotient", name)
-	assert.Equal(t, expected.InactivityPenaltyQuotientAltair, actual.InactivityPenaltyQuotientAltair, "%s: InactivityPenaltyQuotientAltair", name)
 	assert.Equal(t, expected.MinSlashingPenaltyQuotient, actual.MinSlashingPenaltyQuotient, "%s: MinSlashingPenaltyQuotient", name)
 	assert.Equal(t, expected.MinSlashingPenaltyQuotientAltair, actual.MinSlashingPenaltyQuotientAltair, "%s: MinSlashingPenaltyQuotientAltair", name)
 

@@ -98,7 +98,6 @@ func TestGetSpec(t *testing.T) {
 	config.ValidatorRegistryLimit = 38
 	config.WhistleBlowerRewardQuotient = 39
 	config.ProposerRewardQuotient = 40
-	config.InactivityPenaltyQuotient = 41
 	config.MinSlashingPenaltyQuotient = 42
 	config.MaxProposerSlashings = 43
 	config.MaxAttesterSlashings = 44
@@ -118,7 +117,6 @@ func TestGetSpec(t *testing.T) {
 	config.SyncCommitteeSize = 58
 	config.InactivityScoreBias = 59
 	config.EpochsPerSyncCommitteePeriod = 60
-	config.InactivityPenaltyQuotientAltair = 61
 	config.MinSlashingPenaltyQuotientAltair = 62
 	config.InactivityScoreRecoveryRate = 63
 	config.MinSyncCommitteeParticipants = 64
