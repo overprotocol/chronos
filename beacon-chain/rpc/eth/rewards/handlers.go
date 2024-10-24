@@ -228,11 +228,6 @@ func idealAttRewards(
 		} else {
 			idealRewards[i].Target = strconv.FormatUint(d.TargetReward, 10)
 		}
-		if d.InactivityPenalty > 0 {
-			idealRewards[i].Inactivity = fmt.Sprintf("-%s", strconv.FormatUint(d.InactivityPenalty, 10))
-		} else {
-			idealRewards[i].Inactivity = strconv.FormatUint(d.InactivityPenalty, 10)
-		}
 	}
 	return idealRewards, true
 }
@@ -264,11 +259,6 @@ func totalAttRewards(
 			totalRewards[i].Target = fmt.Sprintf("-%s", strconv.FormatUint(d.TargetPenalty, 10))
 		} else {
 			totalRewards[i].Target = strconv.FormatUint(d.TargetReward, 10)
-		}
-		if d.InactivityPenalty > 0 {
-			totalRewards[i].Inactivity = fmt.Sprintf("-%s", strconv.FormatUint(d.InactivityPenalty, 10))
-		} else {
-			totalRewards[i].Inactivity = strconv.FormatUint(d.InactivityPenalty, 10)
 		}
 	}
 	return totalRewards, true
