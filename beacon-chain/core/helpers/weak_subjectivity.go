@@ -77,7 +77,7 @@ func ComputeWeakSubjectivityPeriod(ctx context.Context, st state.ReadOnlyBeaconS
 	t := totalBalance / N / cfg.GweiPerEth
 
 	// Minimum activation balance per validator.
-	T := cfg.MinActivationBalance / cfg.GweiPerEth
+	T := cfg.MaxEffectiveBalanceAlpaca / cfg.GweiPerEth
 
 	// Validator churn limit.
 	delta := uint64(ExitBalanceChurnLimit(primitives.Gwei(totalBalance))) / cfg.MinActivationBalance
@@ -93,10 +93,12 @@ func ComputeWeakSubjectivityPeriod(ctx context.Context, st state.ReadOnlyBeaconS
 	D := cfg.SafetyDecay
 
 	if T*(200+3*D) < t*(200+12*D) {
+		fmt.Println("case 1")
 		epochsForValidatorSetChurn := N * (t*(200+12*D) - T*(200+3*D)) / (600 * delta * (2*t + T))
 		epochsForBalanceTopUps := N * (200 + 3*D) / (600 * Delta)
 		wsp += math.Max(epochsForValidatorSetChurn, epochsForBalanceTopUps)
 	} else {
+		fmt.Println("case 2")
 		wsp += 3 * N * D * t / (200 * Delta * (T - t))
 	}
 

@@ -141,7 +141,7 @@ func TestGetSpec(t *testing.T) {
 	config.IssuancePerYear = 84
 	config.LightLayerWeight = 85
 	config.MinSlashingPenaltyQuotientElectra = 86
-	config.MaxEffectiveBalanceElectra = 87
+	config.MaxEffectiveBalanceAlpaca = 87
 	config.CompoundingWithdrawalPrefixByte = byte('d')
 	config.WhistleBlowerRewardQuotientElectra = 89
 	config.PendingPartialWithdrawalsLimit = 90
@@ -196,7 +196,7 @@ func TestGetSpec(t *testing.T) {
 	data, ok := resp.Data.(map[string]interface{})
 	require.Equal(t, true, ok)
 
-	assert.Equal(t, 157, len(data))
+	assert.Equal(t, 158, len(data))
 	for k, v := range data {
 		t.Run(k, func(t *testing.T) {
 			switch k {

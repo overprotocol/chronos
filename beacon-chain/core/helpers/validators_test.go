@@ -725,7 +725,7 @@ func TestComputeProposerIndex(t *testing.T) {
 					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalance},
 					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalance},
 					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalance},
-					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceElectra},
+					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceAlpaca},
 					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalance},
 				},
 				indices: []primitives.ValidatorIndex{3},
@@ -738,11 +738,11 @@ func TestComputeProposerIndex(t *testing.T) {
 			isElectraOrAbove: true,
 			args: args{
 				validators: []*ethpb.Validator{
-					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceElectra},
-					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceElectra},
+					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceAlpaca},
+					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceAlpaca},
 					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalance}, // skip this one
-					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceElectra},
-					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceElectra},
+					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceAlpaca},
+					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceAlpaca},
 				},
 				indices: []primitives.ValidatorIndex{0, 1, 2, 3, 4},
 				seed:    seed,
@@ -755,10 +755,10 @@ func TestComputeProposerIndex(t *testing.T) {
 			args: args{
 				validators: []*ethpb.Validator{
 					{EffectiveBalance: 1},
-					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceElectra},
+					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceAlpaca},
 					{EffectiveBalance: 1},
 					{EffectiveBalance: 1},
-					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceElectra},
+					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceAlpaca},
 				},
 				indices: []primitives.ValidatorIndex{1},
 				seed:    seed,
@@ -1138,11 +1138,11 @@ func TestIsPartiallyWithdrawableValidator(t *testing.T) {
 		{
 			name: "Fully withdrawable compounding validator electra",
 			validator: &ethpb.Validator{
-				EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalanceElectra,
+				EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalanceAlpaca,
 				WithdrawalCredentials: []byte{params.BeaconConfig().CompoundingWithdrawalPrefixByte, 0xCC},
 				PrincipalBalance:      params.BeaconConfig().MaxEffectiveBalance,
 			},
-			balance: params.BeaconConfig().MaxEffectiveBalanceElectra * 2,
+			balance: params.BeaconConfig().MaxEffectiveBalanceAlpaca * 2,
 			epoch:   params.BeaconConfig().ElectraForkEpoch,
 			fork:    version.Electra,
 			want:    true,
@@ -1198,7 +1198,7 @@ func TestValidatorMaxEffectiveBalance(t *testing.T) {
 		{
 			name:      "Compounding withdrawal credential",
 			validator: &ethpb.Validator{WithdrawalCredentials: []byte{params.BeaconConfig().CompoundingWithdrawalPrefixByte, 0xCC}},
-			want:      params.BeaconConfig().MaxEffectiveBalanceElectra,
+			want:      params.BeaconConfig().MaxEffectiveBalanceAlpaca,
 		},
 		{
 			name:      "Vanilla credentials",

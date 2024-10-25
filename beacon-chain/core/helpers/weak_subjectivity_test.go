@@ -24,25 +24,24 @@ func TestWeakSubjectivity_ComputeWeakSubjectivityPeriod(t *testing.T) {
 	}{
 		// Asserting that we get the same numbers as defined in the reference table:
 		// https://github.com/ethereum/consensus-specs/blob/master/specs/phase0/weak-subjectivity.md#calculating-the-weak-subjectivity-period
-		{valCount: 32768, avgBalance: 224, want: 504},
-		{valCount: 65536, avgBalance: 224, want: 752},
-		{valCount: 131072, avgBalance: 224, want: 1248},
-		{valCount: 262144, avgBalance: 224, want: 2241},
-		{valCount: 524288, avgBalance: 224, want: 2525},
-		{valCount: 1048576, avgBalance: 224, want: 2525},
-		{valCount: 32768, avgBalance: 256, want: 665},
-		{valCount: 65536, avgBalance: 256, want: 1075},
-		{valCount: 131072, avgBalance: 256, want: 1894},
-		{valCount: 262144, avgBalance: 256, want: 3532},
-		{valCount: 524288, avgBalance: 256, want: 3532},
-		{valCount: 1048576, avgBalance: 256, want: 3532},
-		// Additional test vectors, to check case when T*(200+3*D) >= t*(200+12*D)
-		{valCount: 32768, avgBalance: 176, want: 256},
-		{valCount: 65536, avgBalance: 176, want: 257},
-		{valCount: 131072, avgBalance: 176, want: 258},
-		{valCount: 262144, avgBalance: 176, want: 261},
-		{valCount: 524288, avgBalance: 176, want: 266},
-		{valCount: 1048576, avgBalance: 176, want: 277},
+		{valCount: 32768, avgBalance: 256, want: 256},
+		{valCount: 65536, avgBalance: 256, want: 256},
+		{valCount: 131072, avgBalance: 256, want: 256},
+		{valCount: 262144, avgBalance: 256, want: 256},
+		{valCount: 524288, avgBalance: 256, want: 256},
+		{valCount: 1048576, avgBalance: 256, want: 256},
+		{valCount: 32768, avgBalance: 8192, want: 256},
+		{valCount: 65536, avgBalance: 8192, want: 256},
+		{valCount: 131072, avgBalance: 8192, want: 257},
+		{valCount: 262144, avgBalance: 8192, want: 258},
+		{valCount: 524288, avgBalance: 8192, want: 260},
+		{valCount: 1048576, avgBalance: 8192, want: 265},
+		{valCount: 32768, avgBalance: 16384, want: 307},
+		{valCount: 65536, avgBalance: 16384, want: 307},
+		{valCount: 131072, avgBalance: 16384, want: 307},
+		{valCount: 262144, avgBalance: 16384, want: 307},
+		{valCount: 524288, avgBalance: 16384, want: 307},
+		{valCount: 1048576, avgBalance: 16384, want: 307},
 	}
 	for _, tt := range tests {
 		t.Run(fmt.Sprintf("valCount: %d, avgBalance: %d", tt.valCount, tt.avgBalance), func(t *testing.T) {

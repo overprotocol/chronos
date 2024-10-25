@@ -259,7 +259,7 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	DataColumnSidecarSubnetCount:           128,
 	MinPerEpochChurnLimitAlpaca:            1_024_000_000_000,
 	MinPerEpochActivationBalanceChurnLimit: 4_096_000_000_000,
-	MaxEffectiveBalanceElectra:             16384_000_000_000,
+	MaxEffectiveBalanceAlpaca:              16384_000_000_000,
 	MinSlashingPenaltyQuotientElectra:      4096,
 	WhistleBlowerRewardQuotientElectra:     4096,
 	PendingDepositLimit:                    134_217_728,

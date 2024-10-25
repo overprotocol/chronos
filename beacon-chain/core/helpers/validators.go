@@ -396,7 +396,7 @@ func ComputeProposerIndex(bState state.ReadOnlyBeaconState, activeIndices []prim
 
 		maxEB := params.BeaconConfig().MaxEffectiveBalance
 		if bState.Version() >= version.Electra {
-			maxEB = params.BeaconConfig().MaxEffectiveBalanceElectra
+			maxEB = params.BeaconConfig().MaxEffectiveBalanceAlpaca
 		}
 
 		if effectiveBal*maxRandomByte >= maxEB*uint64(randomByte) {
@@ -646,7 +646,7 @@ func IsPartiallyWithdrawableValidatorAlpaca(val *ethpb.Validator, balance uint64
 //	        return MIN_ACTIVATION_BALANCE
 func ValidatorMaxEffectiveBalance(val *ethpb.Validator) uint64 {
 	if HasCompoundingWithdrawalCredential(val) {
-		return params.BeaconConfig().MaxEffectiveBalanceElectra
+		return params.BeaconConfig().MaxEffectiveBalanceAlpaca
 	}
 	return params.BeaconConfig().MinActivationBalance
 }
