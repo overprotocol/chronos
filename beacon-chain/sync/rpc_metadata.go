@@ -12,7 +12,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/network/forks"
 	pb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	"github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1/metadata"
-	"github.com/prysmaticlabs/prysm/v5/runtime/version"
 	"github.com/prysmaticlabs/prysm/v5/time/slots"
 )
 
@@ -35,7 +34,7 @@ func (s *Service) metaDataHandler(_ context.Context, _ interface{}, stream libp2
 		}
 		return nilErr
 	}
-	_, _, streamVersion, err := p2p.TopicDeconstructor(string(stream.Protocol()))
+	_, _, _, err := p2p.TopicDeconstructor(string(stream.Protocol()))
 	if err != nil {
 		resp, genErr := s.generateErrorResponse(responseCodeServerError, types.ErrGeneric.Error())
 		if genErr != nil {
@@ -46,28 +45,11 @@ func (s *Service) metaDataHandler(_ context.Context, _ interface{}, stream libp2
 		return err
 	}
 	currMd := s.cfg.p2p.Metadata()
-	switch streamVersion {
-	case p2p.SchemaVersionV1:
-		// We have a v1 metadata object saved locally, so we
-		// convert it back to a v0 metadata object.
-		if currMd.Version() != version.Phase0 {
-			currMd = wrapper.WrappedMetadataV0(
-				&pb.MetaDataV0{
-					Attnets:   currMd.AttnetsBitfield(),
-					SeqNumber: currMd.SequenceNumber(),
-				})
-		}
-	case p2p.SchemaVersionV2:
-		// We have a v0 metadata object saved locally, so we
-		// convert it to a v1 metadata object.
-		if currMd.Version() != version.Altair {
-			currMd = wrapper.WrappedMetadataV1(
-				&pb.MetaDataV1{
-					Attnets:   currMd.AttnetsBitfield(),
-					SeqNumber: currMd.SequenceNumber(),
-				})
-		}
-	}
+	currMd = wrapper.WrappedMetadataV0(
+		&pb.MetaDataV0{
+			Attnets:   currMd.AttnetsBitfield(),
+			SeqNumber: currMd.SequenceNumber(),
+		})
 	if _, err := stream.Write([]byte{responseCodeSuccess}); err != nil {
 		return err
 	}
@@ -112,12 +94,7 @@ func (s *Service) sendMetaDataRequest(ctx context.Context, id peer.ID) (metadata
 	}
 	// Defensive check to ensure valid objects are being sent.
 	topicVersion := ""
-	switch msg.Version() {
-	case version.Phase0:
-		topicVersion = p2p.SchemaVersionV1
-	case version.Altair:
-		topicVersion = p2p.SchemaVersionV2
-	}
+	topicVersion = p2p.SchemaVersionV1
 	if err := validateVersion(topicVersion, stream); err != nil {
 		return nil, err
 	}

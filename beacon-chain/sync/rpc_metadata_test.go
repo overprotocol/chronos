@@ -217,7 +217,7 @@ func TestMetadataRPCHandler_SendsMetadataAltair(t *testing.T) {
 	assert.NoError(t, err)
 
 	if !equality.DeepEqual(md.InnerObject(), p2.LocalMetadata.InnerObject()) {
-		t.Fatalf("MetadataV1 unequal, received %v but wanted %v", md, p2.LocalMetadata)
+		t.Fatalf("MetadataV0 unequal, received %v but wanted %v", md, p2.LocalMetadata)
 	}
 
 	if util.WaitTimeout(&wg, 1*time.Second) {
