@@ -209,7 +209,7 @@ func TestExtractDataType(t *testing.T) {
 				require.NoError(t, err)
 				return wsb
 			}(),
-			wantMd:        wrapper.WrappedMetadataV1(&ethpb.MetaDataV1{}),
+			wantMd:        wrapper.WrappedMetadataV0(&ethpb.MetaDataV0{}),
 			wantAtt:       &ethpb.Attestation{},
 			wantAggregate: &ethpb.SignedAggregateAttestationAndProof{},
 			wantErr:       false,
@@ -225,7 +225,7 @@ func TestExtractDataType(t *testing.T) {
 				require.NoError(t, err)
 				return wsb
 			}(),
-			wantMd:        wrapper.WrappedMetadataV1(&ethpb.MetaDataV1{}),
+			wantMd:        wrapper.WrappedMetadataV0(&ethpb.MetaDataV0{}),
 			wantAtt:       &ethpb.Attestation{},
 			wantAggregate: &ethpb.SignedAggregateAttestationAndProof{},
 			wantErr:       false,
@@ -241,7 +241,7 @@ func TestExtractDataType(t *testing.T) {
 				require.NoError(t, err)
 				return wsb
 			}(),
-			wantMd:        wrapper.WrappedMetadataV1(&ethpb.MetaDataV1{}),
+			wantMd:        wrapper.WrappedMetadataV0(&ethpb.MetaDataV0{}),
 			wantAtt:       &ethpb.Attestation{},
 			wantAggregate: &ethpb.SignedAggregateAttestationAndProof{},
 			wantErr:       false,
@@ -257,7 +257,7 @@ func TestExtractDataType(t *testing.T) {
 				require.NoError(t, err)
 				return wsb
 			}(),
-			wantMd:        wrapper.WrappedMetadataV1(&ethpb.MetaDataV1{}),
+			wantMd:        wrapper.WrappedMetadataV0(&ethpb.MetaDataV0{}),
 			wantAtt:       &ethpb.Attestation{},
 			wantAggregate: &ethpb.SignedAggregateAttestationAndProof{},
 			wantErr:       false,
@@ -273,7 +273,7 @@ func TestExtractDataType(t *testing.T) {
 				require.NoError(t, err)
 				return wsb
 			}(),
-			wantMd:        wrapper.WrappedMetadataV1(&ethpb.MetaDataV1{}),
+			wantMd:        wrapper.WrappedMetadataV0(&ethpb.MetaDataV0{}),
 			wantAtt:       &ethpb.AttestationElectra{},
 			wantAggregate: &ethpb.SignedAggregateAttestationAndProofElectra{},
 			wantErr:       false,

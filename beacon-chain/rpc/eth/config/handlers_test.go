@@ -467,11 +467,11 @@ func TestGetSpec(t *testing.T) {
 			case "CHURN_LIMIT_BIAS":
 				assert.Equal(t, "68", v)
 			case "ISSUANCE_RATE":
-				assert.Equal(t, "[80,80,80,80,80,80,80,80,80,80,80]", v)
+				assert.Equal(t, "[69,69,69,69,69,69,69,69,69,69,69]", v)
 			case "ISSUANCE_PRECISION":
-				assert.Equal(t, "81", v)
+				assert.Equal(t, "70", v)
 			case "DEPOSIT_PLAN_EARLY_END":
-				assert.Equal(t, "82", v)
+				assert.Equal(t, "71", v)
 			case "DEPOSIT_PLAN_EARLY_SLOPE":
 				assert.Equal(t, "72", v)
 			case "DEPOSIT_PLAN_EARLY_OFFSET":

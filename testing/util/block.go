@@ -50,12 +50,11 @@ type BlockGenConfig struct {
 // current params in the beacon config.
 func DefaultBlockGenConfig() *BlockGenConfig {
 	return &BlockGenConfig{
-		NumProposerSlashings: 0,
-		NumAttesterSlashings: 0,
-		NumAttestations:      1,
-		NumDeposits:          0,
-		NumVoluntaryExits:    0,
-
+		NumProposerSlashings:  0,
+		NumAttesterSlashings:  0,
+		NumAttestations:       1,
+		NumDeposits:           0,
+		NumVoluntaryExits:     0,
 		NumTransactions:       0,
 		NumBLSChanges:         0,
 		NumWithdrawals:        0,

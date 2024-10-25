@@ -79,11 +79,11 @@ func TestMetaDataFromFile(t *testing.T) {
 
 	// Generate metadata V1
 	seqNum := rand.Uint64()
-	md := &pb.MetaDataV1{
+	md := &pb.MetaDataV0{
 		SeqNumber: seqNum,
 		Attnets:   bitfield.NewBitvector64(),
 	}
-	metaData := wrapper.WrappedMetadataV1(md)
+	metaData := wrapper.WrappedMetadataV0(md)
 
 	// Save to file
 	err := saveMetaDataToFile(path, metaData.Copy())

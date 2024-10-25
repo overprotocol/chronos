@@ -202,7 +202,7 @@ func TestMetadataRPCHandler_SendsMetadataAltair(t *testing.T) {
 	}
 
 	// Fix up peer with the correct metadata.
-	p2.LocalMetadata = wrapper.WrappedMetadataV1(&pb.MetaDataV1{
+	p2.LocalMetadata = wrapper.WrappedMetadataV0(&pb.MetaDataV0{
 		SeqNumber: 2,
 		Attnets:   bitfield[:],
 	})

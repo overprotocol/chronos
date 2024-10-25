@@ -23,9 +23,6 @@ const (
 	// aggregateWeight specifies the scoring weight that we apply to
 	// our aggregate topic.
 	aggregateWeight = 0.5
-	// syncContributionWeight specifies the scoring weight that we apply to
-	// our sync contribution topic.
-	syncContributionWeight = 0.2
 	// attestationTotalWeight specifies the scoring weight that we apply to
 	// our attestation subnet topic.
 	attestationTotalWeight = 1
@@ -447,7 +444,7 @@ func scoreByWeight(weight, threshold float64) float64 {
 
 // maxScore attainable by a peer.
 func maxScore() float64 {
-	totalWeight := beaconBlockWeight + aggregateWeight + syncContributionWeight +
+	totalWeight := beaconBlockWeight + aggregateWeight +
 		attestationTotalWeight + attesterSlashingWeight +
 		proposerSlashingWeight + voluntaryExitWeight + blsToExecutionChangeWeight
 	return (maxInMeshScore + maxFirstDeliveryScore) * totalWeight

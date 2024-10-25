@@ -297,7 +297,7 @@ func TestDetectAndUnmarshalBlock(t *testing.T) {
 			name:      "genesis block in altair slot",
 			b:         signedTestBlockGenesis,
 			slot:      bellaS - 1,
-			errExists: true,
+			errExists: false,
 		},
 	}
 	for _, c := range cases {
