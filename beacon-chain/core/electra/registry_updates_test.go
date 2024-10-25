@@ -107,6 +107,40 @@ func TestProcessRegistryUpdates(t *testing.T) {
 			},
 		},
 		{
+			name: "Validators are bailed out while leak",
+			state: func() state.BeaconState {
+				inactivityScores := params.BeaconConfig().InactivityLeakBailoutScoreThreshold + 1
+				base := &eth.BeaconStateElectra{
+					Slot:                10 * params.BeaconConfig().SlotsPerEpoch,
+					FinalizedCheckpoint: &eth.Checkpoint{Epoch: finalizedEpoch, Root: make([]byte, fieldparams.RootLength)},
+					InactivityScores:    make([]uint64, 0),
+				}
+				for i := uint64(0); i < 10; i++ {
+					principalBalance := params.BeaconConfig().MinActivationBalance
+					base.Validators = append(base.Validators, &eth.Validator{
+						EffectiveBalance:  params.BeaconConfig().MinActivationBalance,
+						ExitEpoch:         params.BeaconConfig().FarFutureEpoch,
+						WithdrawableEpoch: params.BeaconConfig().FarFutureEpoch,
+						PrincipalBalance:  principalBalance,
+					})
+					actualBalance := principalBalance
+					base.Balances = append(base.Balances, actualBalance)
+					base.InactivityScores = append(base.InactivityScores, inactivityScores)
+				}
+
+				st, err := state_native.InitializeFromProtoElectra(base)
+				require.NoError(t, err)
+				return st
+			}(),
+			check: func(t *testing.T, st state.BeaconState) {
+				// All validators should be bailed out
+				for i, val := range st.Validators() {
+					require.NotEqual(t, params.BeaconConfig().FarFutureEpoch, val.ExitEpoch, "failed to update exit epoch on validator %d", i)
+					require.NotEqual(t, params.BeaconConfig().FarFutureEpoch, val.WithdrawableEpoch, "failed to update withdrawable epoch on validator %d", i)
+				}
+			},
+		},
+		{
 			name: "Validators are exiting",
 			state: func() state.BeaconState {
 				base := &eth.BeaconStateElectra{

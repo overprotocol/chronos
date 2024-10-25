@@ -1337,9 +1337,6 @@ func TestServer_GetValidatorActiveSetChanges(t *testing.T) {
 		BailedOutIndices:    wantedBailedOutIndices,
 	}
 	require.DeepEqual(t, wanted, res)
-	//if !proto.Equal(wanted, res) {
-	//	t.Errorf("Wanted \n%v, received \n%v", wanted, res)
-	//}
 }
 
 func TestServer_GetValidatorQueue_PendingActivation(t *testing.T) {

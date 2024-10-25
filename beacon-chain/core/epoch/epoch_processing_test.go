@@ -153,6 +153,42 @@ func TestProcessRegistryUpdates_ValidatorsBailedOut(t *testing.T) {
 	}
 }
 
+func TestProcessRegistryUpdates_ValidatorsBailedOutInLeak(t *testing.T) {
+	principalBalance := params.BeaconConfig().MinActivationBalance
+	inactivityScores := params.BeaconConfig().InactivityLeakBailoutScoreThreshold + 1
+	e := params.BeaconConfig().MinEpochsToInactivityPenalty + 2
+	slot := uint64(params.BeaconConfig().SlotsPerEpoch) * uint64(e)
+	base := &ethpb.BeaconStateDeneb{
+		Slot: primitives.Slot(slot),
+		Validators: []*ethpb.Validator{
+			{
+				ExitEpoch:        params.BeaconConfig().FarFutureEpoch,
+				EffectiveBalance: principalBalance,
+				PrincipalBalance: principalBalance,
+			},
+			{
+				ExitEpoch:        params.BeaconConfig().FarFutureEpoch,
+				EffectiveBalance: principalBalance,
+				PrincipalBalance: principalBalance,
+			},
+		},
+		InactivityScores:    []uint64{inactivityScores, inactivityScores},
+		Balances:            []uint64{principalBalance, principalBalance},
+		FinalizedCheckpoint: &ethpb.Checkpoint{Epoch: 0, Root: make([]byte, fieldparams.RootLength)},
+	}
+	beaconState, err := state_native.InitializeFromProtoDeneb(base)
+	require.NoError(t, err)
+	newState, err := epoch.ProcessRegistryUpdates(context.Background(), beaconState)
+	require.NoError(t, err)
+	prevEpoch := e - 1
+	finalizedEpoch := beaconState.FinalizedCheckpointEpoch()
+
+	assert.Equal(t, true, helpers.IsInInactivityLeak(prevEpoch, finalizedEpoch))
+	for i, validator := range newState.Validators() {
+		assert.Equal(t, e+params.BeaconConfig().MaxSeedLookahead+1, validator.ExitEpoch, "Could not update registry %d, unexpected exit slot", i)
+	}
+}
+
 func TestProcessRegistryUpdates_CanExits(t *testing.T) {
 	e := primitives.Epoch(5)
 	exitEpoch := helpers.ActivationExitEpoch(e)
