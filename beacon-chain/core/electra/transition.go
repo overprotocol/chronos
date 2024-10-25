@@ -43,6 +43,8 @@ var (
 //	    process_pending_deposits(state)  # New in EIP7251
 //	    process_effective_balance_updates(state)
 //	    process_randao_mixes_reset(state)
+//		process_historical_summaries_update(state)
+//		process_participation_flag_updates(state)
 func ProcessEpoch(ctx context.Context, state state.BeaconState) error {
 	_, span := trace.StartSpan(ctx, "electra.ProcessEpoch")
 	defer span.End()

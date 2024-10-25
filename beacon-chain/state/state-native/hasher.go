@@ -86,17 +86,6 @@ func ComputeFieldRootsWithHasher(ctx context.Context, state *BeaconState) ([][]b
 	}
 	fieldRoots[types.StateRoots.RealPosition()] = stateRootsRoot[:]
 
-	// HistoricalRoots slice root.
-	hRoots := make([][]byte, len(state.historicalRoots))
-	for i := range hRoots {
-		hRoots[i] = state.historicalRoots[i][:]
-	}
-	historicalRootsRt, err := ssz.ByteArrayRootWithLimit(hRoots, fieldparams.HistoricalRootsLength)
-	if err != nil {
-		return nil, errors.Wrap(err, "could not compute historical roots merkleization")
-	}
-	fieldRoots[types.HistoricalRoots.RealPosition()] = historicalRootsRt[:]
-
 	// RewardAdjustmentFactor root.
 	rewardAdjustmentFactorRoot := ssz.Uint64Root(state.rewardAdjustmentFactor)
 	fieldRoots[types.RewardAdjustmentFactor.RealPosition()] = rewardAdjustmentFactorRoot[:]

@@ -44,8 +44,6 @@ func (f FieldIndex) String() string {
 		return "blockRoots"
 	case StateRoots:
 		return "stateRoots"
-	case HistoricalRoots:
-		return "historicalRoots"
 	case RewardAdjustmentFactor:
 		return "rewardAdjustmentFactor"
 	case Eth1Data:
@@ -127,8 +125,6 @@ func (f FieldIndex) RealPosition() int {
 		return 5
 	case StateRoots:
 		return 6
-	case HistoricalRoots:
-		return 7
 	case RewardAdjustmentFactor:
 		return 8
 	case Eth1Data:
@@ -209,7 +205,6 @@ const (
 	LatestBlockHeader
 	BlockRoots
 	StateRoots
-	HistoricalRoots
 	RewardAdjustmentFactor
 	Eth1Data
 	Eth1DataVotes

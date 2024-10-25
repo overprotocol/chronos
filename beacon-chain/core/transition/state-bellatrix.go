@@ -176,7 +176,6 @@ func OptimizedGenesisBeaconStateBellatrix(genesisTime uint64, preState state.Bea
 		},
 
 		RewardAdjustmentFactor: preState.RewardAdjustmentFactor(),
-		HistoricalRoots:        [][]byte{},
 		BlockRoots:             blockRoots,
 		StateRoots:             stateRoots,
 
@@ -241,7 +240,6 @@ func EmptyGenesisStateBellatrix() (state.BeaconState, error) {
 		Reserves:   0,
 
 		JustificationBits:      []byte{0},
-		HistoricalRoots:        [][]byte{},
 		RewardAdjustmentFactor: 0,
 
 		// Eth1 data.

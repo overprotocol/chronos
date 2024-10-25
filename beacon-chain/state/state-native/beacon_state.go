@@ -28,7 +28,6 @@ type BeaconState struct {
 	blockRootsMultiValue                *MultiValueBlockRoots
 	stateRoots                          customtypes.StateRoots
 	stateRootsMultiValue                *MultiValueStateRoots
-	historicalRoots                     customtypes.HistoricalRoots
 	historicalSummaries                 []*ethpb.HistoricalSummary
 	rewardAdjustmentFactor              uint64
 	eth1Data                            *ethpb.Eth1Data
@@ -85,7 +84,6 @@ type beaconStateMarshalable struct {
 	LatestBlockHeader                   *ethpb.BeaconBlockHeader                `json:"latest_block_header" yaml:"latest_block_header"`
 	BlockRoots                          customtypes.BlockRoots                  `json:"block_roots" yaml:"block_roots"`
 	StateRoots                          customtypes.StateRoots                  `json:"state_roots" yaml:"state_roots"`
-	HistoricalRoots                     customtypes.HistoricalRoots             `json:"historical_roots" yaml:"historical_roots"`
 	HistoricalSummaries                 []*ethpb.HistoricalSummary              `json:"historical_summaries" yaml:"historical_summaries"`
 	RewardAdjustmentFactor              uint64                                  `json:"reward_adjustment_factor" yaml:"reward_adjustment_factor"`
 	Eth1Data                            *ethpb.Eth1Data                         `json:"eth_1_data" yaml:"eth_1_data"`
@@ -150,7 +148,6 @@ func (b *BeaconState) MarshalJSON() ([]byte, error) {
 		LatestBlockHeader:                   b.latestBlockHeader,
 		BlockRoots:                          bRoots,
 		StateRoots:                          sRoots,
-		HistoricalRoots:                     b.historicalRoots,
 		HistoricalSummaries:                 b.historicalSummaries,
 		RewardAdjustmentFactor:              b.rewardAdjustmentFactor,
 		Eth1Data:                            b.eth1Data,

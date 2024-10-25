@@ -62,7 +62,6 @@ type ReadOnlyBeaconState interface {
 	Slot() primitives.Slot
 	Fork() *ethpb.Fork
 	LatestBlockHeader() *ethpb.BeaconBlockHeader
-	HistoricalRoots() ([][]byte, error)
 	HistoricalSummaries() ([]*ethpb.HistoricalSummary, error)
 	RewardAdjustmentFactor() uint64
 	Reserves() uint64
@@ -93,10 +92,8 @@ type WriteOnlyBeaconState interface {
 	SetSlot(val primitives.Slot) error
 	SetFork(val *ethpb.Fork) error
 	SetLatestBlockHeader(val *ethpb.BeaconBlockHeader) error
-	SetHistoricalRoots(val [][]byte) error
 	SetReserves(val uint64) error
 	SetRewardAdjustmentFactor(val uint64) error
-	AppendHistoricalRoots(root [32]byte) error
 	AppendHistoricalSummaries(*ethpb.HistoricalSummary) error
 	SetLatestExecutionPayloadHeader(payload interfaces.ExecutionData) error
 }

@@ -9,7 +9,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state/fieldtrie"
-	customtypes "github.com/prysmaticlabs/prysm/v5/beacon-chain/state/state-native/custom-types"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state/state-native/types"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state/stateutil"
 	"github.com/prysmaticlabs/prysm/v5/config/features"
@@ -33,7 +32,6 @@ var phase0Fields = []types.FieldIndex{
 	types.LatestBlockHeader,
 	types.BlockRoots,
 	types.StateRoots,
-	types.HistoricalRoots,
 	types.RewardAdjustmentFactor,
 	types.Eth1Data,
 	types.Eth1DataVotes,
@@ -58,7 +56,6 @@ var altairFields = []types.FieldIndex{
 	types.LatestBlockHeader,
 	types.BlockRoots,
 	types.StateRoots,
-	types.HistoricalRoots,
 	types.RewardAdjustmentFactor,
 	types.Eth1Data,
 	types.Eth1DataVotes,
@@ -159,11 +156,6 @@ func InitializeFromProtoUnsafePhase0(st *ethpb.BeaconState) (state.BeaconState, 
 		return nil, errors.New("received nil state")
 	}
 
-	hRoots := customtypes.HistoricalRoots(make([][32]byte, len(st.HistoricalRoots)))
-	for i, r := range st.HistoricalRoots {
-		copy(hRoots[i][:], r)
-	}
-
 	fieldCount := params.BeaconConfig().BeaconStateFieldCount
 	b := &BeaconState{
 		version:                     version.Phase0,
@@ -172,7 +164,6 @@ func InitializeFromProtoUnsafePhase0(st *ethpb.BeaconState) (state.BeaconState, 
 		slot:                        st.Slot,
 		fork:                        st.Fork,
 		latestBlockHeader:           st.LatestBlockHeader,
-		historicalRoots:             hRoots,
 		rewardAdjustmentFactor:      st.RewardAdjustmentFactor,
 		eth1Data:                    st.Eth1Data,
 		eth1DataVotes:               st.Eth1DataVotes,
@@ -238,7 +229,6 @@ func InitializeFromProtoUnsafePhase0(st *ethpb.BeaconState) (state.BeaconState, 
 	}
 
 	// Initialize field reference tracking for shared data.
-	b.sharedFieldReferences[types.HistoricalRoots] = stateutil.NewRef(1)
 	b.sharedFieldReferences[types.Eth1DataVotes] = stateutil.NewRef(1)
 	b.sharedFieldReferences[types.PreviousEpochAttestations] = stateutil.NewRef(1)
 	b.sharedFieldReferences[types.CurrentEpochAttestations] = stateutil.NewRef(1)
@@ -263,11 +253,6 @@ func InitializeFromProtoUnsafeAltair(st *ethpb.BeaconStateAltair) (state.BeaconS
 		return nil, errors.New("received nil state")
 	}
 
-	hRoots := customtypes.HistoricalRoots(make([][32]byte, len(st.HistoricalRoots)))
-	for i, r := range st.HistoricalRoots {
-		hRoots[i] = bytesutil.ToBytes32(r)
-	}
-
 	fieldCount := params.BeaconConfig().BeaconStateAltairFieldCount
 	b := &BeaconState{
 		version:                     version.Altair,
@@ -276,7 +261,6 @@ func InitializeFromProtoUnsafeAltair(st *ethpb.BeaconStateAltair) (state.BeaconS
 		slot:                        st.Slot,
 		fork:                        st.Fork,
 		latestBlockHeader:           st.LatestBlockHeader,
-		historicalRoots:             hRoots,
 		rewardAdjustmentFactor:      st.RewardAdjustmentFactor,
 		eth1Data:                    st.Eth1Data,
 		eth1DataVotes:               st.Eth1DataVotes,
@@ -344,7 +328,6 @@ func InitializeFromProtoUnsafeAltair(st *ethpb.BeaconStateAltair) (state.BeaconS
 	}
 
 	// Initialize field reference tracking for shared data.
-	b.sharedFieldReferences[types.HistoricalRoots] = stateutil.NewRef(1)
 	b.sharedFieldReferences[types.Eth1DataVotes] = stateutil.NewRef(1)
 	b.sharedFieldReferences[types.PreviousEpochParticipationBits] = stateutil.NewRef(1) // New in Altair.
 	b.sharedFieldReferences[types.CurrentEpochParticipationBits] = stateutil.NewRef(1)  // New in Altair.
@@ -370,11 +353,6 @@ func InitializeFromProtoUnsafeBellatrix(st *ethpb.BeaconStateBellatrix) (state.B
 		return nil, errors.New("received nil state")
 	}
 
-	hRoots := customtypes.HistoricalRoots(make([][32]byte, len(st.HistoricalRoots)))
-	for i, r := range st.HistoricalRoots {
-		hRoots[i] = bytesutil.ToBytes32(r)
-	}
-
 	fieldCount := params.BeaconConfig().BeaconStateBellatrixFieldCount
 	b := &BeaconState{
 		version:                      version.Bellatrix,
@@ -383,7 +361,6 @@ func InitializeFromProtoUnsafeBellatrix(st *ethpb.BeaconStateBellatrix) (state.B
 		slot:                         st.Slot,
 		fork:                         st.Fork,
 		latestBlockHeader:            st.LatestBlockHeader,
-		historicalRoots:              hRoots,
 		rewardAdjustmentFactor:       st.RewardAdjustmentFactor,
 		eth1Data:                     st.Eth1Data,
 		eth1DataVotes:                st.Eth1DataVotes,
@@ -452,7 +429,6 @@ func InitializeFromProtoUnsafeBellatrix(st *ethpb.BeaconStateBellatrix) (state.B
 	}
 
 	// Initialize field reference tracking for shared data.
-	b.sharedFieldReferences[types.HistoricalRoots] = stateutil.NewRef(1)
 	b.sharedFieldReferences[types.Eth1DataVotes] = stateutil.NewRef(1)
 	b.sharedFieldReferences[types.PreviousEpochParticipationBits] = stateutil.NewRef(1)
 	b.sharedFieldReferences[types.CurrentEpochParticipationBits] = stateutil.NewRef(1)
@@ -479,11 +455,6 @@ func InitializeFromProtoUnsafeCapella(st *ethpb.BeaconStateCapella) (state.Beaco
 		return nil, errors.New("received nil state")
 	}
 
-	hRoots := customtypes.HistoricalRoots(make([][32]byte, len(st.HistoricalRoots)))
-	for i, r := range st.HistoricalRoots {
-		hRoots[i] = bytesutil.ToBytes32(r)
-	}
-
 	fieldCount := params.BeaconConfig().BeaconStateCapellaFieldCount
 	b := &BeaconState{
 		version:                             version.Capella,
@@ -492,7 +463,6 @@ func InitializeFromProtoUnsafeCapella(st *ethpb.BeaconStateCapella) (state.Beaco
 		slot:                                st.Slot,
 		fork:                                st.Fork,
 		latestBlockHeader:                   st.LatestBlockHeader,
-		historicalRoots:                     hRoots,
 		rewardAdjustmentFactor:              st.RewardAdjustmentFactor,
 		eth1Data:                            st.Eth1Data,
 		eth1DataVotes:                       st.Eth1DataVotes,
@@ -564,7 +534,6 @@ func InitializeFromProtoUnsafeCapella(st *ethpb.BeaconStateCapella) (state.Beaco
 	}
 
 	// Initialize field reference tracking for shared data.
-	b.sharedFieldReferences[types.HistoricalRoots] = stateutil.NewRef(1)
 	b.sharedFieldReferences[types.Eth1DataVotes] = stateutil.NewRef(1)
 	b.sharedFieldReferences[types.PreviousEpochParticipationBits] = stateutil.NewRef(1)
 	b.sharedFieldReferences[types.CurrentEpochParticipationBits] = stateutil.NewRef(1)
@@ -592,11 +561,6 @@ func InitializeFromProtoUnsafeDeneb(st *ethpb.BeaconStateDeneb) (state.BeaconSta
 		return nil, errors.New("received nil state")
 	}
 
-	hRoots := customtypes.HistoricalRoots(make([][32]byte, len(st.HistoricalRoots)))
-	for i, r := range st.HistoricalRoots {
-		hRoots[i] = bytesutil.ToBytes32(r)
-	}
-
 	fieldCount := params.BeaconConfig().BeaconStateDenebFieldCount
 	b := &BeaconState{
 		version:                           version.Deneb,
@@ -605,7 +569,6 @@ func InitializeFromProtoUnsafeDeneb(st *ethpb.BeaconStateDeneb) (state.BeaconSta
 		slot:                              st.Slot,
 		fork:                              st.Fork,
 		latestBlockHeader:                 st.LatestBlockHeader,
-		historicalRoots:                   hRoots,
 		rewardAdjustmentFactor:            st.RewardAdjustmentFactor,
 		eth1Data:                          st.Eth1Data,
 		eth1DataVotes:                     st.Eth1DataVotes,
@@ -675,7 +638,6 @@ func InitializeFromProtoUnsafeDeneb(st *ethpb.BeaconStateDeneb) (state.BeaconSta
 	}
 
 	// Initialize field reference tracking for shared data.
-	b.sharedFieldReferences[types.HistoricalRoots] = stateutil.NewRef(1)
 	b.sharedFieldReferences[types.Eth1DataVotes] = stateutil.NewRef(1)
 	b.sharedFieldReferences[types.PreviousEpochParticipationBits] = stateutil.NewRef(1)
 	b.sharedFieldReferences[types.CurrentEpochParticipationBits] = stateutil.NewRef(1)
@@ -703,11 +665,6 @@ func InitializeFromProtoUnsafeElectra(st *ethpb.BeaconStateElectra) (state.Beaco
 		return nil, errors.New("received nil state")
 	}
 
-	hRoots := customtypes.HistoricalRoots(make([][32]byte, len(st.HistoricalRoots)))
-	for i, r := range st.HistoricalRoots {
-		hRoots[i] = bytesutil.ToBytes32(r)
-	}
-
 	fieldCount := params.BeaconConfig().BeaconStateElectraFieldCount
 	b := &BeaconState{
 		version:                           version.Electra,
@@ -716,7 +673,6 @@ func InitializeFromProtoUnsafeElectra(st *ethpb.BeaconStateElectra) (state.Beaco
 		slot:                              st.Slot,
 		fork:                              st.Fork,
 		latestBlockHeader:                 st.LatestBlockHeader,
-		historicalRoots:                   hRoots,
 		rewardAdjustmentFactor:            st.RewardAdjustmentFactor,
 		eth1Data:                          st.Eth1Data,
 		eth1DataVotes:                     st.Eth1DataVotes,
@@ -792,7 +748,6 @@ func InitializeFromProtoUnsafeElectra(st *ethpb.BeaconStateElectra) (state.Beaco
 	}
 
 	// Initialize field reference tracking for shared data.
-	b.sharedFieldReferences[types.HistoricalRoots] = stateutil.NewRef(1)
 	b.sharedFieldReferences[types.Eth1DataVotes] = stateutil.NewRef(1)
 	b.sharedFieldReferences[types.PreviousEpochParticipationBits] = stateutil.NewRef(1)
 	b.sharedFieldReferences[types.CurrentEpochParticipationBits] = stateutil.NewRef(1)
@@ -866,7 +821,6 @@ func (b *BeaconState) Copy() state.BeaconState {
 		// Large arrays, increases over time.
 		balances:                   b.balances,
 		balancesMultiValue:         b.balancesMultiValue,
-		historicalRoots:            b.historicalRoots,
 		historicalSummaries:        b.historicalSummaries,
 		validators:                 b.validators,
 		validatorsMultiValue:       b.validatorsMultiValue,
@@ -1170,12 +1124,6 @@ func (b *BeaconState) rootSelector(ctx context.Context, field types.FieldIndex) 
 		return b.blockRootsRootSelector(field)
 	case types.StateRoots:
 		return b.stateRootsRootSelector(field)
-	case types.HistoricalRoots:
-		hRoots := make([][]byte, len(b.historicalRoots))
-		for i := range hRoots {
-			hRoots[i] = b.historicalRoots[i][:]
-		}
-		return ssz.ByteArrayRootWithLimit(hRoots, fieldparams.HistoricalRootsLength)
 	case types.RewardAdjustmentFactor:
 		return ssz.Uint64Root(b.rewardAdjustmentFactor), nil
 	case types.Eth1Data:

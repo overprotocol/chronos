@@ -85,7 +85,6 @@ func emptyGenesisStateElectra() (state.BeaconState, error) {
 		InactivityScores: []uint64{},
 
 		JustificationBits:          []byte{0},
-		HistoricalRoots:            [][]byte{},
 		CurrentEpochParticipation:  []byte{},
 		PreviousEpochParticipation: []byte{},
 
@@ -189,9 +188,8 @@ func buildGenesisBeaconStateElectra(genesisTime uint64, preState state.BeaconSta
 			Root:  params.BeaconConfig().ZeroHash[:],
 		},
 
-		HistoricalRoots: [][]byte{},
-		BlockRoots:      blockRoots,
-		StateRoots:      stateRoots,
+		BlockRoots: blockRoots,
+		StateRoots: stateRoots,
 
 		// Eth1 data.
 		Eth1Data:         eth1Data,
