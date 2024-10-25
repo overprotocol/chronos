@@ -157,6 +157,11 @@ func TestGetSpec(t *testing.T) {
 	config.WhistleBlowerRewardQuotientAlpaca = 104
 	config.InactivityPenaltyRate = 105
 	config.InactivityPenaltyRatePrecision = 106
+	config.InactivityPenaltyDuration = 107
+	config.InactivityScorePenaltyThreshold = 108
+	config.InactivityLeakPenaltyBuffer = 109
+	config.InactivityLeakPenaltyBufferPrecision = 110
+	config.InactivityLeakBailoutScoreThreshold = 111
 
 	var dbp [4]byte
 	copy(dbp[:], []byte{'0', '0', '0', '1'})
@@ -538,6 +543,16 @@ func TestGetSpec(t *testing.T) {
 				assert.Equal(t, "105", v)
 			case "INACTIVITY_PENALTY_RATE_PRECISION":
 				assert.Equal(t, "106", v)
+			case "INACTIVITY_PENALTY_DURATION":
+				assert.Equal(t, "107", v)
+			case "INACTIVITY_SCORE_PENALTY_THRESHOLD":
+				assert.Equal(t, "108", v)
+			case "INACTIVITY_LEAK_PENALTY_BUFFER":
+				assert.Equal(t, "109", v)
+			case "INACTIVITY_LEAK_PENALTY_BUFFER_PRECISION":
+				assert.Equal(t, "110", v)
+			case "INACTIVITY_LEAK_BAILOUT_SCORE_THRESHOLD":
+				assert.Equal(t, "111", v)
 			default:
 				t.Errorf("Incorrect key: %s", k)
 			}

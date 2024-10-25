@@ -251,9 +251,16 @@ func ExitedValidatorIndices(st state.BeaconState, validators []*ethpb.Validator,
 		if err != nil {
 			return nil, err
 		}
-		inactivityScore, err := st.InactivityScoreAtIndex(primitives.ValidatorIndex(i))
-		if err != nil {
-			return nil, err
+
+		// Inactivity score is only available in Altair and later.
+		var inactivityScore uint64
+		if st.Version() >= version.Altair {
+			inactivityScore, err = st.InactivityScoreAtIndex(primitives.ValidatorIndex(i))
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			inactivityScore = 0
 		}
 
 		pb := val.PrincipalBalance
@@ -261,7 +268,7 @@ func ExitedValidatorIndices(st state.BeaconState, validators []*ethpb.Validator,
 		belowThreshold := actualBalance+bailoutBuffer < pb
 		isBailout := belowThreshold || (isInInactivityLeak && inactivityScore > inactivityLeakBailoutScoreThreshold)
 
-		if val.ExitEpoch == epoch && val.WithdrawableEpoch == withdrawableEpoch && isBailout {
+		if val.ExitEpoch == epoch && val.WithdrawableEpoch == withdrawableEpoch && !isBailout {
 			exited = append(exited, primitives.ValidatorIndex(i))
 		}
 	}
@@ -284,9 +291,16 @@ func BailedOutValidatorIndices(st state.BeaconState, validators []*ethpb.Validat
 		if err != nil {
 			return nil, err
 		}
-		inactivityScore, err := st.InactivityScoreAtIndex(primitives.ValidatorIndex(i))
-		if err != nil {
-			return nil, err
+
+		// Inactivity score is only available in Altair and later.
+		var inactivityScore uint64
+		if st.Version() >= version.Altair {
+			inactivityScore, err = st.InactivityScoreAtIndex(primitives.ValidatorIndex(i))
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			inactivityScore = 0
 		}
 
 		pb := val.PrincipalBalance
@@ -294,7 +308,7 @@ func BailedOutValidatorIndices(st state.BeaconState, validators []*ethpb.Validat
 		belowThreshold := actualBalance+bailoutBuffer < pb
 		isBailout := belowThreshold || (isInInactivityLeak && inactivityScore > inactivityLeakBailoutScoreThreshold)
 
-		if val.ExitEpoch == epoch && val.WithdrawableEpoch == withdrawableEpoch && !isBailout {
+		if val.ExitEpoch == epoch && val.WithdrawableEpoch == withdrawableEpoch && isBailout {
 			bailedOut = append(bailedOut, primitives.ValidatorIndex(i))
 		}
 	}

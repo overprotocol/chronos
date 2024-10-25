@@ -73,7 +73,7 @@ func TestProcessEpoch_CanProcessElectra(t *testing.T) {
 
 	b := st.Balances()
 	require.Equal(t, params.BeaconConfig().MaxValidatorsPerCommittee, uint64(len(b)))
-	require.Equal(t, uint64(268733096904), b[0])
+	require.Equal(t, uint64(268800000000), b[0])
 
 	s, err := st.InactivityScores()
 	require.NoError(t, err)

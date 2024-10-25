@@ -30,7 +30,6 @@ type IdealAttestationReward struct {
 	Head             string `json:"head"`
 	Target           string `json:"target"`
 	Source           string `json:"source"`
-	Inactivity       string `json:"inactivity"`
 }
 
 type TotalAttestationReward struct {
@@ -38,5 +37,4 @@ type TotalAttestationReward struct {
 	Head           string `json:"head"`
 	Target         string `json:"target"`
 	Source         string `json:"source"`
-	Inactivity     string `json:"inactivity"`
 }

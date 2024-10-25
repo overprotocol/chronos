@@ -427,22 +427,26 @@ func TestServer_GetValidatorActiveSetChanges_NoState(t *testing.T) {
 	require.StringContains(t, "state_id is required in URL params", writer.Body.String())
 }
 
-// TODO: fix me
 func TestServer_GetValidatorActiveSetChanges(t *testing.T) {
 	beaconDB := dbTest.SetupDB(t)
 
 	ctx := context.Background()
 	validators := make([]*ethpb.Validator, 8)
-	headState, err := util.NewBeaconState()
+	headState, err := util.NewBeaconStateAltair()
 	require.NoError(t, err)
 	require.NoError(t, headState.SetSlot(0))
 	require.NoError(t, headState.SetValidators(validators))
+
+	actualBalances := make([]uint64, 0)
+
 	for i := 0; i < len(validators); i++ {
 		activationEpoch := params.BeaconConfig().FarFutureEpoch
 		withdrawableEpoch := params.BeaconConfig().FarFutureEpoch
 		exitEpoch := params.BeaconConfig().FarFutureEpoch
 		slashed := false
 		balance := params.BeaconConfig().MaxEffectiveBalance
+		actualBalances = append(actualBalances, balance)
+
 		// Mark indices divisible by two as activated.
 		if i%2 == 0 {
 			activationEpoch = 0
@@ -458,6 +462,8 @@ func TestServer_GetValidatorActiveSetChanges(t *testing.T) {
 			// Mark indices divisible by 7 as bailed out.
 			exitEpoch = 0
 			withdrawableEpoch = params.BeaconConfig().MinValidatorWithdrawabilityDelay
+			bailoutBuffer := balance * params.BeaconConfig().InactivityPenaltyRate / params.BeaconConfig().InactivityPenaltyRatePrecision
+			actualBalances[i] = balance - bailoutBuffer - 1
 		}
 		err := headState.UpdateValidatorAtIndex(primitives.ValidatorIndex(i), &ethpb.Validator{
 			ActivationEpoch:       activationEpoch,
@@ -467,9 +473,12 @@ func TestServer_GetValidatorActiveSetChanges(t *testing.T) {
 			WithdrawableEpoch:     withdrawableEpoch,
 			Slashed:               slashed,
 			ExitEpoch:             exitEpoch,
+			PrincipalBalance:      balance,
 		})
 		require.NoError(t, err)
 	}
+	require.NoError(t, headState.SetBalances(actualBalances))
+
 	b := util.NewBeaconBlock()
 	util.SaveBlock(t, ctx, beaconDB, b)
 
