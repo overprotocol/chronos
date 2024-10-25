@@ -114,11 +114,6 @@ message PendingAttestation {
   uint64 proposer_index = 4 [(ethereum.eth.ext.cast_type) = "github.com/prysmaticlabs/prysm/v5/consensus-types/primitives.ValidatorIndex"];
 }
 
-message HistoricalBatch {
-  repeated bytes block_roots = 1 [(ethereum.eth.ext.ssz_size) = "block_roots.size"];
-  repeated bytes state_roots = 2 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
-}
-
 // The state summary object is defined for summarizing a state
 // of a given slot. The summary facilitates regeneration of a
 // specific state to allow easy playback using pre-saved state
@@ -381,7 +376,6 @@ message PowBlock {
   bytes total_difficulty = 3 [(ethereum.eth.ext.ssz_size) = "32"];
 }
 
-// HistoricalSummary matches the components of the phase0 `HistoricalBatch` making the two hash_tree_root-compatible.
 message HistoricalSummary {
   bytes block_summary_root = 1 [(ethereum.eth.ext.ssz_size) = "32"];
   bytes state_summary_root = 2 [(ethereum.eth.ext.ssz_size) = "32"];

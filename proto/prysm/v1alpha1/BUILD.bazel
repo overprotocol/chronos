@@ -62,7 +62,6 @@ ssz_phase0_objs = [
     "Eth1Data",
     "Fork",
     "ForkData",
-    "HistoricalBatch",
     "IndexedAttestation",
     "PowBlock",
     "ProposerSlashing",
