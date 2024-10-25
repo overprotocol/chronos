@@ -11,6 +11,7 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
+	"github.com/prysmaticlabs/prysm/v5/runtime/version"
 )
 
 // ProcessRegistryUpdates processes all validators eligible for the activation queue, all validators
@@ -72,9 +73,16 @@ func ProcessRegistryUpdates(ctx context.Context, st state.BeaconState) error {
 		if err != nil {
 			return err
 		}
-		inactivityScore, err := st.InactivityScoreAtIndex(primitives.ValidatorIndex(idx))
-		if err != nil {
-			return err
+
+		// Inactivity score is only available in Altair and later.
+		var inactivityScore uint64
+		if st.Version() >= version.Altair {
+			inactivityScore, err = st.InactivityScoreAtIndex(primitives.ValidatorIndex(idx))
+			if err != nil {
+				return err
+			}
+		} else {
+			inactivityScore = 0
 		}
 
 		belowThreshold := actualBalance+bailoutBuffer < pb

@@ -86,9 +86,16 @@ func ProcessRegistryUpdates(ctx context.Context, st state.BeaconState) (state.Be
 		if err != nil {
 			return err
 		}
-		inactivityScore, err := st.InactivityScoreAtIndex(primitives.ValidatorIndex(idx))
-		if err != nil {
-			return err
+
+		// Inactivity score is only available in Altair and later.
+		var inactivityScore uint64
+		if st.Version() >= version.Altair {
+			inactivityScore, err = st.InactivityScoreAtIndex(primitives.ValidatorIndex(idx))
+			if err != nil {
+				return err
+			}
+		} else {
+			inactivityScore = 0
 		}
 
 		belowThreshold := actualBalance+bailoutBuffer < pb
