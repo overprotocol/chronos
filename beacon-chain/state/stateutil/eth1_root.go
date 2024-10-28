@@ -14,7 +14,7 @@ import (
 // Eth1DataRootWithHasher returns the hash tree root of input `eth1Data`.
 func Eth1DataRootWithHasher(eth1Data *ethpb.Eth1Data) ([32]byte, error) {
 	if eth1Data == nil {
-		return [32]byte{}, errors.New("nil eth1 data")
+		return [32]byte{}, nil
 	}
 
 	fieldRoots := make([][32]byte, 3)

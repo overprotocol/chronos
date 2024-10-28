@@ -74,6 +74,8 @@ func ExecuteStateTransitionNoVerifyAnySig(
 	}
 
 	// State root validation.
+	log.Info(fmt.Sprintf("####################type%T", st))
+
 	postStateRoot, err := st.HashTreeRoot(ctx)
 	if err != nil {
 		return nil, nil, err
@@ -114,6 +116,7 @@ func CalculateStateRoot(
 	state state.BeaconState,
 	signed interfaces.ReadOnlySignedBeaconBlock,
 ) ([32]byte, error) {
+	log.Info(fmt.Sprintf("####################type%T", state))
 	ctx, span := trace.StartSpan(ctx, "core.state.CalculateStateRoot")
 	defer span.End()
 	if ctx.Err() != nil {

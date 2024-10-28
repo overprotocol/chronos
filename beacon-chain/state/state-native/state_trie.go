@@ -22,6 +22,7 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing/trace"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	"github.com/prysmaticlabs/prysm/v5/runtime/version"
+	log "github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -1028,15 +1029,18 @@ func (b *BeaconState) Copy() state.BeaconState {
 // HashTreeRoot of the beacon state retrieves the Merkle root of the trie
 // representation of the beacon state based on the Ethereum Simple Serialize specification.
 func (b *BeaconState) HashTreeRoot(ctx context.Context) ([32]byte, error) {
+	log.Info("HashTreeRoot start")
 	ctx, span := trace.StartSpan(ctx, "beaconState.HashTreeRoot")
 	defer span.End()
 
 	b.lock.Lock()
 	defer b.lock.Unlock()
 	if err := b.initializeMerkleLayers(ctx); err != nil {
+		log.Info("iML error", err)
 		return [32]byte{}, err
 	}
 	if err := b.recomputeDirtyFields(ctx); err != nil {
+		log.Info("rDF error", err)
 		return [32]byte{}, err
 	}
 	return bytesutil.ToBytes32(b.merkleLayers[len(b.merkleLayers)-1][0]), nil

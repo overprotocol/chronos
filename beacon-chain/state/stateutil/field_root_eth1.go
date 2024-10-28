@@ -1,7 +1,6 @@
 package stateutil
 
 import (
-	"github.com/pkg/errors"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 )
 
@@ -10,7 +9,7 @@ import (
 // Simple Serialize specification.
 func Eth1Root(eth1Data *ethpb.Eth1Data) ([32]byte, error) {
 	if eth1Data == nil {
-		return [32]byte{}, errors.New("nil eth1 data")
+		return [32]byte{}, nil
 	}
 	return Eth1DataRootWithHasher(eth1Data)
 }
