@@ -114,7 +114,7 @@ func assertEqualConfigs(t *testing.T, name string, fields []string, expected, ac
 	assert.Equal(t, expected.SlotsPerHistoricalRoot, actual.SlotsPerHistoricalRoot, "%s: SlotsPerHistoricalRoot", name)
 	assert.Equal(t, expected.MinValidatorWithdrawabilityDelay, actual.MinValidatorWithdrawabilityDelay, "%s: MinValidatorWithdrawabilityDelay", name)
 	assert.Equal(t, expected.ShardCommitteePeriod, actual.ShardCommitteePeriod, "%s: ShardCommitteePeriod", name)
-	assert.Equal(t, expected.MinEpochsToInactivityPenalty, actual.MinEpochsToInactivityPenalty, "%s: MinEpochsToInactivityPenalty", name)
+	assert.Equal(t, expected.MinEpochsToInactivityPenalty, actual.MinEpochsToInactivityPenalty, "%s: MinEpxochsToInactivityPenalty", name)
 
 	// State vector lengths.
 	assert.Equal(t, expected.EpochsPerHistoricalVector, actual.EpochsPerHistoricalVector, "%s: EpochsPerHistoricalVector", name)

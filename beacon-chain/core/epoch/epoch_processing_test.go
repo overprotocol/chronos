@@ -45,10 +45,6 @@ func TestProcessFinalUpdates_CanProcess(t *testing.T) {
 	assert.NoError(t, err)
 	assert.DeepNotEqual(t, params.BeaconConfig().ZeroHash[:], mix, "latest RANDAO still zero hashes")
 
-	// Verify historical root accumulator was appended.
-	roots, err := newS.HistoricalRoots()
-	require.NoError(t, err)
-	assert.Equal(t, 1, len(roots), "Unexpected slashed balance")
 	currAtt, err := newS.CurrentEpochAttestations()
 	require.NoError(t, err)
 	assert.NotNil(t, currAtt, "Nil value stored in current epoch attestations instead of empty slice")
@@ -225,39 +221,13 @@ func TestProcessHistoricalDataUpdate(t *testing.T) {
 		{
 			name: "no change",
 			st: func() state.BeaconState {
-				st, _ := util.DeterministicGenesisState(t, 1)
+				st, _ := util.DeterministicGenesisStateElectra(t, 1)
 				return st
 			},
 			verifier: func(st state.BeaconState) {
-				roots, err := st.HistoricalRoots()
+				roots, err := st.HistoricalSummaries()
 				require.NoError(t, err)
 				require.Equal(t, 0, len(roots))
-			},
-		},
-		{
-			name: "before capella can process and get historical root",
-			st: func() state.BeaconState {
-				params.SetupForkEpochConfigForTest()
-				st, _ := util.DeterministicGenesisState(t, 1)
-				st, err := transition.ProcessSlots(context.Background(), st, params.BeaconConfig().SlotsPerHistoricalRoot-1)
-				require.NoError(t, err)
-				return st
-			},
-			verifier: func(st state.BeaconState) {
-				roots, err := st.HistoricalRoots()
-				require.NoError(t, err)
-				require.Equal(t, 1, len(roots))
-
-				b := &ethpb.HistoricalBatch{
-					BlockRoots: st.BlockRoots(),
-					StateRoots: st.StateRoots(),
-				}
-				r, err := b.HashTreeRoot()
-				require.NoError(t, err)
-				require.DeepEqual(t, r[:], roots[0])
-
-				_, err = st.HistoricalSummaries()
-				require.ErrorContains(t, "HistoricalSummaries is not supported for phase0", err)
 			},
 		},
 		{
@@ -282,9 +252,6 @@ func TestProcessHistoricalDataUpdate(t *testing.T) {
 					StateSummaryRoot: sr[:],
 				}
 				require.DeepEqual(t, b, summaries[0])
-				hrs, err := st.HistoricalRoots()
-				require.NoError(t, err)
-				require.DeepEqual(t, hrs, [][]byte{})
 			},
 		},
 	}

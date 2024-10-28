@@ -19,6 +19,7 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
+	"github.com/prysmaticlabs/prysm/v5/runtime/version"
 )
 
 // ProcessRegistryUpdates rotates validators in and out of active pool.
@@ -269,16 +270,18 @@ func ProcessHistoricalDataUpdate(state state.BeaconState) (state.BeaconState, er
 	// Set historical root accumulator.
 	epochsPerHistoricalRoot := params.BeaconConfig().SlotsPerHistoricalRoot.DivSlot(params.BeaconConfig().SlotsPerEpoch)
 	if nextEpoch.Mod(uint64(epochsPerHistoricalRoot)) == 0 {
-		br, err := stateutil.ArraysRoot(state.BlockRoots(), fieldparams.BlockRootsLength)
-		if err != nil {
-			return nil, err
-		}
-		sr, err := stateutil.ArraysRoot(state.StateRoots(), fieldparams.StateRootsLength)
-		if err != nil {
-			return nil, err
-		}
-		if err := state.AppendHistoricalSummaries(&ethpb.HistoricalSummary{BlockSummaryRoot: br[:], StateSummaryRoot: sr[:]}); err != nil {
-			return nil, err
+		if state.Version() >= version.Capella {
+			br, err := stateutil.ArraysRoot(state.BlockRoots(), fieldparams.BlockRootsLength)
+			if err != nil {
+				return nil, err
+			}
+			sr, err := stateutil.ArraysRoot(state.StateRoots(), fieldparams.StateRootsLength)
+			if err != nil {
+				return nil, err
+			}
+			if err := state.AppendHistoricalSummaries(&ethpb.HistoricalSummary{BlockSummaryRoot: br[:], StateSummaryRoot: sr[:]}); err != nil {
+				return nil, err
+			}
 		}
 	}
 

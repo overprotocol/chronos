@@ -106,12 +106,12 @@ var electraFields = append(
 )
 
 const (
-	phase0SharedFieldRefCount                     = 9
-	altairSharedFieldRefCount                     = 10
-	bellatrixSharedFieldRefCount                  = 11
-	capellaSharedFieldRefCount                    = 12
-	denebSharedFieldRefCount                      = 12
-	electraSharedFieldRefCount                    = 14
+	phase0SharedFieldRefCount                     = 8
+	altairSharedFieldRefCount                     = 9
+	bellatrixSharedFieldRefCount                  = 10
+	capellaSharedFieldRefCount                    = 11
+	denebSharedFieldRefCount                      = 11
+	electraSharedFieldRefCount                    = 13
 	experimentalStatePhase0SharedFieldRefCount    = 4
 	experimentalStateAltairSharedFieldRefCount    = 4
 	experimentalStateBellatrixSharedFieldRefCount = 5
