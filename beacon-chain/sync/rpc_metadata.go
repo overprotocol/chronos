@@ -12,7 +12,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/network/forks"
 	pb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	"github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1/metadata"
-	"github.com/prysmaticlabs/prysm/v5/runtime/version"
 	"github.com/prysmaticlabs/prysm/v5/time/slots"
 )
 
@@ -95,16 +94,6 @@ func (s *Service) sendMetaDataRequest(ctx context.Context, id peer.ID) (metadata
 	}
 	// Defensive check to ensure valid objects are being sent.
 
-	topicVersion := p2p.SchemaVersionV2
-	switch msg.Version() {
-	case version.Phase0:
-		topicVersion = p2p.SchemaVersionV1
-	case version.Altair:
-		topicVersion = p2p.SchemaVersionV2
-	}
-	if err := validateVersion(topicVersion, stream); err != nil {
-		return nil, err
-	}
 	if err := s.cfg.p2p.Encoding().DecodeWithMaxLength(stream, msg); err != nil {
 		s.cfg.p2p.Peers().Scorers().BadResponsesScorer().Increment(stream.Conn().RemotePeer())
 		return nil, err
