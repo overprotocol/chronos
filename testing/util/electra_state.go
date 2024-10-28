@@ -90,11 +90,6 @@ func emptyGenesisStateElectra() (state.BeaconState, error) {
 		CurrentEpochParticipation:  []byte{},
 		PreviousEpochParticipation: []byte{},
 
-		// Eth1 data.
-		Eth1Data:         &ethpb.Eth1Data{},
-		Eth1DataVotes:    []*ethpb.Eth1Data{},
-		Eth1DepositIndex: 0,
-
 		LatestExecutionPayloadHeader: &enginev1.ExecutionPayloadHeaderElectra{},
 
 		DepositBalanceToConsume: primitives.Gwei(0),
@@ -197,13 +192,7 @@ func buildGenesisBeaconStateElectra(genesisTime uint64, preState state.BeaconSta
 		StateRoots:      stateRoots,
 		Slashings:       slashings,
 
-		// Eth1 data.
-		Eth1Data:         eth1Data,
-		Eth1DataVotes:    []*ethpb.Eth1Data{},
-		Eth1DepositIndex: preState.Eth1DepositIndex(),
-
 		// Electra Data
-		DepositRequestsStartIndex: params.BeaconConfig().UnsetDepositRequestsStartIndex,
 		ExitBalanceToConsume:      helpers.ActivationExitChurnLimit(primitives.Gwei(tab)),
 		PendingDeposits:           make([]*ethpb.PendingDeposit, 0),
 		PendingPartialWithdrawals: make([]*ethpb.PendingPartialWithdrawal, 0),

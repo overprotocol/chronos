@@ -433,11 +433,6 @@ func VerifyOperationLengths(_ context.Context, state state.BeaconState, b interf
 			return nil, fmt.Errorf("incorrect outstanding deposits in block body, wanted: %d, got: %d",
 				maxDeposits, len(body.Deposits()))
 		}
-	} else {
-		// Electra
-		if err := electra.VerifyBlockDepositLength(body, state); err != nil {
-			return nil, errors.Wrap(err, "failed to verify block deposit length")
-		}
 	}
 
 	return state, nil

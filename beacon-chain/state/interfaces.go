@@ -227,7 +227,6 @@ type ReadOnlySyncCommittee interface {
 
 type ReadOnlyDeposits interface {
 	DepositBalanceToConsume() (primitives.Gwei, error)
-	DepositRequestsStartIndex() (uint64, error)
 	PendingDeposits() ([]*ethpb.PendingDeposit, error)
 }
 
@@ -321,7 +320,6 @@ type WriteOnlyWithdrawals interface {
 
 type WriteOnlyDeposits interface {
 	AppendPendingDeposit(pd *ethpb.PendingDeposit) error
-	SetDepositRequestsStartIndex(index uint64) error
 	SetPendingDeposits(val []*ethpb.PendingDeposit) error
 	SetDepositBalanceToConsume(primitives.Gwei) error
 }

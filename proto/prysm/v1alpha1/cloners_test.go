@@ -1045,16 +1045,13 @@ func genBlindedBeaconBlockElectra() *v1alpha1.BlindedBeaconBlockElectra {
 func genBlindedBeaconBlockBodyElectra() *v1alpha1.BlindedBeaconBlockBodyElectra {
 	return &v1alpha1.BlindedBeaconBlockBodyElectra{
 		RandaoReveal:           bytes(96),
-		Eth1Data:               genEth1Data(),
 		Graffiti:               bytes(32),
 		ProposerSlashings:      genProposerSlashings(5),
 		AttesterSlashings:      genAttesterSlashingsElectra(5),
 		Attestations:           genAttestationsElectra(10),
-		Deposits:               genDeposits(5),
 		VoluntaryExits:         genSignedVoluntaryExits(12),
 		SyncAggregate:          genSyncAggregate(),
 		ExecutionPayloadHeader: genPayloadHeaderElectra(),
-		BlsToExecutionChanges:  genBLSToExecutionChanges(10),
 		BlobKzgCommitments:     getKZGCommitments(4),
 		ExecutionRequests:      genExecutionRequests(),
 	}

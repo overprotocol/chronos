@@ -11,7 +11,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
 	"github.com/prysmaticlabs/prysm/v5/container/trie"
-	"github.com/prysmaticlabs/prysm/v5/math"
 	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing/trace"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	"github.com/prysmaticlabs/prysm/v5/runtime/version"
@@ -128,15 +127,8 @@ func (vs *Server) deposits(
 			//        return min(MAX_DEPOSITS, eth1_deposit_index_limit - state.eth1_deposit_index)
 			//    else:
 			//        return uint64(0)
-			requestsStartIndex, err := beaconState.DepositRequestsStartIndex()
-			if err != nil {
-				return nil, errors.Wrap(err, "could not retrieve requests start index")
-			}
-			eth1DepositIndexLimit := math.Min(canonicalEth1Data.DepositCount, requestsStartIndex)
-			if beaconState.Eth1DepositIndex() < eth1DepositIndexLimit {
-				if uint64(dep.Index) >= beaconState.Eth1DepositIndex() && uint64(dep.Index) < eth1DepositIndexLimit {
-					pendingDeps = append(pendingDeps, dep)
-				}
+			if uint64(dep.Index) >= beaconState.Eth1DepositIndex() {
+				pendingDeps = append(pendingDeps, dep)
 			}
 			// just don't add any pending deps if it's not state.eth1_deposit_index < eth1_deposit_index_limit
 		}

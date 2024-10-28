@@ -747,9 +747,6 @@ func InitializeFromProtoUnsafeElectra(st *ethpb.BeaconStateElectra) (state.Beaco
 		latestBlockHeader:                 st.LatestBlockHeader,
 		historicalRoots:                   hRoots,
 		rewardAdjustmentFactor:            st.RewardAdjustmentFactor,
-		eth1Data:                          st.Eth1Data,
-		eth1DataVotes:                     st.Eth1DataVotes,
-		eth1DepositIndex:                  st.Eth1DepositIndex,
 		previousEpochReserve:              st.PreviousEpochReserve,
 		currentEpochReserve:               st.CurrentEpochReserve,
 		slashings:                         st.Slashings,
@@ -765,7 +762,6 @@ func InitializeFromProtoUnsafeElectra(st *ethpb.BeaconStateElectra) (state.Beaco
 		nextWithdrawalIndex:               st.NextWithdrawalIndex,
 		nextWithdrawalValidatorIndex:      st.NextWithdrawalValidatorIndex,
 		historicalSummaries:               st.HistoricalSummaries,
-		depositRequestsStartIndex:         st.DepositRequestsStartIndex,
 		depositBalanceToConsume:           st.DepositBalanceToConsume,
 		exitBalanceToConsume:              st.ExitBalanceToConsume,
 		earliestExitEpoch:                 st.EarliestExitEpoch,
@@ -882,7 +878,6 @@ func (b *BeaconState) Copy() state.BeaconState {
 		rewardAdjustmentFactor:       b.rewardAdjustmentFactor,
 		previousEpochReserve:         b.previousEpochReserve,
 		currentEpochReserve:          b.currentEpochReserve,
-		depositRequestsStartIndex:    b.depositRequestsStartIndex,
 		depositBalanceToConsume:      b.depositBalanceToConsume,
 		exitBalanceToConsume:         b.exitBalanceToConsume,
 		earliestExitEpoch:            b.earliestExitEpoch,
@@ -1306,8 +1301,6 @@ func (b *BeaconState) rootSelector(ctx context.Context, field types.FieldIndex) 
 		return ssz.Uint64Root(uint64(b.nextWithdrawalValidatorIndex)), nil
 	case types.HistoricalSummaries:
 		return stateutil.HistoricalSummariesRoot(b.historicalSummaries)
-	case types.DepositRequestsStartIndex:
-		return ssz.Uint64Root(b.depositRequestsStartIndex), nil
 	case types.DepositBalanceToConsume:
 		return ssz.Uint64Root(uint64(b.depositBalanceToConsume)), nil
 	case types.ExitBalanceToConsume:

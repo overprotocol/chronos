@@ -520,16 +520,13 @@ func (b *BeaconBlockBody) Proto() (proto.Message, error) {
 			}
 			return &eth.BlindedBeaconBlockBodyElectra{
 				RandaoReveal:           b.randaoReveal[:],
-				Eth1Data:               b.eth1Data,
 				Graffiti:               b.graffiti[:],
 				ProposerSlashings:      b.proposerSlashings,
 				AttesterSlashings:      b.attesterSlashingsElectra,
 				Attestations:           b.attestationsElectra,
-				Deposits:               b.deposits,
 				VoluntaryExits:         b.voluntaryExits,
 				SyncAggregate:          b.syncAggregate,
 				ExecutionPayloadHeader: ph,
-				BlsToExecutionChanges:  b.blsToExecutionChanges,
 				BlobKzgCommitments:     b.blobKzgCommitments,
 				ExecutionRequests:      b.executionRequests,
 			}, nil
@@ -1184,16 +1181,13 @@ func initBlindedBlockBodyFromProtoElectra(pb *eth.BlindedBeaconBlockBodyElectra)
 	b := &BeaconBlockBody{
 		version:                  version.Electra,
 		randaoReveal:             bytesutil.ToBytes96(pb.RandaoReveal),
-		eth1Data:                 pb.Eth1Data,
 		graffiti:                 bytesutil.ToBytes32(pb.Graffiti),
 		proposerSlashings:        pb.ProposerSlashings,
 		attesterSlashingsElectra: pb.AttesterSlashings,
 		attestationsElectra:      pb.Attestations,
-		deposits:                 pb.Deposits,
 		voluntaryExits:           pb.VoluntaryExits,
 		syncAggregate:            pb.SyncAggregate,
 		executionPayloadHeader:   ph,
-		blsToExecutionChanges:    pb.BlsToExecutionChanges,
 		blobKzgCommitments:       pb.BlobKzgCommitments,
 		executionRequests:        er,
 	}

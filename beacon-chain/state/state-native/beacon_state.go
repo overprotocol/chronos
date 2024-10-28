@@ -62,7 +62,6 @@ type BeaconState struct {
 	nextWithdrawalValidatorIndex        primitives.ValidatorIndex
 
 	// Electra fields
-	depositRequestsStartIndex uint64
 	depositBalanceToConsume   primitives.Gwei
 	exitBalanceToConsume      primitives.Gwei
 	earliestExitEpoch         primitives.Epoch
@@ -186,7 +185,6 @@ func (b *BeaconState) MarshalJSON() ([]byte, error) {
 		LatestExecutionPayloadHeaderDeneb:   b.latestExecutionPayloadHeaderDeneb,
 		NextWithdrawalIndex:                 b.nextWithdrawalIndex,
 		NextWithdrawalValidatorIndex:        b.nextWithdrawalValidatorIndex,
-		DepositRequestsStartIndex:           b.depositRequestsStartIndex,
 		DepositBalanceToConsume:             b.depositBalanceToConsume,
 		ExitBalanceToConsume:                b.exitBalanceToConsume,
 		EarliestExitEpoch:                   b.earliestExitEpoch,

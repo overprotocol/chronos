@@ -141,10 +141,6 @@ func TestUpgradeToElectra(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 0, len(summaries))
 
-	startIndex, err := mSt.DepositRequestsStartIndex()
-	require.NoError(t, err)
-	require.Equal(t, params.BeaconConfig().UnsetDepositRequestsStartIndex, startIndex)
-
 	balance, err := mSt.DepositBalanceToConsume()
 	require.NoError(t, err)
 	require.Equal(t, primitives.Gwei(0), balance)

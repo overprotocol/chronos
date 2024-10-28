@@ -166,9 +166,6 @@ type BeaconStateElectra struct {
 	StateRoots                   []string                       `json:"state_roots"`
 	HistoricalRoots              []string                       `json:"historical_roots"`
 	RewardAdjustmentFactor       uint64                         `json:"reward_adjustment_factor"`
-	Eth1Data                     *Eth1Data                      `json:"eth1_data"`
-	Eth1DataVotes                []*Eth1Data                    `json:"eth1_data_votes"`
-	Eth1DepositIndex             string                         `json:"eth1_deposit_index"`
 	Validators                   []*Validator                   `json:"validators"`
 	Balances                     []string                       `json:"balances"`
 	PreviousEpochReserve         uint64                         `json:"previous_epoch_reserve"`
@@ -188,7 +185,6 @@ type BeaconStateElectra struct {
 	NextWithdrawalIndex          string                         `json:"next_withdrawal_index"`
 	NextWithdrawalValidatorIndex string                         `json:"next_withdrawal_validator_index"`
 	HistoricalSummaries          []*HistoricalSummary           `json:"historical_summaries"`
-	DepositRequestsStartIndex    string                         `json:"deposit_requests_start_index"`
 	DepositBalanceToConsume      string                         `json:"deposit_balance_to_consume"`
 	ExitBalanceToConsume         string                         `json:"exit_balance_to_consume"`
 	EarliestExitEpoch            string                         `json:"earliest_exit_epoch"`

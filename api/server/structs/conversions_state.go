@@ -713,10 +713,6 @@ func BeaconStateElectraFromConsensus(st beaconState.BeaconState) (*BeaconStateEl
 	if err != nil {
 		return nil, err
 	}
-	drsi, err := st.DepositRequestsStartIndex()
-	if err != nil {
-		return nil, err
-	}
 	dbtc, err := st.DepositBalanceToConsume()
 	if err != nil {
 		return nil, err
@@ -748,9 +744,6 @@ func BeaconStateElectraFromConsensus(st beaconState.BeaconState) (*BeaconStateEl
 		StateRoots:                   sr,
 		HistoricalRoots:              hr,
 		RewardAdjustmentFactor:       st.RewardAdjustmentFactor(),
-		Eth1Data:                     Eth1DataFromConsensus(st.Eth1Data()),
-		Eth1DataVotes:                votes,
-		Eth1DepositIndex:             fmt.Sprintf("%d", st.Eth1DepositIndex()),
 		Validators:                   vals,
 		Balances:                     bals,
 		PreviousEpochReserve:         st.PreviousEpochReserve(),
@@ -770,7 +763,6 @@ func BeaconStateElectraFromConsensus(st beaconState.BeaconState) (*BeaconStateEl
 		NextWithdrawalIndex:          fmt.Sprintf("%d", nwi),
 		NextWithdrawalValidatorIndex: fmt.Sprintf("%d", nwvi),
 		HistoricalSummaries:          hs,
-		DepositRequestsStartIndex:    fmt.Sprintf("%d", drsi),
 		DepositBalanceToConsume:      fmt.Sprintf("%d", dbtc),
 		ExitBalanceToConsume:         fmt.Sprintf("%d", ebtc),
 		EarliestExitEpoch:            fmt.Sprintf("%d", eee),
