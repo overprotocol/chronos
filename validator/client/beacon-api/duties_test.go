@@ -872,17 +872,6 @@ func TestGetDuties_Valid(t *testing.T) {
 				nil,
 			).Times(2)
 
-			// if fetchSyncDuties {
-			// 	dutiesProvider.EXPECT().SyncDuties(
-			// 		ctx,
-			// 		testCase.epoch+1,
-			// 		validatorIndices,
-			// 	).Return(
-			// 		reverseSlice(generateValidSyncDuties(pubkeys, validatorIndices)),
-			// 		nil,
-			// 	).Times(2)
-			// }
-
 			stateValidatorsProvider := mock.NewMockStateValidatorsProvider(ctrl)
 			stateValidatorsProvider.EXPECT().StateValidators(
 				gomock.Any(),

@@ -256,7 +256,7 @@ func TestService_BroadcastAttestationWithDiscoveryAttempts(t *testing.T) {
 		// Set for 2nd peer
 		if i == 2 {
 			s.dv5Listener = listener
-			s.metaData = wrapper.WrappedMetadataV0(new(ethpb.MetaDataV0))
+			s.metaData = wrapper.WrappedMetadataV1(new(ethpb.MetaDataV1))
 			bitV := bitfield.NewBitvector64()
 			bitV.SetBitAt(subnet, true)
 			s.updateSubnetRecordWithMetadata(bitV)

@@ -487,7 +487,7 @@ func addPeer(t *testing.T, p *peers.Status, state peerdata.PeerConnectionState, 
 	}
 	p.Add(new(enr.Record), id, nil, dir)
 	p.SetConnectionState(id, state)
-	p.SetMetadata(id, wrapper.WrappedMetadataV0(&ethpb.MetaDataV0{
+	p.SetMetadata(id, wrapper.WrappedMetadataV1(&ethpb.MetaDataV1{
 		SeqNumber: 0,
 		Attnets:   bitfield.NewBitvector64(),
 	}))
@@ -520,7 +520,7 @@ func TestRefreshENR_ForkBoundaries(t *testing.T) {
 				listener, err := newListener(createListener)
 				assert.NoError(t, err)
 				s.dv5Listener = listener
-				s.metaData = wrapper.WrappedMetadataV0(new(ethpb.MetaDataV0))
+				s.metaData = wrapper.WrappedMetadataV1(new(ethpb.MetaDataV1))
 				s.updateSubnetRecordWithMetadata([]byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
 				return s
 			},
@@ -552,7 +552,7 @@ func TestRefreshENR_ForkBoundaries(t *testing.T) {
 				listener, err := newListener(createListener)
 				assert.NoError(t, err)
 				s.dv5Listener = listener
-				s.metaData = wrapper.WrappedMetadataV0(new(ethpb.MetaDataV0))
+				s.metaData = wrapper.WrappedMetadataV1(new(ethpb.MetaDataV1))
 				s.updateSubnetRecordWithMetadata([]byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01})
 				cache.SubnetIDs.AddPersistentCommittee([]uint64{1, 2, 3, 23}, 0)
 				return s
@@ -584,7 +584,7 @@ func TestRefreshENR_ForkBoundaries(t *testing.T) {
 				params.BeaconConfig().InitializeForkSchedule()
 
 				s.dv5Listener = listener
-				s.metaData = wrapper.WrappedMetadataV0(new(ethpb.MetaDataV0))
+				s.metaData = wrapper.WrappedMetadataV1(new(ethpb.MetaDataV1))
 				s.updateSubnetRecordWithMetadata([]byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01})
 				cache.SubnetIDs.AddPersistentCommittee([]uint64{1, 2, 3, 23}, 0)
 				return s
@@ -617,7 +617,7 @@ func TestRefreshENR_ForkBoundaries(t *testing.T) {
 				params.BeaconConfig().InitializeForkSchedule()
 
 				s.dv5Listener = listener
-				s.metaData = wrapper.WrappedMetadataV0(new(ethpb.MetaDataV0))
+				s.metaData = wrapper.WrappedMetadataV1(new(ethpb.MetaDataV1))
 				s.updateSubnetRecordWithMetadata([]byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
 				return s
 			},
@@ -657,7 +657,7 @@ func TestRefreshENR_ForkBoundaries(t *testing.T) {
 				params.BeaconConfig().InitializeForkSchedule()
 
 				s.dv5Listener = listener
-				s.metaData = wrapper.WrappedMetadataV0(new(ethpb.MetaDataV0))
+				s.metaData = wrapper.WrappedMetadataV1(new(ethpb.MetaDataV1))
 				s.updateSubnetRecordWithMetadata([]byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
 				cache.SubnetIDs.AddPersistentCommittee([]uint64{1, 2, 3, 23}, 0)
 				return s

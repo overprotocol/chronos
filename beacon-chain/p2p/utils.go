@@ -120,11 +120,11 @@ func privKeyFromFile(path string) (*ecdsa.PrivateKey, error) {
 // When using static peer id, metaDataFromConfig returns default V1 metadata.
 func metaDataFromConfig(cfg *Config) (metadata.Metadata, error) {
 	// Load V1 metadata by default, since V1 metadata can be covered to V0.
-	defaultMd := &pb.MetaDataV0{
+	defaultMd := &pb.MetaDataV1{
 		SeqNumber: 0,
 		Attnets:   bitfield.NewBitvector64(),
 	}
-	wrappedDefaultMd := wrapper.WrappedMetadataV0(defaultMd)
+	wrappedDefaultMd := wrapper.WrappedMetadataV1(defaultMd)
 
 	// If --p2p-static-id is false, return default metadata for initialization
 	if !cfg.StaticPeerID {
@@ -179,22 +179,21 @@ func metaDataFromFile(path string) (metadata.Metadata, error) {
 		return nil, err
 	}
 
-	md := &pb.MetaDataV0{}
+	// Load V1 version (after altair) regardless of current fork by default.
+	md := &pb.MetaDataV1{}
 	err = md.UnmarshalSSZ(src)
 	if err != nil {
-		return nil, err
+		// If unmarshal failed, try to unmarshal for V0
+		log.WithError(err).Info("Error unmarshalling V1 metadata from file, try to unmarshal for V0.")
+		md0 := &pb.MetaDataV1{}
+		md0Err := md0.UnmarshalSSZ(src)
+		if md0Err != nil {
+			log.WithError(md0Err).Error("Error unmarshalling V0 metadata from file")
+			return nil, md0Err
+		}
+		return wrapper.WrappedMetadataV1(md0), nil
 	}
-	// 	// If unmarshal failed, try to unmarshal for V0
-	// 	log.WithError(err).Info("Error unmarshalling V1 metadata from file, try to unmarshal for V0.")
-	// 	md0 := &pb.MetaDataV0{}
-	// 	md0Err := md0.UnmarshalSSZ(src)
-	// 	if md0Err != nil {
-	// 		log.WithError(md0Err).Error("Error unmarshalling V0 metadata from file")
-	// 		return nil, md0Err
-	// 	}
-	// 	return wrapper.WrappedMetadataV0(md0), nil
-	// }
-	return wrapper.WrappedMetadataV0(md), nil
+	return wrapper.WrappedMetadataV1(md), nil
 }
 
 // saveMetaDataToFile writes marshalled metadata to given path.
@@ -221,25 +220,25 @@ func migrateFromProtoToSsz(path string) (metadata.Metadata, error) {
 		return nil, err
 	}
 
-	md := &pb.MetaDataV0{}
+	md := &pb.MetaDataV1{}
 	if err := proto.Unmarshal(src, md); err != nil {
 		return nil, err
 	}
 
-	wmd := wrapper.WrappedMetadataV0(md)
+	wmd := wrapper.WrappedMetadataV1(md)
 	// increment sequence number
 	seqNum := wmd.SequenceNumber() + 1
-	newMd := &pb.MetaDataV0{
+	newMd := &pb.MetaDataV1{
 		SeqNumber: seqNum,
 		Attnets:   wmd.AttnetsBitfield().Bytes(),
 	}
-	wrappedNewMd := wrapper.WrappedMetadataV0(newMd)
+	wrappedNewMd := wrapper.WrappedMetadataV1(newMd)
 
 	saveErr := saveMetaDataToFile(path, wrappedNewMd)
 	if saveErr != nil {
 		return nil, saveErr
 	}
-	return wrapper.WrappedMetadataV0(newMd), nil
+	return wrapper.WrappedMetadataV1(newMd), nil
 }
 
 // Attempt to dial an address to verify its connectivity

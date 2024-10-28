@@ -75,22 +75,22 @@ func InitializeDataMaps() {
 	// Reset our metadata map.
 	MetaDataMap = map[[4]byte]func() (metadata.Metadata, error){
 		bytesutil.ToBytes4(params.BeaconConfig().GenesisForkVersion): func() (metadata.Metadata, error) {
-			return wrapper.WrappedMetadataV0(&ethpb.MetaDataV0{}), nil
+			return wrapper.WrappedMetadataV1(&ethpb.MetaDataV1{}), nil
 		},
 		bytesutil.ToBytes4(params.BeaconConfig().AltairForkVersion): func() (metadata.Metadata, error) {
-			return wrapper.WrappedMetadataV0(&ethpb.MetaDataV0{}), nil
+			return wrapper.WrappedMetadataV1(&ethpb.MetaDataV1{}), nil
 		},
 		bytesutil.ToBytes4(params.BeaconConfig().BellatrixForkVersion): func() (metadata.Metadata, error) {
-			return wrapper.WrappedMetadataV0(&ethpb.MetaDataV0{}), nil
+			return wrapper.WrappedMetadataV1(&ethpb.MetaDataV1{}), nil
 		},
 		bytesutil.ToBytes4(params.BeaconConfig().CapellaForkVersion): func() (metadata.Metadata, error) {
-			return wrapper.WrappedMetadataV0(&ethpb.MetaDataV0{}), nil
+			return wrapper.WrappedMetadataV1(&ethpb.MetaDataV1{}), nil
 		},
 		bytesutil.ToBytes4(params.BeaconConfig().DenebForkVersion): func() (metadata.Metadata, error) {
-			return wrapper.WrappedMetadataV0(&ethpb.MetaDataV0{}), nil
+			return wrapper.WrappedMetadataV1(&ethpb.MetaDataV1{}), nil
 		},
 		bytesutil.ToBytes4(params.BeaconConfig().ElectraForkVersion): func() (metadata.Metadata, error) {
-			return wrapper.WrappedMetadataV0(&ethpb.MetaDataV0{}), nil
+			return wrapper.WrappedMetadataV1(&ethpb.MetaDataV1{}), nil
 		},
 	}
 

@@ -222,9 +222,9 @@ func privKeyOption(privkey *ecdsa.PrivateKey) libp2p.Option {
 }
 
 func readMetadata() (metadata.Metadata, error) {
-	metaData := &pb.MetaDataV0{
+	metaData := &pb.MetaDataV1{
 		SeqNumber: 0,
 		Attnets:   bitfield.NewBitvector64(),
 	}
-	return wrapper.WrappedMetadataV0(metaData), nil
+	return wrapper.WrappedMetadataV1(metaData), nil
 }

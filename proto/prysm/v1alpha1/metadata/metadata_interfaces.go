@@ -15,7 +15,6 @@ type Metadata interface {
 	Copy() Metadata
 	ssz.Marshaler
 	ssz.Unmarshaler
-	MetadataObjV0() *pb.MetaDataV0
 	MetadataObjV1() *pb.MetaDataV1
 	Version() int
 }

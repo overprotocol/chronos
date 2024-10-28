@@ -59,7 +59,7 @@ func TestInitializeDataMaps(t *testing.T) {
 			if tt.exists {
 				md, err := mdFunc()
 				require.NoError(t, err)
-				assert.NotNil(t, md.MetadataObjV0())
+				assert.NotNil(t, md.MetadataObjV1())
 			}
 			assert.Equal(t, tt.exists, ok)
 			attFunc, ok := AttestationMap[bytesutil.ToBytes4(params.BeaconConfig().GenesisForkVersion)]

@@ -38,7 +38,7 @@ func (s *Store) ImportStandardProtectionJSON(ctx context.Context, r io.Reader) e
 		return nil
 	}
 
-	// We validate the `MetadataV0` field of the slashing protection JSON file.
+	// We validate the `MetadataV1` field of the slashing protection JSON file.
 	if err := helpers.ValidateMetadata(ctx, s, interchangeJSON); err != nil {
 		return errors.Wrap(err, "slashing protection JSON metadata was incorrect")
 	}

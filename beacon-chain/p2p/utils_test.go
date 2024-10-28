@@ -79,11 +79,11 @@ func TestMetaDataFromFile(t *testing.T) {
 
 	// Generate metadata V1
 	seqNum := rand.Uint64()
-	md := &pb.MetaDataV0{
+	md := &pb.MetaDataV1{
 		SeqNumber: seqNum,
 		Attnets:   bitfield.NewBitvector64(),
 	}
-	metaData := wrapper.WrappedMetadataV0(md)
+	metaData := wrapper.WrappedMetadataV1(md)
 
 	// Save to file
 	err := saveMetaDataToFile(path, metaData.Copy())
@@ -102,11 +102,11 @@ func TestMetaDataFromFile_V0(t *testing.T) {
 
 	// Generate metadata V0
 	seqNum := rand.Uint64()
-	md := &pb.MetaDataV0{
+	md := &pb.MetaDataV1{
 		SeqNumber: seqNum,
 		Attnets:   bitfield.NewBitvector64(),
 	}
-	metaData := wrapper.WrappedMetadataV0(md)
+	metaData := wrapper.WrappedMetadataV1(md)
 
 	// Save to file
 	err := saveMetaDataToFile(path, metaData.Copy())
@@ -125,11 +125,11 @@ func TestMetaDataMigrationFromProtoToSsz(t *testing.T) {
 
 	// Generate metadata V0 and save with proto-encoded
 	seqNum := rand.Uint64()
-	md := &pb.MetaDataV0{
+	md := &pb.MetaDataV1{
 		SeqNumber: seqNum,
 		Attnets:   bitfield.NewBitvector64(),
 	}
-	wmd := wrapper.WrappedMetadataV0(md)
+	wmd := wrapper.WrappedMetadataV1(md)
 	dst, err := proto.Marshal(md)
 	require.NoError(t, err)
 

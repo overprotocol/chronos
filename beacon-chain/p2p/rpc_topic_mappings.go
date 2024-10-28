@@ -262,8 +262,9 @@ func TopicFromMessage(msg string, epoch primitives.Epoch) (string, error) {
 		return "", errors.Errorf("%s: %s", invalidRPCMessageType, msg)
 	}
 	version := SchemaVersionV1
+
 	isAltair := epoch >= params.BeaconConfig().AltairForkEpoch
-	if isAltair && altairMapping[msg] {
+	if (msg == MetadataMessageName) || isAltair && altairMapping[msg] {
 		version = SchemaVersionV2
 	}
 	return protocolPrefix + msg + version, nil

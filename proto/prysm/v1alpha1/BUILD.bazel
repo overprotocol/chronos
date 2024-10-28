@@ -239,7 +239,6 @@ ssz_gen_marshal(
     objs = [
         "BeaconBlocksByRangeRequest",
         "BlobSidecarsByRangeRequest",
-        "MetaDataV0",
         "MetaDataV1",
         "SignedValidatorRegistrationV1",
         "ValidatorRegistrationV1",

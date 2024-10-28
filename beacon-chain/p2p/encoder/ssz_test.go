@@ -112,7 +112,6 @@ type PendingPartialWithdrawalCreator struct{}
 type StatusCreator struct{}
 type BeaconBlocksByRangeRequestCreator struct{}
 type ENRForkIDCreator struct{}
-type MetaDataV0Creator struct{}
 type MetaDataV1Creator struct{}
 type BlobSidecarsByRangeRequestCreator struct{}
 type DepositSnapshotCreator struct{}
@@ -278,7 +277,6 @@ func (BeaconBlocksByRangeRequestCreator) Create() MarshalerProtoMessage {
 	return &ethpb.BeaconBlocksByRangeRequest{}
 }
 func (ENRForkIDCreator) Create() MarshalerProtoMessage  { return &ethpb.ENRForkID{} }
-func (MetaDataV0Creator) Create() MarshalerProtoMessage { return &ethpb.MetaDataV0{} }
 func (MetaDataV1Creator) Create() MarshalerProtoMessage { return &ethpb.MetaDataV1{} }
 func (BlobSidecarsByRangeRequestCreator) Create() MarshalerProtoMessage {
 	return &ethpb.BlobSidecarsByRangeRequest{}
@@ -372,7 +370,6 @@ var creators = []MarshalerProtoCreator{
 	StatusCreator{},
 	BeaconBlocksByRangeRequestCreator{},
 	ENRForkIDCreator{},
-	MetaDataV0Creator{},
 	MetaDataV1Creator{},
 	BlobSidecarsByRangeRequestCreator{},
 	DepositSnapshotCreator{},

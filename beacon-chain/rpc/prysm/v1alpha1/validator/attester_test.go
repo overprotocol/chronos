@@ -2,6 +2,7 @@ package validator
 
 import (
 	"context"
+	"math/rand"
 	"sync"
 	"testing"
 	"time"
@@ -542,102 +543,102 @@ func TestGetAttestationData_CommitteeIndexIsZeroPostElectra(t *testing.T) {
 	assert.DeepEqual(t, expected, res)
 }
 
-// func TestServer_SubscribeCommitteeSubnets_NoSlots(t *testing.T) {
-// 	attesterServer := &Server{
-// 		HeadFetcher:       &mock.ChainService{},
-// 		P2P:               &mockp2p.MockBroadcaster{},
-// 		AttPool:           attestations.NewPool(),
-// 		OperationNotifier: (&mock.ChainService{}).OperationNotifier(),
-// 	}
+func TestServer_SubscribeCommitteeSubnets_NoSlots(t *testing.T) {
+	attesterServer := &Server{
+		HeadFetcher:       &mock.ChainService{},
+		P2P:               &mockp2p.MockBroadcaster{},
+		AttPool:           attestations.NewPool(),
+		OperationNotifier: (&mock.ChainService{}).OperationNotifier(),
+	}
 
-// 	_, err := attesterServer.SubscribeCommitteeSubnets(context.Background(), &ethpb.CommitteeSubnetsSubscribeRequest{
-// 		Slots:        nil,
-// 		CommitteeIds: nil,
-// 		IsAggregator: nil,
-// 	})
-// 	assert.ErrorContains(t, "no attester slots provided", err)
-// }
+	_, err := attesterServer.SubscribeCommitteeSubnets(context.Background(), &ethpb.CommitteeSubnetsSubscribeRequest{
+		Slots:        nil,
+		CommitteeIds: nil,
+		IsAggregator: nil,
+	})
+	assert.ErrorContains(t, "no attester slots provided", err)
+}
 
-// func TestServer_SubscribeCommitteeSubnets_DifferentLengthSlots(t *testing.T) {
-// 	// fixed seed
-// 	s := rand.NewSource(10)
-// 	randGen := rand.New(s)
+func TestServer_SubscribeCommitteeSubnets_DifferentLengthSlots(t *testing.T) {
+	// fixed seed
+	s := rand.NewSource(10)
+	randGen := rand.New(s)
 
-// 	attesterServer := &Server{
-// 		HeadFetcher:       &mock.ChainService{},
-// 		P2P:               &mockp2p.MockBroadcaster{},
-// 		AttPool:           attestations.NewPool(),
-// 		OperationNotifier: (&mock.ChainService{}).OperationNotifier(),
-// 	}
+	attesterServer := &Server{
+		HeadFetcher:       &mock.ChainService{},
+		P2P:               &mockp2p.MockBroadcaster{},
+		AttPool:           attestations.NewPool(),
+		OperationNotifier: (&mock.ChainService{}).OperationNotifier(),
+	}
 
-// 	var ss []primitives.Slot
-// 	var comIdxs []primitives.CommitteeIndex
-// 	var isAggregator []bool
+	var ss []primitives.Slot
+	var comIdxs []primitives.CommitteeIndex
+	var isAggregator []bool
 
-// 	for i := primitives.Slot(100); i < 200; i++ {
-// 		ss = append(ss, i)
-// 		comIdxs = append(comIdxs, primitives.CommitteeIndex(randGen.Int63n(64)))
-// 		boolVal := randGen.Uint64()%2 == 0
-// 		isAggregator = append(isAggregator, boolVal)
-// 	}
+	for i := primitives.Slot(100); i < 200; i++ {
+		ss = append(ss, i)
+		comIdxs = append(comIdxs, primitives.CommitteeIndex(randGen.Int63n(64)))
+		boolVal := randGen.Uint64()%2 == 0
+		isAggregator = append(isAggregator, boolVal)
+	}
 
-// 	ss = append(ss, 321)
+	ss = append(ss, 321)
 
-// 	_, err := attesterServer.SubscribeCommitteeSubnets(context.Background(), &ethpb.CommitteeSubnetsSubscribeRequest{
-// 		Slots:        ss,
-// 		CommitteeIds: comIdxs,
-// 		IsAggregator: isAggregator,
-// 	})
-// 	assert.ErrorContains(t, "request fields are not the same length", err)
-// }
+	_, err := attesterServer.SubscribeCommitteeSubnets(context.Background(), &ethpb.CommitteeSubnetsSubscribeRequest{
+		Slots:        ss,
+		CommitteeIds: comIdxs,
+		IsAggregator: isAggregator,
+	})
+	assert.ErrorContains(t, "request fields are not the same length", err)
+}
 
-// func TestServer_SubscribeCommitteeSubnets_MultipleSlots(t *testing.T) {
-// 	// fixed seed
-// 	s := rand.NewSource(10)
-// 	randGen := rand.New(s)
+func TestServer_SubscribeCommitteeSubnets_MultipleSlots(t *testing.T) {
+	// fixed seed
+	s := rand.NewSource(10)
+	randGen := rand.New(s)
 
-// 	validators := make([]*ethpb.Validator, 64)
-// 	for i := 0; i < len(validators); i++ {
-// 		validators[i] = &ethpb.Validator{
-// 			ExitEpoch:        params.BeaconConfig().FarFutureEpoch,
-// 			EffectiveBalance: params.BeaconConfig().MaxEffectiveBalance,
-// 		}
-// 	}
+	validators := make([]*ethpb.Validator, 64)
+	for i := 0; i < len(validators); i++ {
+		validators[i] = &ethpb.Validator{
+			ExitEpoch:        params.BeaconConfig().FarFutureEpoch,
+			EffectiveBalance: params.BeaconConfig().MaxEffectiveBalance,
+		}
+	}
 
-// 	state, err := util.NewBeaconState()
-// 	require.NoError(t, err)
-// 	require.NoError(t, state.SetValidators(validators))
+	state, err := util.NewBeaconState()
+	require.NoError(t, err)
+	require.NoError(t, state.SetValidators(validators))
 
-// 	attesterServer := &Server{
-// 		HeadFetcher:       &mock.ChainService{State: state},
-// 		P2P:               &mockp2p.MockBroadcaster{},
-// 		AttPool:           attestations.NewPool(),
-// 		OperationNotifier: (&mock.ChainService{}).OperationNotifier(),
-// 	}
+	attesterServer := &Server{
+		HeadFetcher:       &mock.ChainService{State: state},
+		P2P:               &mockp2p.MockBroadcaster{},
+		AttPool:           attestations.NewPool(),
+		OperationNotifier: (&mock.ChainService{}).OperationNotifier(),
+	}
 
-// 	var ss []primitives.Slot
-// 	var comIdxs []primitives.CommitteeIndex
-// 	var isAggregator []bool
+	var ss []primitives.Slot
+	var comIdxs []primitives.CommitteeIndex
+	var isAggregator []bool
 
-// 	for i := primitives.Slot(100); i < 200; i++ {
-// 		ss = append(ss, i)
-// 		comIdxs = append(comIdxs, primitives.CommitteeIndex(randGen.Int63n(64)))
-// 		boolVal := randGen.Uint64()%2 == 0
-// 		isAggregator = append(isAggregator, boolVal)
-// 	}
+	for i := primitives.Slot(100); i < 200; i++ {
+		ss = append(ss, i)
+		comIdxs = append(comIdxs, primitives.CommitteeIndex(randGen.Int63n(64)))
+		boolVal := randGen.Uint64()%2 == 0
+		isAggregator = append(isAggregator, boolVal)
+	}
 
-// 	_, err = attesterServer.SubscribeCommitteeSubnets(context.Background(), &ethpb.CommitteeSubnetsSubscribeRequest{
-// 		Slots:        ss,
-// 		CommitteeIds: comIdxs,
-// 		IsAggregator: isAggregator,
-// 	})
-// 	require.NoError(t, err)
-// 	for i := primitives.Slot(100); i < 200; i++ {
-// 		subnets := cache.SubnetIDs.GetAttesterSubnetIDs(i)
-// 		assert.Equal(t, 1, len(subnets))
-// 		if isAggregator[i-100] {
-// 			subnets = cache.SubnetIDs.GetAggregatorSubnetIDs(i)
-// 			assert.Equal(t, 1, len(subnets))
-// 		}
-// 	}
-// }
+	_, err = attesterServer.SubscribeCommitteeSubnets(context.Background(), &ethpb.CommitteeSubnetsSubscribeRequest{
+		Slots:        ss,
+		CommitteeIds: comIdxs,
+		IsAggregator: isAggregator,
+	})
+	require.NoError(t, err)
+	for i := primitives.Slot(100); i < 200; i++ {
+		subnets := cache.SubnetIDs.GetAttesterSubnetIDs(i)
+		assert.Equal(t, 1, len(subnets))
+		if isAggregator[i-100] {
+			subnets = cache.SubnetIDs.GetAggregatorSubnetIDs(i)
+			assert.Equal(t, 1, len(subnets))
+		}
+	}
+}

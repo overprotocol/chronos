@@ -28,8 +28,6 @@ var expectedParticipation = 0.99
 
 var expectedMulticlientParticipation = 0.95
 
-// var expectedSyncParticipation = 0.99
-
 // ValidatorsAreActive ensures the expected amount of validators are active.
 var ValidatorsAreActive = types.Evaluator{
 	Name:       "validators_active_epoch_%d",
