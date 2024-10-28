@@ -312,7 +312,7 @@ func Test_AttSubnets(t *testing.T) {
 
 			got, err := attSubnets(record)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("syncSubnets() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("attSubnets() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 
@@ -326,7 +326,7 @@ func Test_AttSubnets(t *testing.T) {
 			}
 
 			if !reflect.DeepEqual(got, want) {
-				t.Errorf("syncSubnets() got = %v, want %v", got, want)
+				t.Errorf("attSubnets() got = %v, want %v", got, want)
 			}
 		})
 	}

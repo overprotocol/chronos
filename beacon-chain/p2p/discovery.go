@@ -156,7 +156,6 @@ func (s *Service) RefreshENR() {
 		return
 	}
 
-	// Phase 0 behaviour.
 	if bytes.Equal(bitV, currentBitV) {
 		// return early if bitfield hasn't changed
 		return

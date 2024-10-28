@@ -750,7 +750,3 @@ message AssignValidatorToSubnetRequest {
     ValidatorStatus status = 2;
 }
 
-message AggregatedSigAndAggregationBitsResponse {
-    bytes aggregated_sig = 1;
-    bytes bits = 2;
-}

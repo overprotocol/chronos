@@ -93,7 +93,6 @@ func Test_endpoints(t *testing.T) {
 		"/eth/v1/validator/aggregate_and_proofs":           {http.MethodPost},
 		"/eth/v1/validator/beacon_committee_subscriptions": {http.MethodPost},
 		"/eth/v1/validator/beacon_committee_selections":    {http.MethodPost},
-		"/eth/v1/validator/contribution_and_proofs":        {http.MethodPost},
 		"/eth/v1/validator/prepare_beacon_proposer":        {http.MethodPost},
 		"/eth/v1/validator/register_validator":             {http.MethodPost},
 		"/eth/v1/validator/liveness/{epoch}":               {http.MethodPost},

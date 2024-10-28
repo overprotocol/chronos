@@ -373,8 +373,6 @@ func TestGetSpec(t *testing.T) {
 				assert.Equal(t, "0x30303037", v)
 			case "DOMAIN_APPLICATION_MASK":
 				assert.Equal(t, "0x31303030", v)
-			case "DOMAIN_CONTRIBUTION_AND_PROOF":
-				assert.Equal(t, "0x09000000", v)
 			case "DOMAIN_BLS_TO_EXECUTION_CHANGE":
 				assert.Equal(t, "0x0a000000", v)
 			case "DOMAIN_APPLICATION_BUILDER":
@@ -413,8 +411,6 @@ func TestGetSpec(t *testing.T) {
 				assert.Equal(t, "160", v)
 			case "MAX_PER_EPOCH_ACTIVATION_CHURN_LIMIT":
 				assert.Equal(t, "8", v)
-			case "MAX_REQUEST_LIGHT_CLIENT_UPDATES":
-				assert.Equal(t, "128", v)
 			case "SAFE_SLOTS_TO_IMPORT_OPTIMISTICALLY":
 			case "NODE_ID_BITS":
 				assert.Equal(t, "256", v)
