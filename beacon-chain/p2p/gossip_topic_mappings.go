@@ -52,6 +52,7 @@ func GossipTopicMappings(topic string, epoch primitives.Epoch) proto.Message {
 		if epoch >= params.BeaconConfig().ElectraForkEpoch {
 			return &ethpb.AttesterSlashingElectra{}
 		}
+		return gossipMessage(topic)
 	case AggregateAndProofSubnetTopicFormat:
 		if epoch >= params.BeaconConfig().ElectraForkEpoch {
 			return &ethpb.SignedAggregateAttestationAndProofElectra{}
