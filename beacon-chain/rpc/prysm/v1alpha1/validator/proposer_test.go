@@ -608,7 +608,6 @@ func TestServer_GetBeaconBlock_Electra(t *testing.T) {
 			Body: &ethpb.BeaconBlockBodyElectra{
 				RandaoReveal:  genesis.Block.Body.RandaoReveal,
 				Graffiti:      genesis.Block.Body.Graffiti,
-				Eth1Data:      genesis.Block.Body.Eth1Data,
 				SyncAggregate: &ethpb.SyncAggregate{SyncCommitteeBits: scBits[:], SyncCommitteeSignature: make([]byte, 96)},
 				ExecutionPayload: &enginev1.ExecutionPayloadElectra{
 					ParentHash:    make([]byte, fieldparams.RootLength),

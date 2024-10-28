@@ -605,10 +605,6 @@ func hydrateBeaconBlockBodyElectra() *eth.BeaconBlockBodyElectra {
 	return &eth.BeaconBlockBodyElectra{
 		RandaoReveal: make([]byte, fieldparams.BLSSignatureLength),
 		Graffiti:     make([]byte, fieldparams.RootLength),
-		Eth1Data: &eth.Eth1Data{
-			DepositRoot: make([]byte, fieldparams.RootLength),
-			BlockHash:   make([]byte, fieldparams.RootLength),
-		},
 		SyncAggregate: &eth.SyncAggregate{
 			SyncCommitteeBits:      make([]byte, fieldparams.SyncAggregateSyncCommitteeBytesLength),
 			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),

@@ -476,10 +476,6 @@ func BuildSignedBeaconBlockFromExecutionPayload(blk interfaces.ReadOnlySignedBea
 		if !ok {
 			return nil, errors.New("payload not of Electra type")
 		}
-		blsToExecutionChanges, err := b.Body().BLSToExecutionChanges()
-		if err != nil {
-			return nil, err
-		}
 		commitments, err := b.Body().BlobKzgCommitments()
 		if err != nil {
 			return nil, err
@@ -519,19 +515,16 @@ func BuildSignedBeaconBlockFromExecutionPayload(blk interfaces.ReadOnlySignedBea
 				ParentRoot:    parentRoot[:],
 				StateRoot:     stateRoot[:],
 				Body: &eth.BeaconBlockBodyElectra{
-					RandaoReveal:          randaoReveal[:],
-					Eth1Data:              b.Body().Eth1Data(),
-					Graffiti:              graffiti[:],
-					ProposerSlashings:     b.Body().ProposerSlashings(),
-					AttesterSlashings:     attSlashings,
-					Attestations:          atts,
-					Deposits:              b.Body().Deposits(),
-					VoluntaryExits:        b.Body().VoluntaryExits(),
-					SyncAggregate:         syncAgg,
-					ExecutionPayload:      p,
-					BlsToExecutionChanges: blsToExecutionChanges,
-					BlobKzgCommitments:    commitments,
-					ExecutionRequests:     er,
+					RandaoReveal:       randaoReveal[:],
+					Graffiti:           graffiti[:],
+					ProposerSlashings:  b.Body().ProposerSlashings(),
+					AttesterSlashings:  attSlashings,
+					Attestations:       atts,
+					VoluntaryExits:     b.Body().VoluntaryExits(),
+					SyncAggregate:      syncAgg,
+					ExecutionPayload:   p,
+					BlobKzgCommitments: commitments,
+					ExecutionRequests:  er,
 				},
 			},
 			Signature: sig[:],

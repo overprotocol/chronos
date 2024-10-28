@@ -201,11 +201,7 @@ func buildGenesisBeaconStateElectra(genesisTime uint64, preState state.BeaconSta
 	var scBits [fieldparams.SyncAggregateSyncCommitteeBytesLength]byte
 	bodyRoot, err := (&ethpb.BeaconBlockBodyElectra{
 		RandaoReveal: make([]byte, 96),
-		Eth1Data: &ethpb.Eth1Data{
-			DepositRoot: make([]byte, 32),
-			BlockHash:   make([]byte, 32),
-		},
-		Graffiti: make([]byte, 32),
+		Graffiti:     make([]byte, 32),
 		SyncAggregate: &ethpb.SyncAggregate{
 			SyncCommitteeBits:      scBits[:],
 			SyncCommitteeSignature: make([]byte, 96),

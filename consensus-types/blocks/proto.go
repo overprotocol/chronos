@@ -540,19 +540,16 @@ func (b *BeaconBlockBody) Proto() (proto.Message, error) {
 			}
 		}
 		return &eth.BeaconBlockBodyElectra{
-			RandaoReveal:          b.randaoReveal[:],
-			Eth1Data:              b.eth1Data,
-			Graffiti:              b.graffiti[:],
-			ProposerSlashings:     b.proposerSlashings,
-			AttesterSlashings:     b.attesterSlashingsElectra,
-			Attestations:          b.attestationsElectra,
-			Deposits:              b.deposits,
-			VoluntaryExits:        b.voluntaryExits,
-			SyncAggregate:         b.syncAggregate,
-			ExecutionPayload:      p,
-			BlsToExecutionChanges: b.blsToExecutionChanges,
-			BlobKzgCommitments:    b.blobKzgCommitments,
-			ExecutionRequests:     b.executionRequests,
+			RandaoReveal:       b.randaoReveal[:],
+			Graffiti:           b.graffiti[:],
+			ProposerSlashings:  b.proposerSlashings,
+			AttesterSlashings:  b.attesterSlashingsElectra,
+			Attestations:       b.attestationsElectra,
+			VoluntaryExits:     b.voluntaryExits,
+			SyncAggregate:      b.syncAggregate,
+			ExecutionPayload:   p,
+			BlobKzgCommitments: b.blobKzgCommitments,
+			ExecutionRequests:  b.executionRequests,
 		}, nil
 
 	default:
@@ -1148,16 +1145,13 @@ func initBlockBodyFromProtoElectra(pb *eth.BeaconBlockBodyElectra) (*BeaconBlock
 	b := &BeaconBlockBody{
 		version:                  version.Electra,
 		randaoReveal:             bytesutil.ToBytes96(pb.RandaoReveal),
-		eth1Data:                 pb.Eth1Data,
 		graffiti:                 bytesutil.ToBytes32(pb.Graffiti),
 		proposerSlashings:        pb.ProposerSlashings,
 		attesterSlashingsElectra: pb.AttesterSlashings,
 		attestationsElectra:      pb.Attestations,
-		deposits:                 pb.Deposits,
 		voluntaryExits:           pb.VoluntaryExits,
 		syncAggregate:            pb.SyncAggregate,
 		executionPayload:         p,
-		blsToExecutionChanges:    pb.BlsToExecutionChanges,
 		blobKzgCommitments:       pb.BlobKzgCommitments,
 		executionRequests:        er,
 	}

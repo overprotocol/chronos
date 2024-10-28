@@ -543,11 +543,7 @@ func (s *PremineGenesisConfig) setLatestBlockHeader(g state.BeaconState) error {
 	case version.Electra:
 		body = &ethpb.BeaconBlockBodyElectra{
 			RandaoReveal: make([]byte, 96),
-			Eth1Data: &ethpb.Eth1Data{
-				DepositRoot: make([]byte, 32),
-				BlockHash:   make([]byte, 32),
-			},
-			Graffiti: make([]byte, 32),
+			Graffiti:     make([]byte, 32),
 			SyncAggregate: &ethpb.SyncAggregate{
 				SyncCommitteeBits:      make([]byte, fieldparams.SyncCommitteeLength/8),
 				SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
@@ -565,8 +561,7 @@ func (s *PremineGenesisConfig) setLatestBlockHeader(g state.BeaconState) error {
 				Transactions:  make([][]byte, 0),
 				Withdrawals:   make([]*enginev1.Withdrawal, 0),
 			},
-			BlsToExecutionChanges: make([]*ethpb.SignedBLSToExecutionChange, 0),
-			BlobKzgCommitments:    make([][]byte, 0),
+			BlobKzgCommitments: make([][]byte, 0),
 			ExecutionRequests: &enginev1.ExecutionRequests{
 				Deposits:    make([]*enginev1.DepositRequest, 0),
 				Withdrawals: make([]*enginev1.WithdrawalRequest, 0),

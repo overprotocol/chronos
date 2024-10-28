@@ -415,12 +415,13 @@ func VerifyOperationLengths(_ context.Context, state state.BeaconState, b interf
 			params.BeaconConfig().MaxVoluntaryExits,
 		)
 	}
-	eth1Data := state.Eth1Data()
-	if eth1Data == nil {
-		return nil, errors.New("nil eth1data in state")
-	}
 
 	if state.Version() < version.Electra {
+		eth1Data := state.Eth1Data()
+		if eth1Data == nil {
+			return nil, errors.New("nil eth1data in state")
+		}
+
 		// Deneb specs
 		//  # Verify that outstanding deposits are processed up to the maximum number of deposits
 		//    assert len(body.deposits) == min(MAX_DEPOSITS, state.eth1_data.deposit_count - state.eth1_deposit_index)

@@ -460,19 +460,16 @@ func (body *BeaconBlockBodyElectra) Copy() *BeaconBlockBodyElectra {
 		return nil
 	}
 	return &BeaconBlockBodyElectra{
-		RandaoReveal:          bytesutil.SafeCopyBytes(body.RandaoReveal),
-		Eth1Data:              body.Eth1Data.Copy(),
-		Graffiti:              bytesutil.SafeCopyBytes(body.Graffiti),
-		ProposerSlashings:     CopySlice(body.ProposerSlashings),
-		AttesterSlashings:     CopySlice(body.AttesterSlashings),
-		Attestations:          CopySlice(body.Attestations),
-		Deposits:              CopySlice(body.Deposits),
-		VoluntaryExits:        CopySlice(body.VoluntaryExits),
-		SyncAggregate:         body.SyncAggregate.Copy(),
-		ExecutionPayload:      body.ExecutionPayload.Copy(),
-		BlsToExecutionChanges: CopySlice(body.BlsToExecutionChanges),
-		BlobKzgCommitments:    CopyBlobKZGs(body.BlobKzgCommitments),
-		ExecutionRequests:     CopyExecutionRequests(body.ExecutionRequests),
+		RandaoReveal:       bytesutil.SafeCopyBytes(body.RandaoReveal),
+		Graffiti:           bytesutil.SafeCopyBytes(body.Graffiti),
+		ProposerSlashings:  CopySlice(body.ProposerSlashings),
+		AttesterSlashings:  CopySlice(body.AttesterSlashings),
+		Attestations:       CopySlice(body.Attestations),
+		VoluntaryExits:     CopySlice(body.VoluntaryExits),
+		SyncAggregate:      body.SyncAggregate.Copy(),
+		ExecutionPayload:   body.ExecutionPayload.Copy(),
+		BlobKzgCommitments: CopyBlobKZGs(body.BlobKzgCommitments),
+		ExecutionRequests:  CopyExecutionRequests(body.ExecutionRequests),
 	}
 }
 

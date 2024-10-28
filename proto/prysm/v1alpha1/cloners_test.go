@@ -1076,19 +1076,16 @@ func genBeaconBlockElectra() *v1alpha1.BeaconBlockElectra {
 
 func genBeaconBlockBodyElectra() *v1alpha1.BeaconBlockBodyElectra {
 	return &v1alpha1.BeaconBlockBodyElectra{
-		RandaoReveal:          bytes(96),
-		Eth1Data:              genEth1Data(),
-		Graffiti:              bytes(32),
-		ProposerSlashings:     genProposerSlashings(5),
-		AttesterSlashings:     genAttesterSlashingsElectra(5),
-		Attestations:          genAttestationsElectra(10),
-		Deposits:              genDeposits(5),
-		VoluntaryExits:        genSignedVoluntaryExits(12),
-		SyncAggregate:         genSyncAggregate(),
-		ExecutionPayload:      genPayloadElectra(),
-		BlsToExecutionChanges: genBLSToExecutionChanges(10),
-		BlobKzgCommitments:    getKZGCommitments(4),
-		ExecutionRequests:     genExecutionRequests(),
+		RandaoReveal:       bytes(96),
+		Graffiti:           bytes(32),
+		ProposerSlashings:  genProposerSlashings(5),
+		AttesterSlashings:  genAttesterSlashingsElectra(5),
+		Attestations:       genAttestationsElectra(10),
+		VoluntaryExits:     genSignedVoluntaryExits(12),
+		SyncAggregate:      genSyncAggregate(),
+		ExecutionPayload:   genPayloadElectra(),
+		BlobKzgCommitments: getKZGCommitments(4),
+		ExecutionRequests:  genExecutionRequests(),
 	}
 }
 

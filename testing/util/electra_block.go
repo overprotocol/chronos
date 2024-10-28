@@ -88,16 +88,6 @@ func GenerateFullBlockElectra(
 		}
 	}
 
-	numToGen = conf.NumDeposits
-	var newDeposits []*ethpb.Deposit
-	eth1Data := bState.Eth1Data()
-	if numToGen > 0 {
-		newDeposits, eth1Data, err = generateDepositsAndEth1Data(bState, numToGen)
-		if err != nil {
-			return nil, errors.Wrapf(err, "failed generating %d deposits:", numToGen)
-		}
-	}
-
 	numToGen = conf.NumVoluntaryExits
 	var exits []*ethpb.SignedVoluntaryExit
 	if numToGen > 0 {
@@ -231,18 +221,15 @@ func GenerateFullBlockElectra(
 		ParentRoot:    parentRoot[:],
 		ProposerIndex: idx,
 		Body: &ethpb.BeaconBlockBodyElectra{
-			Eth1Data:              eth1Data,
-			RandaoReveal:          reveal,
-			ProposerSlashings:     pSlashings,
-			AttesterSlashings:     aSlashings,
-			Attestations:          atts,
-			VoluntaryExits:        exits,
-			Deposits:              newDeposits,
-			Graffiti:              make([]byte, fieldparams.RootLength),
-			SyncAggregate:         newSyncAggregate,
-			ExecutionPayload:      newExecutionPayloadElectra,
-			BlsToExecutionChanges: changes,
-			ExecutionRequests:     executionRequests,
+			RandaoReveal:      reveal,
+			ProposerSlashings: pSlashings,
+			AttesterSlashings: aSlashings,
+			Attestations:      atts,
+			VoluntaryExits:    exits,
+			Graffiti:          make([]byte, fieldparams.RootLength),
+			SyncAggregate:     newSyncAggregate,
+			ExecutionPayload:  newExecutionPayloadElectra,
+			ExecutionRequests: executionRequests,
 		},
 	}
 
