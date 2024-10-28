@@ -339,9 +339,9 @@ func attestationDelta(
 		denominator := (srcWeight + tgtWeight) * cfg.InactivityPenaltyDuration
 		penaltyDelta := (penaltyNumerator * srcWeight) / denominator
 
-		if inactivityLeak && val.PrincipalBalance < val.ActualBalance+bufferInLeak+penaltyDelta {
+		if !inactivityLeak {
 			attDelta.SourcePenalty += penaltyDelta
-		} else {
+		} else if val.PrincipalBalance < val.ActualBalance+bufferInLeak+penaltyDelta {
 			attDelta.SourcePenalty += penaltyDelta
 		}
 	}
@@ -356,9 +356,9 @@ func attestationDelta(
 		denominator := (srcWeight + tgtWeight) * cfg.InactivityPenaltyDuration
 		penaltyDelta := (penaltyNumerator * tgtWeight) / denominator
 
-		if inactivityLeak && val.PrincipalBalance < val.ActualBalance+bufferInLeak+penaltyDelta {
+		if !inactivityLeak {
 			attDelta.TargetPenalty += penaltyDelta
-		} else {
+		} else if val.PrincipalBalance < val.ActualBalance+bufferInLeak+penaltyDelta {
 			attDelta.TargetPenalty += penaltyDelta
 		}
 	}
