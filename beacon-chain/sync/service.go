@@ -68,9 +68,6 @@ var (
 	errNilMessage                       = errors.New("nil pubsub message")
 )
 
-// Common type for functional p2p validation options.
-// type validationFn func(ctx context.Context) (pubsub.ValidationResult, error)
-
 // config to hold dependencies for the sync service.
 type config struct {
 	attestationNotifier           operation.Notifier
