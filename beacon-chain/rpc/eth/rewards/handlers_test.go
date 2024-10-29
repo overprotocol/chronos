@@ -629,3 +629,201 @@ func TestAttestationRewards(t *testing.T) {
 		assert.Equal(t, "Attestation rewards are available after two epoch transitions to ensure all attestations have a chance of inclusion", e.Message)
 	})
 }
+
+func TestAttestationRewards_Electra(t *testing.T) {
+	params.SetupTestConfigCleanup(t)
+	cfg := params.BeaconConfig()
+	cfg.ElectraForkEpoch = 1
+	params.OverrideBeaconConfig(cfg)
+	helpers.ClearCache()
+
+	valCount := 64
+
+	st, err := util.NewBeaconStateElectra()
+	require.NoError(t, err)
+	require.NoError(t, st.SetSlot(params.BeaconConfig().SlotsPerEpoch*3-1))
+	validators := make([]*eth.Validator, 0, valCount)
+	balances := make([]uint64, 0, valCount)
+	secretKeys := make([]bls.SecretKey, 0, valCount)
+	for i := 0; i < valCount; i++ {
+		blsKey, err := bls.RandKey()
+		require.NoError(t, err)
+		secretKeys = append(secretKeys, blsKey)
+		validators = append(validators, &eth.Validator{
+			PublicKey:         blsKey.PublicKey().Marshal(),
+			ExitEpoch:         params.BeaconConfig().FarFutureEpoch,
+			WithdrawableEpoch: params.BeaconConfig().FarFutureEpoch,
+			EffectiveBalance:  params.BeaconConfig().MaxEffectiveBalanceElectra / 64 * uint64(i+1),
+			PrincipalBalance:  params.BeaconConfig().MaxEffectiveBalanceElectra / 64 * uint64(i+1),
+		})
+		balances = append(balances, params.BeaconConfig().MaxEffectiveBalanceElectra/64*uint64(i+1))
+	}
+	require.NoError(t, st.SetValidators(validators))
+	require.NoError(t, st.SetBalances(balances))
+	require.NoError(t, st.SetInactivityScores(make([]uint64, len(validators))))
+	participation := make([]byte, len(validators))
+	for i := range participation {
+		participation[i] = 0b111
+	}
+	require.NoError(t, st.SetCurrentParticipationBits(participation))
+	require.NoError(t, st.SetPreviousParticipationBits(participation))
+
+	currentSlot := params.BeaconConfig().SlotsPerEpoch * 3
+	mockChainService := &mock.ChainService{Optimistic: true, Slot: &currentSlot}
+	s := &Server{
+		Stater: &testutil.MockStater{StatesBySlot: map[primitives.Slot]state.BeaconState{
+			params.BeaconConfig().SlotsPerEpoch*3 - 1: st,
+		}},
+		TimeFetcher:           mockChainService,
+		OptimisticModeFetcher: mockChainService,
+		FinalizationFetcher:   mockChainService,
+	}
+
+	t.Run("ideal rewards", func(t *testing.T) {
+		url := "http://only.the.epoch.number.at.the.end.is.important/1"
+		request := httptest.NewRequest("POST", url, nil)
+		writer := httptest.NewRecorder()
+		writer.Body = &bytes.Buffer{}
+
+		s.AttestationRewards(writer, request)
+		assert.Equal(t, http.StatusOK, writer.Code)
+		resp := &structs.AttestationRewardsResponse{}
+		require.NoError(t, json.Unmarshal(writer.Body.Bytes(), resp))
+		// For pre-Electra, there are at most two possible effective balance.
+		require.Equal(t, 2018, len(resp.Data.IdealRewards))
+		sum := uint64(0)
+		for _, r := range resp.Data.IdealRewards {
+			hr, err := strconv.ParseUint(r.Head, 10, 64)
+			require.NoError(t, err)
+			sr, err := strconv.ParseUint(r.Source, 10, 64)
+			require.NoError(t, err)
+			tr, err := strconv.ParseUint(r.Target, 10, 64)
+			require.NoError(t, err)
+			sum += hr + sr + tr
+		}
+		assert.Equal(t, uint64(6715757259365), sum)
+	})
+	t.Run("filtered vals", func(t *testing.T) {
+		url := "http://only.the.epoch.number.at.the.end.is.important/1"
+		var body bytes.Buffer
+		pubkey := fmt.Sprintf("%#x", secretKeys[10].PublicKey().Marshal())
+		valIds, err := json.Marshal([]string{"20", pubkey})
+		require.NoError(t, err)
+		_, err = body.Write(valIds)
+		require.NoError(t, err)
+		request := httptest.NewRequest("POST", url, &body)
+		writer := httptest.NewRecorder()
+		writer.Body = &bytes.Buffer{}
+
+		s.AttestationRewards(writer, request)
+		assert.Equal(t, http.StatusOK, writer.Code)
+		resp := &structs.AttestationRewardsResponse{}
+		require.NoError(t, json.Unmarshal(writer.Body.Bytes(), resp))
+		require.Equal(t, 2, len(resp.Data.TotalRewards))
+		sum := uint64(0)
+		for _, r := range resp.Data.TotalRewards {
+			hr, err := strconv.ParseUint(r.Head, 10, 64)
+			require.NoError(t, err)
+			sr, err := strconv.ParseUint(r.Source, 10, 64)
+			require.NoError(t, err)
+			tr, err := strconv.ParseUint(r.Target, 10, 64)
+			require.NoError(t, err)
+			sum += hr + sr + tr
+		}
+		assert.Equal(t, uint64(3278304512), sum)
+	})
+	t.Run("all vals", func(t *testing.T) {
+		url := "http://only.the.epoch.number.at.the.end.is.important/1"
+		request := httptest.NewRequest("POST", url, nil)
+		writer := httptest.NewRecorder()
+		writer.Body = &bytes.Buffer{}
+
+		s.AttestationRewards(writer, request)
+		assert.Equal(t, http.StatusOK, writer.Code)
+		resp := &structs.AttestationRewardsResponse{}
+		require.NoError(t, json.Unmarshal(writer.Body.Bytes(), resp))
+		require.Equal(t, 64, len(resp.Data.TotalRewards))
+		sum := uint64(0)
+		for _, r := range resp.Data.TotalRewards {
+			hr, err := strconv.ParseUint(r.Head, 10, 64)
+			require.NoError(t, err)
+			sr, err := strconv.ParseUint(r.Source, 10, 64)
+			require.NoError(t, err)
+			tr, err := strconv.ParseUint(r.Target, 10, 64)
+			require.NoError(t, err)
+			sum += hr + sr + tr
+		}
+		assert.Equal(t, uint64(213089793280), sum)
+	})
+	t.Run("penalty - zero inactivity score, so zero penalty", func(t *testing.T) {
+		st := st.Copy()
+		validators := st.Validators()
+		validators[63].Slashed = true
+		require.NoError(t, st.SetValidators(validators))
+
+		s := &Server{
+			Stater: &testutil.MockStater{StatesBySlot: map[primitives.Slot]state.BeaconState{
+				params.BeaconConfig().SlotsPerEpoch*3 - 1: st,
+			}},
+			TimeFetcher:           mockChainService,
+			OptimisticModeFetcher: mockChainService,
+			FinalizationFetcher:   mockChainService,
+		}
+
+		url := "http://only.the.epoch.number.at.the.end.is.important/1"
+		var body bytes.Buffer
+		valIds, err := json.Marshal([]string{"63"})
+		require.NoError(t, err)
+		_, err = body.Write(valIds)
+		require.NoError(t, err)
+		request := httptest.NewRequest("POST", url, &body)
+		writer := httptest.NewRecorder()
+		writer.Body = &bytes.Buffer{}
+
+		s.AttestationRewards(writer, request)
+		assert.Equal(t, http.StatusOK, writer.Code)
+		resp := &structs.AttestationRewardsResponse{}
+		require.NoError(t, json.Unmarshal(writer.Body.Bytes(), resp))
+		assert.Equal(t, "0", resp.Data.TotalRewards[0].Head)
+		assert.Equal(t, "0", resp.Data.TotalRewards[0].Source)
+		assert.Equal(t, "0", resp.Data.TotalRewards[0].Target)
+	})
+	t.Run("penalty - inactivity score above threshold", func(t *testing.T) {
+		st := st.Copy()
+		validators := st.Validators()
+		validators[63].Slashed = true
+		require.NoError(t, st.SetValidators(validators))
+
+		inactivityScores, err := st.InactivityScores()
+		require.NoError(t, err)
+		inactivityScores[63] = params.BeaconConfig().InactivityScorePenaltyThreshold + 1
+		require.NoError(t, st.SetInactivityScores(inactivityScores))
+
+		s := &Server{
+			Stater: &testutil.MockStater{StatesBySlot: map[primitives.Slot]state.BeaconState{
+				params.BeaconConfig().SlotsPerEpoch*3 - 1: st,
+			}},
+			TimeFetcher:           mockChainService,
+			OptimisticModeFetcher: mockChainService,
+			FinalizationFetcher:   mockChainService,
+		}
+
+		url := "http://only.the.epoch.number.at.the.end.is.important/1"
+		var body bytes.Buffer
+		valIds, err := json.Marshal([]string{"63"})
+		require.NoError(t, err)
+		_, err = body.Write(valIds)
+		require.NoError(t, err)
+		request := httptest.NewRequest("POST", url, &body)
+		writer := httptest.NewRecorder()
+		writer.Body = &bytes.Buffer{}
+
+		s.AttestationRewards(writer, request)
+		assert.Equal(t, http.StatusOK, writer.Code)
+		resp := &structs.AttestationRewardsResponse{}
+		require.NoError(t, json.Unmarshal(writer.Body.Bytes(), resp))
+		assert.Equal(t, "0", resp.Data.TotalRewards[0].Head)
+		assert.Equal(t, "-34675132", resp.Data.TotalRewards[0].Source)
+		assert.Equal(t, "-69350264", resp.Data.TotalRewards[0].Target)
+	})
+}
