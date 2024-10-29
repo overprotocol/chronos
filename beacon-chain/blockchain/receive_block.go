@@ -242,29 +242,24 @@ func (s *Service) reportPostBlockProcessing(
 	receivedTime time.Time,
 	daWaitedTime time.Duration,
 ) {
-	log.Info("start reportPostBlockProcessing")
 	// Reports on block and fork choice metrics.
 	cp := s.cfg.ForkChoiceStore.FinalizedCheckpoint()
 	finalized := &ethpb.Checkpoint{Epoch: cp.Epoch, Root: bytesutil.SafeCopyBytes(cp.Root[:])}
 	reportSlotMetrics(block.Block().Slot(), s.HeadSlot(), s.CurrentSlot(), finalized)
-	log.Info("start reportPostBlockProcessing 2")
 	// Log block sync status.
 	cp = s.cfg.ForkChoiceStore.JustifiedCheckpoint()
 	justified := &ethpb.Checkpoint{Epoch: cp.Epoch, Root: bytesutil.SafeCopyBytes(cp.Root[:])}
 	if err := logBlockSyncStatus(block.Block(), blockRoot, justified, finalized, receivedTime, uint64(s.genesisTime.Unix()), daWaitedTime); err != nil {
 		log.WithError(err).Error("Unable to log block sync status")
 	}
-	log.Info("start reportPostBlockProcessing 3")
 	// Log payload data
 	if err := logPayload(block.Block()); err != nil {
 		log.WithError(err).Error("Unable to log debug block payload data")
 	}
-	log.Info("start reportPostBlockProcessing 4")
 	// Log state transition data.
 	if err := logStateTransitionData(block.Block()); err != nil {
 		log.WithError(err).Error("Unable to log state transition data")
 	}
-	log.Info("start reportPostBlockProcessing 5")
 	timeWithoutDaWait := time.Since(receivedTime) - daWaitedTime
 	chainServiceProcessingTime.Observe(float64(timeWithoutDaWait.Milliseconds()))
 }
