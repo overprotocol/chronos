@@ -413,7 +413,7 @@ func TestExitedValidatorIndices(t *testing.T) {
 					{
 						EffectiveBalance:  params.BeaconConfig().MaxEffectiveBalance,
 						ExitEpoch:         0,
-						WithdrawableEpoch: 10,
+						WithdrawableEpoch: 256,
 					},
 					{
 						EffectiveBalance:  params.BeaconConfig().MaxEffectiveBalance,
@@ -422,7 +422,7 @@ func TestExitedValidatorIndices(t *testing.T) {
 					},
 				},
 			},
-			wanted: []primitives.ValidatorIndex{0, 2},
+			wanted: []primitives.ValidatorIndex{0, 1, 2},
 		},
 		{
 			state: &ethpb.BeaconStateAltair{

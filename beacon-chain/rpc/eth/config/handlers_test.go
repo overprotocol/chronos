@@ -111,7 +111,6 @@ func TestGetSpec(t *testing.T) {
 	config.TimelyTargetWeight = 55
 	config.WeightDenominator = 56
 	config.InactivityScoreBias = 57
-	config.InactivityPenaltyQuotientAltair = 58
 	config.MinSlashingPenaltyQuotientAltair = 59
 	config.InactivityScoreRecoveryRate = 60
 	config.TerminalBlockHash = common.HexToHash("TerminalBlockHash")
@@ -200,7 +199,7 @@ func TestGetSpec(t *testing.T) {
 	data, ok := resp.Data.(map[string]interface{})
 	require.Equal(t, true, ok)
 
-	assert.Equal(t, 159, len(data))
+	assert.Equal(t, 158, len(data))
 	for k, v := range data {
 		t.Run(k, func(t *testing.T) {
 			switch k {
@@ -316,8 +315,6 @@ func TestGetSpec(t *testing.T) {
 				assert.Equal(t, "40", v)
 			case "PROPOSER_REWARD_QUOTIENT":
 				assert.Equal(t, "41", v)
-			case "INACTIVITY_PENALTY_QUOTIENT":
-				assert.Equal(t, "42", v)
 			case "HF1_INACTIVITY_PENALTY_QUOTIENT":
 				assert.Equal(t, "41", v)
 			case "MIN_SLASHING_PENALTY_QUOTIENT":
