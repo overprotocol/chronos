@@ -241,14 +241,7 @@ func ExitedValidatorIndices(st state.BeaconState, validators []*ethpb.Validator,
 	exited := make([]primitives.ValidatorIndex, 0)
 
 	for i, val := range validators {
-		if val.ExitEpoch != epoch {
-			continue
-		}
-		isBailOut, err := helpers.IsBailOut(st, val, i, isInInactivityLeak)
-		if err != nil {
-			return nil, err
-		}
-		if !isBailOut {
+		if val.ExitEpoch == epoch {
 			exited = append(exited, primitives.ValidatorIndex(i))
 		}
 	}
