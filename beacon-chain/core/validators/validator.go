@@ -244,8 +244,6 @@ func ExitedValidatorIndices(st state.BeaconState, validators []*ethpb.Validator,
 	inactivityPenaltyRatePrecision := params.BeaconConfig().InactivityPenaltyRatePrecision
 	inactivityLeakBailoutScoreThreshold := params.BeaconConfig().InactivityLeakBailoutScoreThreshold
 
-	withdrawableEpoch := epoch + params.BeaconConfig().MinValidatorWithdrawabilityDelay
-
 	for i, val := range validators {
 		actualBalance, err := st.BalanceAtIndex(primitives.ValidatorIndex(i))
 		if err != nil {
@@ -268,7 +266,7 @@ func ExitedValidatorIndices(st state.BeaconState, validators []*ethpb.Validator,
 		belowThreshold := actualBalance+bailoutBuffer < pb
 		isBailout := belowThreshold || (isInInactivityLeak && inactivityScore > inactivityLeakBailoutScoreThreshold)
 
-		if val.ExitEpoch == epoch && val.WithdrawableEpoch == withdrawableEpoch && !isBailout {
+		if val.ExitEpoch == epoch && !isBailout {
 			exited = append(exited, primitives.ValidatorIndex(i))
 		}
 	}
@@ -284,8 +282,6 @@ func BailedOutValidatorIndices(st state.BeaconState, validators []*ethpb.Validat
 	inactivityPenaltyRatePrecision := params.BeaconConfig().InactivityPenaltyRatePrecision
 	inactivityLeakBailoutScoreThreshold := params.BeaconConfig().InactivityLeakBailoutScoreThreshold
 
-	withdrawableEpoch := epoch + params.BeaconConfig().MinValidatorWithdrawabilityDelay
-
 	for i, val := range validators {
 		actualBalance, err := st.BalanceAtIndex(primitives.ValidatorIndex(i))
 		if err != nil {
@@ -308,7 +304,7 @@ func BailedOutValidatorIndices(st state.BeaconState, validators []*ethpb.Validat
 		belowThreshold := actualBalance+bailoutBuffer < pb
 		isBailout := belowThreshold || (isInInactivityLeak && inactivityScore > inactivityLeakBailoutScoreThreshold)
 
-		if val.ExitEpoch == epoch && val.WithdrawableEpoch == withdrawableEpoch && isBailout {
+		if val.ExitEpoch == epoch && isBailout {
 			bailedOut = append(bailedOut, primitives.ValidatorIndex(i))
 		}
 	}
