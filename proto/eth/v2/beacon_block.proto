@@ -329,7 +329,7 @@ message BeaconBlockBodyBellatrix {
 
 
   // Execution payload: the embedded execution payload of the block [New in Bellatrix]
-  ethereum.engine.v1.ExecutionPayload execution_payload = 10;
+  ethereum.engine.v1.ExecutionPayload execution_payload = 9;
 }
 
 message BlindedBeaconBlockBodyBellatrix {
@@ -363,7 +363,7 @@ message BlindedBeaconBlockBodyBellatrix {
 
 
   // Execution payload header: the embedded execution payload of the block [New in Bellatrix]
-  ethereum.engine.v1.ExecutionPayloadHeader execution_payload_header = 10;
+  ethereum.engine.v1.ExecutionPayloadHeader execution_payload_header = 9;
 }
 
 message BeaconBlockBodyCapella {
@@ -397,10 +397,10 @@ message BeaconBlockBodyCapella {
 
 
   // Execution payload: the embedded execution payload of the block [Modified in Capella]
-  ethereum.engine.v1.ExecutionPayloadCapella execution_payload = 10;
+  ethereum.engine.v1.ExecutionPayloadCapella execution_payload = 9;
 
   // BLS To Execution Changes: signed messages to change withdrawal credentials [New in Capella]
-  repeated SignedBLSToExecutionChange bls_to_execution_changes = 11 [(ethereum.eth.ext.ssz_max) = "16"];
+  repeated SignedBLSToExecutionChange bls_to_execution_changes = 10 [(ethereum.eth.ext.ssz_max) = "16"];
 }
 
 message BlindedBeaconBlockBodyCapella {
@@ -434,10 +434,10 @@ message BlindedBeaconBlockBodyCapella {
 
 
   // Execution payload header: the embedded execution payload of the block [Modified in Capella]
-  ethereum.engine.v1.ExecutionPayloadHeaderCapella execution_payload_header = 10;
+  ethereum.engine.v1.ExecutionPayloadHeaderCapella execution_payload_header = 9;
 
   // BLS To Execution Changes: signed messages to change withdrawal credentials [New in Capella]
-  repeated SignedBLSToExecutionChange bls_to_execution_changes = 11 [(ethereum.eth.ext.ssz_max) = "16"];
+  repeated SignedBLSToExecutionChange bls_to_execution_changes = 10 [(ethereum.eth.ext.ssz_max) = "16"];
 }
 
 message BlindedBeaconBlockBodyDeneb {
@@ -463,12 +463,12 @@ message BlindedBeaconBlockBodyDeneb {
   repeated v1.SignedVoluntaryExit voluntary_exits = 8 [(ethereum.eth.ext.ssz_max) = "16"];
 
   // Execution payload header: the embedded execution payload of the block [Modified in Deneb]
-  ethereum.engine.v1.ExecutionPayloadHeaderDeneb execution_payload_header = 10;
+  ethereum.engine.v1.ExecutionPayloadHeaderDeneb execution_payload_header = 9;
 
   // BLS To Execution Changes: signed messages to change withdrawal credentials [New in Capella]
-  repeated SignedBLSToExecutionChange bls_to_execution_changes = 11 [(ethereum.eth.ext.ssz_max) = "16"];
+  repeated SignedBLSToExecutionChange bls_to_execution_changes = 10 [(ethereum.eth.ext.ssz_max) = "16"];
 
-  repeated bytes blob_kzg_commitments = 12 [(ethereum.eth.ext.ssz_size) = "?,48", (ethereum.eth.ext.ssz_max)  = "max_blob_commitments.size"];
+  repeated bytes blob_kzg_commitments = 11 [(ethereum.eth.ext.ssz_size) = "?,48", (ethereum.eth.ext.ssz_max)  = "max_blob_commitments.size"];
 }
 
 message BeaconBlockBodyDeneb {
@@ -502,13 +502,13 @@ message BeaconBlockBodyDeneb {
 
 
   // Execution payload from the execution chain. New in Bellatrix network upgrade.
-  ethereum.engine.v1.ExecutionPayloadDeneb execution_payload = 10;
+  ethereum.engine.v1.ExecutionPayloadDeneb execution_payload = 9;
 
   // At most MAX_BLS_TO_EXECUTION_CHANGES. New in Capella network upgrade.
-  repeated  SignedBLSToExecutionChange bls_to_execution_changes = 11 [(ethereum.eth.ext.ssz_max) = "16"];
+  repeated  SignedBLSToExecutionChange bls_to_execution_changes = 10 [(ethereum.eth.ext.ssz_max) = "16"];
 
   // At most MAX_BLOB_COMMITMENTS_PER_BLOCK. New in Deneb network upgrade.
-  repeated bytes blob_kzg_commitments = 12 [(ethereum.eth.ext.ssz_size) = "?,48", (ethereum.eth.ext.ssz_max)  = "max_blob_commitments.size"];
+  repeated bytes blob_kzg_commitments = 11 [(ethereum.eth.ext.ssz_size) = "?,48", (ethereum.eth.ext.ssz_max)  = "max_blob_commitments.size"];
 }
 
 message SignedBeaconBlockContentsDeneb {
