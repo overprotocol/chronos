@@ -61,10 +61,6 @@ func ProcessRegistryUpdates(ctx context.Context, st state.BeaconState) (state.Be
 
 	isInInactivityLeak := helpers.IsInInactivityLeak(previousEpoch, finalizedEpoch)
 
-	inactivityPenaltyRate := params.BeaconConfig().InactivityPenaltyRate
-	inactivityPenaltyRatePrecision := params.BeaconConfig().InactivityPenaltyRatePrecision
-	inactivityLeakBailoutScoreThreshold := params.BeaconConfig().InactivityLeakBailoutScoreThreshold
-
 	// To avoid copying the state validator set via st.Validators(), we will perform a read only pass
 	// over the validator set while collecting validator indices where the validator copy is actually
 	// necessary, then we will process these operations.
@@ -79,29 +75,11 @@ func ProcessRegistryUpdates(ctx context.Context, st state.BeaconState) (state.Be
 		}
 
 		// Collect validators to bailout.
-		isActive := helpers.IsActiveValidatorUsingTrie(val, currentEpoch)
-		pb := val.PrincipalBalance()
-		bailoutBuffer := pb * inactivityPenaltyRate / inactivityPenaltyRatePrecision
-		actualBalance, err := st.BalanceAtIndex(primitives.ValidatorIndex(idx))
+		eligible, err := helpers.IsEligibleForBailOut(st, val, idx, isInInactivityLeak)
 		if err != nil {
 			return err
 		}
-
-		// Inactivity score is only available in Altair and later.
-		var inactivityScore uint64
-		if st.Version() >= version.Altair {
-			inactivityScore, err = st.InactivityScoreAtIndex(primitives.ValidatorIndex(idx))
-			if err != nil {
-				return err
-			}
-		} else {
-			inactivityScore = 0
-		}
-
-		belowThreshold := actualBalance+bailoutBuffer < pb
-		if isActive && belowThreshold {
-			eligibleForBailout = append(eligibleForBailout, primitives.ValidatorIndex(idx))
-		} else if isInInactivityLeak && inactivityScore > inactivityLeakBailoutScoreThreshold {
+		if eligible {
 			eligibleForBailout = append(eligibleForBailout, primitives.ValidatorIndex(idx))
 		}
 

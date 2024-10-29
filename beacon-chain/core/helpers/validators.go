@@ -522,6 +522,64 @@ func isEligibleForActivation(activationEligibilityEpoch, activationEpoch, finali
 		activationEpoch == params.BeaconConfig().FarFutureEpoch
 }
 
+// IsEligibleForBailOut checks if the validator is eligible for bailout.
+func IsEligibleForBailOut(state state.ReadOnlyBeaconState, validator state.ReadOnlyValidator, idx int, leak bool) (bool, error) {
+	currentEpoch := time.CurrentEpoch(state)
+	isActive := IsActiveValidatorUsingTrie(validator, currentEpoch)
+	pb := validator.PrincipalBalance()
+	actualBalance, err := state.BalanceAtIndex(primitives.ValidatorIndex(idx))
+	if err != nil {
+		return false, err
+	}
+
+	inactivityScore, err := inactivityScoreAtIndex(state, idx)
+	if err != nil {
+		return false, err
+	}
+
+	if isActive && isBelowThresholdForBailOut(actualBalance, pb) {
+		return true, nil
+	} else if leak && inactivityScore > params.BeaconConfig().InactivityLeakBailoutScoreThreshold {
+		return true, nil
+	}
+
+	return false, nil
+}
+
+// IsBailOut checks if the validator is bailed out.
+func IsBailOut(state state.ReadOnlyBeaconState, validator *ethpb.Validator, idx int, leak bool) (bool, error) {
+	actualBalance, err := state.BalanceAtIndex(primitives.ValidatorIndex(idx))
+	if err != nil {
+		return false, err
+	}
+
+	pb := validator.PrincipalBalance
+
+	inactivityScore, err := inactivityScoreAtIndex(state, idx)
+	if err != nil {
+		return false, err
+	}
+
+	return isBelowThresholdForBailOut(actualBalance, pb) || (leak && inactivityScore > params.BeaconConfig().InactivityLeakBailoutScoreThreshold), nil
+}
+
+func isBelowThresholdForBailOut(actualBalance, principalBalance uint64) bool {
+	bailoutBuffer := principalBalance * params.BeaconConfig().InactivityPenaltyRate / params.BeaconConfig().InactivityPenaltyRatePrecision
+	return actualBalance+bailoutBuffer < principalBalance
+}
+
+func inactivityScoreAtIndex(state state.ReadOnlyBeaconState, idx int) (uint64, error) {
+	if state.Version() < version.Altair {
+		return 0, nil
+	}
+	inactivityScore, err := state.InactivityScoreAtIndex(primitives.ValidatorIndex(idx))
+	if err != nil {
+		return 0, err
+	}
+
+	return inactivityScore, nil
+}
+
 // LastActivatedValidatorIndex provides the last activated validator given a state
 func LastActivatedValidatorIndex(ctx context.Context, st state.ReadOnlyBeaconState) (primitives.ValidatorIndex, error) {
 	_, span := trace.StartSpan(ctx, "helpers.LastActivatedValidatorIndex")

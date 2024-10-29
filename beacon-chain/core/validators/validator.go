@@ -240,33 +240,15 @@ func ExitedValidatorIndices(st state.BeaconState, validators []*ethpb.Validator,
 	epoch := time.CurrentEpoch(st)
 	exited := make([]primitives.ValidatorIndex, 0)
 
-	inactivityPenaltyRate := params.BeaconConfig().InactivityPenaltyRate
-	inactivityPenaltyRatePrecision := params.BeaconConfig().InactivityPenaltyRatePrecision
-	inactivityLeakBailoutScoreThreshold := params.BeaconConfig().InactivityLeakBailoutScoreThreshold
-
 	for i, val := range validators {
-		actualBalance, err := st.BalanceAtIndex(primitives.ValidatorIndex(i))
+		if val.ExitEpoch != epoch {
+			continue
+		}
+		isBailOut, err := helpers.IsBailOut(st, val, i, isInInactivityLeak)
 		if err != nil {
-			return nil, err
+			continue
 		}
-
-		// Inactivity score is only available in Altair and later.
-		var inactivityScore uint64
-		if st.Version() >= version.Altair {
-			inactivityScore, err = st.InactivityScoreAtIndex(primitives.ValidatorIndex(i))
-			if err != nil {
-				return nil, err
-			}
-		} else {
-			inactivityScore = 0
-		}
-
-		pb := val.PrincipalBalance
-		bailoutBuffer := pb * inactivityPenaltyRate / inactivityPenaltyRatePrecision
-		belowThreshold := actualBalance+bailoutBuffer < pb
-		isBailout := belowThreshold || (isInInactivityLeak && inactivityScore > inactivityLeakBailoutScoreThreshold)
-
-		if val.ExitEpoch == epoch && !isBailout {
+		if !isBailOut {
 			exited = append(exited, primitives.ValidatorIndex(i))
 		}
 	}
@@ -278,33 +260,15 @@ func BailedOutValidatorIndices(st state.BeaconState, validators []*ethpb.Validat
 	epoch := time.CurrentEpoch(st)
 	bailedOut := make([]primitives.ValidatorIndex, 0)
 
-	inactivityPenaltyRate := params.BeaconConfig().InactivityPenaltyRate
-	inactivityPenaltyRatePrecision := params.BeaconConfig().InactivityPenaltyRatePrecision
-	inactivityLeakBailoutScoreThreshold := params.BeaconConfig().InactivityLeakBailoutScoreThreshold
-
 	for i, val := range validators {
-		actualBalance, err := st.BalanceAtIndex(primitives.ValidatorIndex(i))
+		if val.ExitEpoch != epoch {
+			continue
+		}
+		isBailOut, err := helpers.IsBailOut(st, val, i, isInInactivityLeak)
 		if err != nil {
-			return nil, err
+			continue
 		}
-
-		// Inactivity score is only available in Altair and later.
-		var inactivityScore uint64
-		if st.Version() >= version.Altair {
-			inactivityScore, err = st.InactivityScoreAtIndex(primitives.ValidatorIndex(i))
-			if err != nil {
-				return nil, err
-			}
-		} else {
-			inactivityScore = 0
-		}
-
-		pb := val.PrincipalBalance
-		bailoutBuffer := pb * inactivityPenaltyRate / inactivityPenaltyRatePrecision
-		belowThreshold := actualBalance+bailoutBuffer < pb
-		isBailout := belowThreshold || (isInInactivityLeak && inactivityScore > inactivityLeakBailoutScoreThreshold)
-
-		if val.ExitEpoch == epoch && isBailout {
+		if isBailOut {
 			bailedOut = append(bailedOut, primitives.ValidatorIndex(i))
 		}
 	}
