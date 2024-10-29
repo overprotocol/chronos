@@ -15,7 +15,7 @@ import (
 //	    Return the churn limit for the current epoch.
 //	    """
 //	    churn = max(
-//	        MIN_PER_EPOCH_CHURN_LIMIT_ELECTRA,
+//	        MIN_PER_EPOCH_CHURN_LIMIT_ALPACA,
 //	        get_total_active_balance(state) // CHURN_LIMIT_QUOTIENT
 //	    )
 //	    return churn - churn % EFFECTIVE_BALANCE_INCREMENT
