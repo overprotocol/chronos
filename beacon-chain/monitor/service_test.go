@@ -8,7 +8,6 @@ import (
 	"time"
 
 	mock "github.com/prysmaticlabs/prysm/v5/beacon-chain/blockchain/testing"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/altair"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/feed"
 	statefeed "github.com/prysmaticlabs/prysm/v5/beacon-chain/core/feed/state"
 	testDB "github.com/prysmaticlabs/prysm/v5/beacon-chain/db/testing"
@@ -31,11 +30,6 @@ func setupService(t *testing.T) *Service {
 	pubKeys[0] = state.Validators()[0].PublicKey
 	pubKeys[1] = state.Validators()[1].PublicKey
 	pubKeys[2] = state.Validators()[2].PublicKey
-
-	currentSyncCommittee := util.ConvertToCommittee([][]byte{
-		pubKeys[0], pubKeys[1], pubKeys[2], pubKeys[1], pubKeys[1],
-	})
-	require.NoError(t, state.SetCurrentSyncCommittee(currentSyncCommittee))
 
 	chainService := &mock.ChainService{
 		Genesis:        time.Now(),
@@ -79,24 +73,18 @@ func setupService(t *testing.T) *Service {
 	}
 	aggregatedPerformance := map[primitives.ValidatorIndex]ValidatorAggregatedPerformance{
 		1: {
-			startEpoch:                      0,
-			startBalance:                    25700000000,
-			totalAttestedCount:              12,
-			totalRequestedCount:             15,
-			totalDistance:                   14,
-			totalCorrectHead:                8,
-			totalCorrectSource:              11,
-			totalCorrectTarget:              12,
-			totalProposedCount:              1,
-			totalSyncCommitteeContributions: 0,
-			totalSyncCommitteeAggregations:  0,
+			startEpoch:          0,
+			startBalance:        25700000000,
+			totalAttestedCount:  12,
+			totalRequestedCount: 15,
+			totalDistance:       14,
+			totalCorrectHead:    8,
+			totalCorrectSource:  11,
+			totalCorrectTarget:  12,
+			totalProposedCount:  1,
 		},
 		2:  {},
 		12: {},
-	}
-	trackedSyncCommitteeIndices := map[primitives.ValidatorIndex][]primitives.CommitteeIndex{
-		1:  {0, 1, 2, 3},
-		12: {4, 5},
 	}
 	return &Service{
 		config: &ValidatorMonitorConfig{
@@ -107,12 +95,11 @@ func setupService(t *testing.T) *Service {
 			InitialSyncComplete: make(chan struct{}),
 		},
 
-		ctx:                         context.Background(),
-		TrackedValidators:           trackedVals,
-		latestPerformance:           latestPerformance,
-		aggregatedPerformance:       aggregatedPerformance,
-		trackedSyncCommitteeIndices: trackedSyncCommitteeIndices,
-		lastSyncedEpoch:             0,
+		ctx:                   context.Background(),
+		TrackedValidators:     trackedVals,
+		latestPerformance:     latestPerformance,
+		aggregatedPerformance: aggregatedPerformance,
+		lastSyncedEpoch:       0,
 	}
 }
 
@@ -125,20 +112,6 @@ func TestTrackedIndex(t *testing.T) {
 	}
 	require.Equal(t, s.trackedIndex(primitives.ValidatorIndex(1)), true)
 	require.Equal(t, s.trackedIndex(primitives.ValidatorIndex(3)), false)
-}
-
-func TestUpdateSyncCommitteeTrackedVals(t *testing.T) {
-	hook := logTest.NewGlobal()
-	s := setupService(t)
-	state, _ := util.DeterministicGenesisStateAltair(t, 1024)
-
-	s.updateSyncCommitteeTrackedVals(state)
-	require.LogsDoNotContain(t, hook, "Sync committee assignments will not be reported")
-	newTrackedSyncIndices := map[primitives.ValidatorIndex][]primitives.CommitteeIndex{
-		1: {1, 3, 4},
-		2: {2},
-	}
-	require.DeepEqual(t, s.trackedSyncCommitteeIndices, newTrackedSyncIndices)
 }
 
 func TestNewService(t *testing.T) {
@@ -241,9 +214,6 @@ func TestMonitorRoutine(t *testing.T) {
 	}()
 
 	genesis, keys := util.DeterministicGenesisStateAltair(t, 64)
-	c, err := altair.NextSyncCommittee(ctx, genesis)
-	require.NoError(t, err)
-	require.NoError(t, genesis.SetCurrentSyncCommittee(c))
 
 	genConfig := util.DefaultBlockGenConfig()
 	block, err := util.GenerateFullBlockAltair(genesis, keys, genConfig, 1)
@@ -266,7 +236,7 @@ func TestMonitorRoutine(t *testing.T) {
 
 	// Wait for Logrus
 	time.Sleep(1000 * time.Millisecond)
-	wanted1 := fmt.Sprintf("\"Proposed beacon block was included\" balanceChange=100000000 blockRoot=%#x newBalance=256000000000 parentRoot=0x2c9dc28c992a prefix=monitor proposerIndex=21 slot=1 version=1", bytesutil.Trunc(root[:]))
+	wanted1 := fmt.Sprintf("\"Proposed beacon block was included\" balanceChange=100000000 blockRoot=%#x newBalance=256000000000 parentRoot=0x1638dd744744 prefix=monitor proposerIndex=21 slot=1 version=1", bytesutil.Trunc(root[:]))
 	require.LogsContain(t, hook, wanted1)
 
 }

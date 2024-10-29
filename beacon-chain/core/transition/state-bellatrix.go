@@ -9,7 +9,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
 	state_native "github.com/prysmaticlabs/prysm/v5/beacon-chain/state/state-native"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state/stateutil"
-	fieldparams "github.com/prysmaticlabs/prysm/v5/config/fieldparams"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/blocks"
 	enginev1 "github.com/prysmaticlabs/prysm/v5/proto/engine/v1"
@@ -196,10 +195,6 @@ func OptimizedGenesisBeaconStateBellatrix(genesisTime uint64, preState state.Bea
 			BlockHash:   make([]byte, 32),
 		},
 		Graffiti: make([]byte, 32),
-		SyncAggregate: &ethpb.SyncAggregate{
-			SyncCommitteeBits:      make([]byte, fieldparams.SyncCommitteeLength/8),
-			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
-		},
 		ExecutionPayload: &enginev1.ExecutionPayload{
 			ParentHash:    make([]byte, 32),
 			FeeRecipient:  make([]byte, 20),
@@ -225,16 +220,6 @@ func OptimizedGenesisBeaconStateBellatrix(genesisTime uint64, preState state.Bea
 
 	ist, err := state_native.InitializeFromProtoBellatrix(st)
 	if err != nil {
-		return nil, err
-	}
-	sc, err := altair.NextSyncCommittee(context.Background(), ist)
-	if err != nil {
-		return nil, err
-	}
-	if err := ist.SetNextSyncCommittee(sc); err != nil {
-		return nil, err
-	}
-	if err := ist.SetCurrentSyncCommittee(sc); err != nil {
 		return nil, err
 	}
 	return ist, nil

@@ -211,10 +211,6 @@ func GenerateProtoAltairBeaconBlock() *ethpb.BeaconBlockAltair {
 					Signature: FillByteSlice(96, 109),
 				},
 			},
-			SyncAggregate: &ethpb.SyncAggregate{
-				SyncCommitteeBits:      FillByteSlice(64, 110),
-				SyncCommitteeSignature: FillByteSlice(96, 111),
-			},
 		},
 	}
 }
@@ -424,10 +420,6 @@ func GenerateJsonAltairBeaconBlock() *structs.BeaconBlockAltair {
 					},
 					Signature: FillEncodedByteSlice(96, 109),
 				},
-			},
-			SyncAggregate: &structs.SyncAggregate{
-				SyncCommitteeBits:      FillEncodedByteSlice(64, 110),
-				SyncCommitteeSignature: FillEncodedByteSlice(96, 111),
 			},
 		},
 	}

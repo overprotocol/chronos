@@ -40,7 +40,6 @@ type BlockGenConfig struct {
 	NumVoluntaryExits    uint64
 
 	NumTransactions       uint64 // Only for post Bellatrix blocks
-	FullSyncAggregate     bool
 	NumBLSChanges         uint64 // Only for post Capella blocks
 	NumWithdrawals        uint64
 	NumDepositRequests    uint64 // Only for post Electra blocks
@@ -51,12 +50,11 @@ type BlockGenConfig struct {
 // current params in the beacon config.
 func DefaultBlockGenConfig() *BlockGenConfig {
 	return &BlockGenConfig{
-		NumProposerSlashings: 0,
-		NumAttesterSlashings: 0,
-		NumAttestations:      1,
-		NumDeposits:          0,
-		NumVoluntaryExits:    0,
-
+		NumProposerSlashings:  0,
+		NumAttesterSlashings:  0,
+		NumAttestations:       1,
+		NumDeposits:           0,
+		NumVoluntaryExits:     0,
 		NumTransactions:       0,
 		NumBLSChanges:         0,
 		NumWithdrawals:        0,
@@ -699,12 +697,6 @@ func HydrateV2AltairBeaconBlockBody(b *v2.BeaconBlockBodyAltair) *v2.BeaconBlock
 			BlockHash:   make([]byte, fieldparams.RootLength),
 		}
 	}
-	if b.SyncAggregate == nil {
-		b.SyncAggregate = &v1.SyncAggregate{
-			SyncCommitteeBits:      make([]byte, 64),
-			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
-		}
-	}
 	return b
 }
 
@@ -750,12 +742,6 @@ func HydrateV2BellatrixBeaconBlockBody(b *v2.BeaconBlockBodyBellatrix) *v2.Beaco
 		b.Eth1Data = &v1.Eth1Data{
 			DepositRoot: make([]byte, fieldparams.RootLength),
 			BlockHash:   make([]byte, fieldparams.RootLength),
-		}
-	}
-	if b.SyncAggregate == nil {
-		b.SyncAggregate = &v1.SyncAggregate{
-			SyncCommitteeBits:      make([]byte, 64),
-			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
 		}
 	}
 	if b.ExecutionPayload == nil {
@@ -819,12 +805,6 @@ func HydrateBeaconBlockBodyAltair(b *ethpb.BeaconBlockBodyAltair) *ethpb.BeaconB
 			BlockHash:   make([]byte, fieldparams.RootLength),
 		}
 	}
-	if b.SyncAggregate == nil {
-		b.SyncAggregate = &ethpb.SyncAggregate{
-			SyncCommitteeBits:      make([]byte, 64),
-			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
-		}
-	}
 	return b
 }
 
@@ -870,12 +850,6 @@ func HydrateBeaconBlockBodyBellatrix(b *ethpb.BeaconBlockBodyBellatrix) *ethpb.B
 		b.Eth1Data = &ethpb.Eth1Data{
 			DepositRoot: make([]byte, fieldparams.RootLength),
 			BlockHash:   make([]byte, fieldparams.RootLength),
-		}
-	}
-	if b.SyncAggregate == nil {
-		b.SyncAggregate = &ethpb.SyncAggregate{
-			SyncCommitteeBits:      make([]byte, fieldparams.SyncAggregateSyncCommitteeBytesLength),
-			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
 		}
 	}
 	if b.ExecutionPayload == nil {
@@ -939,12 +913,6 @@ func HydrateBlindedBeaconBlockBodyBellatrix(b *ethpb.BlindedBeaconBlockBodyBella
 			BlockHash:   make([]byte, 32),
 		}
 	}
-	if b.SyncAggregate == nil {
-		b.SyncAggregate = &ethpb.SyncAggregate{
-			SyncCommitteeBits:      make([]byte, fieldparams.SyncAggregateSyncCommitteeBytesLength),
-			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
-		}
-	}
 	if b.ExecutionPayloadHeader == nil {
 		b.ExecutionPayloadHeader = &enginev1.ExecutionPayloadHeader{
 			ParentHash:       make([]byte, 32),
@@ -1006,12 +974,6 @@ func HydrateV2BlindedBeaconBlockBodyBellatrix(b *v2.BlindedBeaconBlockBodyBellat
 			BlockHash:   make([]byte, 32),
 		}
 	}
-	if b.SyncAggregate == nil {
-		b.SyncAggregate = &v1.SyncAggregate{
-			SyncCommitteeBits:      make([]byte, 64),
-			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
-		}
-	}
 	if b.ExecutionPayloadHeader == nil {
 		b.ExecutionPayloadHeader = &enginev1.ExecutionPayloadHeader{
 			ParentHash:       make([]byte, 32),
@@ -1071,12 +1033,6 @@ func HydrateBeaconBlockBodyCapella(b *ethpb.BeaconBlockBodyCapella) *ethpb.Beaco
 		b.Eth1Data = &ethpb.Eth1Data{
 			DepositRoot: make([]byte, fieldparams.RootLength),
 			BlockHash:   make([]byte, fieldparams.RootLength),
-		}
-	}
-	if b.SyncAggregate == nil {
-		b.SyncAggregate = &ethpb.SyncAggregate{
-			SyncCommitteeBits:      make([]byte, fieldparams.SyncAggregateSyncCommitteeBytesLength),
-			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
 		}
 	}
 	if b.ExecutionPayload == nil {
@@ -1141,12 +1097,6 @@ func HydrateBlindedBeaconBlockBodyCapella(b *ethpb.BlindedBeaconBlockBodyCapella
 			BlockHash:   make([]byte, 32),
 		}
 	}
-	if b.SyncAggregate == nil {
-		b.SyncAggregate = &ethpb.SyncAggregate{
-			SyncCommitteeBits:      make([]byte, fieldparams.SyncAggregateSyncCommitteeBytesLength),
-			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
-		}
-	}
 	if b.ExecutionPayloadHeader == nil {
 		b.ExecutionPayloadHeader = &enginev1.ExecutionPayloadHeaderCapella{
 			ParentHash:       make([]byte, 32),
@@ -1207,12 +1157,6 @@ func HydrateV2BlindedBeaconBlockBodyCapella(b *v2.BlindedBeaconBlockBodyCapella)
 		b.Eth1Data = &v1.Eth1Data{
 			DepositRoot: make([]byte, fieldparams.RootLength),
 			BlockHash:   make([]byte, 32),
-		}
-	}
-	if b.SyncAggregate == nil {
-		b.SyncAggregate = &v1.SyncAggregate{
-			SyncCommitteeBits:      make([]byte, 64),
-			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
 		}
 	}
 	if b.ExecutionPayloadHeader == nil {
@@ -1356,12 +1300,6 @@ func HydrateBeaconBlockBodyDeneb(b *ethpb.BeaconBlockBodyDeneb) *ethpb.BeaconBlo
 			BlockHash:   make([]byte, fieldparams.RootLength),
 		}
 	}
-	if b.SyncAggregate == nil {
-		b.SyncAggregate = &ethpb.SyncAggregate{
-			SyncCommitteeBits:      make([]byte, fieldparams.SyncAggregateSyncCommitteeBytesLength),
-			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
-		}
-	}
 	if b.ExecutionPayload == nil {
 		b.ExecutionPayload = &enginev1.ExecutionPayloadDeneb{
 			ParentHash:    make([]byte, fieldparams.RootLength),
@@ -1396,12 +1334,6 @@ func HydrateBeaconBlockBodyElectra(b *ethpb.BeaconBlockBodyElectra) *ethpb.Beaco
 		b.Eth1Data = &ethpb.Eth1Data{
 			DepositRoot: make([]byte, fieldparams.RootLength),
 			BlockHash:   make([]byte, fieldparams.RootLength),
-		}
-	}
-	if b.SyncAggregate == nil {
-		b.SyncAggregate = &ethpb.SyncAggregate{
-			SyncCommitteeBits:      make([]byte, fieldparams.SyncAggregateSyncCommitteeBytesLength),
-			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
 		}
 	}
 	if b.ExecutionPayload == nil {
@@ -1454,12 +1386,6 @@ func HydrateV2BeaconBlockBodyDeneb(b *v2.BeaconBlockBodyDeneb) *v2.BeaconBlockBo
 		b.Eth1Data = &v1.Eth1Data{
 			DepositRoot: make([]byte, fieldparams.RootLength),
 			BlockHash:   make([]byte, fieldparams.RootLength),
-		}
-	}
-	if b.SyncAggregate == nil {
-		b.SyncAggregate = &v1.SyncAggregate{
-			SyncCommitteeBits:      make([]byte, fieldparams.SyncAggregateSyncCommitteeBytesLength),
-			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
 		}
 	}
 	if b.ExecutionPayload == nil {
@@ -1576,12 +1502,6 @@ func HydrateBlindedBeaconBlockBodyDeneb(b *ethpb.BlindedBeaconBlockBodyDeneb) *e
 			BlockHash:   make([]byte, 32),
 		}
 	}
-	if b.SyncAggregate == nil {
-		b.SyncAggregate = &ethpb.SyncAggregate{
-			SyncCommitteeBits:      make([]byte, fieldparams.SyncAggregateSyncCommitteeBytesLength),
-			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
-		}
-	}
 	if b.ExecutionPayloadHeader == nil {
 		b.ExecutionPayloadHeader = &enginev1.ExecutionPayloadHeaderDeneb{
 			ParentHash:       make([]byte, 32),
@@ -1616,12 +1536,6 @@ func HydrateBlindedBeaconBlockBodyElectra(b *ethpb.BlindedBeaconBlockBodyElectra
 		b.Eth1Data = &ethpb.Eth1Data{
 			DepositRoot: make([]byte, fieldparams.RootLength),
 			BlockHash:   make([]byte, 32),
-		}
-	}
-	if b.SyncAggregate == nil {
-		b.SyncAggregate = &ethpb.SyncAggregate{
-			SyncCommitteeBits:      make([]byte, fieldparams.SyncAggregateSyncCommitteeBytesLength),
-			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
 		}
 	}
 	if b.ExecutionPayloadHeader == nil {
@@ -1659,12 +1573,6 @@ func HydrateV2BlindedBeaconBlockBodyDeneb(b *v2.BlindedBeaconBlockBodyDeneb) *v2
 		b.Eth1Data = &v1.Eth1Data{
 			DepositRoot: make([]byte, fieldparams.RootLength),
 			BlockHash:   make([]byte, 32),
-		}
-	}
-	if b.SyncAggregate == nil {
-		b.SyncAggregate = &v1.SyncAggregate{
-			SyncCommitteeBits:      make([]byte, fieldparams.SyncAggregateSyncCommitteeBytesLength),
-			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
 		}
 	}
 	if b.ExecutionPayloadHeader == nil {

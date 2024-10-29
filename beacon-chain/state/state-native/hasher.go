@@ -210,20 +210,6 @@ func ComputeFieldRootsWithHasher(ctx context.Context, state *BeaconState) ([][]b
 			return nil, errors.Wrap(err, "could not compute inactivityScoreRoot")
 		}
 		fieldRoots[types.InactivityScores.RealPosition()] = inactivityScoresRoot[:]
-
-		// Current sync committee root.
-		currentSyncCommitteeRoot, err := stateutil.SyncCommitteeRoot(state.currentSyncCommittee)
-		if err != nil {
-			return nil, errors.Wrap(err, "could not compute sync committee merkleization")
-		}
-		fieldRoots[types.CurrentSyncCommittee.RealPosition()] = currentSyncCommitteeRoot[:]
-
-		// Next sync committee root.
-		nextSyncCommitteeRoot, err := stateutil.SyncCommitteeRoot(state.nextSyncCommittee)
-		if err != nil {
-			return nil, errors.Wrap(err, "could not compute sync committee merkleization")
-		}
-		fieldRoots[types.NextSyncCommittee.RealPosition()] = nextSyncCommitteeRoot[:]
 	}
 
 	if state.version == version.Bellatrix {

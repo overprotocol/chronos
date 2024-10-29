@@ -5,6 +5,7 @@ import (
 
 	"github.com/pkg/errors"
 	fieldparams "github.com/prysmaticlabs/prysm/v5/config/fieldparams"
+	"github.com/prysmaticlabs/prysm/v5/crypto/hash/htr"
 	"github.com/prysmaticlabs/prysm/v5/encoding/bytesutil"
 	"github.com/prysmaticlabs/prysm/v5/encoding/ssz"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
@@ -120,4 +121,17 @@ func PackUint64IntoChunks(vals []uint64) ([][32]byte, error) {
 		binary.LittleEndian.PutUint64(chunkList[chunkIdx][chunkPos:chunkPos+sizeOfElem], b)
 	}
 	return chunkList, nil
+}
+
+func merkleizePubkey(pubkey []byte) ([32]byte, error) {
+	if len(pubkey) == 0 {
+		return [32]byte{}, errors.New("zero length pubkey provided")
+	}
+	chunks, err := ssz.PackByChunk([][]byte{pubkey})
+	if err != nil {
+		return [32]byte{}, err
+	}
+	outputChunk := htr.VectorizedSha256(chunks)
+
+	return outputChunk[0], nil
 }

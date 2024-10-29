@@ -126,19 +126,16 @@ type BeaconChainConfig struct {
 	MaxValidatorsPerWithdrawalsSweep uint64 `yaml:"MAX_VALIDATORS_PER_WITHDRAWALS_SWEEP" spec:"true"` // MaxValidatorsPerWithdrawalsSweep bounds the size of the sweep searching for withdrawals per slot.
 
 	// BLS domain values.
-	DomainBeaconProposer              [4]byte `yaml:"DOMAIN_BEACON_PROPOSER" spec:"true"`                // DomainBeaconProposer defines the BLS signature domain for beacon proposal verification.
-	DomainRandao                      [4]byte `yaml:"DOMAIN_RANDAO" spec:"true"`                         // DomainRandao defines the BLS signature domain for randao verification.
-	DomainBeaconAttester              [4]byte `yaml:"DOMAIN_BEACON_ATTESTER" spec:"true"`                // DomainBeaconAttester defines the BLS signature domain for attestation verification.
-	DomainDeposit                     [4]byte `yaml:"DOMAIN_DEPOSIT" spec:"true"`                        // DomainDeposit defines the BLS signature domain for deposit verification.
-	DomainVoluntaryExit               [4]byte `yaml:"DOMAIN_VOLUNTARY_EXIT" spec:"true"`                 // DomainVoluntaryExit defines the BLS signature domain for exit verification.
-	DomainSelectionProof              [4]byte `yaml:"DOMAIN_SELECTION_PROOF" spec:"true"`                // DomainSelectionProof defines the BLS signature domain for selection proof.
-	DomainAggregateAndProof           [4]byte `yaml:"DOMAIN_AGGREGATE_AND_PROOF" spec:"true"`            // DomainAggregateAndProof defines the BLS signature domain for aggregate and proof.
-	DomainSyncCommittee               [4]byte `yaml:"DOMAIN_SYNC_COMMITTEE" spec:"true"`                 // DomainVoluntaryExit defines the BLS signature domain for sync committee.
-	DomainSyncCommitteeSelectionProof [4]byte `yaml:"DOMAIN_SYNC_COMMITTEE_SELECTION_PROOF" spec:"true"` // DomainSelectionProof defines the BLS signature domain for sync committee selection proof.
-	DomainContributionAndProof        [4]byte `yaml:"DOMAIN_CONTRIBUTION_AND_PROOF" spec:"true"`         // DomainAggregateAndProof defines the BLS signature domain for contribution and proof.
-	DomainApplicationMask             [4]byte `yaml:"DOMAIN_APPLICATION_MASK" spec:"true"`               // DomainApplicationMask defines the BLS signature domain for application mask.
-	DomainApplicationBuilder          [4]byte `yaml:"DOMAIN_APPLICATION_BUILDER" spec:"true"`            // DomainApplicationBuilder defines the BLS signature domain for application builder.
-	DomainBLSToExecutionChange        [4]byte `yaml:"DOMAIN_BLS_TO_EXECUTION_CHANGE" spec:"true"`        // DomainBLSToExecutionChange defines the BLS signature domain to change withdrawal addresses to ETH1 prefix
+	DomainBeaconProposer       [4]byte `yaml:"DOMAIN_BEACON_PROPOSER" spec:"true"`         // DomainBeaconProposer defines the BLS signature domain for beacon proposal verification.
+	DomainRandao               [4]byte `yaml:"DOMAIN_RANDAO" spec:"true"`                  // DomainRandao defines the BLS signature domain for randao verification.
+	DomainBeaconAttester       [4]byte `yaml:"DOMAIN_BEACON_ATTESTER" spec:"true"`         // DomainBeaconAttester defines the BLS signature domain for attestation verification.
+	DomainDeposit              [4]byte `yaml:"DOMAIN_DEPOSIT" spec:"true"`                 // DomainDeposit defines the BLS signature domain for deposit verification.
+	DomainVoluntaryExit        [4]byte `yaml:"DOMAIN_VOLUNTARY_EXIT" spec:"true"`          // DomainVoluntaryExit defines the BLS signature domain for exit verification.
+	DomainSelectionProof       [4]byte `yaml:"DOMAIN_SELECTION_PROOF" spec:"true"`         // DomainSelectionProof defines the BLS signature domain for selection proof.
+	DomainAggregateAndProof    [4]byte `yaml:"DOMAIN_AGGREGATE_AND_PROOF" spec:"true"`     // DomainAggregateAndProof defines the BLS signature domain for aggregate and proof.
+	DomainApplicationMask      [4]byte `yaml:"DOMAIN_APPLICATION_MASK" spec:"true"`        // DomainApplicationMask defines the BLS signature domain for application mask.
+	DomainApplicationBuilder   [4]byte `yaml:"DOMAIN_APPLICATION_BUILDER" spec:"true"`     // DomainApplicationBuilder defines the BLS signature domain for application builder.
+	DomainBLSToExecutionChange [4]byte `yaml:"DOMAIN_BLS_TO_EXECUTION_CHANGE" spec:"true"` // DomainBLSToExecutionChange defines the BLS signature domain to change withdrawal addresses to ETH1 prefix
 
 	// Prysm constants.
 	GenesisValidatorsRoot          [32]byte        // GenesisValidatorsRoot is the root hash of the genesis validators.
@@ -197,20 +194,13 @@ type BeaconChainConfig struct {
 	TimelySourceWeight uint64 `yaml:"TIMELY_SOURCE_WEIGHT" spec:"true"` // TimelySourceWeight is the factor of how much source rewards receives.
 	TimelyTargetWeight uint64 `yaml:"TIMELY_TARGET_WEIGHT" spec:"true"` // TimelyTargetWeight is the factor of how much target rewards receives.
 	TimelyHeadWeight   uint64 `yaml:"TIMELY_HEAD_WEIGHT" spec:"true"`   // TimelyHeadWeight is the factor of how much head rewards receives.
-	SyncRewardWeight   uint64 `yaml:"SYNC_REWARD_WEIGHT" spec:"true"`   // SyncRewardWeight is the factor of how much sync committee rewards receives.
 	ProposerWeight     uint64 `yaml:"PROPOSER_WEIGHT" spec:"true"`      // ProposerWeight is the factor of how much proposer rewards receives.
 	LightLayerWeight   uint64 `yaml:"LIGHT_LAYER_WEIGHT" spec:"true"`   // LightLayerWeight is the factor of how much light layer rewards receives.
 	WeightDenominator  uint64 `yaml:"WEIGHT_DENOMINATOR" spec:"true"`   // WeightDenominator accounts for total rewards denomination.
 
-	// Validator related.
-	TargetAggregatorsPerSyncSubcommittee uint64 `yaml:"TARGET_AGGREGATORS_PER_SYNC_SUBCOMMITTEE" spec:"true"` // TargetAggregatorsPerSyncSubcommittee for aggregating in sync committee.
-	SyncCommitteeSubnetCount             uint64 `yaml:"SYNC_COMMITTEE_SUBNET_COUNT" spec:"true"`              // SyncCommitteeSubnetCount for sync committee subnet count.
-
 	// Misc.
-	SyncCommitteeSize            uint64           `yaml:"SYNC_COMMITTEE_SIZE" spec:"true"`              // SyncCommitteeSize for light client sync committee size.
-	InactivityScoreBias          uint64           `yaml:"INACTIVITY_SCORE_BIAS" spec:"true"`            // InactivityScoreBias for calculating score bias penalties during inactivity
-	InactivityScoreRecoveryRate  uint64           `yaml:"INACTIVITY_SCORE_RECOVERY_RATE" spec:"true"`   // InactivityScoreRecoveryRate for recovering score bias penalties during inactivity.
-	EpochsPerSyncCommitteePeriod primitives.Epoch `yaml:"EPOCHS_PER_SYNC_COMMITTEE_PERIOD" spec:"true"` // EpochsPerSyncCommitteePeriod defines how many epochs per sync committee period.
+	InactivityScoreBias         uint64 `yaml:"INACTIVITY_SCORE_BIAS" spec:"true"`          // InactivityScoreBias for calculating score bias penalties during inactivity
+	InactivityScoreRecoveryRate uint64 `yaml:"INACTIVITY_SCORE_RECOVERY_RATE" spec:"true"` // InactivityScoreRecoveryRate for recovering score bias penalties during inactivity.
 
 	// Updated penalty values. This moves penalty parameters toward their final, maximum security values.
 	// Note: We do not override previous configuration values but instead creates new values and replaces usage throughout.
@@ -218,10 +208,6 @@ type BeaconChainConfig struct {
 	MinSlashingPenaltyQuotientAltair    uint64 `yaml:"MIN_SLASHING_PENALTY_QUOTIENT_ALTAIR" spec:"true"`    // MinSlashingPenaltyQuotientAltair for slashing penalties post Altair hard fork.
 	MinSlashingPenaltyQuotientBellatrix uint64 `yaml:"MIN_SLASHING_PENALTY_QUOTIENT_BELLATRIX" spec:"true"` // MinSlashingPenaltyQuotientBellatrix for slashing penalties post Bellatrix hard fork.
 	InactivityPenaltyQuotientBellatrix  uint64 `yaml:"INACTIVITY_PENALTY_QUOTIENT_BELLATRIX" spec:"true"`   // InactivityPenaltyQuotientBellatrix for penalties during inactivity post Bellatrix hard fork.
-
-	// Light client
-	MinSyncCommitteeParticipants uint64 `yaml:"MIN_SYNC_COMMITTEE_PARTICIPANTS" spec:"true"`  // MinSyncCommitteeParticipants defines the minimum amount of sync committee participants for which the light client acknowledges the signature.
-	MaxRequestLightClientUpdates uint64 `yaml:"MAX_REQUEST_LIGHT_CLIENT_UPDATES" spec:"true"` // MaxRequestLightClientUpdates defines the maximum amount of light client updates that can be requested in a single request.
 
 	// Bellatrix
 	TerminalBlockHash                common.Hash      `yaml:"TERMINAL_BLOCK_HASH" spec:"true"`                  // TerminalBlockHash of beacon chain.

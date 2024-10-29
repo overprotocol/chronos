@@ -50,7 +50,6 @@ ssz_gen_marshal(
         "SignedBlsToExecutionChange",
         "SignedBeaconBlockContentsDeneb",
         "BeaconBlockContentsDeneb",
-        "SyncCommittee",
         "BlobIdentifier",
     ],
 )
@@ -89,8 +88,6 @@ ssz_proto_files(
     name = "ssz_proto_files",
     srcs = [
         "beacon_block.proto",
-        "beacon_lightclient.proto",
-        "sync_committee.proto",
         "validator.proto",
         "withdrawals.proto",
     ],

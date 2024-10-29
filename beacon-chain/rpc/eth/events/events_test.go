@@ -98,7 +98,6 @@ func operationEventsFixtures(t *testing.T) (*topicRequest, []*feed.Event) {
 	topics, err := newTopicRequest([]string{
 		AttestationTopic,
 		VoluntaryExitTopic,
-		SyncCommitteeContributionTopic,
 		BLSToExecutionChangeTopic,
 		BlobSidecarTopic,
 		AttesterSlashingTopic,
@@ -133,25 +132,6 @@ func operationEventsFixtures(t *testing.T) (*topicRequest, []*feed.Event) {
 					Exit: &eth.VoluntaryExit{
 						Epoch:          0,
 						ValidatorIndex: 0,
-					},
-					Signature: make([]byte, 96),
-				},
-			},
-		},
-		{
-			Type: operation.SyncCommitteeContributionReceived,
-			Data: &operation.SyncCommitteeContributionReceivedData{
-				Contribution: &eth.SignedContributionAndProof{
-					Message: &eth.ContributionAndProof{
-						AggregatorIndex: 0,
-						Contribution: &eth.SyncCommitteeContribution{
-							Slot:              0,
-							BlockRoot:         make([]byte, 32),
-							SubcommitteeIndex: 0,
-							AggregationBits:   make([]byte, 16),
-							Signature:         make([]byte, 96),
-						},
-						SelectionProof: make([]byte, 96),
 					},
 					Signature: make([]byte, 96),
 				},
@@ -438,7 +418,7 @@ func TestStreamEvents_OperationsEvents(t *testing.T) {
 
 func TestStuckReader(t *testing.T) {
 	topics, events := operationEventsFixtures(t)
-	require.Equal(t, 8, len(events))
+	require.Equal(t, 7, len(events))
 	// set eventFeedDepth to a number lower than the events we intend to send to force the server to drop the reader.
 	stn := mockChain.NewEventFeedWrapper()
 	opn := mockChain.NewEventFeedWrapper()

@@ -14,7 +14,6 @@ import (
 func Test_logStateTransitionData(t *testing.T) {
 	payloadBlk := &ethpb.BeaconBlockBellatrix{
 		Body: &ethpb.BeaconBlockBodyBellatrix{
-			SyncAggregate: &ethpb.SyncAggregate{},
 			ExecutionPayload: &enginev1.ExecutionPayload{
 				BlockHash:    []byte{1, 2, 3},
 				Transactions: [][]byte{{}, {}},
@@ -97,7 +96,7 @@ func Test_logStateTransitionData(t *testing.T) {
 		},
 		{name: "has payload",
 			b:    func() interfaces.ReadOnlyBeaconBlock { return wrappedPayloadBlk },
-			want: "\"Finished applying state transition\" payloadHash=0x010203 prefix=blockchain slot=0 syncBitsCount=0 txCount=2",
+			want: "\"Finished applying state transition\" payloadHash=0x010203 prefix=blockchain slot=0 txCount=2",
 		},
 	}
 	for _, tt := range tests {

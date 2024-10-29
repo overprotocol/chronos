@@ -29,12 +29,12 @@ func TestPingRPCHandler_ReceivesPing(t *testing.T) {
 	p2 := p2ptest.NewTestP2P(t)
 	p1.Connect(p2)
 	assert.Equal(t, 1, len(p1.BHost.Network().Peers()), "Expected peers to be connected")
-	p1.LocalMetadata = wrapper.WrappedMetadataV0(&pb.MetaDataV0{
+	p1.LocalMetadata = wrapper.WrappedMetadataV1(&pb.MetaDataV1{
 		SeqNumber: 2,
 		Attnets:   []byte{'A', 'B'},
 	})
 
-	p2.LocalMetadata = wrapper.WrappedMetadataV0(&pb.MetaDataV0{
+	p2.LocalMetadata = wrapper.WrappedMetadataV1(&pb.MetaDataV1{
 		SeqNumber: 2,
 		Attnets:   []byte{'C', 'D'},
 	})
@@ -86,12 +86,12 @@ func TestPingRPCHandler_SendsPing(t *testing.T) {
 	p2 := p2ptest.NewTestP2P(t)
 	p1.Connect(p2)
 	assert.Equal(t, 1, len(p1.BHost.Network().Peers()), "Expected peers to be connected")
-	p1.LocalMetadata = wrapper.WrappedMetadataV0(&pb.MetaDataV0{
+	p1.LocalMetadata = wrapper.WrappedMetadataV1(&pb.MetaDataV1{
 		SeqNumber: 2,
 		Attnets:   []byte{'A', 'B'},
 	})
 
-	p2.LocalMetadata = wrapper.WrappedMetadataV0(&pb.MetaDataV0{
+	p2.LocalMetadata = wrapper.WrappedMetadataV1(&pb.MetaDataV1{
 		SeqNumber: 2,
 		Attnets:   []byte{'C', 'D'},
 	})
@@ -157,12 +157,12 @@ func TestPingRPCHandler_BadSequenceNumber(t *testing.T) {
 	p2 := p2ptest.NewTestP2P(t)
 	p1.Connect(p2)
 	assert.Equal(t, 1, len(p1.BHost.Network().Peers()), "Expected peers to be connected")
-	p1.LocalMetadata = wrapper.WrappedMetadataV0(&pb.MetaDataV0{
+	p1.LocalMetadata = wrapper.WrappedMetadataV1(&pb.MetaDataV1{
 		SeqNumber: 2,
 		Attnets:   []byte{'A', 'B'},
 	})
 
-	p2.LocalMetadata = wrapper.WrappedMetadataV0(&pb.MetaDataV0{
+	p2.LocalMetadata = wrapper.WrappedMetadataV1(&pb.MetaDataV1{
 		SeqNumber: 2,
 		Attnets:   []byte{'C', 'D'},
 	})
@@ -177,13 +177,13 @@ func TestPingRPCHandler_BadSequenceNumber(t *testing.T) {
 		rateLimiter: newRateLimiter(p1),
 	}
 
-	badMetadata := &pb.MetaDataV0{
+	badMetadata := &pb.MetaDataV1{
 		SeqNumber: 3,
 		Attnets:   []byte{'E', 'F'},
 	}
 
 	p1.Peers().Add(new(enr.Record), p2.BHost.ID(), p2.BHost.Addrs()[0], network.DirUnknown)
-	p1.Peers().SetMetadata(p2.BHost.ID(), wrapper.WrappedMetadataV0(badMetadata))
+	p1.Peers().SetMetadata(p2.BHost.ID(), wrapper.WrappedMetadataV1(badMetadata))
 
 	// Setup streams
 	pcl := protocol.ID("/testing")

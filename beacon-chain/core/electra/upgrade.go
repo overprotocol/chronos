@@ -79,9 +79,6 @@ import (
 //	    finalized_checkpoint=pre.finalized_checkpoint,
 //	    # Inactivity
 //	    inactivity_scores=pre.inactivity_scores,
-//	    # Sync
-//	    current_sync_committee=pre.current_sync_committee,
-//	    next_sync_committee=pre.next_sync_committee,
 //	    # Execution-layer
 //	    latest_execution_payload_header=latest_execution_payload_header,  # [Modified in Electra:EIP6110:EIP7002]
 //	    # Withdrawals
@@ -121,14 +118,6 @@ import (
 //
 //	return post
 func UpgradeToElectra(beaconState state.BeaconState) (state.BeaconState, error) {
-	currentSyncCommittee, err := beaconState.CurrentSyncCommittee()
-	if err != nil {
-		return nil, err
-	}
-	nextSyncCommittee, err := beaconState.NextSyncCommittee()
-	if err != nil {
-		return nil, err
-	}
 	prevEpochParticipation, err := beaconState.PreviousEpochParticipation()
 	if err != nil {
 		return nil, err
@@ -234,8 +223,6 @@ func UpgradeToElectra(beaconState state.BeaconState) (state.BeaconState, error) 
 		CurrentJustifiedCheckpoint:  beaconState.CurrentJustifiedCheckpoint(),
 		FinalizedCheckpoint:         beaconState.FinalizedCheckpoint(),
 		InactivityScores:            inactivityScores,
-		CurrentSyncCommittee:        currentSyncCommittee,
-		NextSyncCommittee:           nextSyncCommittee,
 		LatestExecutionPayloadHeader: &enginev1.ExecutionPayloadHeaderElectra{
 			ParentHash:       payloadHeader.ParentHash(),
 			FeeRecipient:     payloadHeader.FeeRecipient(),

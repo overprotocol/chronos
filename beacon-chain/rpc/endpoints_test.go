@@ -11,9 +11,8 @@ import (
 
 func Test_endpoints(t *testing.T) {
 	rewardsRoutes := map[string][]string{
-		"/eth/v1/beacon/rewards/blocks/{block_id}":         {http.MethodGet},
-		"/eth/v1/beacon/rewards/attestations/{epoch}":      {http.MethodPost},
-		"/eth/v1/beacon/rewards/sync_committee/{block_id}": {http.MethodPost},
+		"/eth/v1/beacon/rewards/blocks/{block_id}":    {http.MethodGet},
+		"/eth/v1/beacon/rewards/attestations/{epoch}": {http.MethodPost},
 	}
 
 	beaconRoutes := map[string][]string{
@@ -25,7 +24,6 @@ func Test_endpoints(t *testing.T) {
 		"/eth/v1/beacon/states/{state_id}/validators/{validator_id}": {http.MethodGet},
 		"/eth/v1/beacon/states/{state_id}/validator_balances":        {http.MethodGet, http.MethodPost},
 		"/eth/v1/beacon/states/{state_id}/committees":                {http.MethodGet},
-		"/eth/v1/beacon/states/{state_id}/sync_committees":           {http.MethodGet},
 		"/eth/v1/beacon/states/{state_id}/randao":                    {http.MethodGet},
 		"/eth/v1/beacon/headers":                                     {http.MethodGet},
 		"/eth/v1/beacon/headers/{block_id}":                          {http.MethodGet},
@@ -44,17 +42,9 @@ func Test_endpoints(t *testing.T) {
 		"/eth/v1/beacon/pool/attester_slashings":                     {http.MethodGet, http.MethodPost},
 		"/eth/v2/beacon/pool/attester_slashings":                     {http.MethodGet, http.MethodPost},
 		"/eth/v1/beacon/pool/proposer_slashings":                     {http.MethodGet, http.MethodPost},
-		"/eth/v1/beacon/pool/sync_committees":                        {http.MethodPost},
 		"/eth/v1/beacon/pool/voluntary_exits":                        {http.MethodGet, http.MethodPost},
 		"/eth/v1/beacon/pool/bls_to_execution_changes":               {http.MethodGet, http.MethodPost},
 		"/prysm/v1/beacon/individual_votes":                          {http.MethodPost},
-	}
-
-	lightClientRoutes := map[string][]string{
-		"/eth/v1/beacon/light_client/bootstrap/{block_root}": {http.MethodGet},
-		"/eth/v1/beacon/light_client/updates":                {http.MethodGet},
-		"/eth/v1/beacon/light_client/finality_update":        {http.MethodGet},
-		"/eth/v1/beacon/light_client/optimistic_update":      {http.MethodGet},
 	}
 
 	builderRoutes := map[string][]string{
@@ -102,11 +92,7 @@ func Test_endpoints(t *testing.T) {
 		"/eth/v1/validator/aggregate_attestation":          {http.MethodGet},
 		"/eth/v1/validator/aggregate_and_proofs":           {http.MethodPost},
 		"/eth/v1/validator/beacon_committee_subscriptions": {http.MethodPost},
-		"/eth/v1/validator/sync_committee_subscriptions":   {http.MethodPost},
 		"/eth/v1/validator/beacon_committee_selections":    {http.MethodPost},
-		"/eth/v1/validator/sync_committee_selections":      {http.MethodPost},
-		"/eth/v1/validator/sync_committee_contribution":    {http.MethodGet},
-		"/eth/v1/validator/contribution_and_proofs":        {http.MethodPost},
 		"/eth/v1/validator/prepare_beacon_proposer":        {http.MethodPost},
 		"/eth/v1/validator/register_validator":             {http.MethodPost},
 		"/eth/v1/validator/liveness/{epoch}":               {http.MethodPost},
@@ -155,7 +141,7 @@ func Test_endpoints(t *testing.T) {
 			actualRoutes[e.template] = e.methods
 		}
 	}
-	expectedRoutes := combineMaps(beaconRoutes, builderRoutes, configRoutes, debugRoutes, eventsRoutes, nodeRoutes, validatorRoutes, rewardsRoutes, lightClientRoutes, blobRoutes, prysmValidatorRoutes, prysmNodeRoutes, prysmBeaconRoutes, overNodeRoutes, overRoutes)
+	expectedRoutes := combineMaps(beaconRoutes, builderRoutes, configRoutes, debugRoutes, eventsRoutes, nodeRoutes, validatorRoutes, rewardsRoutes, blobRoutes, prysmValidatorRoutes, prysmNodeRoutes, prysmBeaconRoutes, overNodeRoutes, overRoutes)
 
 	assert.Equal(t, true, maps.EqualFunc(expectedRoutes, actualRoutes, func(actualMethods []string, expectedMethods []string) bool {
 		return slices.Equal(expectedMethods, actualMethods)

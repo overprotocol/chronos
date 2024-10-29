@@ -204,38 +204,11 @@ func TestGetBeaconBlockConverter_AltairError(t *testing.T) {
 			},
 		},
 		{
-			name:                 "nil sync aggregate",
-			expectedErrorMessage: "sync aggregate is nil",
-			generateData: func() *structs.BeaconBlockAltair {
-				beaconBlock := testhelpers.GenerateJsonAltairBeaconBlock()
-				beaconBlock.Body.SyncAggregate = nil
-				return beaconBlock
-			},
-		},
-		{
 			name:                 "bad phase0 fields",
 			expectedErrorMessage: "failed to get the phase0 fields of the altair block",
 			generateData: func() *structs.BeaconBlockAltair {
 				beaconBlock := testhelpers.GenerateJsonAltairBeaconBlock()
 				beaconBlock.Body.Eth1Data = nil
-				return beaconBlock
-			},
-		},
-		{
-			name:                 "bad sync committee bits",
-			expectedErrorMessage: "failed to decode sync committee bits `foo`",
-			generateData: func() *structs.BeaconBlockAltair {
-				beaconBlock := testhelpers.GenerateJsonAltairBeaconBlock()
-				beaconBlock.Body.SyncAggregate.SyncCommitteeBits = "foo"
-				return beaconBlock
-			},
-		},
-		{
-			name:                 "bad sync committee signature",
-			expectedErrorMessage: "failed to decode sync committee signature `bar`",
-			generateData: func() *structs.BeaconBlockAltair {
-				beaconBlock := testhelpers.GenerateJsonAltairBeaconBlock()
-				beaconBlock.Body.SyncAggregate.SyncCommitteeSignature = "bar"
 				return beaconBlock
 			},
 		},

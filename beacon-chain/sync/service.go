@@ -10,7 +10,6 @@ import (
 	"time"
 
 	lru "github.com/hashicorp/golang-lru"
-	pubsub "github.com/libp2p/go-libp2p-pubsub"
 	libp2pcore "github.com/libp2p/go-libp2p/core"
 	"github.com/libp2p/go-libp2p/core/peer"
 	gcache "github.com/patrickmn/go-cache"
@@ -28,7 +27,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/attestations"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/blstoexec"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/slashings"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/synccommittee"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/voluntaryexits"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/p2p"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/startup"
@@ -54,8 +52,6 @@ const seenBlockSize = 1000
 const seenBlobSize = seenBlockSize * 4 // Each block can have max 4 blobs. Worst case 164kB for cache.
 const seenUnaggregatedAttSize = 20000
 const seenAggregatedAttSize = 16384
-const seenSyncMsgSize = 1000         // Maximum of 512 sync committee members, 1000 is a safe amount.
-const seenSyncContributionSize = 512 // Maximum of SYNC_COMMITTEE_SIZE as specified by the spec.
 const seenExitSize = 100
 const seenProposerSlashingSize = 100
 const badBlockSize = 1000
@@ -72,9 +68,6 @@ var (
 	errNilMessage                       = errors.New("nil pubsub message")
 )
 
-// Common type for functional p2p validation options.
-type validationFn func(ctx context.Context) (pubsub.ValidationResult, error)
-
 // config to hold dependencies for the sync service.
 type config struct {
 	attestationNotifier           operation.Notifier
@@ -83,7 +76,6 @@ type config struct {
 	attPool                       attestations.Pool
 	exitPool                      voluntaryexits.PoolManager
 	slashingPool                  slashings.PoolManager
-	syncCommsPool                 synccommittee.Pool
 	blsToExecPool                 blstoexec.PoolManager
 	chain                         blockchainService
 	initialSync                   Checker
@@ -143,14 +135,8 @@ type Service struct {
 	seenProposerSlashingCache        *lru.Cache
 	seenAttesterSlashingLock         sync.RWMutex
 	seenAttesterSlashingCache        map[uint64]bool
-	seenSyncMessageLock              sync.RWMutex
-	seenSyncMessageCache             *lru.Cache
-	seenSyncContributionLock         sync.RWMutex
-	seenSyncContributionCache        *lru.Cache
 	badBlockCache                    *lru.Cache
 	badBlockLock                     sync.RWMutex
-	syncContributionBitsOverlapLock  sync.RWMutex
-	syncContributionBitsOverlapCache *lru.Cache
 	signatureChan                    chan *signatureVerifier
 	clockWaiter                      startup.ClockWaiter
 	initialSyncComplete              chan struct{}
@@ -278,9 +264,6 @@ func (s *Service) initCaches() {
 	s.seenBlobCache = lruwrpr.New(seenBlobSize)
 	s.seenAggregatedAttestationCache = lruwrpr.New(seenAggregatedAttSize)
 	s.seenUnAggregatedAttestationCache = lruwrpr.New(seenUnaggregatedAttSize)
-	s.seenSyncMessageCache = lruwrpr.New(seenSyncMsgSize)
-	s.seenSyncContributionCache = lruwrpr.New(seenSyncContributionSize)
-	s.syncContributionBitsOverlapCache = lruwrpr.New(seenSyncContributionSize)
 	s.seenExitCache = lruwrpr.New(seenExitSize)
 	s.seenAttesterSlashingCache = make(map[uint64]bool)
 	s.seenProposerSlashingCache = lruwrpr.New(seenProposerSlashingSize)

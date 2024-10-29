@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	chainMock "github.com/prysmaticlabs/prysm/v5/beacon-chain/blockchain/testing"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/altair"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/feed"
 	blockfeed "github.com/prysmaticlabs/prysm/v5/beacon-chain/core/feed/block"
 	statefeed "github.com/prysmaticlabs/prysm/v5/beacon-chain/core/feed/state"
@@ -75,9 +74,6 @@ func TestServer_StreamAltairBlocks_OnHeadUpdated(t *testing.T) {
 	params.OverrideBeaconConfig(params.BeaconConfig())
 	ctx := context.Background()
 	beaconState, privs := util.DeterministicGenesisStateAltair(t, 64)
-	c, err := altair.NextSyncCommittee(ctx, beaconState)
-	require.NoError(t, err)
-	require.NoError(t, beaconState.SetCurrentSyncCommittee(c))
 
 	b, err := util.GenerateFullBlockAltair(beaconState, privs, util.DefaultBlockGenConfig(), 1)
 	require.NoError(t, err)
@@ -117,9 +113,6 @@ func TestServer_StreamCapellaBlocks_OnHeadUpdated(t *testing.T) {
 	params.OverrideBeaconConfig(params.BeaconConfig())
 	ctx := context.Background()
 	beaconState, privs := util.DeterministicGenesisStateCapella(t, 64)
-	c, err := altair.NextSyncCommittee(ctx, beaconState)
-	require.NoError(t, err)
-	require.NoError(t, beaconState.SetCurrentSyncCommittee(c))
 
 	b, err := util.GenerateFullBlockCapella(beaconState, privs, util.DefaultBlockGenConfig(), 1)
 	require.NoError(t, err)
@@ -158,9 +151,6 @@ func TestServer_StreamAltairBlocksVerified_OnHeadUpdated(t *testing.T) {
 	db := dbTest.SetupDB(t)
 	ctx := context.Background()
 	beaconState, privs := util.DeterministicGenesisStateAltair(t, 32)
-	c, err := altair.NextSyncCommittee(ctx, beaconState)
-	require.NoError(t, err)
-	require.NoError(t, beaconState.SetCurrentSyncCommittee(c))
 
 	b, err := util.GenerateFullBlockAltair(beaconState, privs, util.DefaultBlockGenConfig(), 1)
 	require.NoError(t, err)
@@ -201,9 +191,6 @@ func TestServer_StreamCapellaBlocksVerified_OnHeadUpdated(t *testing.T) {
 	db := dbTest.SetupDB(t)
 	ctx := context.Background()
 	beaconState, privs := util.DeterministicGenesisStateCapella(t, 32)
-	c, err := altair.NextSyncCommittee(ctx, beaconState)
-	require.NoError(t, err)
-	require.NoError(t, beaconState.SetCurrentSyncCommittee(c))
 
 	b, err := util.GenerateFullBlockCapella(beaconState, privs, util.DefaultBlockGenConfig(), 1)
 	require.NoError(t, err)

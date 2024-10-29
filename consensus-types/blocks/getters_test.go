@@ -395,15 +395,6 @@ func Test_BeaconBlockBody_VoluntaryExits(t *testing.T) {
 	assert.DeepSSZEqual(t, ve, bb.Block().Body().VoluntaryExits())
 }
 
-func Test_BeaconBlockBody_SyncAggregate(t *testing.T) {
-	sa := &eth.SyncAggregate{}
-	bb := &SignedBeaconBlock{version: version.Altair, block: &BeaconBlock{version: version.Altair, body: &BeaconBlockBody{version: version.Altair}}}
-	require.NoError(t, bb.SetSyncAggregate(sa))
-	result, err := bb.Block().Body().SyncAggregate()
-	require.NoError(t, err)
-	assert.DeepEqual(t, result, sa)
-}
-
 func Test_BeaconBlockBody_BLSToExecutionChanges(t *testing.T) {
 	changes := []*eth.SignedBLSToExecutionChange{{Message: &eth.BLSToExecutionChange{ToExecutionAddress: []byte("address")}}}
 	bb := &SignedBeaconBlock{version: version.Capella, block: &BeaconBlock{body: &BeaconBlockBody{version: version.Capella}}}
@@ -511,10 +502,6 @@ func hydrateBeaconBlockBodyAltair() *eth.BeaconBlockBodyAltair {
 			DepositRoot: make([]byte, fieldparams.RootLength),
 			BlockHash:   make([]byte, fieldparams.RootLength),
 		},
-		SyncAggregate: &eth.SyncAggregate{
-			SyncCommitteeBits:      make([]byte, 64),
-			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
-		},
 	}
 }
 
@@ -525,10 +512,6 @@ func hydrateBeaconBlockBodyBellatrix() *eth.BeaconBlockBodyBellatrix {
 		Eth1Data: &eth.Eth1Data{
 			DepositRoot: make([]byte, fieldparams.RootLength),
 			BlockHash:   make([]byte, fieldparams.RootLength),
-		},
-		SyncAggregate: &eth.SyncAggregate{
-			SyncCommitteeBits:      make([]byte, 64),
-			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
 		},
 		ExecutionPayload: &pb.ExecutionPayload{
 			ParentHash:    make([]byte, fieldparams.RootLength),
@@ -552,10 +535,6 @@ func hydrateBeaconBlockBodyCapella() *eth.BeaconBlockBodyCapella {
 		Eth1Data: &eth.Eth1Data{
 			DepositRoot: make([]byte, fieldparams.RootLength),
 			BlockHash:   make([]byte, fieldparams.RootLength),
-		},
-		SyncAggregate: &eth.SyncAggregate{
-			SyncCommitteeBits:      make([]byte, fieldparams.SyncAggregateSyncCommitteeBytesLength),
-			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
 		},
 		ExecutionPayload: &pb.ExecutionPayloadCapella{
 			ParentHash:    make([]byte, fieldparams.RootLength),
@@ -581,10 +560,6 @@ func hydrateBeaconBlockBodyDeneb() *eth.BeaconBlockBodyDeneb {
 			DepositRoot: make([]byte, fieldparams.RootLength),
 			BlockHash:   make([]byte, fieldparams.RootLength),
 		},
-		SyncAggregate: &eth.SyncAggregate{
-			SyncCommitteeBits:      make([]byte, fieldparams.SyncAggregateSyncCommitteeBytesLength),
-			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
-		},
 		ExecutionPayload: &pb.ExecutionPayloadDeneb{
 			ParentHash:    make([]byte, fieldparams.RootLength),
 			FeeRecipient:  make([]byte, 20),
@@ -608,10 +583,6 @@ func hydrateBeaconBlockBodyElectra() *eth.BeaconBlockBodyElectra {
 		Eth1Data: &eth.Eth1Data{
 			DepositRoot: make([]byte, fieldparams.RootLength),
 			BlockHash:   make([]byte, fieldparams.RootLength),
-		},
-		SyncAggregate: &eth.SyncAggregate{
-			SyncCommitteeBits:      make([]byte, fieldparams.SyncAggregateSyncCommitteeBytesLength),
-			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
 		},
 		ExecutionPayload: &pb.ExecutionPayloadElectra{
 			ParentHash:    make([]byte, fieldparams.RootLength),

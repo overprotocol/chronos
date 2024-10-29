@@ -154,7 +154,7 @@ func TestExtractDataType(t *testing.T) {
 				require.NoError(t, err)
 				return wsb
 			}(),
-			wantMd:        wrapper.WrappedMetadataV0(&ethpb.MetaDataV0{}),
+			wantMd:        wrapper.WrappedMetadataV1(&ethpb.MetaDataV1{}),
 			wantAtt:       &ethpb.Attestation{},
 			wantAggregate: &ethpb.SignedAggregateAttestationAndProof{},
 			wantErr:       false,

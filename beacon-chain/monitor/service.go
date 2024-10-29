@@ -11,7 +11,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/feed"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/feed/operation"
 	statefeed "github.com/prysmaticlabs/prysm/v5/beacon-chain/core/feed/state"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state/stategen"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
@@ -36,18 +35,16 @@ type ValidatorLatestPerformance struct {
 // ValidatorAggregatedPerformance keeps track of the accumulated performance of
 // the tracked validator since start of monitor service.
 type ValidatorAggregatedPerformance struct {
-	startEpoch                      primitives.Epoch
-	startBalance                    uint64
-	totalAttestedCount              uint64
-	totalRequestedCount             uint64
-	totalDistance                   uint64
-	totalCorrectSource              uint64
-	totalCorrectTarget              uint64
-	totalCorrectHead                uint64
-	totalProposedCount              uint64
-	totalAggregations               uint64
-	totalSyncCommitteeContributions uint64
-	totalSyncCommitteeAggregations  uint64
+	startEpoch          primitives.Epoch
+	startBalance        uint64
+	totalAttestedCount  uint64
+	totalRequestedCount uint64
+	totalDistance       uint64
+	totalCorrectSource  uint64
+	totalCorrectTarget  uint64
+	totalCorrectHead    uint64
+	totalProposedCount  uint64
+	totalAggregations   uint64
 }
 
 // ValidatorMonitorConfig contains the list of validator indices that the
@@ -73,25 +70,23 @@ type Service struct {
 	// trackedSyncedCommitteeIndices and lastSyncedEpoch
 	sync.RWMutex
 
-	TrackedValidators           map[primitives.ValidatorIndex]bool
-	latestPerformance           map[primitives.ValidatorIndex]ValidatorLatestPerformance
-	aggregatedPerformance       map[primitives.ValidatorIndex]ValidatorAggregatedPerformance
-	trackedSyncCommitteeIndices map[primitives.ValidatorIndex][]primitives.CommitteeIndex
-	lastSyncedEpoch             primitives.Epoch
+	TrackedValidators     map[primitives.ValidatorIndex]bool
+	latestPerformance     map[primitives.ValidatorIndex]ValidatorLatestPerformance
+	aggregatedPerformance map[primitives.ValidatorIndex]ValidatorAggregatedPerformance
+	lastSyncedEpoch       primitives.Epoch
 }
 
 // NewService sets up a new validator monitor service instance when given a list of validator indices to track.
 func NewService(ctx context.Context, config *ValidatorMonitorConfig, tracked []primitives.ValidatorIndex) (*Service, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	r := &Service{
-		config:                      config,
-		ctx:                         ctx,
-		cancel:                      cancel,
-		TrackedValidators:           make(map[primitives.ValidatorIndex]bool, len(tracked)),
-		latestPerformance:           make(map[primitives.ValidatorIndex]ValidatorLatestPerformance),
-		aggregatedPerformance:       make(map[primitives.ValidatorIndex]ValidatorAggregatedPerformance),
-		trackedSyncCommitteeIndices: make(map[primitives.ValidatorIndex][]primitives.CommitteeIndex),
-		isLogging:                   false,
+		config:                config,
+		ctx:                   ctx,
+		cancel:                cancel,
+		TrackedValidators:     make(map[primitives.ValidatorIndex]bool, len(tracked)),
+		latestPerformance:     make(map[primitives.ValidatorIndex]ValidatorLatestPerformance),
+		aggregatedPerformance: make(map[primitives.ValidatorIndex]ValidatorAggregatedPerformance),
+		isLogging:             false,
 	}
 	for _, idx := range tracked {
 		r.TrackedValidators[idx] = true
@@ -139,8 +134,6 @@ func (s *Service) run() {
 	s.Lock()
 	s.initializePerformanceStructures(st, epoch)
 	s.Unlock()
-
-	s.updateSyncCommitteeTrackedVals(st)
 
 	s.Lock()
 	s.isLogging = true
@@ -243,13 +236,6 @@ func (s *Service) monitorRoutine(stateChannel chan *feed.Event, stateSub event.S
 				} else {
 					s.processExit(data.Exit)
 				}
-			case operation.SyncCommitteeContributionReceived:
-				data, ok := e.Data.(*operation.SyncCommitteeContributionReceivedData)
-				if !ok {
-					log.Error("Event feed data is not of type *operation.SyncCommitteeContributionReceivedData")
-				} else {
-					s.processSyncCommitteeContribution(data.Contribution)
-				}
 			}
 		case <-s.ctx.Done():
 			log.Debug("Context closed, exiting goroutine")
@@ -266,24 +252,4 @@ func (s *Service) monitorRoutine(stateChannel chan *feed.Event, stateSub event.S
 func (s *Service) trackedIndex(idx primitives.ValidatorIndex) bool {
 	_, ok := s.TrackedValidators[idx]
 	return ok
-}
-
-// updateSyncCommitteeTrackedVals updates the sync committee assignments of our
-// tracked validators. It gets called when we sync a block after the Sync Period changes.
-func (s *Service) updateSyncCommitteeTrackedVals(state state.BeaconState) {
-	s.Lock()
-	defer s.Unlock()
-	for idx := range s.TrackedValidators {
-		syncIdx, err := helpers.CurrentPeriodSyncSubcommitteeIndices(state, idx)
-		if err != nil {
-			log.WithError(err).WithField("validatorIndex", idx).Error(
-				"Sync committee assignments will not be reported")
-			delete(s.trackedSyncCommitteeIndices, idx)
-		} else if len(syncIdx) == 0 {
-			delete(s.trackedSyncCommitteeIndices, idx)
-		} else {
-			s.trackedSyncCommitteeIndices[idx] = syncIdx
-		}
-	}
-	s.lastSyncedEpoch = slots.ToEpoch(state.Slot())
 }
