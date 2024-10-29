@@ -112,12 +112,12 @@ const (
 	capellaSharedFieldRefCount                    = 11
 	denebSharedFieldRefCount                      = 11
 	electraSharedFieldRefCount                    = 13
-	experimentalStatePhase0SharedFieldRefCount    = 4
-	experimentalStateAltairSharedFieldRefCount    = 4
-	experimentalStateBellatrixSharedFieldRefCount = 5
-	experimentalStateCapellaSharedFieldRefCount   = 6
-	experimentalStateDenebSharedFieldRefCount     = 6
-	experimentalStateElectraSharedFieldRefCount   = 8
+	experimentalStatePhase0SharedFieldRefCount    = 3
+	experimentalStateAltairSharedFieldRefCount    = 3
+	experimentalStateBellatrixSharedFieldRefCount = 4
+	experimentalStateCapellaSharedFieldRefCount   = 5
+	experimentalStateDenebSharedFieldRefCount     = 5
+	experimentalStateElectraSharedFieldRefCount   = 7
 )
 
 // InitializeFromProtoPhase0 the beacon state from a protobuf representation.
