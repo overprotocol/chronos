@@ -8,7 +8,6 @@ type BeaconState struct {
 	LatestBlockHeader           *BeaconBlockHeader    `json:"latest_block_header"`
 	BlockRoots                  []string              `json:"block_roots"`
 	StateRoots                  []string              `json:"state_roots"`
-	HistoricalRoots             []string              `json:"historical_roots"`
 	RewardAdjustmentFactor      uint64                `json:"reward_adjustment_factor"`
 	Eth1Data                    *Eth1Data             `json:"eth1_data"`
 	Eth1DataVotes               []*Eth1Data           `json:"eth1_data_votes"`
@@ -33,7 +32,6 @@ type BeaconStateAltair struct {
 	LatestBlockHeader           *BeaconBlockHeader `json:"latest_block_header"`
 	BlockRoots                  []string           `json:"block_roots"`
 	StateRoots                  []string           `json:"state_roots"`
-	HistoricalRoots             []string           `json:"historical_roots"`
 	RewardAdjustmentFactor      uint64             `json:"reward_adjustment_factor"`
 	Eth1Data                    *Eth1Data          `json:"eth1_data"`
 	Eth1DataVotes               []*Eth1Data        `json:"eth1_data_votes"`
@@ -59,7 +57,6 @@ type BeaconStateBellatrix struct {
 	LatestBlockHeader            *BeaconBlockHeader      `json:"latest_block_header"`
 	BlockRoots                   []string                `json:"block_roots"`
 	StateRoots                   []string                `json:"state_roots"`
-	HistoricalRoots              []string                `json:"historical_roots"`
 	RewardAdjustmentFactor       uint64                  `json:"reward_adjustment_factor"`
 	Eth1Data                     *Eth1Data               `json:"eth1_data"`
 	Eth1DataVotes                []*Eth1Data             `json:"eth1_data_votes"`
@@ -86,7 +83,6 @@ type BeaconStateCapella struct {
 	LatestBlockHeader            *BeaconBlockHeader             `json:"latest_block_header"`
 	BlockRoots                   []string                       `json:"block_roots"`
 	StateRoots                   []string                       `json:"state_roots"`
-	HistoricalRoots              []string                       `json:"historical_roots"`
 	RewardAdjustmentFactor       uint64                         `json:"reward_adjustment_factor"`
 	Eth1Data                     *Eth1Data                      `json:"eth1_data"`
 	Eth1DataVotes                []*Eth1Data                    `json:"eth1_data_votes"`
@@ -116,7 +112,6 @@ type BeaconStateDeneb struct {
 	LatestBlockHeader            *BeaconBlockHeader           `json:"latest_block_header"`
 	BlockRoots                   []string                     `json:"block_roots"`
 	StateRoots                   []string                     `json:"state_roots"`
-	HistoricalRoots              []string                     `json:"historical_roots"`
 	RewardAdjustmentFactor       uint64                       `json:"reward_adjustment_factor"`
 	Eth1Data                     *Eth1Data                    `json:"eth1_data"`
 	Eth1DataVotes                []*Eth1Data                  `json:"eth1_data_votes"`
@@ -146,7 +141,6 @@ type BeaconStateElectra struct {
 	LatestBlockHeader            *BeaconBlockHeader             `json:"latest_block_header"`
 	BlockRoots                   []string                       `json:"block_roots"`
 	StateRoots                   []string                       `json:"state_roots"`
-	HistoricalRoots              []string                       `json:"historical_roots"`
 	RewardAdjustmentFactor       uint64                         `json:"reward_adjustment_factor"`
 	Eth1Data                     *Eth1Data                      `json:"eth1_data"`
 	Eth1DataVotes                []*Eth1Data                    `json:"eth1_data_votes"`

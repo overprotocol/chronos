@@ -22,14 +22,6 @@ func BeaconStateFromConsensus(st beaconState.BeaconState) (*BeaconState, error) 
 	for i, r := range srcSr {
 		sr[i] = hexutil.Encode(r)
 	}
-	srcHr, err := st.HistoricalRoots()
-	if err != nil {
-		return nil, err
-	}
-	hr := make([]string, len(srcHr))
-	for i, r := range srcHr {
-		hr[i] = hexutil.Encode(r)
-	}
 	srcVotes := st.Eth1DataVotes()
 	votes := make([]*Eth1Data, len(srcVotes))
 	for i, e := range srcVotes {
@@ -75,7 +67,6 @@ func BeaconStateFromConsensus(st beaconState.BeaconState) (*BeaconState, error) 
 		LatestBlockHeader:           BeaconBlockHeaderFromConsensus(st.LatestBlockHeader()),
 		BlockRoots:                  br,
 		StateRoots:                  sr,
-		HistoricalRoots:             hr,
 		RewardAdjustmentFactor:      st.RewardAdjustmentFactor(),
 		Eth1Data:                    Eth1DataFromConsensus(st.Eth1Data()),
 		Eth1DataVotes:               votes,
@@ -103,14 +94,6 @@ func BeaconStateAltairFromConsensus(st beaconState.BeaconState) (*BeaconStateAlt
 	sr := make([]string, len(srcSr))
 	for i, r := range srcSr {
 		sr[i] = hexutil.Encode(r)
-	}
-	srcHr, err := st.HistoricalRoots()
-	if err != nil {
-		return nil, err
-	}
-	hr := make([]string, len(srcHr))
-	for i, r := range srcHr {
-		hr[i] = hexutil.Encode(r)
 	}
 	srcVotes := st.Eth1DataVotes()
 	votes := make([]*Eth1Data, len(srcVotes))
@@ -165,7 +148,6 @@ func BeaconStateAltairFromConsensus(st beaconState.BeaconState) (*BeaconStateAlt
 		LatestBlockHeader:           BeaconBlockHeaderFromConsensus(st.LatestBlockHeader()),
 		BlockRoots:                  br,
 		StateRoots:                  sr,
-		HistoricalRoots:             hr,
 		RewardAdjustmentFactor:      st.RewardAdjustmentFactor(),
 		Eth1Data:                    Eth1DataFromConsensus(st.Eth1Data()),
 		Eth1DataVotes:               votes,
@@ -194,14 +176,6 @@ func BeaconStateBellatrixFromConsensus(st beaconState.BeaconState) (*BeaconState
 	sr := make([]string, len(srcSr))
 	for i, r := range srcSr {
 		sr[i] = hexutil.Encode(r)
-	}
-	srcHr, err := st.HistoricalRoots()
-	if err != nil {
-		return nil, err
-	}
-	hr := make([]string, len(srcHr))
-	for i, r := range srcHr {
-		hr[i] = hexutil.Encode(r)
 	}
 	srcVotes := st.Eth1DataVotes()
 	votes := make([]*Eth1Data, len(srcVotes))
@@ -268,7 +242,6 @@ func BeaconStateBellatrixFromConsensus(st beaconState.BeaconState) (*BeaconState
 		LatestBlockHeader:            BeaconBlockHeaderFromConsensus(st.LatestBlockHeader()),
 		BlockRoots:                   br,
 		StateRoots:                   sr,
-		HistoricalRoots:              hr,
 		RewardAdjustmentFactor:       st.RewardAdjustmentFactor(),
 		Eth1Data:                     Eth1DataFromConsensus(st.Eth1Data()),
 		Eth1DataVotes:                votes,
@@ -298,14 +271,6 @@ func BeaconStateCapellaFromConsensus(st beaconState.BeaconState) (*BeaconStateCa
 	sr := make([]string, len(srcSr))
 	for i, r := range srcSr {
 		sr[i] = hexutil.Encode(r)
-	}
-	srcHr, err := st.HistoricalRoots()
-	if err != nil {
-		return nil, err
-	}
-	hr := make([]string, len(srcHr))
-	for i, r := range srcHr {
-		hr[i] = hexutil.Encode(r)
 	}
 	srcVotes := st.Eth1DataVotes()
 	votes := make([]*Eth1Data, len(srcVotes))
@@ -388,7 +353,6 @@ func BeaconStateCapellaFromConsensus(st beaconState.BeaconState) (*BeaconStateCa
 		LatestBlockHeader:            BeaconBlockHeaderFromConsensus(st.LatestBlockHeader()),
 		BlockRoots:                   br,
 		StateRoots:                   sr,
-		HistoricalRoots:              hr,
 		RewardAdjustmentFactor:       st.RewardAdjustmentFactor(),
 		Eth1Data:                     Eth1DataFromConsensus(st.Eth1Data()),
 		Eth1DataVotes:                votes,
@@ -421,14 +385,6 @@ func BeaconStateDenebFromConsensus(st beaconState.BeaconState) (*BeaconStateDene
 	sr := make([]string, len(srcSr))
 	for i, r := range srcSr {
 		sr[i] = hexutil.Encode(r)
-	}
-	srcHr, err := st.HistoricalRoots()
-	if err != nil {
-		return nil, err
-	}
-	hr := make([]string, len(srcHr))
-	for i, r := range srcHr {
-		hr[i] = hexutil.Encode(r)
 	}
 	srcVotes := st.Eth1DataVotes()
 	votes := make([]*Eth1Data, len(srcVotes))
@@ -511,7 +467,6 @@ func BeaconStateDenebFromConsensus(st beaconState.BeaconState) (*BeaconStateDene
 		LatestBlockHeader:            BeaconBlockHeaderFromConsensus(st.LatestBlockHeader()),
 		BlockRoots:                   br,
 		StateRoots:                   sr,
-		HistoricalRoots:              hr,
 		RewardAdjustmentFactor:       st.RewardAdjustmentFactor(),
 		Eth1Data:                     Eth1DataFromConsensus(st.Eth1Data()),
 		Eth1DataVotes:                votes,
@@ -544,14 +499,6 @@ func BeaconStateElectraFromConsensus(st beaconState.BeaconState) (*BeaconStateEl
 	sr := make([]string, len(srcSr))
 	for i, r := range srcSr {
 		sr[i] = hexutil.Encode(r)
-	}
-	srcHr, err := st.HistoricalRoots()
-	if err != nil {
-		return nil, err
-	}
-	hr := make([]string, len(srcHr))
-	for i, r := range srcHr {
-		hr[i] = hexutil.Encode(r)
 	}
 	srcVotes := st.Eth1DataVotes()
 	votes := make([]*Eth1Data, len(srcVotes))
@@ -658,7 +605,6 @@ func BeaconStateElectraFromConsensus(st beaconState.BeaconState) (*BeaconStateEl
 		LatestBlockHeader:            BeaconBlockHeaderFromConsensus(st.LatestBlockHeader()),
 		BlockRoots:                   br,
 		StateRoots:                   sr,
-		HistoricalRoots:              hr,
 		RewardAdjustmentFactor:       st.RewardAdjustmentFactor(),
 		Eth1Data:                     Eth1DataFromConsensus(st.Eth1Data()),
 		Eth1DataVotes:                votes,

@@ -128,12 +128,16 @@ func GenerateFullBlockElectra(
 		return nil, err
 	}
 
-	newWithdrawals := make([]*v1.Withdrawal, 0)
 	if conf.NumWithdrawals > 0 {
-		newWithdrawals, err = generateWithdrawals(bState, privs, numToGen)
+		stCopy, err = generatePendingPartialWithdrawals(stCopy, conf.NumWithdrawals)
 		if err != nil {
-			return nil, errors.Wrapf(err, "failed generating %d withdrawals:", numToGen)
+			return nil, errors.Wrapf(err, "failed generating %d withdrawals:", conf.NumWithdrawals)
 		}
+	}
+
+	expectedWithdrawal, err := generateExpectedWithdrawals(stCopy)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed generating expected withdrawals")
 	}
 
 	depositRequests := make([]*v1.DepositRequest, 0)
@@ -175,7 +179,7 @@ func GenerateFullBlockElectra(
 		BlockHash:     blockHash[:],
 		Timestamp:     uint64(timestamp.Unix()),
 		Transactions:  newTransactions,
-		Withdrawals:   newWithdrawals,
+		Withdrawals:   expectedWithdrawal,
 	}
 
 	newHeader := bState.LatestBlockHeader()
@@ -237,6 +241,32 @@ func GenerateFullBlockElectra(
 	}
 
 	return &ethpb.SignedBeaconBlockElectra{Block: block, Signature: signature.Marshal()}, nil
+}
+
+func generatePendingPartialWithdrawals(bState state.BeaconState, num uint64) (state.BeaconState, error) {
+	for i := uint64(0); i < num; i++ {
+		valIndex, err := randValIndex(bState)
+		if err != nil {
+			return nil, err
+		}
+		err = bState.AppendPendingPartialWithdrawal(&ethpb.PendingPartialWithdrawal{
+			Index:             valIndex,
+			Amount:            1,
+			WithdrawableEpoch: slots.ToEpoch(bState.Slot()),
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
+	return bState, nil
+}
+
+func generateExpectedWithdrawals(bState state.BeaconState) ([]*v1.Withdrawal, error) {
+	expectedWithdrawals, _, _, err := bState.ExpectedWithdrawals()
+	if err != nil {
+		return nil, err
+	}
+	return expectedWithdrawals, nil
 }
 
 func generateWithdrawalRequests(

@@ -4,7 +4,6 @@ go_library(
     name = "go_default_library",
     srcs = [
         "block_roots.go",
-        "historical_roots.go",
         "randao_mixes.go",
         "state_roots.go",
     ],
@@ -20,7 +19,6 @@ go_test(
     name = "go_default_test",
     srcs = [
         "block_roots_test.go",
-        "historical_roots_test.go",
         "randao_mixes_test.go",
         "state_roots_test.go",
     ],

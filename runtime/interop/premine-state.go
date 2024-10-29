@@ -175,9 +175,6 @@ func (s *PremineGenesisConfig) empty() (state.BeaconState, error) {
 	if err = e.SetJustificationBits([]byte{0}); err != nil {
 		return nil, err
 	}
-	if err = e.SetHistoricalRoots([][]byte{}); err != nil {
-		return nil, err
-	}
 	zcp := &ethpb.Checkpoint{
 		Epoch: 0,
 		Root:  params.BeaconConfig().ZeroHash[:],

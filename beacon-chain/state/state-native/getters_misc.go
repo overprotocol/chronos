@@ -72,18 +72,6 @@ func (b *BeaconState) forkVal() *ethpb.Fork {
 	}
 }
 
-// HistoricalRoots based on epochs stored in the beacon state.
-func (b *BeaconState) HistoricalRoots() ([][]byte, error) {
-	if b.historicalRoots == nil {
-		return nil, nil
-	}
-
-	b.lock.RLock()
-	defer b.lock.RUnlock()
-
-	return b.historicalRoots.Slice(), nil
-}
-
 // RewardAdjustmentFactor of the beacon state as an uint64.
 func (b *BeaconState) RewardAdjustmentFactor() uint64 {
 	b.lock.RLock()

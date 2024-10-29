@@ -96,7 +96,6 @@ type BeaconStateCreator struct{}
 type BeaconStateAltairCreator struct{}
 type ForkCreator struct{}
 type PendingAttestationCreator struct{}
-type HistoricalBatchCreator struct{}
 type SigningDataCreator struct{}
 type ForkDataCreator struct{}
 type DepositMessageCreator struct{}
@@ -252,7 +251,6 @@ func (BeaconStateCreator) Create() MarshalerProtoMessage        { return &ethpb.
 func (BeaconStateAltairCreator) Create() MarshalerProtoMessage  { return &ethpb.BeaconStateAltair{} }
 func (ForkCreator) Create() MarshalerProtoMessage               { return &ethpb.Fork{} }
 func (PendingAttestationCreator) Create() MarshalerProtoMessage { return &ethpb.PendingAttestation{} }
-func (HistoricalBatchCreator) Create() MarshalerProtoMessage    { return &ethpb.HistoricalBatch{} }
 func (SigningDataCreator) Create() MarshalerProtoMessage        { return &ethpb.SigningData{} }
 func (ForkDataCreator) Create() MarshalerProtoMessage           { return &ethpb.ForkData{} }
 func (DepositMessageCreator) Create() MarshalerProtoMessage     { return &ethpb.DepositMessage{} }
@@ -354,7 +352,6 @@ var creators = []MarshalerProtoCreator{
 	BeaconStateAltairCreator{},
 	ForkCreator{},
 	PendingAttestationCreator{},
-	HistoricalBatchCreator{},
 	SigningDataCreator{},
 	ForkDataCreator{},
 	DepositMessageCreator{},

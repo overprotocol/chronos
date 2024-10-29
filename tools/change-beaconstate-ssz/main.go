@@ -95,7 +95,6 @@ func main() {
 		newSt.LatestBlockHeader = st.LatestBlockHeader
 		newSt.BlockRoots = st.BlockRoots
 		newSt.StateRoots = st.StateRoots
-		newSt.HistoricalRoots = st.HistoricalRoots
 		newSt.Eth1Data = st.Eth1Data
 		newSt.Eth1DataVotes = st.Eth1DataVotes
 		newSt.Eth1DepositIndex = st.Eth1DepositIndex
@@ -134,7 +133,6 @@ func main() {
 		newSt.LatestBlockHeader = st.LatestBlockHeader
 		newSt.BlockRoots = st.BlockRoots
 		newSt.StateRoots = st.StateRoots
-		newSt.HistoricalRoots = st.HistoricalRoots
 		newSt.Eth1Data = st.Eth1Data
 		newSt.Eth1DataVotes = st.Eth1DataVotes
 		newSt.Eth1DepositIndex = st.Eth1DepositIndex
@@ -171,7 +169,6 @@ func main() {
 		newSt.LatestBlockHeader = st.LatestBlockHeader
 		newSt.BlockRoots = st.BlockRoots
 		newSt.StateRoots = st.StateRoots
-		newSt.HistoricalRoots = st.HistoricalRoots
 		newSt.Eth1Data = st.Eth1Data
 		newSt.Eth1DataVotes = st.Eth1DataVotes
 		newSt.Eth1DepositIndex = st.Eth1DepositIndex
@@ -208,7 +205,6 @@ func main() {
 		newSt.LatestBlockHeader = st.LatestBlockHeader
 		newSt.BlockRoots = st.BlockRoots
 		newSt.StateRoots = st.StateRoots
-		newSt.HistoricalRoots = st.HistoricalRoots
 		newSt.Eth1Data = st.Eth1Data
 		newSt.Eth1DataVotes = st.Eth1DataVotes
 		newSt.Eth1DepositIndex = st.Eth1DepositIndex
@@ -246,7 +242,6 @@ func main() {
 		newSt.LatestBlockHeader = st.LatestBlockHeader
 		newSt.BlockRoots = st.BlockRoots
 		newSt.StateRoots = st.StateRoots
-		newSt.HistoricalRoots = st.HistoricalRoots
 		newSt.Eth1Data = st.Eth1Data
 		newSt.Eth1DataVotes = st.Eth1DataVotes
 		newSt.Eth1DepositIndex = st.Eth1DepositIndex
@@ -283,7 +278,6 @@ func main() {
 		newSt.LatestBlockHeader = st.LatestBlockHeader
 		newSt.BlockRoots = st.BlockRoots
 		newSt.StateRoots = st.StateRoots
-		newSt.HistoricalRoots = st.HistoricalRoots
 		newSt.Eth1Data = st.Eth1Data
 		newSt.Eth1DataVotes = st.Eth1DataVotes
 		newSt.Eth1DepositIndex = st.Eth1DepositIndex

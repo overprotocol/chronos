@@ -186,7 +186,6 @@ func OptimizedGenesisBeaconState(genesisTime uint64, preState state.BeaconState,
 		},
 
 		RewardAdjustmentFactor:    preState.RewardAdjustmentFactor(),
-		HistoricalRoots:           [][]byte{},
 		BlockRoots:                blockRoots,
 		StateRoots:                stateRoots,
 		CurrentEpochAttestations:  []*ethpb.PendingAttestation{},
@@ -250,7 +249,6 @@ func EmptyGenesisState() (state.BeaconState, error) {
 		Reserves:   0,
 
 		JustificationBits:         []byte{0},
-		HistoricalRoots:           [][]byte{},
 		RewardAdjustmentFactor:    0,
 		CurrentEpochAttestations:  []*ethpb.PendingAttestation{},
 		PreviousEpochAttestations: []*ethpb.PendingAttestation{},

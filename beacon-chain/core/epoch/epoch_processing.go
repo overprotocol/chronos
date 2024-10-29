@@ -252,7 +252,17 @@ func ProcessRandaoMixesReset(state state.BeaconState) (state.BeaconState, error)
 }
 
 // ProcessHistoricalDataUpdate processes the updates to historical data during epoch processing.
-// From Capella onward, per spec,state's historical summaries are updated instead of historical roots.
+//
+// def process_historical_summaries_update(state: BeaconState) -> None:
+//
+//	# Set historical block root accumulator.
+//	next_epoch = Epoch(get_current_epoch(state) + 1)
+//	if next_epoch % (SLOTS_PER_HISTORICAL_ROOT // SLOTS_PER_EPOCH) == 0:
+//	    historical_summary = HistoricalSummary(
+//	        block_summary_root=hash_tree_root(state.block_roots),
+//	        state_summary_root=hash_tree_root(state.state_roots),
+//	    )
+//	    state.historical_summaries.append(historical_summary)
 func ProcessHistoricalDataUpdate(state state.BeaconState) (state.BeaconState, error) {
 	currentEpoch := time.CurrentEpoch(state)
 	nextEpoch := currentEpoch + 1
@@ -270,18 +280,6 @@ func ProcessHistoricalDataUpdate(state state.BeaconState) (state.BeaconState, er
 				return nil, err
 			}
 			if err := state.AppendHistoricalSummaries(&ethpb.HistoricalSummary{BlockSummaryRoot: br[:], StateSummaryRoot: sr[:]}); err != nil {
-				return nil, err
-			}
-		} else {
-			historicalBatch := &ethpb.HistoricalBatch{
-				BlockRoots: state.BlockRoots(),
-				StateRoots: state.StateRoots(),
-			}
-			batchRoot, err := historicalBatch.HashTreeRoot()
-			if err != nil {
-				return nil, errors.Wrap(err, "could not hash historical batch")
-			}
-			if err := state.AppendHistoricalRoots(batchRoot); err != nil {
 				return nil, err
 			}
 		}

@@ -27,7 +27,6 @@ message BeaconState {
   BeaconBlockHeader latest_block_header = 2001;
   repeated bytes block_roots = 2002 [(ethereum.eth.ext.ssz_size) = "block_roots.size"];
   repeated bytes state_roots = 2003 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
-  repeated bytes historical_roots = 2004 [(ethereum.eth.ext.ssz_size) = "?,32", (ethereum.eth.ext.ssz_max)  = "16777216"];
   uint64 reward_adjustment_factor = 2005;
 
   // Eth1 [3001-4000]
@@ -68,7 +67,6 @@ message BeaconStateAltair {
   BeaconBlockHeader latest_block_header = 2001;
   repeated bytes block_roots = 2002 [(ethereum.eth.ext.ssz_size) = "block_roots.size"];
   repeated bytes state_roots = 2003 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
-  repeated bytes historical_roots = 2004 [(ethereum.eth.ext.ssz_size) = "?,32", (ethereum.eth.ext.ssz_max)  = "16777216"];
   uint64 reward_adjustment_factor = 2005;
 
   // Eth1 [3001-4000]
@@ -114,11 +112,6 @@ message PendingAttestation {
   uint64 inclusion_delay = 3 [(ethereum.eth.ext.cast_type) = "github.com/prysmaticlabs/prysm/v5/consensus-types/primitives.Slot"];
   // The proposer who included the attestation in the block.
   uint64 proposer_index = 4 [(ethereum.eth.ext.cast_type) = "github.com/prysmaticlabs/prysm/v5/consensus-types/primitives.ValidatorIndex"];
-}
-
-message HistoricalBatch {
-  repeated bytes block_roots = 1 [(ethereum.eth.ext.ssz_size) = "block_roots.size"];
-  repeated bytes state_roots = 2 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
 }
 
 // The state summary object is defined for summarizing a state
@@ -183,7 +176,6 @@ message BeaconStateBellatrix {
   BeaconBlockHeader latest_block_header = 2001;
   repeated bytes block_roots = 2002 [(ethereum.eth.ext.ssz_size) = "block_roots.size"];
   repeated bytes state_roots = 2003 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
-  repeated bytes historical_roots = 2004 [(ethereum.eth.ext.ssz_size) = "?,32", (ethereum.eth.ext.ssz_max)  = "16777216"];
   uint64 reward_adjustment_factor = 2005;
 
   // Eth1 [3001-4000]
@@ -228,7 +220,6 @@ message BeaconStateCapella {
   BeaconBlockHeader latest_block_header = 2001;
   repeated bytes block_roots = 2002 [(ethereum.eth.ext.ssz_size) = "block_roots.size"];
   repeated bytes state_roots = 2003 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
-  repeated bytes historical_roots = 2004 [(ethereum.eth.ext.ssz_size) = "?,32", (ethereum.eth.ext.ssz_max)  = "16777216"];
   uint64 reward_adjustment_factor = 2005;
 
   // Eth1 [3001-4000]
@@ -278,7 +269,6 @@ message BeaconStateDeneb {
   BeaconBlockHeader latest_block_header = 2001;
   repeated bytes block_roots = 2002 [(ethereum.eth.ext.ssz_size) = "block_roots.size"];
   repeated bytes state_roots = 2003 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
-  repeated bytes historical_roots = 2004 [(ethereum.eth.ext.ssz_size) = "?,32", (ethereum.eth.ext.ssz_max)  = "16777216"];
   uint64 reward_adjustment_factor = 2005;
 
   // Eth1 [3001-4000]
@@ -328,7 +318,6 @@ message BeaconStateElectra {
   BeaconBlockHeader latest_block_header = 2001;
   repeated bytes block_roots = 2002 [(ethereum.eth.ext.ssz_size) = "block_roots.size"];
   repeated bytes state_roots = 2003 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
-  repeated bytes historical_roots = 2004 [(ethereum.eth.ext.ssz_size) = "?,32", (ethereum.eth.ext.ssz_max)  = "16777216"];
   uint64 reward_adjustment_factor = 2005;
 
   // Eth1 [3001-4000]
@@ -387,7 +376,6 @@ message PowBlock {
   bytes total_difficulty = 3 [(ethereum.eth.ext.ssz_size) = "32"];
 }
 
-// HistoricalSummary matches the components of the phase0 `HistoricalBatch` making the two hash_tree_root-compatible.
 message HistoricalSummary {
   bytes block_summary_root = 1 [(ethereum.eth.ext.ssz_size) = "32"];
   bytes state_summary_root = 2 [(ethereum.eth.ext.ssz_size) = "32"];
@@ -405,7 +393,6 @@ message BeaconStateOld {
   BeaconBlockHeader latest_block_header = 2001;
   repeated bytes block_roots = 2002 [(ethereum.eth.ext.ssz_size) = "block_roots.size"];
   repeated bytes state_roots = 2003 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
-  repeated bytes historical_roots = 2004 [(ethereum.eth.ext.ssz_size) = "?,32", (ethereum.eth.ext.ssz_max) = "16777216"];
 
   // Eth1 [3001-4000]
   Eth1Data eth1_data = 3001;
@@ -444,7 +431,6 @@ message BeaconStateOldAltair {
   BeaconBlockHeader latest_block_header = 2001;
   repeated bytes block_roots = 2002 [(ethereum.eth.ext.ssz_size) = "block_roots.size"];
   repeated bytes state_roots = 2003 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
-  repeated bytes historical_roots = 2004 [(ethereum.eth.ext.ssz_size) = "?,32", (ethereum.eth.ext.ssz_max)  = "16777216"];
 
   // Eth1 [3001-4000]
   Eth1Data eth1_data = 3001;
@@ -484,7 +470,6 @@ message BeaconStateOldBellatrix {
   BeaconBlockHeader latest_block_header = 2001;
   repeated bytes block_roots = 2002 [(ethereum.eth.ext.ssz_size) = "block_roots.size"];
   repeated bytes state_roots = 2003 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
-  repeated bytes historical_roots = 2004 [(ethereum.eth.ext.ssz_size) = "?,32", (ethereum.eth.ext.ssz_max)  = "16777216"];
 
   // Eth1 [3001-4000]
   Eth1Data eth1_data = 3001;
@@ -527,7 +512,6 @@ message BeaconStateOldCapella {
   BeaconBlockHeader latest_block_header = 2001;
   repeated bytes block_roots = 2002 [(ethereum.eth.ext.ssz_size) = "block_roots.size"];
   repeated bytes state_roots = 2003 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
-  repeated bytes historical_roots = 2004 [(ethereum.eth.ext.ssz_size) = "?,32", (ethereum.eth.ext.ssz_max)  = "16777216"];
 
   // Eth1 [3001-4000]
   Eth1Data eth1_data = 3001;
@@ -575,7 +559,6 @@ message BeaconStateOldDeneb {
   BeaconBlockHeader latest_block_header = 2001;
   repeated bytes block_roots = 2002 [(ethereum.eth.ext.ssz_size) = "block_roots.size"];
   repeated bytes state_roots = 2003 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
-  repeated bytes historical_roots = 2004 [(ethereum.eth.ext.ssz_size) = "?,32", (ethereum.eth.ext.ssz_max)  = "16777216"];
 
   // Eth1 [3001-4000]
   Eth1Data eth1_data = 3001;
@@ -622,7 +605,6 @@ message BeaconStateOldElectra {
   BeaconBlockHeader latest_block_header = 2001;
   repeated bytes block_roots = 2002 [(ethereum.eth.ext.ssz_size) = "block_roots.size"];
   repeated bytes state_roots = 2003 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
-  repeated bytes historical_roots = 2004 [(ethereum.eth.ext.ssz_size) = "?,32", (ethereum.eth.ext.ssz_max)  = "16777216"];
 
   // Eth1 [3001-4000]
   Eth1Data eth1_data = 3001;

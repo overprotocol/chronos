@@ -71,7 +71,6 @@ func emptyGenesisStateDeneb() (state.BeaconState, error) {
 		Reserves:         0,
 
 		JustificationBits:          []byte{0},
-		HistoricalRoots:            [][]byte{},
 		RewardAdjustmentFactor:     0,
 		CurrentEpochParticipation:  []byte{},
 		PreviousEpochParticipation: []byte{},
@@ -169,9 +168,8 @@ func buildGenesisBeaconStateDeneb(genesisTime uint64, preState state.BeaconState
 			Root:  params.BeaconConfig().ZeroHash[:],
 		},
 
-		HistoricalRoots: [][]byte{},
-		BlockRoots:      blockRoots,
-		StateRoots:      stateRoots,
+		BlockRoots: blockRoots,
+		StateRoots: stateRoots,
 
 		// Eth1 data.
 		Eth1Data:         eth1Data,
