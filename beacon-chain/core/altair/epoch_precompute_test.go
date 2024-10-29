@@ -224,9 +224,10 @@ func TestProcessEpochParticipation_InactiveValidator(t *testing.T) {
 
 func TestAttestationsDelta(t *testing.T) {
 	tests := []struct {
-		name    string
-		prepare func() state.BeaconState
-		check   func(*testing.T, []*AttDelta)
+		name          string
+		prepare       func() state.BeaconState
+		wantRewards   []uint64
+		wantPenalties []uint64
 	}{
 		{
 			name: "altair - zero penalty",
@@ -235,34 +236,8 @@ func TestAttestationsDelta(t *testing.T) {
 				require.NoError(t, err)
 				return s
 			},
-			check: func(t *testing.T, deltas []*AttDelta) {
-				rewards := make([]uint64, len(deltas))
-				penalties := make([]uint64, len(deltas))
-				for i, d := range deltas {
-					rewards[i] = d.HeadReward + d.SourceReward + d.TargetReward
-					penalties[i] = d.SourcePenalty + d.TargetPenalty
-				}
-
-				// Reward amount should increase as validator index increases due to setup.
-				for i := 1; i < len(rewards); i++ {
-					require.Equal(t, true, rewards[i] > rewards[i-1])
-				}
-
-				// Penalty amount should decrease as validator index increases due to setup.
-				for i := 1; i < len(penalties); i++ {
-					require.Equal(t, true, penalties[i] <= penalties[i-1])
-				}
-
-				// First index should have 0 reward.
-				require.Equal(t, uint64(0), rewards[0])
-				// Last index should have 0 penalty.
-				require.Equal(t, uint64(0), penalties[len(penalties)-1])
-
-				want := []uint64{0, 8561643835, 19977168949, 24733637746}
-				require.DeepEqual(t, want, rewards)
-				want = []uint64{0, 0, 0, 0}
-				require.DeepEqual(t, want, penalties)
-			},
+			wantRewards:   []uint64{0, 8561643835, 19977168949, 24733637746},
+			wantPenalties: []uint64{0, 0, 0, 0},
 		},
 		{
 			name: "altair - penalty",
@@ -273,23 +248,7 @@ func TestAttestationsDelta(t *testing.T) {
 				require.NoError(t, err)
 				return s
 			},
-			check: func(t *testing.T, deltas []*AttDelta) {
-				penalties := make([]uint64, len(deltas))
-				for i, d := range deltas {
-					penalties[i] = d.SourcePenalty + d.TargetPenalty
-				}
-
-				// Penalty amount should decrease as validator index increases due to setup.
-				for i := 1; i < len(penalties); i++ {
-					require.Equal(t, true, penalties[i] <= penalties[i-1])
-				}
-
-				// Last index should have 0 penalty.
-				require.Equal(t, uint64(0), penalties[len(penalties)-1])
-
-				want := []uint64{1625395, 1083597, 0, 0}
-				require.DeepEqual(t, want, penalties)
-			},
+			wantPenalties: []uint64{1625395, 1083597, 0, 0},
 		},
 		{
 			name: "altair - zero penalty in inactivity leak",
@@ -304,23 +263,7 @@ func TestAttestationsDelta(t *testing.T) {
 				require.NoError(t, s.SetBalances([]uint64{balance, balance, balance, balance}))
 				return s
 			},
-			check: func(t *testing.T, deltas []*AttDelta) {
-				penalties := make([]uint64, len(deltas))
-				for i, d := range deltas {
-					penalties[i] = d.SourcePenalty + d.TargetPenalty
-				}
-
-				// Penalty amount should decrease as validator index increases due to setup.
-				for i := 1; i < len(penalties); i++ {
-					require.Equal(t, true, penalties[i] <= penalties[i-1])
-				}
-
-				// Last index should have 0 penalty.
-				require.Equal(t, uint64(0), penalties[len(penalties)-1])
-
-				want := []uint64{0, 0, 0, 0}
-				require.DeepEqual(t, want, penalties)
-			},
+			wantPenalties: []uint64{0, 0, 0, 0},
 		},
 		{
 			name: "altair - penalty in inactivity leak",
@@ -335,23 +278,7 @@ func TestAttestationsDelta(t *testing.T) {
 				require.NoError(t, s.SetBalances([]uint64{balance, balance, balance, balance}))
 				return s
 			},
-			check: func(t *testing.T, deltas []*AttDelta) {
-				penalties := make([]uint64, len(deltas))
-				for i, d := range deltas {
-					penalties[i] = d.SourcePenalty + d.TargetPenalty
-				}
-
-				// Penalty amount should decrease as validator index increases due to setup.
-				for i := 1; i < len(penalties); i++ {
-					require.Equal(t, true, penalties[i] <= penalties[i-1])
-				}
-
-				// Last index should have 0 penalty.
-				require.Equal(t, uint64(0), penalties[len(penalties)-1])
-
-				want := []uint64{1625395, 1083597, 0, 0}
-				require.DeepEqual(t, want, penalties)
-			},
+			wantPenalties: []uint64{1625395, 1083597, 0, 0},
 		},
 		{
 			name: "bellatrix - zero penalty",
@@ -360,34 +287,8 @@ func TestAttestationsDelta(t *testing.T) {
 				require.NoError(t, err)
 				return s
 			},
-			check: func(t *testing.T, deltas []*AttDelta) {
-				rewards := make([]uint64, len(deltas))
-				penalties := make([]uint64, len(deltas))
-				for i, d := range deltas {
-					rewards[i] = d.HeadReward + d.SourceReward + d.TargetReward
-					penalties[i] = d.SourcePenalty + d.TargetPenalty
-				}
-
-				// Reward amount should increase as validator index increases due to setup.
-				for i := 1; i < len(rewards); i++ {
-					require.Equal(t, true, rewards[i] > rewards[i-1])
-				}
-
-				// Penalty amount should decrease as validator index increases due to setup.
-				for i := 1; i < len(penalties); i++ {
-					require.Equal(t, true, penalties[i] <= penalties[i-1])
-				}
-
-				// First index should have 0 reward.
-				require.Equal(t, uint64(0), rewards[0])
-				// Last index should have 0 penalty.
-				require.Equal(t, uint64(0), penalties[len(penalties)-1])
-
-				want := []uint64{0, 8561643835, 19977168949, 24733637746}
-				require.DeepEqual(t, want, rewards)
-				want = []uint64{0, 0, 0, 0}
-				require.DeepEqual(t, want, penalties)
-			},
+			wantRewards:   []uint64{0, 8561643835, 19977168949, 24733637746},
+			wantPenalties: []uint64{0, 0, 0, 0},
 		},
 		{
 			name: "bellatrix - penalty",
@@ -398,23 +299,7 @@ func TestAttestationsDelta(t *testing.T) {
 				require.NoError(t, err)
 				return s
 			},
-			check: func(t *testing.T, deltas []*AttDelta) {
-				penalties := make([]uint64, len(deltas))
-				for i, d := range deltas {
-					penalties[i] = d.SourcePenalty + d.TargetPenalty
-				}
-
-				// Penalty amount should decrease as validator index increases due to setup.
-				for i := 1; i < len(penalties); i++ {
-					require.Equal(t, true, penalties[i] <= penalties[i-1])
-				}
-
-				// Last index should have 0 penalty.
-				require.Equal(t, uint64(0), penalties[len(penalties)-1])
-
-				want := []uint64{1625395, 1083597, 0, 0}
-				require.DeepEqual(t, want, penalties)
-			},
+			wantPenalties: []uint64{1625395, 1083597, 0, 0},
 		},
 		{
 			name: "bellatrix - zero penalty in inactivity leak",
@@ -429,23 +314,7 @@ func TestAttestationsDelta(t *testing.T) {
 				require.NoError(t, s.SetBalances([]uint64{balance, balance, balance, balance}))
 				return s
 			},
-			check: func(t *testing.T, deltas []*AttDelta) {
-				penalties := make([]uint64, len(deltas))
-				for i, d := range deltas {
-					penalties[i] = d.SourcePenalty + d.TargetPenalty
-				}
-
-				// Penalty amount should decrease as validator index increases due to setup.
-				for i := 1; i < len(penalties); i++ {
-					require.Equal(t, true, penalties[i] <= penalties[i-1])
-				}
-
-				// Last index should have 0 penalty.
-				require.Equal(t, uint64(0), penalties[len(penalties)-1])
-
-				want := []uint64{0, 0, 0, 0}
-				require.DeepEqual(t, want, penalties)
-			},
+			wantPenalties: []uint64{0, 0, 0, 0},
 		},
 		{
 			name: "bellatrix - penalty in inactivity leak",
@@ -460,23 +329,7 @@ func TestAttestationsDelta(t *testing.T) {
 				require.NoError(t, s.SetBalances([]uint64{balance, balance, balance, balance}))
 				return s
 			},
-			check: func(t *testing.T, deltas []*AttDelta) {
-				penalties := make([]uint64, len(deltas))
-				for i, d := range deltas {
-					penalties[i] = d.SourcePenalty + d.TargetPenalty
-				}
-
-				// Penalty amount should decrease as validator index increases due to setup.
-				for i := 1; i < len(penalties); i++ {
-					require.Equal(t, true, penalties[i] <= penalties[i-1])
-				}
-
-				// Last index should have 0 penalty.
-				require.Equal(t, uint64(0), penalties[len(penalties)-1])
-
-				want := []uint64{1625395, 1083597, 0, 0}
-				require.DeepEqual(t, want, penalties)
-			},
+			wantPenalties: []uint64{1625395, 1083597, 0, 0},
 		},
 	}
 
@@ -491,7 +344,24 @@ func TestAttestationsDelta(t *testing.T) {
 
 			deltas, _, err := AttestationsDelta(beaconState, balance, validators)
 			require.NoError(t, err)
-			tt.check(t, deltas)
+			rewards, penalties := sumDeltas(deltas)
+
+			// Reward amount should increase as validator index increases due to setup.
+			for i := 1; i < len(rewards); i++ {
+				require.Equal(t, true, rewards[i] >= rewards[i-1])
+			}
+			// Penalty amount should decrease as validator index increases due to setup.
+			for i := 1; i < len(penalties); i++ {
+				require.Equal(t, true, penalties[i] <= penalties[i-1])
+			}
+
+			if tt.wantRewards != nil {
+				require.DeepEqual(t, tt.wantRewards, rewards)
+			}
+
+			if tt.wantPenalties != nil {
+				require.DeepEqual(t, tt.wantPenalties, penalties)
+			}
 		})
 	}
 }
@@ -688,6 +558,17 @@ func TestProcessInactivityScores_NonEligibleValidator(t *testing.T) {
 	require.Equal(t, defaultScore, inactivityScores[1]) // Should remain unchanged
 	require.Equal(t, defaultScore, inactivityScores[2]) // Should remain unchanged
 	require.Equal(t, uint64(4), inactivityScores[3])
+}
+
+func sumDeltas(deltas []*AttDelta) ([]uint64, []uint64) {
+	rewards := make([]uint64, len(deltas))
+	penalties := make([]uint64, len(deltas))
+	for i, d := range deltas {
+		rewards[i] = d.HeadReward + d.SourceReward + d.TargetReward
+		penalties[i] = d.SourcePenalty + d.TargetPenalty
+	}
+
+	return rewards, penalties
 }
 
 func testState() (state.BeaconState, error) {
