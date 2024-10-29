@@ -8,6 +8,7 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/epoch/precompute"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
 	state_native "github.com/prysmaticlabs/prysm/v5/beacon-chain/state/state-native"
+	fieldparams "github.com/prysmaticlabs/prysm/v5/config/fieldparams"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
@@ -268,8 +269,70 @@ func TestAttestationsDelta(t *testing.T) {
 			prepare: func() state.BeaconState {
 				s, err := testState()
 				require.NoError(t, err)
-				inactivityScore := params.BeaconConfig().InactivityScorePenaltyThreshold + 1
-				require.NoError(t, s.SetInactivityScores([]uint64{inactivityScore, inactivityScore, inactivityScore, inactivityScore}))
+				s, err = withAccumulatedInactivityScores(s)
+				require.NoError(t, err)
+				return s
+			},
+			check: func(t *testing.T, deltas []*AttDelta) {
+				penalties := make([]uint64, len(deltas))
+				for i, d := range deltas {
+					penalties[i] = d.SourcePenalty + d.TargetPenalty
+				}
+
+				// Penalty amount should decrease as validator index increases due to setup.
+				for i := 1; i < len(penalties); i++ {
+					require.Equal(t, true, penalties[i] <= penalties[i-1])
+				}
+
+				// Last index should have 0 penalty.
+				require.Equal(t, uint64(0), penalties[len(penalties)-1])
+
+				want := []uint64{1625395, 1083597, 0, 0}
+				require.DeepEqual(t, want, penalties)
+			},
+		},
+		{
+			name: "altair - zero penalty in inactivity leak",
+			prepare: func() state.BeaconState {
+				s, err := testState()
+				require.NoError(t, err)
+				s, err = withLeak(s)
+				require.NoError(t, err)
+				s, err = withAccumulatedInactivityScores(s)
+				require.NoError(t, err)
+				balance := params.BeaconConfig().MaxEffectiveBalance - uint64(1_000_000_000) // 255 OVER
+				require.NoError(t, s.SetBalances([]uint64{balance, balance, balance, balance}))
+				return s
+			},
+			check: func(t *testing.T, deltas []*AttDelta) {
+				penalties := make([]uint64, len(deltas))
+				for i, d := range deltas {
+					penalties[i] = d.SourcePenalty + d.TargetPenalty
+				}
+
+				// Penalty amount should decrease as validator index increases due to setup.
+				for i := 1; i < len(penalties); i++ {
+					require.Equal(t, true, penalties[i] <= penalties[i-1])
+				}
+
+				// Last index should have 0 penalty.
+				require.Equal(t, uint64(0), penalties[len(penalties)-1])
+
+				want := []uint64{0, 0, 0, 0}
+				require.DeepEqual(t, want, penalties)
+			},
+		},
+		{
+			name: "altair - penalty in inactivity leak",
+			prepare: func() state.BeaconState {
+				s, err := testState()
+				require.NoError(t, err)
+				s, err = withLeak(s)
+				require.NoError(t, err)
+				s, err = withAccumulatedInactivityScores(s)
+				require.NoError(t, err)
+				balance := params.BeaconConfig().MaxEffectiveBalance - uint64(100_000_000) // 255.9 OVER
+				require.NoError(t, s.SetBalances([]uint64{balance, balance, balance, balance}))
 				return s
 			},
 			check: func(t *testing.T, deltas []*AttDelta) {
@@ -331,8 +394,70 @@ func TestAttestationsDelta(t *testing.T) {
 			prepare: func() state.BeaconState {
 				s, err := testStateBellatrix()
 				require.NoError(t, err)
-				inactivityScore := params.BeaconConfig().InactivityScorePenaltyThreshold + 1
-				require.NoError(t, s.SetInactivityScores([]uint64{inactivityScore, inactivityScore, inactivityScore, inactivityScore}))
+				s, err = withAccumulatedInactivityScores(s)
+				require.NoError(t, err)
+				return s
+			},
+			check: func(t *testing.T, deltas []*AttDelta) {
+				penalties := make([]uint64, len(deltas))
+				for i, d := range deltas {
+					penalties[i] = d.SourcePenalty + d.TargetPenalty
+				}
+
+				// Penalty amount should decrease as validator index increases due to setup.
+				for i := 1; i < len(penalties); i++ {
+					require.Equal(t, true, penalties[i] <= penalties[i-1])
+				}
+
+				// Last index should have 0 penalty.
+				require.Equal(t, uint64(0), penalties[len(penalties)-1])
+
+				want := []uint64{1625395, 1083597, 0, 0}
+				require.DeepEqual(t, want, penalties)
+			},
+		},
+		{
+			name: "bellatrix - zero penalty in inactivity leak",
+			prepare: func() state.BeaconState {
+				s, err := testStateBellatrix()
+				require.NoError(t, err)
+				s, err = withLeak(s)
+				require.NoError(t, err)
+				s, err = withAccumulatedInactivityScores(s)
+				require.NoError(t, err)
+				balance := params.BeaconConfig().MaxEffectiveBalance - uint64(1_000_000_000) // 255 OVER
+				require.NoError(t, s.SetBalances([]uint64{balance, balance, balance, balance}))
+				return s
+			},
+			check: func(t *testing.T, deltas []*AttDelta) {
+				penalties := make([]uint64, len(deltas))
+				for i, d := range deltas {
+					penalties[i] = d.SourcePenalty + d.TargetPenalty
+				}
+
+				// Penalty amount should decrease as validator index increases due to setup.
+				for i := 1; i < len(penalties); i++ {
+					require.Equal(t, true, penalties[i] <= penalties[i-1])
+				}
+
+				// Last index should have 0 penalty.
+				require.Equal(t, uint64(0), penalties[len(penalties)-1])
+
+				want := []uint64{0, 0, 0, 0}
+				require.DeepEqual(t, want, penalties)
+			},
+		},
+		{
+			name: "bellatrix - penalty in inactivity leak",
+			prepare: func() state.BeaconState {
+				s, err := testStateBellatrix()
+				require.NoError(t, err)
+				s, err = withLeak(s)
+				require.NoError(t, err)
+				s, err = withAccumulatedInactivityScores(s)
+				require.NoError(t, err)
+				balance := params.BeaconConfig().MaxEffectiveBalance - uint64(100_000_000) // 255.9 OVER
+				require.NoError(t, s.SetBalances([]uint64{balance, balance, balance, balance}))
 				return s
 			},
 			check: func(t *testing.T, deltas []*AttDelta) {
@@ -637,4 +762,34 @@ func testStateBellatrix() (state.BeaconState, error) {
 		InactivityScores: []uint64{0, 0, 0, 0},
 		Balances:         []uint64{0, 0, 0, 0},
 	})
+}
+
+// withLeak is a wrapper function to make a state with inactivity leak.
+func withLeak(s state.BeaconState) (state.BeaconState, error) {
+	finalizedEpoch := primitives.Epoch(2)
+	err := s.SetFinalizedCheckpoint(&ethpb.Checkpoint{
+		Epoch: finalizedEpoch,
+		Root:  make([]byte, fieldparams.RootLength),
+	})
+	if err != nil {
+		return nil, err
+	}
+	currentEpoch := finalizedEpoch + params.BeaconConfig().MinEpochsToInactivityPenalty + 2
+	slot := primitives.Slot(uint64(currentEpoch) * uint64(params.BeaconConfig().SlotsPerEpoch))
+	err = s.SetSlot(slot)
+	if err != nil {
+		return nil, err
+	}
+	return s, nil
+}
+
+// withAccumulatedInactivityScores is a wrapper function to make a state with accumulated inactivity scores,
+// so that the penalty can be applied.
+func withAccumulatedInactivityScores(s state.BeaconState) (state.BeaconState, error) {
+	inactivityScore := params.BeaconConfig().InactivityScorePenaltyThreshold + 1
+	err := s.SetInactivityScores([]uint64{inactivityScore, inactivityScore, inactivityScore, inactivityScore})
+	if err != nil {
+		return nil, err
+	}
+	return s, nil
 }
