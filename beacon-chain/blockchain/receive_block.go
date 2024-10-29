@@ -169,14 +169,9 @@ func (s *Service) updateCheckpoints(
 		return errors.Wrap(err, "could not update justified checkpoint")
 	}
 
-	newFinalized, err := s.updateFinalizationOnBlock(ctx, preState, postState, cp.f)
+	_, err := s.updateFinalizationOnBlock(ctx, preState, postState, cp.f)
 	if err != nil {
 		return errors.Wrap(err, "could not update finalized checkpoint")
-	}
-	// Send finalized events and finalized deposits in the background
-	if newFinalized {
-		// hook to process all post state finalization tasks
-		s.executePostFinalizationTasks(ctx, postState)
 	}
 	return nil
 }
@@ -272,18 +267,6 @@ func (s *Service) reportPostBlockProcessing(
 	log.Info("start reportPostBlockProcessing 5")
 	timeWithoutDaWait := time.Since(receivedTime) - daWaitedTime
 	chainServiceProcessingTime.Observe(float64(timeWithoutDaWait.Milliseconds()))
-}
-
-func (s *Service) executePostFinalizationTasks(ctx context.Context, finalizedState state.BeaconState) {
-	finalized := s.cfg.ForkChoiceStore.FinalizedCheckpoint()
-	go func() {
-		s.sendNewFinalizedEvent(ctx, finalizedState)
-	}()
-	depCtx, cancel := context.WithTimeout(context.Background(), depositDeadline)
-	go func() {
-		s.insertFinalizedDeposits(depCtx, finalized.Root)
-		cancel()
-	}()
 }
 
 // ReceiveBlockBatch processes the whole block batch at once, assuming the block batch is linear ,transitioning

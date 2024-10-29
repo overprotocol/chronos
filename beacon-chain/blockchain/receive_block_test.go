@@ -470,7 +470,6 @@ func Test_executePostFinalizationTasks(t *testing.T) {
 
 	notifier := &blockchainTesting.MockStateNotifier{RecordEvents: true}
 	s.cfg.StateNotifier = notifier
-	s.executePostFinalizationTasks(s.ctx, headState)
 
 	time.Sleep(1 * time.Second) // sleep for a second because event is in a separate go routine
 	require.Equal(t, 1, len(notifier.ReceivedEvents()))

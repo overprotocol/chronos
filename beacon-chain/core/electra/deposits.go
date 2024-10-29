@@ -65,15 +65,6 @@ func verifyDepositDataSigningRoot(obj *ethpb.Deposit_Data, domain []byte) error 
 //	finalized_slot = compute_start_slot_at_epoch(state.finalized_checkpoint.epoch)
 //
 //	for deposit in state.pending_deposits:
-//	    # Do not process deposit requests if Eth1 bridge deposits are not yet applied.
-//	    if (
-//	        # Is deposit request
-//	        deposit.slot > GENESIS_SLOT and
-//	        # There are pending Eth1 bridge deposits
-//	        state.eth1_deposit_index < state.deposit_requests_start_index
-//	    ):
-//	        break
-//
 //	    # Check if deposit has been finalized, otherwise, stop processing.
 //	    if deposit.slot > finalized_slot:
 //	        break
@@ -402,10 +393,6 @@ func ProcessDepositRequests(ctx context.Context, beaconState state.BeaconState, 
 
 // processDepositRequest processes the specific deposit receipt
 // def process_deposit_request(state: BeaconState, deposit_request: DepositRequest) -> None:
-//
-//	# Set deposit request start index
-//	if state.deposit_requests_start_index == UNSET_DEPOSIT_REQUESTS_START_INDEX:
-//	    state.deposit_requests_start_index = deposit_request.index
 //
 //	# Create pending deposit
 //	state.pending_deposits.append(PendingDeposit(
