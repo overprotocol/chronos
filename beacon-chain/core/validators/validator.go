@@ -246,7 +246,7 @@ func ExitedValidatorIndices(st state.BeaconState, validators []*ethpb.Validator,
 		}
 		isBailOut, err := helpers.IsBailOut(st, val, i, isInInactivityLeak)
 		if err != nil {
-			continue
+			return nil, err
 		}
 		if !isBailOut {
 			exited = append(exited, primitives.ValidatorIndex(i))
@@ -266,7 +266,7 @@ func BailedOutValidatorIndices(st state.BeaconState, validators []*ethpb.Validat
 		}
 		isBailOut, err := helpers.IsBailOut(st, val, i, isInInactivityLeak)
 		if err != nil {
-			continue
+			return nil, err
 		}
 		if isBailOut {
 			bailedOut = append(bailedOut, primitives.ValidatorIndex(i))
