@@ -871,6 +871,82 @@ func TestIsIsEligibleForActivation(t *testing.T) {
 	}
 }
 
+func TestIsEligibleForBailOut(t *testing.T) {
+	bailoutBuffer := params.BeaconConfig().MaxEffectiveBalance * params.BeaconConfig().InactivityPenaltyRate / params.BeaconConfig().InactivityPenaltyRatePrecision
+
+	tests := []struct {
+		name      string
+		validator *ethpb.Validator
+		state     *ethpb.BeaconStateAltair
+		leak      bool
+		want      bool
+	}{
+		{"Eligible",
+			&ethpb.Validator{
+				ActivationEpoch:  0,
+				ExitEpoch:        params.BeaconConfig().FarFutureEpoch,
+				PrincipalBalance: params.BeaconConfig().MaxEffectiveBalance,
+			},
+			&ethpb.BeaconStateAltair{
+				Balances: []uint64{params.BeaconConfig().MaxEffectiveBalance - bailoutBuffer - 1},
+			},
+			false,
+			true,
+		},
+		{"Eligible (leak)",
+			&ethpb.Validator{
+				ActivationEpoch:  0,
+				ExitEpoch:        params.BeaconConfig().FarFutureEpoch,
+				PrincipalBalance: params.BeaconConfig().MaxEffectiveBalance,
+			},
+			&ethpb.BeaconStateAltair{
+				Balances:         []uint64{params.BeaconConfig().MaxEffectiveBalance},
+				InactivityScores: []uint64{params.BeaconConfig().InactivityLeakBailoutScoreThreshold + 1},
+			},
+			true,
+			true,
+		},
+		{"Not eligible",
+			&ethpb.Validator{
+				ActivationEpoch:  0,
+				ExitEpoch:        params.BeaconConfig().FarFutureEpoch,
+				PrincipalBalance: params.BeaconConfig().MaxEffectiveBalance,
+			},
+			&ethpb.BeaconStateAltair{
+				Balances: []uint64{params.BeaconConfig().MaxEffectiveBalance},
+			},
+			false,
+			false,
+		},
+		{"Not eligible (leak)",
+			&ethpb.Validator{
+				ActivationEpoch:  0,
+				ExitEpoch:        params.BeaconConfig().FarFutureEpoch,
+				PrincipalBalance: params.BeaconConfig().MaxEffectiveBalance,
+			},
+			&ethpb.BeaconStateAltair{
+				Balances:         []uint64{params.BeaconConfig().MaxEffectiveBalance},
+				InactivityScores: []uint64{params.BeaconConfig().InactivityLeakBailoutScoreThreshold},
+			},
+			true,
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			helpers.ClearCache()
+
+			s, err := state_native.InitializeFromProtoAltair(tt.state)
+			require.NoError(t, err)
+			roVal, err := state_native.NewValidator(tt.validator)
+			require.NoError(t, err)
+			eligible, err := helpers.IsEligibleForBailOut(s, roVal, 0 /* idx */, tt.leak)
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, eligible, "IsEligibleForBailOut()")
+		})
+	}
+}
+
 func computeProposerIndexWithValidators(validators []*ethpb.Validator, activeIndices []primitives.ValidatorIndex, seed [32]byte) (primitives.ValidatorIndex, error) {
 	length := uint64(len(activeIndices))
 	if length == 0 {

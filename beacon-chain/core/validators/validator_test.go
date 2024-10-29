@@ -453,6 +453,75 @@ func TestExitedValidatorIndices(t *testing.T) {
 	}
 }
 
+func TestBailedOutValidatorIndices(t *testing.T) {
+	bailoutBuffer := params.BeaconConfig().MaxEffectiveBalance * params.BeaconConfig().InactivityPenaltyRate / params.BeaconConfig().InactivityPenaltyRatePrecision
+
+	tests := []struct {
+		state  *ethpb.BeaconStateAltair
+		wanted []primitives.ValidatorIndex
+	}{
+		{
+			state: &ethpb.BeaconStateAltair{
+				Validators: []*ethpb.Validator{
+					{
+						EffectiveBalance: params.BeaconConfig().MaxEffectiveBalance,
+						ExitEpoch:        0,
+						PrincipalBalance: params.BeaconConfig().MaxEffectiveBalance,
+					},
+					{
+						EffectiveBalance: params.BeaconConfig().MaxEffectiveBalance,
+						ExitEpoch:        0,
+						PrincipalBalance: params.BeaconConfig().MaxEffectiveBalance,
+					},
+					{
+						EffectiveBalance: params.BeaconConfig().MaxEffectiveBalance,
+						ExitEpoch:        0,
+						PrincipalBalance: params.BeaconConfig().MaxEffectiveBalance,
+					},
+				},
+				Balances: []uint64{
+					params.BeaconConfig().MaxEffectiveBalance - bailoutBuffer - 1,
+					params.BeaconConfig().MaxEffectiveBalance - bailoutBuffer - 1,
+					params.BeaconConfig().MaxEffectiveBalance - bailoutBuffer - 1,
+				},
+			},
+			wanted: []primitives.ValidatorIndex{0, 1, 2},
+		},
+		{
+			state: &ethpb.BeaconStateAltair{
+				Validators: []*ethpb.Validator{
+					{
+						EffectiveBalance: params.BeaconConfig().MaxEffectiveBalance,
+						ExitEpoch:        params.BeaconConfig().FarFutureEpoch,
+					},
+				},
+			},
+			wanted: []primitives.ValidatorIndex{},
+		},
+		{
+			state: &ethpb.BeaconStateAltair{
+				Validators: []*ethpb.Validator{
+					{
+						EffectiveBalance: params.BeaconConfig().MaxEffectiveBalance,
+						ExitEpoch:        0,
+						PrincipalBalance: params.BeaconConfig().MaxEffectiveBalance,
+					},
+				},
+				// This balance is just below the bailout buffer.
+				Balances: []uint64{params.BeaconConfig().MaxEffectiveBalance - bailoutBuffer},
+			},
+			wanted: []primitives.ValidatorIndex{},
+		},
+	}
+	for _, tt := range tests {
+		s, err := state_native.InitializeFromProtoAltair(tt.state)
+		require.NoError(t, err)
+		exitedIndices, err := validators.BailedOutValidatorIndices(s, tt.state.Validators, false)
+		require.NoError(t, err)
+		assert.DeepEqual(t, tt.wanted, exitedIndices)
+	}
+}
+
 func TestValidatorMaxExitEpochAndChurn(t *testing.T) {
 	tests := []struct {
 		state       *ethpb.BeaconState
