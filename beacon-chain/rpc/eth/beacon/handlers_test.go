@@ -1232,14 +1232,14 @@ func TestPublishBlock(t *testing.T) {
 	t.Run("Phase 0", func(t *testing.T) {
 		v1alpha1Server := mock2.NewMockBeaconNodeValidatorServer(ctrl)
 		v1alpha1Server.EXPECT().ProposeBeaconBlock(gomock.Any(), mock.MatchedBy(func(req *eth.GenericSignedBeaconBlock) bool {
-			block, ok := req.Block.(*eth.GenericSignedBeaconBlock_Altair)
+			block, ok := req.Block.(*eth.GenericSignedBeaconBlock_Phase0)
 			if !ok {
 				return ok
 			}
 			var signedblock *structs.SignedBeaconBlock
 			err := json.Unmarshal([]byte(rpctesting.Phase0Block), &signedblock)
 			require.NoError(t, err)
-			require.DeepEqual(t, structs.BeaconBlockAltairFromConsensus(block.Altair.Block), signedblock.Message)
+			require.DeepEqual(t, structs.BeaconBlockFromConsensus(block.Phase0.Block), signedblock.Message)
 			return ok
 		}))
 		server := &Server{
