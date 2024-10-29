@@ -835,18 +835,6 @@ func TestGetDuties_Valid(t *testing.T) {
 				nil,
 			).Times(2)
 
-			// fetchSyncDuties := testCase.epoch >= params.BeaconConfig().AltairForkEpoch
-			// if fetchSyncDuties {
-			// 	dutiesProvider.EXPECT().SyncDuties(
-			// 		ctx,
-			// 		testCase.epoch,
-			// 		validatorIndices,
-			// 	).Return(
-			// 		generateValidSyncDuties(pubkeys, validatorIndices),
-			// 		nil,
-			// 	).Times(2)
-			// }
-
 			dutiesProvider.EXPECT().Committees(
 				ctx,
 				testCase.epoch+1,
