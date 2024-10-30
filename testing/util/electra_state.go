@@ -187,7 +187,7 @@ func buildGenesisBeaconStateElectra(genesisTime uint64, preState state.BeaconSta
 		StateRoots: stateRoots,
 
 		// Electra Data
-		ExitBalanceToConsume:      helpers.ActivationExitChurnLimit(primitives.Gwei(tab)),
+		ExitBalanceToConsume:      helpers.ExitBalanceChurnLimit(primitives.Gwei(tab)),
 		PendingDeposits:           make([]*ethpb.PendingDeposit, 0),
 		PendingPartialWithdrawals: make([]*ethpb.PendingPartialWithdrawal, 0),
 	}
