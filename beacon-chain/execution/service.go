@@ -193,7 +193,7 @@ func NewService(ctx context.Context, opts ...Option) (*Service, error) {
 		lastReceivedMerkleIndex: -1,
 		preGenesisState:         genState,
 		eth1HeadTicker:          time.NewTicker(time.Duration(params.BeaconConfig().SecondsPerETH1Block) * time.Second),
-		alpacaTicker:            time.NewTicker(60 * time.Second),
+		alpacaTicker:            time.NewTicker(time.Duration(params.BeaconConfig().SecondsPerSlot*uint64(params.BeaconConfig().SlotsPerEpoch)*uint64(params.BeaconConfig().ElectraForkEpoch)) * time.Second),
 	}
 
 	for _, opt := range opts {
@@ -241,6 +241,7 @@ func (s *Service) Start() {
 
 // Stop the web3 service's main event loop and associated goroutines.
 func (s *Service) Stop() error {
+	log.Info("Stopping POWWWWWWCHAIN")
 	if s.cancel != nil {
 		defer s.cancel()
 	}

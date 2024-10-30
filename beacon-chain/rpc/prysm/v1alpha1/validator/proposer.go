@@ -184,17 +184,15 @@ func (vs *Server) BuildBlockParallel(ctx context.Context, sBlk interfaces.Signed
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-
-		// Set eth1 data.
-		eth1Data, err := vs.eth1DataMajorityVote(ctx, head)
-		if err != nil {
-			eth1Data = &ethpb.Eth1Data{DepositRoot: params.BeaconConfig().ZeroHash[:], BlockHash: params.BeaconConfig().ZeroHash[:]}
-			log.WithError(err).Error("Could not get eth1data")
-		}
-		sBlk.SetEth1Data(eth1Data)
-
 		// Set deposit and attestation.
 		if head.Version() < version.Electra {
+			eth1Data, err := vs.eth1DataMajorityVote(ctx, head)
+			if err != nil {
+				eth1Data = &ethpb.Eth1Data{DepositRoot: params.BeaconConfig().ZeroHash[:], BlockHash: params.BeaconConfig().ZeroHash[:]}
+				log.WithError(err).Error("Could not get eth1data")
+			}
+			sBlk.SetEth1Data(eth1Data)
+
 			deposits, atts, err := vs.packDepositsAndAttestations(ctx, head, sBlk.Block().Slot(), eth1Data) // TODO: split attestations and deposits
 			if err != nil {
 				sBlk.SetDeposits([]*ethpb.Deposit{})
