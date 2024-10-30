@@ -606,7 +606,9 @@ func (s *Service) run(done <-chan struct{}) {
 			}
 			s.logTillChainStart(context.Background())
 		case <-s.alpacaTicker.C:
-			s.Stop()
+			if err := s.Stop(); err != nil {
+				log.WithError(err).Error("Failed to stop POWChain")
+			}
 		}
 
 	}
