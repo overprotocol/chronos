@@ -653,10 +653,10 @@ func TestAttestationRewards_Electra(t *testing.T) {
 			PublicKey:         blsKey.PublicKey().Marshal(),
 			ExitEpoch:         params.BeaconConfig().FarFutureEpoch,
 			WithdrawableEpoch: params.BeaconConfig().FarFutureEpoch,
-			EffectiveBalance:  params.BeaconConfig().MaxEffectiveBalanceElectra / 64 * uint64(i+1),
-			PrincipalBalance:  params.BeaconConfig().MaxEffectiveBalanceElectra / 64 * uint64(i+1),
+			EffectiveBalance:  params.BeaconConfig().MaxEffectiveBalanceAlpaca / 64 * uint64(i+1),
+			PrincipalBalance:  params.BeaconConfig().MaxEffectiveBalanceAlpaca / 64 * uint64(i+1),
 		})
-		balances = append(balances, params.BeaconConfig().MaxEffectiveBalanceElectra/64*uint64(i+1))
+		balances = append(balances, params.BeaconConfig().MaxEffectiveBalanceAlpaca/64*uint64(i+1))
 	}
 	require.NoError(t, st.SetValidators(validators))
 	require.NoError(t, st.SetBalances(balances))

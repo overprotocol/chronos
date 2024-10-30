@@ -65,10 +65,10 @@ ETH1_FOLLOW_DISTANCE: 8 # Override for e2e tests
 
 # Validator cycle
 # ---------------------------------------------------------------
-# 2**2 (= 4)
-INACTIVITY_SCORE_BIAS: 4
-# 2**4 (= 16)
-INACTIVITY_SCORE_RECOVERY_RATE: 16
+# 2**1 (= 2)
+INACTIVITY_SCORE_BIAS: 2
+# 2**0 (= 1)
+INACTIVITY_SCORE_RECOVERY_RATE: 1
 # 2**1 (= 2)
 MIN_PER_EPOCH_CHURN_LIMIT: 2
 # [customized] scale queue churn at much lower validator counts for testing
@@ -91,8 +91,6 @@ DEPOSIT_CONTRACT_ADDRESS: 0x4242424242424242424242424242424242424242
 
 # Updated penalty values
 # ---------------------------------------------------------------
-# 3 * 2**24 (= 50,331,648)
-INACTIVITY_PENALTY_QUOTIENT_ALTAIR: 50331648
 # 2**6 (= 64)
 MIN_SLASHING_PENALTY_QUOTIENT_ALTAIR: 64
 

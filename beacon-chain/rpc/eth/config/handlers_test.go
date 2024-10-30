@@ -137,7 +137,6 @@ func TestGetSpec(t *testing.T) {
 	config.EpochsPerYear = 83
 	config.IssuancePerYear = 84
 	config.LightLayerWeight = 85
-	config.MaxEffectiveBalanceElectra = 87
 	config.CompoundingWithdrawalPrefixByte = byte('d')
 	config.PendingPartialWithdrawalsLimit = 90
 	config.MinActivationBalance = 91
@@ -200,7 +199,7 @@ func TestGetSpec(t *testing.T) {
 	data, ok := resp.Data.(map[string]interface{})
 	require.Equal(t, true, ok)
 
-	assert.Equal(t, 156, len(data))
+	assert.Equal(t, 159, len(data))
 	for k, v := range data {
 		t.Run(k, func(t *testing.T) {
 			switch k {
@@ -350,8 +349,6 @@ func TestGetSpec(t *testing.T) {
 				assert.Equal(t, "56", v)
 			case "INACTIVITY_SCORE_BIAS":
 				assert.Equal(t, "57", v)
-			case "INACTIVITY_PENALTY_QUOTIENT_ALTAIR":
-				assert.Equal(t, "58", v)
 			case "MIN_SLASHING_PENALTY_QUOTIENT_ALTAIR":
 				assert.Equal(t, "59", v)
 			case "INACTIVITY_SCORE_RECOVERY_RATE":
@@ -496,45 +493,45 @@ func TestGetSpec(t *testing.T) {
 			case "TARGET_CHANGE_RATE":
 				assert.Equal(t, "92", v)
 			case "MAX_TOKEN_SUPPLY":
-				assert.Equal(t, "81", v)
-			case "EPOCHS_PER_YEAR":
 				assert.Equal(t, "82", v)
-			case "ISSUANCE_PER_YEAR":
+			case "EPOCHS_PER_YEAR":
 				assert.Equal(t, "83", v)
-			case "LIGHT_LAYER_WEIGHT":
+			case "ISSUANCE_PER_YEAR":
 				assert.Equal(t, "84", v)
+			case "LIGHT_LAYER_WEIGHT":
+				assert.Equal(t, "85", v)
 			case "MAX_EFFECTIVE_BALANCE_ALPACA":
-				assert.Equal(t, "86", v)
+				assert.Equal(t, "16384000000000", v)
 			case "COMPOUNDING_WITHDRAWAL_PREFIX":
 				assert.Equal(t, "0x64", v)
 			case "PENDING_PARTIAL_WITHDRAWALS_LIMIT":
-				assert.Equal(t, "89", v)
-			case "MIN_ACTIVATION_BALANCE":
 				assert.Equal(t, "90", v)
-			case "PENDING_DEPOSITS_LIMIT":
+			case "MIN_ACTIVATION_BALANCE":
 				assert.Equal(t, "91", v)
-			case "MAX_PENDING_PARTIALS_PER_WITHDRAWALS_SWEEP":
+			case "PENDING_DEPOSITS_LIMIT":
 				assert.Equal(t, "92", v)
-			case "MAX_PARTIAL_WITHDRAWALS_PER_PAYLOAD":
+			case "MAX_PENDING_PARTIALS_PER_WITHDRAWALS_SWEEP":
 				assert.Equal(t, "93", v)
-			case "FULL_EXIT_REQUEST_AMOUNT":
+			case "MAX_PARTIAL_WITHDRAWALS_PER_PAYLOAD":
 				assert.Equal(t, "94", v)
-			case "MAX_ATTESTER_SLASHINGS_ELECTRA":
+			case "FULL_EXIT_REQUEST_AMOUNT":
 				assert.Equal(t, "95", v)
-			case "MAX_ATTESTATIONS_ELECTRA":
+			case "MAX_ATTESTER_SLASHINGS_ELECTRA":
 				assert.Equal(t, "96", v)
-			case "MAX_WITHDRAWAL_REQUESTS_PER_PAYLOAD":
+			case "MAX_ATTESTATIONS_ELECTRA":
 				assert.Equal(t, "97", v)
-			case "MAX_CELLS_IN_EXTENDED_MATRIX":
+			case "MAX_WITHDRAWAL_REQUESTS_PER_PAYLOAD":
 				assert.Equal(t, "98", v)
-			case "UNSET_DEPOSIT_REQUESTS_START_INDEX":
+			case "MAX_CELLS_IN_EXTENDED_MATRIX":
 				assert.Equal(t, "99", v)
-			case "MAX_DEPOSIT_REQUESTS_PER_PAYLOAD":
+			case "UNSET_DEPOSIT_REQUESTS_START_INDEX":
 				assert.Equal(t, "100", v)
-			case "MAX_PENDING_DEPOSITS_PER_EPOCH":
+			case "MAX_DEPOSIT_REQUESTS_PER_PAYLOAD":
 				assert.Equal(t, "101", v)
-			case "MAX_DEPOSITS_ALPACA":
+			case "MAX_PENDING_DEPOSITS_PER_EPOCH":
 				assert.Equal(t, "102", v)
+			case "MAX_DEPOSITS_ALPACA":
+				assert.Equal(t, "112", v)
 			case "MIN_SLASHING_PENALTY_QUOTIENT_ALPACA":
 				assert.Equal(t, "103", v)
 			case "WHISTLEBLOWER_REWARD_QUOTIENT_ALPACA":

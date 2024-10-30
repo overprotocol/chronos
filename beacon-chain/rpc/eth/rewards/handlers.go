@@ -187,7 +187,7 @@ func idealAttRewards(
 		// before touching few downstairs.
 		minIdealBalance = maxEffectiveBalance - increment
 	} else {
-		maxEffectiveBalance = params.BeaconConfig().MaxEffectiveBalanceElectra / 1e9
+		maxEffectiveBalance = params.BeaconConfig().MaxEffectiveBalanceAlpaca / 1e9
 		// Post-Electra, the range of effective balance becomes wider, but the lower bound will be same as pre-Electra.
 		minIdealBalance = params.BeaconConfig().MinActivationBalance/1e9 - increment
 	}

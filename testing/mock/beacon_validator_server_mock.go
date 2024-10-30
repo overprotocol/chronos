@@ -42,7 +42,6 @@ func (m *MockBeaconNodeValidatorServer) EXPECT() *MockBeaconNodeValidatorServerM
 	return m.recorder
 }
 
-
 // AssignValidatorToSubnet mocks base method.
 func (m *MockBeaconNodeValidatorServer) AssignValidatorToSubnet(arg0 context.Context, arg1 *eth.AssignValidatorToSubnetRequest) (*emptypb.Empty, error) {
 	m.ctrl.T.Helper()
