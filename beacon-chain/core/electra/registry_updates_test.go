@@ -76,25 +76,64 @@ func TestProcessRegistryUpdates(t *testing.T) {
 			},
 		},
 		{
-			name: "Validators are exited",
+			name: "Validators are bailed out",
 			state: func() state.BeaconState {
 				base := &eth.BeaconStateElectra{
 					Slot:                5 * params.BeaconConfig().SlotsPerEpoch,
 					FinalizedCheckpoint: &eth.Checkpoint{Epoch: finalizedEpoch, Root: make([]byte, fieldparams.RootLength)},
 				}
 				for i := uint64(0); i < 10; i++ {
+					principalBalance := params.BeaconConfig().MinActivationBalance
 					base.Validators = append(base.Validators, &eth.Validator{
-						EffectiveBalance:  params.BeaconConfig().EjectionBalance - 1,
+						EffectiveBalance:  params.BeaconConfig().MinActivationBalance,
 						ExitEpoch:         params.BeaconConfig().FarFutureEpoch,
 						WithdrawableEpoch: params.BeaconConfig().FarFutureEpoch,
+						PrincipalBalance:  principalBalance,
 					})
+					bailoutBuffer := principalBalance * params.BeaconConfig().InactivityPenaltyRate / params.BeaconConfig().InactivityPenaltyRatePrecision
+					actualBalance := principalBalance - bailoutBuffer - 1
+					base.Balances = append(base.Balances, actualBalance)
 				}
 				st, err := state_native.InitializeFromProtoElectra(base)
 				require.NoError(t, err)
 				return st
 			}(),
 			check: func(t *testing.T, st state.BeaconState) {
-				// All validators should be exited
+				// All validators should be bailed out
+				for i, val := range st.Validators() {
+					require.NotEqual(t, params.BeaconConfig().FarFutureEpoch, val.ExitEpoch, "failed to update exit epoch on validator %d", i)
+					require.NotEqual(t, params.BeaconConfig().FarFutureEpoch, val.WithdrawableEpoch, "failed to update withdrawable epoch on validator %d", i)
+				}
+			},
+		},
+		{
+			name: "Validators are bailed out while leak",
+			state: func() state.BeaconState {
+				inactivityScores := params.BeaconConfig().InactivityLeakBailoutScoreThreshold + 1
+				base := &eth.BeaconStateElectra{
+					Slot:                10 * params.BeaconConfig().SlotsPerEpoch,
+					FinalizedCheckpoint: &eth.Checkpoint{Epoch: finalizedEpoch, Root: make([]byte, fieldparams.RootLength)},
+					InactivityScores:    make([]uint64, 0),
+				}
+				for i := uint64(0); i < 10; i++ {
+					principalBalance := params.BeaconConfig().MinActivationBalance
+					base.Validators = append(base.Validators, &eth.Validator{
+						EffectiveBalance:  params.BeaconConfig().MinActivationBalance,
+						ExitEpoch:         params.BeaconConfig().FarFutureEpoch,
+						WithdrawableEpoch: params.BeaconConfig().FarFutureEpoch,
+						PrincipalBalance:  principalBalance,
+					})
+					actualBalance := principalBalance
+					base.Balances = append(base.Balances, actualBalance)
+					base.InactivityScores = append(base.InactivityScores, inactivityScores)
+				}
+
+				st, err := state_native.InitializeFromProtoElectra(base)
+				require.NoError(t, err)
+				return st
+			}(),
+			check: func(t *testing.T, st state.BeaconState) {
+				// All validators should be bailed out
 				for i, val := range st.Validators() {
 					require.NotEqual(t, params.BeaconConfig().FarFutureEpoch, val.ExitEpoch, "failed to update exit epoch on validator %d", i)
 					require.NotEqual(t, params.BeaconConfig().FarFutureEpoch, val.WithdrawableEpoch, "failed to update withdrawable epoch on validator %d", i)
@@ -110,7 +149,7 @@ func TestProcessRegistryUpdates(t *testing.T) {
 				}
 				for i := uint64(0); i < 10; i++ {
 					base.Validators = append(base.Validators, &eth.Validator{
-						EffectiveBalance:  params.BeaconConfig().EjectionBalance - 1,
+						EffectiveBalance:  params.BeaconConfig().MinActivationBalance,
 						ExitEpoch:         10,
 						WithdrawableEpoch: 20,
 					})
@@ -140,18 +179,30 @@ func TestProcessRegistryUpdates(t *testing.T) {
 	}
 }
 
-func Benchmark_ProcessRegistryUpdates_MassEjection(b *testing.B) {
-	bal := params.BeaconConfig().EjectionBalance - 1
+func Benchmark_ProcessRegistryUpdates_MassBailout(b *testing.B) {
+	principalBalance := params.BeaconConfig().MinActivationBalance
 	ffe := params.BeaconConfig().FarFutureEpoch
+
+	bailoutBuffer := principalBalance * params.BeaconConfig().InactivityPenaltyRate / params.BeaconConfig().InactivityPenaltyRatePrecision
+	actualBalance := principalBalance - bailoutBuffer - 1
+
 	genValidators := func(num uint64) []*eth.Validator {
 		vals := make([]*eth.Validator, num)
 		for i := range vals {
 			vals[i] = &eth.Validator{
-				EffectiveBalance: bal,
+				EffectiveBalance: principalBalance,
 				ExitEpoch:        ffe,
 			}
 		}
 		return vals
+	}
+
+	genBalances := func(num uint64) []uint64 {
+		bals := make([]uint64, num)
+		for i := range bals {
+			bals[i] = actualBalance
+		}
+		return bals
 	}
 
 	st, err := util.NewBeaconStateElectra()
@@ -160,6 +211,9 @@ func Benchmark_ProcessRegistryUpdates_MassEjection(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		b.StopTimer()
 		if err := st.SetValidators(genValidators(100000)); err != nil {
+			panic(err)
+		}
+		if err := st.SetBalances(genBalances(100000)); err != nil {
 			panic(err)
 		}
 		b.StartTimer()

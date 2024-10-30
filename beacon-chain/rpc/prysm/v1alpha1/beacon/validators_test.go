@@ -1041,7 +1041,7 @@ func TestServer_ListValidators_FromOldEpoch(t *testing.T) {
 	r, err := b.Block.HashTreeRoot()
 	require.NoError(t, err)
 
-	st, _ := util.DeterministicGenesisState(t, numVals)
+	st, _ := util.DeterministicGenesisStateAltair(t, numVals)
 	require.NoError(t, st.SetSlot(slot))
 	require.Equal(t, int(numVals), len(st.Validators()))
 
@@ -1071,7 +1071,7 @@ func TestServer_ListValidators_FromOldEpoch(t *testing.T) {
 	vals := st.Validators()
 	want := make([]*ethpb.Validators_ValidatorContainer, 0)
 	for i, v := range vals {
-		v.EffectiveBalance = 0x3946be1c00 // 246000000000 Gwei
+		v.EffectiveBalance = 0x3b9aca0000 // 256000000000 Gwei
 		want = append(want, &ethpb.Validators_ValidatorContainer{
 			Index:     primitives.ValidatorIndex(i),
 			Validator: v,
@@ -1242,12 +1242,17 @@ func TestServer_GetValidatorActiveSetChanges(t *testing.T) {
 	require.NoError(t, err)
 	require.NoError(t, headState.SetSlot(0))
 	require.NoError(t, headState.SetValidators(validators))
+
+	actualBalances := make([]uint64, 0)
+
 	for i := 0; i < len(validators); i++ {
 		activationEpoch := params.BeaconConfig().FarFutureEpoch
 		withdrawableEpoch := params.BeaconConfig().FarFutureEpoch
 		exitEpoch := params.BeaconConfig().FarFutureEpoch
 		slashed := false
-		balance := params.BeaconConfig().MaxEffectiveBalance
+		balance := params.BeaconConfig().MinActivationBalance
+		actualBalances = append(actualBalances, balance)
+
 		// Mark indices divisible by two as activated.
 		if i%2 == 0 {
 			activationEpoch = 0
@@ -1260,10 +1265,11 @@ func TestServer_GetValidatorActiveSetChanges(t *testing.T) {
 			exitEpoch = 0
 			withdrawableEpoch = params.BeaconConfig().MinValidatorWithdrawabilityDelay
 		} else if i%7 == 0 {
-			// Mark indices divisible by 7 as ejected.
+			// Mark indices divisible by 7 as bailed out.
 			exitEpoch = 0
 			withdrawableEpoch = params.BeaconConfig().MinValidatorWithdrawabilityDelay
-			balance = params.BeaconConfig().EjectionBalance
+			bailoutBuffer := balance * params.BeaconConfig().InactivityPenaltyRate / params.BeaconConfig().InactivityPenaltyRatePrecision
+			actualBalances[i] = balance - bailoutBuffer - 1
 		}
 		err := headState.UpdateValidatorAtIndex(primitives.ValidatorIndex(i), &ethpb.Validator{
 			ActivationEpoch:       activationEpoch,
@@ -1273,9 +1279,12 @@ func TestServer_GetValidatorActiveSetChanges(t *testing.T) {
 			WithdrawableEpoch:     withdrawableEpoch,
 			Slashed:               slashed,
 			ExitEpoch:             exitEpoch,
+			PrincipalBalance:      balance,
 		})
 		require.NoError(t, err)
 	}
+	require.NoError(t, headState.SetBalances(actualBalances))
+
 	b := util.NewBeaconBlock()
 	util.SaveBlock(t, ctx, beaconDB, b)
 
@@ -1312,10 +1321,10 @@ func TestServer_GetValidatorActiveSetChanges(t *testing.T) {
 		pubKey(3),
 	}
 	wantedSlashedIndices := []primitives.ValidatorIndex{3}
-	wantedEjected := [][]byte{
+	wantedBailedOut := [][]byte{
 		pubKey(7),
 	}
-	wantedEjectedIndices := []primitives.ValidatorIndex{7}
+	wantedBailedOutIndices := []primitives.ValidatorIndex{7}
 	wanted := &ethpb.ActiveSetChanges{
 		Epoch:               0,
 		ActivatedPublicKeys: wantedActive,
@@ -1324,12 +1333,10 @@ func TestServer_GetValidatorActiveSetChanges(t *testing.T) {
 		ExitedIndices:       wantedExitedIndices,
 		SlashedPublicKeys:   wantedSlashed,
 		SlashedIndices:      wantedSlashedIndices,
-		EjectedPublicKeys:   wantedEjected,
-		EjectedIndices:      wantedEjectedIndices,
+		BailedOutPublicKeys: wantedBailedOut,
+		BailedOutIndices:    wantedBailedOutIndices,
 	}
-	if !proto.Equal(wanted, res) {
-		t.Errorf("Wanted \n%v, received \n%v", wanted, res)
-	}
+	require.DeepEqual(t, wanted, res)
 }
 
 func TestServer_GetValidatorQueue_PendingActivation(t *testing.T) {
@@ -2084,9 +2091,9 @@ func TestGetValidatorPerformanceAltair_OK(t *testing.T) {
 		CorrectlyVotedTarget:          []bool{false, false},
 		CorrectlyVotedHead:            []bool{false, false},
 		BalancesBeforeEpochTransition: []uint64{101, 102},
-		BalancesAfterEpochTransition:  []uint64{0, 0},
+		BalancesAfterEpochTransition:  []uint64{101, 102},
 		MissingValidators:             [][]byte{publicKey1[:]},
-		InactivityScores:              []uint64{0, 0},
+		InactivityScores:              []uint64{2, 2},
 	}
 
 	res, err := bs.GetValidatorPerformance(ctx, &ethpb.ValidatorPerformanceRequest{
@@ -2154,9 +2161,9 @@ func TestGetValidatorPerformanceBellatrix_OK(t *testing.T) {
 		CorrectlyVotedTarget:          []bool{false, false},
 		CorrectlyVotedHead:            []bool{false, false},
 		BalancesBeforeEpochTransition: []uint64{101, 102},
-		BalancesAfterEpochTransition:  []uint64{0, 0},
+		BalancesAfterEpochTransition:  []uint64{101, 102},
 		MissingValidators:             [][]byte{publicKey1[:]},
-		InactivityScores:              []uint64{0, 0},
+		InactivityScores:              []uint64{2, 2},
 	}
 
 	res, err := bs.GetValidatorPerformance(ctx, &ethpb.ValidatorPerformanceRequest{
@@ -2224,9 +2231,9 @@ func TestGetValidatorPerformanceCapella_OK(t *testing.T) {
 		CorrectlyVotedTarget:          []bool{false, false},
 		CorrectlyVotedHead:            []bool{false, false},
 		BalancesBeforeEpochTransition: []uint64{101, 102},
-		BalancesAfterEpochTransition:  []uint64{0, 0},
+		BalancesAfterEpochTransition:  []uint64{101, 102},
 		MissingValidators:             [][]byte{publicKey1[:]},
-		InactivityScores:              []uint64{0, 0},
+		InactivityScores:              []uint64{2, 2},
 	}
 
 	res, err := bs.GetValidatorPerformance(ctx, &ethpb.ValidatorPerformanceRequest{

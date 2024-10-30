@@ -225,7 +225,6 @@ func (mr *MockSignatureMockRecorder) Copy() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Copy", reflect.TypeOf((*MockSignature)(nil).Copy))
 }
 
-
 // FastAggregateVerify mocks base method.
 func (m *MockSignature) FastAggregateVerify(pubKeys []common.PublicKey, msg [32]byte) bool {
 	m.ctrl.T.Helper()

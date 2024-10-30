@@ -56,7 +56,6 @@ type BeaconChainConfig struct {
 	MinDepositAmount          uint64 `yaml:"MIN_DEPOSIT_AMOUNT" spec:"true"`          // MinDepositAmount is the minimum amount of Gwei a validator can send to the deposit contract at once (lower amounts will be reverted).
 	MinActivationBalance      uint64 `yaml:"MIN_ACTIVATION_BALANCE" spec:"true"`      // MinActivationBalance is the minimum amount of Gwei a validator must have to be activated in the beacon state.
 	MaxEffectiveBalance       uint64 `yaml:"MAX_EFFECTIVE_BALANCE" spec:"true"`       // MaxEffectiveBalance is the maximal amount of Gwei that is effective for staking.
-	EjectionBalance           uint64 `yaml:"EJECTION_BALANCE" spec:"true"`            // EjectionBalance is the minimal GWei a validator needs to have before ejected.
 	EffectiveBalanceIncrement uint64 `yaml:"EFFECTIVE_BALANCE_INCREMENT" spec:"true"` // EffectiveBalanceIncrement is used for converting the high balance into the low balance for validators.
 	MaxTokenSupply            uint64 `yaml:"MAX_TOKEN_SUPPLY" spec:"true"`            // MaxTokenSupply defines the target maximum number of tokens that can be issued in GWei.
 	IssuancePerYear           uint64 `yaml:"ISSUANCE_PER_YEAR" spec:"true"`           // IssuancePerYear defines the issuance of tokens per year in GWei.
@@ -107,10 +106,16 @@ type BeaconChainConfig struct {
 	ValidatorRegistryLimit    uint64           `yaml:"VALIDATOR_REGISTRY_LIMIT" spec:"true"`     // ValidatorRegistryLimit defines the upper bound of validators can participate in eth2.
 
 	// Reward and penalty quotients constants.
-	WhistleBlowerRewardQuotient uint64 `yaml:"WHISTLEBLOWER_REWARD_QUOTIENT" spec:"true"` // WhistleBlowerRewardQuotient is used to calculate whistle blower reward.
-	ProposerRewardQuotient      uint64 `yaml:"PROPOSER_REWARD_QUOTIENT" spec:"true"`      // ProposerRewardQuotient is used to calculate the reward for proposers.
-	InactivityPenaltyQuotient   uint64 `yaml:"INACTIVITY_PENALTY_QUOTIENT" spec:"true"`   // InactivityPenaltyQuotient is used to calculate the penalty for a validator that is offline.
-	MinSlashingPenaltyQuotient  uint64 `yaml:"MIN_SLASHING_PENALTY_QUOTIENT" spec:"true"` // MinSlashingPenaltyQuotient is used to calculate the minimum penalty to prevent DoS attacks.
+	WhistleBlowerRewardQuotient          uint64 `yaml:"WHISTLEBLOWER_REWARD_QUOTIENT" spec:"true"`            // WhistleBlowerRewardQuotient is used to calculate whistle blower reward.
+	ProposerRewardQuotient               uint64 `yaml:"PROPOSER_REWARD_QUOTIENT" spec:"true"`                 // ProposerRewardQuotient is used to calculate the reward for proposers.
+	MinSlashingPenaltyQuotient           uint64 `yaml:"MIN_SLASHING_PENALTY_QUOTIENT" spec:"true"`            // MinSlashingPenaltyQuotient is used to calculate the minimum penalty to prevent DoS attacks.
+	InactivityPenaltyRate                uint64 `yaml:"INACTIVITY_PENALTY_RATE" spec:"true"`                  // InactivityPenaltyRate is used to calculate the penalty numerator and bail out.
+	InactivityPenaltyRatePrecision       uint64 `yaml:"INACTIVITY_PENALTY_RATE_PRECISION" spec:"true"`        // InactivityPenaltyRatePrecision is used to calculate the penalty numerator and bail out.
+	InactivityPenaltyDuration            uint64 `yaml:"INACTIVITY_PENALTY_DURATION" spec:"true"`              // InactivityPenaltyDuration defines the maximum duration a validator can be offline before bail out.
+	InactivityScorePenaltyThreshold      uint64 `yaml:"INACTIVITY_SCORE_PENALTY_THRESHOLD" spec:"true"`       // InactivityScorePenaltyThreshold defines the threshold for inactivity accumulated for one day.
+	InactivityLeakPenaltyBuffer          uint64 `yaml:"INACTIVITY_LEAK_PENALTY_BUFFER" spec:"true"`           // InactivityLeakPenaltyBuffer is used to calculate the penalty buffer.
+	InactivityLeakPenaltyBufferPrecision uint64 `yaml:"INACTIVITY_LEAK_PENALTY_BUFFER_PRECISION" spec:"true"` // InactivityLeakPenaltyBufferPrecision is used to calculate the penalty buffer.
+	InactivityLeakBailoutScoreThreshold  uint64 `yaml:"INACTIVITY_LEAK_BAILOUT_SCORE_THRESHOLD" spec:"true"`  // InactivityLeakBailoutScoreThreshold defines the inactivity score accumulated for 15 days.
 
 	// Max operations per block constants.
 	MaxProposerSlashings             uint64 `yaml:"MAX_PROPOSER_SLASHINGS" spec:"true"`         // MaxProposerSlashings defines the maximum number of slashings of proposers possible in a block.
@@ -205,10 +210,8 @@ type BeaconChainConfig struct {
 
 	// Updated penalty values. This moves penalty parameters toward their final, maximum security values.
 	// Note: We do not override previous configuration values but instead creates new values and replaces usage throughout.
-	InactivityPenaltyQuotientAltair     uint64 `yaml:"INACTIVITY_PENALTY_QUOTIENT_ALTAIR" spec:"true"`      // InactivityPenaltyQuotientAltair for penalties during inactivity post Altair hard fork.
 	MinSlashingPenaltyQuotientAltair    uint64 `yaml:"MIN_SLASHING_PENALTY_QUOTIENT_ALTAIR" spec:"true"`    // MinSlashingPenaltyQuotientAltair for slashing penalties post Altair hard fork.
 	MinSlashingPenaltyQuotientBellatrix uint64 `yaml:"MIN_SLASHING_PENALTY_QUOTIENT_BELLATRIX" spec:"true"` // MinSlashingPenaltyQuotientBellatrix for slashing penalties post Bellatrix hard fork.
-	InactivityPenaltyQuotientBellatrix  uint64 `yaml:"INACTIVITY_PENALTY_QUOTIENT_BELLATRIX" spec:"true"`   // InactivityPenaltyQuotientBellatrix for penalties during inactivity post Bellatrix hard fork.
 
 	// Bellatrix
 	TerminalBlockHash                common.Hash      `yaml:"TERMINAL_BLOCK_HASH" spec:"true"`                  // TerminalBlockHash of beacon chain.
@@ -241,8 +244,6 @@ type BeaconChainConfig struct {
 	MinPerEpochChurnLimitAlpaca            uint64 `yaml:"MIN_PER_EPOCH_CHURN_LIMIT_ALPACA" spec:"true"`             // MinPerEpochChurnLimitAlpaca is the minimum amount of churn allotted for validator rotations for alpaca.
 	MaxRequestDataColumnSidecars           uint64 `yaml:"MAX_REQUEST_DATA_COLUMN_SIDECARS" spec:"true"`             // MaxRequestDataColumnSidecars is the maximum number of data column sidecars in a single request
 	MaxEffectiveBalanceAlpaca              uint64 `yaml:"MAX_EFFECTIVE_BALANCE_ALPACA" spec:"true"`                 // MaxEffectiveBalanceAlpaca is the maximal amount of Gwei that is effective for staking, increased in alpaca.
-	MinSlashingPenaltyQuotientElectra      uint64 `yaml:"MIN_SLASHING_PENALTY_QUOTIENT_ELECTRA" spec:"true"`        // MinSlashingPenaltyQuotientElectra is used to calculate the minimum penalty to prevent DoS attacks, modified for electra.
-	WhistleBlowerRewardQuotientElectra     uint64 `yaml:"WHISTLEBLOWER_REWARD_QUOTIENT_ELECTRA" spec:"true"`        // WhistleBlowerRewardQuotientElectra is used to calculate whistle blower reward, modified in electra.
 	PendingDepositLimit                    uint64 `yaml:"PENDING_DEPOSITS_LIMIT" spec:"true"`                       // PendingDepositLimit is the maximum number of pending balance deposits allowed in the beacon state.
 	PendingPartialWithdrawalsLimit         uint64 `yaml:"PENDING_PARTIAL_WITHDRAWALS_LIMIT" spec:"true"`            // PendingPartialWithdrawalsLimit is the maximum number of pending partial withdrawals allowed in the beacon state.
 	MaxPendingPartialsPerWithdrawalsSweep  uint64 `yaml:"MAX_PENDING_PARTIALS_PER_WITHDRAWALS_SWEEP" spec:"true"`   // MaxPendingPartialsPerWithdrawalsSweep is the maximum number of pending partial withdrawals to process per payload.
@@ -251,6 +252,10 @@ type BeaconChainConfig struct {
 	MaxWithdrawalRequestsPerPayload        uint64 `yaml:"MAX_WITHDRAWAL_REQUESTS_PER_PAYLOAD" spec:"true"`          // MaxWithdrawalRequestsPerPayload is the maximum number of execution layer withdrawal requests in each payload.
 	MaxDepositRequestsPerPayload           uint64 `yaml:"MAX_DEPOSIT_REQUESTS_PER_PAYLOAD" spec:"true"`             // MaxDepositRequestsPerPayload is the maximum number of execution layer deposits in each payload
 	UnsetDepositRequestsStartIndex         uint64 `yaml:"UNSET_DEPOSIT_REQUESTS_START_INDEX" spec:"true"`           // UnsetDepositRequestsStartIndex is used to check the start index for eip6110
+
+	// Values introduce in Alpaca upgrade
+	MinSlashingPenaltyQuotientAlpaca  uint64 `yaml:"MIN_SLASHING_PENALTY_QUOTIENT_ALPACA" spec:"true"` // MinSlashingPenaltyQuotientAlpaca is used to calculate the minimum penalty to prevent DoS attacks, modified for alpaca.
+	WhistleBlowerRewardQuotientAlpaca uint64 `yaml:"WHISTLEBLOWER_REWARD_QUOTIENT_ALPACA" spec:"true"` // WhistleBlowerRewardQuotientAlpaca is used to calculate whistle blower reward, modified in alpaca.
 
 	// Networking Specific Parameters
 	GossipMaxSize                   uint64          `yaml:"GOSSIP_MAX_SIZE" spec:"true"`                    // GossipMaxSize is the maximum allowed size of uncompressed gossip messages.
@@ -351,6 +356,12 @@ func (b *BeaconChainConfig) InitializeDolphinDepositPlan() {
 	b.DepositPlanLaterSlope = 100000000 * 1e9 / (b.EpochsPerYear * (b.DepositPlanLaterEnd - b.DepositPlanEarlyEnd))
 	b.DepositPlanLaterOffset = 133333334 * 1e9
 	b.DepositPlanFinal = 300000000 * 1e9
+}
+
+// InitializeInactivityValues initializes INACTIVITY_SCORE_PENALTY_THRESHOLD and INACTIVITY_LEAK_BAILOUT_SCORE_THRESHOLD.
+func (b *BeaconChainConfig) InitializeInactivityValues() {
+	b.InactivityScorePenaltyThreshold = 225 * b.InactivityScoreBias
+	b.InactivityLeakBailoutScoreThreshold = b.InactivityScorePenaltyThreshold + (b.InactivityPenaltyDuration * b.InactivityScoreBias)
 }
 
 // TtfbTimeoutDuration returns the time duration of the timeout.

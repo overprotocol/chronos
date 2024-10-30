@@ -172,7 +172,7 @@ func attRewardsBalancesAndVals(
 }
 
 // idealAttRewards returns rewards for hypothetical, perfectly voting validators
-// whose effective balances are over EJECTION_BALANCE and match balances in passed in validators.
+// whose effective balances are over minIdealBalance and match balances in passed in validators.
 func idealAttRewards(
 	w http.ResponseWriter,
 	st state.BeaconState,
@@ -180,11 +180,19 @@ func idealAttRewards(
 	vals []*precompute.Validator,
 ) ([]structs.IdealAttestationReward, bool) {
 	increment := params.BeaconConfig().EffectiveBalanceIncrement / 1e9
-	maxEffectiveBalance := params.BeaconConfig().MaxEffectiveBalance / 1e9
-	ejectionBalance := params.BeaconConfig().EjectionBalance / 1e9
+	var maxEffectiveBalance, minIdealBalance uint64
+	if st.Version() < version.Electra {
+		maxEffectiveBalance = params.BeaconConfig().MinActivationBalance / 1e9
+		// Due to bail out and new penalty mechanism, validator will be exited
+		// before touching few downstairs.
+		minIdealBalance = maxEffectiveBalance - increment
+	} else {
+		maxEffectiveBalance = params.BeaconConfig().MaxEffectiveBalanceAlpaca / 1e9
+		// Post-Electra, the range of effective balance becomes wider, but the lower bound will be same as pre-Electra.
+		minIdealBalance = params.BeaconConfig().MinActivationBalance/1e9 - increment
+	}
 
-	idealValsCount := (maxEffectiveBalance - ejectionBalance) / increment
-	minIdealBalance := ejectionBalance + increment
+	idealValsCount := (maxEffectiveBalance - minIdealBalance) / increment
 	maxIdealBalance := maxEffectiveBalance
 
 	idealRewards := make([]structs.IdealAttestationReward, 0, idealValsCount)
@@ -220,11 +228,6 @@ func idealAttRewards(
 		} else {
 			idealRewards[i].Target = strconv.FormatUint(d.TargetReward, 10)
 		}
-		if d.InactivityPenalty > 0 {
-			idealRewards[i].Inactivity = fmt.Sprintf("-%s", strconv.FormatUint(d.InactivityPenalty, 10))
-		} else {
-			idealRewards[i].Inactivity = strconv.FormatUint(d.InactivityPenalty, 10)
-		}
 	}
 	return idealRewards, true
 }
@@ -256,11 +259,6 @@ func totalAttRewards(
 			totalRewards[i].Target = fmt.Sprintf("-%s", strconv.FormatUint(d.TargetPenalty, 10))
 		} else {
 			totalRewards[i].Target = strconv.FormatUint(d.TargetReward, 10)
-		}
-		if d.InactivityPenalty > 0 {
-			totalRewards[i].Inactivity = fmt.Sprintf("-%s", strconv.FormatUint(d.InactivityPenalty, 10))
-		} else {
-			totalRewards[i].Inactivity = strconv.FormatUint(d.InactivityPenalty, 10)
 		}
 	}
 	return totalRewards, true

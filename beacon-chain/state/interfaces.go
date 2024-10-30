@@ -18,7 +18,6 @@ import (
 
 // BeaconState has read and write access to beacon state methods.
 type BeaconState interface {
-	SpecParametersProvider
 	ReadOnlyBeaconState
 	WriteOnlyBeaconState
 	Copy() BeaconState
@@ -27,12 +26,6 @@ type BeaconState interface {
 	HashTreeRoot(ctx context.Context) ([32]byte, error)
 	Prover
 	json.Marshaler
-}
-
-// SpecParametersProvider provides fork-specific configuration parameters as
-// defined in the consensus specification for the beacon chain.
-type SpecParametersProvider interface {
-	InactivityPenaltyQuotient() (uint64, error)
 }
 
 // StateProver defines the ability to create Merkle proofs for beacon state fields.
@@ -205,6 +198,7 @@ type ReadOnlyParticipation interface {
 // ReadOnlyInactivity defines a struct which only has read access to inactivity methods.
 type ReadOnlyInactivity interface {
 	InactivityScores() ([]uint64, error)
+	InactivityScoreAtIndex(idx primitives.ValidatorIndex) (uint64, error)
 }
 
 type ReadOnlyDeposits interface {

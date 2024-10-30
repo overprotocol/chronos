@@ -267,9 +267,9 @@ func TestServer_GetValidatorPerformance(t *testing.T) {
 			CorrectlyVotedTarget:          []bool{false, false},
 			CorrectlyVotedHead:            []bool{false, false},
 			BalancesBeforeEpochTransition: []uint64{101, 102},
-			BalancesAfterEpochTransition:  []uint64{0, 0},
+			BalancesAfterEpochTransition:  []uint64{101, 102},
 			MissingValidators:             [][]byte{publicKeys[0][:]},
-			InactivityScores:              []uint64{0, 0},
+			InactivityScores:              []uint64{2, 2},
 		}
 		request := &structs.GetValidatorPerformanceRequest{
 			PublicKeys: [][]byte{publicKeys[0][:], publicKeys[2][:], publicKeys[1][:]},
@@ -329,9 +329,9 @@ func TestServer_GetValidatorPerformance(t *testing.T) {
 			CorrectlyVotedTarget:          []bool{false, false},
 			CorrectlyVotedHead:            []bool{false, false},
 			BalancesBeforeEpochTransition: []uint64{101, 102},
-			BalancesAfterEpochTransition:  []uint64{0, 0},
+			BalancesAfterEpochTransition:  []uint64{101, 102},
 			MissingValidators:             [][]byte{publicKeys[0][:]},
-			InactivityScores:              []uint64{0, 0},
+			InactivityScores:              []uint64{2, 2},
 		}
 		request := &structs.GetValidatorPerformanceRequest{
 			PublicKeys: [][]byte{publicKeys[0][:], publicKeys[2][:], publicKeys[1][:]},
@@ -391,9 +391,9 @@ func TestServer_GetValidatorPerformance(t *testing.T) {
 			CorrectlyVotedTarget:          []bool{false, false},
 			CorrectlyVotedHead:            []bool{false, false},
 			BalancesBeforeEpochTransition: []uint64{101, 102},
-			BalancesAfterEpochTransition:  []uint64{0, 0},
+			BalancesAfterEpochTransition:  []uint64{101, 102},
 			MissingValidators:             [][]byte{publicKeys[0][:]},
-			InactivityScores:              []uint64{0, 0},
+			InactivityScores:              []uint64{2, 2},
 		}
 		request := &structs.GetValidatorPerformanceRequest{
 			PublicKeys: [][]byte{publicKeys[0][:], publicKeys[2][:], publicKeys[1][:]},
@@ -455,12 +455,14 @@ func setHeadState(t *testing.T, headState state.BeaconState, publicKeys [][48]by
 			EffectiveBalance: defaultBal,
 			ActivationEpoch:  0,
 			ExitEpoch:        params.BeaconConfig().FarFutureEpoch,
+			PrincipalBalance: defaultBal,
 		},
 		{
 			PublicKey:        publicKeys[2][:],
 			EffectiveBalance: defaultBal,
 			ActivationEpoch:  0,
 			ExitEpoch:        params.BeaconConfig().FarFutureEpoch,
+			PrincipalBalance: defaultBal,
 		},
 	}
 	require.NoError(t, headState.SetValidators(validators))

@@ -14,6 +14,7 @@ func MainnetConfig() *BeaconChainConfig {
 		mainnetBeaconConfig.InitializeForkSchedule()
 	}
 	mainnetBeaconConfig.InitializeDepositPlan()
+	mainnetBeaconConfig.InitializeInactivityValues()
 	return mainnetBeaconConfig
 }
 
@@ -77,7 +78,6 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	// Gwei value constants.
 	MinDepositAmount:          1 * 1e9,
 	MaxEffectiveBalance:       256 * 1e9,
-	EjectionBalance:           128 * 1e9,
 	EffectiveBalanceIncrement: 8 * 1e9,
 	MaxTokenSupply:            1000000000 * 1e9,
 	IssuancePerYear:           20000000 * 1e9,
@@ -136,7 +136,6 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	// Reward and penalty quotients constants.
 	WhistleBlowerRewardQuotient: 512,
 	ProposerRewardQuotient:      8,
-	InactivityPenaltyQuotient:   67108864,
 	MinSlashingPenaltyQuotient:  128,
 
 	// Max operations per block constants.
@@ -224,14 +223,17 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	WeightDenominator:  64,
 
 	// Misc values.
-	InactivityScoreBias:         4,
-	InactivityScoreRecoveryRate: 16,
+	InactivityScoreBias:         2,
+	InactivityScoreRecoveryRate: 1,
 
 	// Updated penalty values.
-	InactivityPenaltyQuotientAltair:     3 * 1 << 24, // 50331648
-	MinSlashingPenaltyQuotientAltair:    64,
-	MinSlashingPenaltyQuotientBellatrix: 32,
-	InactivityPenaltyQuotientBellatrix:  1 << 24,
+	MinSlashingPenaltyQuotientAltair:     64,
+	MinSlashingPenaltyQuotientBellatrix:  32,
+	InactivityPenaltyRate:                1,
+	InactivityPenaltyRatePrecision:       100,
+	InactivityPenaltyDuration:            1575, // epochs, 1 week
+	InactivityLeakPenaltyBuffer:          10,   // 10%
+	InactivityLeakPenaltyBufferPrecision: 100,
 
 	// Bellatrix
 	TerminalBlockHashActivationEpoch: 18446744073709551615,
@@ -260,8 +262,6 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	MinPerEpochChurnLimitAlpaca:            1_024_000_000_000,
 	MinPerEpochActivationBalanceChurnLimit: 4_096_000_000_000,
 	MaxEffectiveBalanceAlpaca:              16384_000_000_000,
-	MinSlashingPenaltyQuotientElectra:      4096,
-	WhistleBlowerRewardQuotientElectra:     4096,
 	PendingDepositLimit:                    134_217_728,
 	PendingPartialWithdrawalsLimit:         134_217_728,
 	MinActivationBalance:                   256_000_000_000,
@@ -271,6 +271,10 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	MaxWithdrawalRequestsPerPayload:        16,
 	MaxDepositRequestsPerPayload:           8192, // 2**13 (= 8192)
 	UnsetDepositRequestsStartIndex:         math.MaxUint64,
+
+	// Values related to alpaca
+	MinSlashingPenaltyQuotientAlpaca:  10,
+	WhistleBlowerRewardQuotientAlpaca: 10,
 
 	// PeerDAS
 	NumberOfColumns:          128,

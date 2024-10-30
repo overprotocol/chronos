@@ -18,7 +18,7 @@ func TestProcessEpoch_CanProcess(t *testing.T) {
 
 	b := st.Balances()
 	require.Equal(t, params.BeaconConfig().MaxValidatorsPerCommittee, uint64(len(b)))
-	require.Equal(t, uint64(255933107076), b[0])
+	require.Equal(t, uint64(256000000000), b[0])
 
 	s, err := st.InactivityScores()
 	require.NoError(t, err)
@@ -41,7 +41,7 @@ func TestProcessEpoch_CanProcessBellatrix(t *testing.T) {
 
 	b := st.Balances()
 	require.Equal(t, params.BeaconConfig().MaxValidatorsPerCommittee, uint64(len(b)))
-	require.Equal(t, uint64(255933096904), b[0])
+	require.Equal(t, uint64(256000000000), b[0])
 
 	s, err := st.InactivityScores()
 	require.NoError(t, err)

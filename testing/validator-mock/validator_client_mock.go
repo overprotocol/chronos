@@ -58,6 +58,7 @@ func (mr *MockValidatorClientMockRecorder) AggregatedSelections(arg0, arg1 any) 
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AggregatedSelections", reflect.TypeOf((*MockValidatorClient)(nil).AggregatedSelections), arg0, arg1)
 }
+
 // AttestationData mocks base method.
 func (m *MockValidatorClient) AttestationData(arg0 context.Context, arg1 *eth.AttestationDataRequest) (*eth.AttestationData, error) {
 	m.ctrl.T.Helper()
@@ -349,6 +350,7 @@ func (mr *MockValidatorClientMockRecorder) SubmitSignedAggregateSelectionProofEl
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SubmitSignedAggregateSelectionProofElectra", reflect.TypeOf((*MockValidatorClient)(nil).SubmitSignedAggregateSelectionProofElectra), arg0, arg1)
 }
+
 // SubmitValidatorRegistrations mocks base method.
 func (m *MockValidatorClient) SubmitValidatorRegistrations(arg0 context.Context, arg1 *eth.SignedValidatorRegistrationsV1) (*emptypb.Empty, error) {
 	m.ctrl.T.Helper()
@@ -378,7 +380,6 @@ func (mr *MockValidatorClientMockRecorder) SubscribeCommitteeSubnets(arg0, arg1,
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SubscribeCommitteeSubnets", reflect.TypeOf((*MockValidatorClient)(nil).SubscribeCommitteeSubnets), arg0, arg1, arg2)
 }
-
 
 // ValidatorIndex mocks base method.
 func (m *MockValidatorClient) ValidatorIndex(arg0 context.Context, arg1 *eth.ValidatorIndexRequest) (*eth.ValidatorIndexResponse, error) {
