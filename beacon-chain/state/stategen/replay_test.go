@@ -208,7 +208,7 @@ func TestReplayBlocks_ProcessEpoch_Electra(t *testing.T) {
 
 	beaconState, _ := util.DeterministicGenesisStateElectra(t, 1)
 	require.NoError(t, beaconState.SetDepositBalanceToConsume(100))
-	amountAvailForProcessing := helpers.ActivationExitChurnLimit(1_000 * 1e9)
+	amountAvailForProcessing := helpers.ActivationBalanceChurnLimit(1_000 * 1e9)
 	genesisBlock := util.NewBeaconBlockElectra()
 
 	sk, err := bls.RandKey()

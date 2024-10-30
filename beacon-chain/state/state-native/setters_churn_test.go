@@ -58,10 +58,10 @@ func TestExitEpochAndUpdateChurn(t *testing.T) {
 			Slot: slot,
 			Validators: []*eth.Validator{
 				{
-					EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceElectra,
+					EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceAlpaca,
 				},
 			},
-			Balances:             []uint64{params.BeaconConfig().MaxEffectiveBalanceElectra},
+			Balances:             []uint64{params.BeaconConfig().MaxEffectiveBalanceAlpaca},
 			EarliestExitEpoch:    epoch - params.BeaconConfig().MaxSeedLookahead*2, // Old, relative to slot.
 			ExitBalanceToConsume: primitives.Gwei(20_000_000),
 		})
@@ -71,7 +71,7 @@ func TestExitEpochAndUpdateChurn(t *testing.T) {
 
 		exitBal := primitives.Gwei(10_000_000)
 
-		wantExitBalToConsume := helpers.ActivationExitChurnLimit(primitives.Gwei(activeBal)) - exitBal
+		wantExitBalToConsume := helpers.ExitBalanceChurnLimit(primitives.Gwei(activeBal)) - exitBal
 
 		ee, err := st.ExitEpochAndUpdateChurn(exitBal)
 		require.NoError(t, err)
@@ -93,10 +93,10 @@ func TestExitEpochAndUpdateChurn(t *testing.T) {
 			Slot: slot,
 			Validators: []*eth.Validator{
 				{
-					EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceElectra,
+					EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceAlpaca,
 				},
 			},
-			Balances:             []uint64{params.BeaconConfig().MaxEffectiveBalanceElectra},
+			Balances:             []uint64{params.BeaconConfig().MaxEffectiveBalanceAlpaca},
 			EarliestExitEpoch:    epoch,
 			ExitBalanceToConsume: primitives.Gwei(20_000_000),
 		})
@@ -104,7 +104,7 @@ func TestExitEpochAndUpdateChurn(t *testing.T) {
 		activeBal, err := helpers.TotalActiveBalance(st)
 		require.NoError(t, err)
 
-		activationExitChurnLimit := helpers.ActivationExitChurnLimit(primitives.Gwei(activeBal))
+		activationExitChurnLimit := helpers.ExitBalanceChurnLimit(primitives.Gwei(activeBal))
 		exitBal := activationExitChurnLimit * 2
 
 		wantExitBalToConsume := primitives.Gwei(0)
@@ -129,10 +129,10 @@ func TestExitEpochAndUpdateChurn(t *testing.T) {
 			Slot: slot,
 			Validators: []*eth.Validator{
 				{
-					EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceElectra,
+					EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceAlpaca,
 				},
 			},
-			Balances:             []uint64{params.BeaconConfig().MaxEffectiveBalanceElectra},
+			Balances:             []uint64{params.BeaconConfig().MaxEffectiveBalanceAlpaca},
 			EarliestExitEpoch:    epoch + 10_000,
 			ExitBalanceToConsume: primitives.Gwei(20_000_000),
 		})
@@ -162,10 +162,10 @@ func TestExitEpochAndUpdateChurn(t *testing.T) {
 			Slot: slot,
 			Validators: []*eth.Validator{
 				{
-					EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceElectra,
+					EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceAlpaca,
 				},
 			},
-			Balances:             []uint64{params.BeaconConfig().MaxEffectiveBalanceElectra},
+			Balances:             []uint64{params.BeaconConfig().MaxEffectiveBalanceAlpaca},
 			EarliestExitEpoch:    epoch + 10_000,
 			ExitBalanceToConsume: primitives.Gwei(20_000_000),
 		})
@@ -174,7 +174,7 @@ func TestExitEpochAndUpdateChurn(t *testing.T) {
 		exitBal := primitives.Gwei(40_000_000)
 		activeBal, err := helpers.TotalActiveBalance(st)
 		require.NoError(t, err)
-		activationExitChurnLimit := helpers.ActivationExitChurnLimit(primitives.Gwei(activeBal))
+		activationExitChurnLimit := helpers.ExitBalanceChurnLimit(primitives.Gwei(activeBal))
 		wantExitBalToConsume := activationExitChurnLimit - 20_000_000
 
 		ee, err := st.ExitEpochAndUpdateChurn(exitBal)

@@ -50,7 +50,7 @@ func ProcessEffectiveBalanceUpdates(st state.BeaconState) error {
 
 		effectiveBalanceLimit := params.BeaconConfig().MinActivationBalance
 		if helpers.HasCompoundingWithdrawalCredential(val) {
-			effectiveBalanceLimit = params.BeaconConfig().MaxEffectiveBalanceElectra
+			effectiveBalanceLimit = params.BeaconConfig().MaxEffectiveBalanceAlpaca
 		}
 
 		if balance+downwardThreshold < val.EffectiveBalance() || val.EffectiveBalance()+upwardThreshold < balance {

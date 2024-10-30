@@ -145,6 +145,7 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	MaxAttestations:                  128,
 	MaxAttestationsElectra:           8,
 	MaxDeposits:                      16,
+	MaxDepositsAlpaca:                512,
 	MaxVoluntaryExits:                16,
 	MaxWithdrawalsPerPayload:         16,
 	MaxBlsToExecutionChanges:         16,
@@ -163,7 +164,7 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	DomainBLSToExecutionChange: bytesutil.Uint32ToBytes4(0x0A000000),
 
 	// Prysm constants.
-	GenesisValidatorsRoot:          [32]byte{196, 103, 59, 160, 53, 79, 210, 65, 149, 165, 252, 152, 52, 203, 144, 124, 187, 49, 189, 214, 222, 236, 5, 205, 202, 90, 60, 212, 255, 150, 230, 225},
+	GenesisValidatorsRoot:          [32]byte{20, 60, 23, 28, 174, 13, 153, 172, 97, 136, 94, 8, 134, 163, 142, 15, 223, 211, 191, 59, 95, 95, 241, 204, 193, 4, 151, 130, 35, 22, 207, 36},
 	GweiPerEth:                     1000000000,
 	BLSSecretKeyLength:             32,
 	BLSPubkeyLength:                48,
@@ -256,20 +257,20 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 
 	// Values related to electra
 	// TODO: Fix electra values
-	MaxRequestDataColumnSidecars:          16384,
-	DataColumnSidecarSubnetCount:          128,
-	MinPerEpochChurnLimitElectra:          128_000_000_000,
-	MaxPerEpochActivationExitChurnLimit:   256_000_000_000,
-	MaxEffectiveBalanceElectra:            16384_000_000_000,
-	PendingDepositLimit:                   134_217_728,
-	PendingPartialWithdrawalsLimit:        134_217_728,
-	MinActivationBalance:                  256_000_000_000,
-	MaxPendingPartialsPerWithdrawalsSweep: 8,
-	MaxPendingDepositsPerEpoch:            16,
-	FullExitRequestAmount:                 0,
-	MaxWithdrawalRequestsPerPayload:       16,
-	MaxDepositRequestsPerPayload:          8192, // 2**13 (= 8192)
-	UnsetDepositRequestsStartIndex:        math.MaxUint64,
+	MaxRequestDataColumnSidecars:           16384,
+	DataColumnSidecarSubnetCount:           128,
+	MinPerEpochChurnLimitAlpaca:            1_024_000_000_000,
+	MinPerEpochActivationBalanceChurnLimit: 4_096_000_000_000,
+	MaxEffectiveBalanceAlpaca:              16384_000_000_000,
+	PendingDepositLimit:                    134_217_728,
+	PendingPartialWithdrawalsLimit:         134_217_728,
+	MinActivationBalance:                   256_000_000_000,
+	MaxPendingPartialsPerWithdrawalsSweep:  8,
+	MaxPendingDepositsPerEpoch:             16,
+	FullExitRequestAmount:                  0,
+	MaxWithdrawalRequestsPerPayload:        16,
+	MaxDepositRequestsPerPayload:           8192, // 2**13 (= 8192)
+	UnsetDepositRequestsStartIndex:         math.MaxUint64,
 
 	// Values related to alpaca
 	MinSlashingPenaltyQuotientAlpaca:  10,

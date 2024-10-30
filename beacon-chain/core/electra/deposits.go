@@ -268,7 +268,7 @@ func ProcessPendingDeposits(ctx context.Context, st state.BeaconState, activeBal
 	if err != nil {
 		return errors.Wrap(err, "could not get deposit balance to consume")
 	}
-	availableForProcessing := depBalToConsume + helpers.ActivationExitChurnLimit(activeBalance)
+	availableForProcessing := depBalToConsume + helpers.ActivationBalanceChurnLimit(activeBalance)
 
 	finalizedSlot, err := slots.EpochStart(st.FinalizedCheckpoint().Epoch)
 	if err != nil {

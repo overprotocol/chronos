@@ -91,11 +91,7 @@ func InitiateValidatorExit(ctx context.Context, s state.BeaconState, idx primiti
 		if err != nil {
 			return nil, 0, errors.Wrap(err, "could not get active validator count")
 		}
-		activeValidatorDeposit, err := helpers.TotalActiveBalance(s)
-		if err != nil {
-			return nil, 0, errors.Wrap(err, "could not calculate active balance")
-		}
-		currentChurn := helpers.ValidatorExitChurnLimit(activeValidatorCount, activeValidatorDeposit, time.CurrentEpoch(s))
+		currentChurn := helpers.ValidatorExitChurnLimit(activeValidatorCount)
 
 		if churn >= currentChurn {
 			exitQueueEpoch, err = exitQueueEpoch.SafeAdd(1)

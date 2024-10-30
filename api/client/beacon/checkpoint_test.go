@@ -214,9 +214,9 @@ func TestDownloadWeakSubjectivityCheckpoint(t *testing.T) {
 func TestDownloadBackwardsCompatibleCombined(t *testing.T) {
 	ctx := context.Background()
 	cfg := params.BeaconConfig()
-	cfg.AltairForkEpoch = 300
-	cfg.BellatrixForkEpoch = 301
-	cfg.CapellaForkEpoch = 302
+	cfg.AltairForkEpoch = 299
+	cfg.BellatrixForkEpoch = 300
+	cfg.CapellaForkEpoch = 301
 	cfg.InitializeForkSchedule()
 	params.OverrideBeaconConfig(cfg)
 
@@ -309,9 +309,9 @@ func TestDownloadBackwardsCompatibleCombined(t *testing.T) {
 
 func TestGetWeakSubjectivityEpochFromHead(t *testing.T) {
 	cfg := params.BeaconConfig()
-	cfg.AltairForkEpoch = 300
-	cfg.BellatrixForkEpoch = 301
-	cfg.CapellaForkEpoch = 302
+	cfg.AltairForkEpoch = 299
+	cfg.BellatrixForkEpoch = 300
+	cfg.CapellaForkEpoch = 301
 	cfg.InitializeForkSchedule()
 	params.OverrideBeaconConfig(cfg)
 	st, expectedEpoch := defaultTestHeadState(t, params.BeaconConfig())

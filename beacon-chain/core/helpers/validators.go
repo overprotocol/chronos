@@ -235,7 +235,7 @@ func ActivationExitEpoch(epoch primitives.Epoch) primitives.Epoch {
 	return epoch + 1 + params.BeaconConfig().MaxSeedLookahead
 }
 
-// ValidatorExitNoBiasChurnLimit based on the formula in the spec.
+// calculateChurnLimit based on the formula in the spec.
 //
 //	def get_validator_churn_limit(state: BeaconState) -> uint64:
 //	 """
@@ -243,7 +243,7 @@ func ActivationExitEpoch(epoch primitives.Epoch) primitives.Epoch {
 //	 """
 //	 active_validator_indices = get_active_validator_indices(state, get_current_epoch(state))
 //	 return max(MIN_PER_EPOCH_CHURN_LIMIT, uint64(len(active_validator_indices)) // CHURN_LIMIT_QUOTIENT)
-func ValidatorExitNoBiasChurnLimit(activeValidatorCount uint64) uint64 {
+func calculateChurnLimit(activeValidatorCount uint64) uint64 {
 	churnLimit := activeValidatorCount / params.BeaconConfig().ChurnLimitQuotient
 	if churnLimit < params.BeaconConfig().MinPerEpochChurnLimit {
 		return params.BeaconConfig().MinPerEpochChurnLimit
@@ -251,47 +251,14 @@ func ValidatorExitNoBiasChurnLimit(activeValidatorCount uint64) uint64 {
 	return churnLimit
 }
 
-// ValidatorChurnLimit returns the number of validators that are allowed to
-// enter and exit validator pool for an epoch with bias calculated by target_deposit.
-//
-// Spec pseudocode definition:
-//
-//	def get_validator_churn_limit(state: BeaconState) -> uint64:
-//	 """
-//	 Return the validator churn limit for the current epoch.
-//	 """
-//	 churn_limit = max(MIN_PER_EPOCH_CHURN_LIMIT, active_validators_number // CHURN_LIMIT_QUOTIENT)
-//
-//	inc_bias = CHURN_LIMIT_BIAS if target_deposit_plan - active_validators_deposit > 0 else 0
-//	dec_bias = CHURN_LIMIT_BIAS if target_deposit_plan - active_validators_deposit < 0 else 0
-//
-//	pending_churn_limit = churn_limit + inc_bias
-//	exit_churn_limit = churn_limit + dec_bias
-//	return pending_churn_limit, exit_churn_limit
-func calculateChurnLimit(activeValidatorCount uint64, activeValidatorDeposit uint64, epoch primitives.Epoch, isExit bool) uint64 {
-	cfg := params.BeaconConfig()
-	churnLimit := activeValidatorCount / cfg.ChurnLimitQuotient
-	if churnLimit < cfg.MinPerEpochChurnLimit {
-		churnLimit = cfg.MinPerEpochChurnLimit
-	}
-
-	depositPlan := TargetDepositPlan(epoch)
-	if isExit && depositPlan < activeValidatorDeposit {
-		churnLimit += cfg.ChurnLimitBias
-	} else if !isExit && depositPlan > activeValidatorDeposit {
-		churnLimit += cfg.ChurnLimitBias
-	}
-	return churnLimit
-}
-
 // ValidatorActivationChurnLimit returns the maximum number of validators that can be activated in a slot.
-func ValidatorActivationChurnLimit(activeValidatorCount uint64, activeValidatorDeposit uint64, epoch primitives.Epoch) uint64 {
-	return calculateChurnLimit(activeValidatorCount, activeValidatorDeposit, epoch, false)
+func ValidatorActivationChurnLimit(activeValidatorCount uint64) uint64 {
+	return calculateChurnLimit(activeValidatorCount)
 }
 
 // ValidatorExitChurnLimit returns the maximum number of validators that can be exited in a slot.
-func ValidatorExitChurnLimit(activeValidatorCount uint64, activeValidatorDeposit uint64, epoch primitives.Epoch) uint64 {
-	return calculateChurnLimit(activeValidatorCount, activeValidatorDeposit, epoch, true)
+func ValidatorExitChurnLimit(activeValidatorCount uint64) uint64 {
+	return calculateChurnLimit(activeValidatorCount)
 }
 
 // BeaconProposerIndex returns proposer index of a current slot.
@@ -429,7 +396,7 @@ func ComputeProposerIndex(bState state.ReadOnlyBeaconState, activeIndices []prim
 
 		maxEB := params.BeaconConfig().MaxEffectiveBalance
 		if bState.Version() >= version.Electra {
-			maxEB = params.BeaconConfig().MaxEffectiveBalanceElectra
+			maxEB = params.BeaconConfig().MaxEffectiveBalanceAlpaca
 		}
 
 		if effectiveBal*maxRandomByte >= maxEB*uint64(randomByte) {
@@ -737,7 +704,7 @@ func IsPartiallyWithdrawableValidatorAlpaca(val *ethpb.Validator, balance uint64
 //	        return MIN_ACTIVATION_BALANCE
 func ValidatorMaxEffectiveBalance(val *ethpb.Validator) uint64 {
 	if HasCompoundingWithdrawalCredential(val) {
-		return params.BeaconConfig().MaxEffectiveBalanceElectra
+		return params.BeaconConfig().MaxEffectiveBalanceAlpaca
 	}
 	return params.BeaconConfig().MinActivationBalance
 }

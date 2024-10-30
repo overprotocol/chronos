@@ -344,9 +344,10 @@ func TestActiveValidatorCount_Genesis(t *testing.T) {
 	assert.Equal(t, uint64(c), validatorCount, "Did not get the correct validator count")
 }
 
-func TestNoBiasChurnLimit_OK(t *testing.T) {
+func TestChurnLimit_OK(t *testing.T) {
 	tests := []struct {
 		validatorCount int
+		epoch          primitives.Epoch
 		wantedChurn    uint64
 	}{
 		{validatorCount: 1000, wantedChurn: 4},
@@ -360,7 +361,8 @@ func TestNoBiasChurnLimit_OK(t *testing.T) {
 		validators := make([]*ethpb.Validator, test.validatorCount)
 		for i := 0; i < len(validators); i++ {
 			validators[i] = &ethpb.Validator{
-				ExitEpoch: params.BeaconConfig().FarFutureEpoch,
+				EffectiveBalance: params.BeaconConfig().MaxEffectiveBalance,
+				ExitEpoch:        params.BeaconConfig().FarFutureEpoch,
 			}
 		}
 
@@ -372,21 +374,21 @@ func TestNoBiasChurnLimit_OK(t *testing.T) {
 		require.NoError(t, err)
 		validatorCount, err := helpers.ActiveValidatorCount(context.Background(), beaconState, time.CurrentEpoch(beaconState))
 		require.NoError(t, err)
-		resultChurn := helpers.ValidatorExitNoBiasChurnLimit(validatorCount)
-		assert.Equal(t, test.wantedChurn, resultChurn, "ValidatorChurnLimit(%d)", test.validatorCount)
+		resultChurn := helpers.ValidatorActivationChurnLimit(validatorCount)
+		assert.Equal(t, test.wantedChurn, resultChurn, "ValidatorActivationChurnLimit(%d)", test.validatorCount)
 	}
 }
 
-func TestChurnLimit_OK(t *testing.T) {
+func TestActivationBalanceChurnLimit_OK(t *testing.T) {
 	tests := []struct {
 		validatorCount int
 		epoch          primitives.Epoch
 		wantedChurn    uint64
 	}{
-		{validatorCount: 166016, epoch: 41063, wantedChurn: 5},   // pending_churn when deposit < plan = chrun_limit++
-		{validatorCount: 166017, epoch: 41063, wantedChurn: 4},   // pending_churn when deposit > plan = chrun_limit
-		{validatorCount: 693360, epoch: 287438, wantedChurn: 11}, // pending_churn when deposit < plan = chrun_limit++
-		{validatorCount: 693361, epoch: 287438, wantedChurn: 10}, // pending_churn when deposit > plan = chrun_limit
+		{validatorCount: 1000, wantedChurn: 4096000000000},
+		{validatorCount: 100000, wantedChurn: 4096000000000},
+		{validatorCount: 2000000, wantedChurn: 7808000000000},
+		{validatorCount: 4000000, wantedChurn: 15624000000000},
 	}
 	for _, test := range tests {
 		helpers.ClearCache()
@@ -405,25 +407,23 @@ func TestChurnLimit_OK(t *testing.T) {
 			RandaoMixes: make([][]byte, params.BeaconConfig().EpochsPerHistoricalVector),
 		})
 		require.NoError(t, err)
-		validatorCount, err := helpers.ActiveValidatorCount(context.Background(), beaconState, time.CurrentEpoch(beaconState))
+		totalBalance, err := helpers.TotalActiveBalance(beaconState)
 		require.NoError(t, err)
-		validatorDeposit, err := helpers.TotalActiveBalance(beaconState)
-		require.NoError(t, err)
-		resultChurn := helpers.ValidatorActivationChurnLimit(validatorCount, validatorDeposit, test.epoch)
-		assert.Equal(t, test.wantedChurn, resultChurn, "ValidatorActivationChurnLimit(%d)", test.validatorCount)
+		resultChurn := helpers.ActivationBalanceChurnLimit(primitives.Gwei(totalBalance))
+		assert.Equal(t, test.wantedChurn, uint64(resultChurn), "ActivationBalanceChurnLimit(%d)", test.validatorCount)
 	}
 }
 
-func TestExitChurnLimit_OK(t *testing.T) {
+func TestExitBalanceChurnLimit_OK(t *testing.T) {
 	tests := []struct {
 		validatorCount int
 		epoch          primitives.Epoch
 		wantedChurn    uint64
 	}{
-		{validatorCount: 166016, epoch: 41063, wantedChurn: 4},   // exit_churn when deposit < plan = chrun_limit
-		{validatorCount: 166017, epoch: 41063, wantedChurn: 5},   // exit_churn when deposit > plan = chrun_limit++
-		{validatorCount: 693360, epoch: 287438, wantedChurn: 10}, // exit_churn when deposit < plan = chrun_limit
-		{validatorCount: 693361, epoch: 287438, wantedChurn: 11}, // exit_churn when deposit > plan = chrun_limit++
+		{validatorCount: 1000, wantedChurn: 1024000000000},
+		{validatorCount: 100000, wantedChurn: 1024000000000},
+		{validatorCount: 2000000, wantedChurn: 7808000000000},
+		{validatorCount: 4000000, wantedChurn: 15624000000000},
 	}
 	for _, test := range tests {
 		helpers.ClearCache()
@@ -442,12 +442,10 @@ func TestExitChurnLimit_OK(t *testing.T) {
 			RandaoMixes: make([][]byte, params.BeaconConfig().EpochsPerHistoricalVector),
 		})
 		require.NoError(t, err)
-		validatorCount, err := helpers.ActiveValidatorCount(context.Background(), beaconState, time.CurrentEpoch(beaconState))
+		totalBalance, err := helpers.TotalActiveBalance(beaconState)
 		require.NoError(t, err)
-		validatorDeposit, err := helpers.TotalActiveBalance(beaconState)
-		require.NoError(t, err)
-		resultChurn := helpers.ValidatorExitChurnLimit(validatorCount, validatorDeposit, test.epoch)
-		assert.Equal(t, test.wantedChurn, resultChurn, "ValidatorActivationChurnLimit(%d)", test.validatorCount)
+		resultChurn := helpers.ExitBalanceChurnLimit(primitives.Gwei(totalBalance))
+		assert.Equal(t, test.wantedChurn, uint64(resultChurn), "ExitBalanceChurnLimit(%d)", test.validatorCount)
 	}
 }
 
@@ -727,7 +725,7 @@ func TestComputeProposerIndex(t *testing.T) {
 					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalance},
 					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalance},
 					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalance},
-					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceElectra},
+					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceAlpaca},
 					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalance},
 				},
 				indices: []primitives.ValidatorIndex{3},
@@ -740,11 +738,11 @@ func TestComputeProposerIndex(t *testing.T) {
 			isElectraOrAbove: true,
 			args: args{
 				validators: []*ethpb.Validator{
-					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceElectra},
-					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceElectra},
+					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceAlpaca},
+					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceAlpaca},
 					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalance}, // skip this one
-					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceElectra},
-					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceElectra},
+					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceAlpaca},
+					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceAlpaca},
 				},
 				indices: []primitives.ValidatorIndex{0, 1, 2, 3, 4},
 				seed:    seed,
@@ -757,10 +755,10 @@ func TestComputeProposerIndex(t *testing.T) {
 			args: args{
 				validators: []*ethpb.Validator{
 					{EffectiveBalance: 1},
-					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceElectra},
+					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceAlpaca},
 					{EffectiveBalance: 1},
 					{EffectiveBalance: 1},
-					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceElectra},
+					{EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceAlpaca},
 				},
 				indices: []primitives.ValidatorIndex{1},
 				seed:    seed,
@@ -1216,11 +1214,11 @@ func TestIsPartiallyWithdrawableValidator(t *testing.T) {
 		{
 			name: "Fully withdrawable compounding validator electra",
 			validator: &ethpb.Validator{
-				EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalanceElectra,
+				EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalanceAlpaca,
 				WithdrawalCredentials: []byte{params.BeaconConfig().CompoundingWithdrawalPrefixByte, 0xCC},
 				PrincipalBalance:      params.BeaconConfig().MaxEffectiveBalance,
 			},
-			balance: params.BeaconConfig().MaxEffectiveBalanceElectra * 2,
+			balance: params.BeaconConfig().MaxEffectiveBalanceAlpaca * 2,
 			epoch:   params.BeaconConfig().ElectraForkEpoch,
 			fork:    version.Electra,
 			want:    true,
@@ -1276,7 +1274,7 @@ func TestValidatorMaxEffectiveBalance(t *testing.T) {
 		{
 			name:      "Compounding withdrawal credential",
 			validator: &ethpb.Validator{WithdrawalCredentials: []byte{params.BeaconConfig().CompoundingWithdrawalPrefixByte, 0xCC}},
-			want:      params.BeaconConfig().MaxEffectiveBalanceElectra,
+			want:      params.BeaconConfig().MaxEffectiveBalanceAlpaca,
 		},
 		{
 			name:      "Vanilla credentials",
