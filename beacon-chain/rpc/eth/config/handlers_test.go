@@ -531,8 +531,6 @@ func TestGetSpec(t *testing.T) {
 			case "MAX_PENDING_DEPOSITS_PER_EPOCH":
 				assert.Equal(t, "101", v)
 			case "MAX_DEPOSITS_ALPACA":
-				assert.Equal(t, "102", v)
-			case "MAX_DEPOSITS_ALPACA":
 				assert.Equal(t, "112", v)
 			case "MIN_SLASHING_PENALTY_QUOTIENT_ALPACA":
 				assert.Equal(t, "103", v)
