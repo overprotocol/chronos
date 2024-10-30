@@ -156,7 +156,7 @@ func TestWeakSubjectivity_IsWithinWeakSubjectivityPeriod(t *testing.T) {
 		},
 		{
 			name:  "within weak subjectivity period",
-			epoch: 299,
+			epoch: 298,
 			genWsState: func() state.ReadOnlyBeaconState {
 				beaconState := genState(t, 128, 256)
 				require.NoError(t, beaconState.SetSlot(42*params.BeaconConfig().SlotsPerEpoch))
