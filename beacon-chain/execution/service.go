@@ -610,7 +610,6 @@ func (s *Service) run(done <-chan struct{}) {
 				log.WithError(err).Error("Failed to stop POWChain")
 			}
 		}
-
 	}
 }
 
