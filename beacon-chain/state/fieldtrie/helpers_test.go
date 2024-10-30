@@ -162,7 +162,7 @@ func TestFieldTrie_NativeState_fieldConvertersNative(t *testing.T) {
 		{
 			name: "RandaoMixes customtypes.RandaoMixes",
 			args: &args{
-				field:      types.FieldIndex(16),
+				field:      types.FieldIndex(14),
 				indices:    []uint64{},
 				elements:   customtypes.RandaoMixes{},
 				convertAll: true,
@@ -173,7 +173,7 @@ func TestFieldTrie_NativeState_fieldConvertersNative(t *testing.T) {
 		{
 			name: "RandaoMixes type not found",
 			args: &args{
-				field:      types.FieldIndex(16),
+				field:      types.FieldIndex(14),
 				indices:    []uint64{},
 				elements:   123,
 				convertAll: true,
@@ -184,7 +184,7 @@ func TestFieldTrie_NativeState_fieldConvertersNative(t *testing.T) {
 		{
 			name: "Eth1DataVotes type not found",
 			args: &args{
-				field:   types.FieldIndex(10),
+				field:   types.FieldIndex(9),
 				indices: []uint64{},
 				elements: []*ethpb.Eth1Data{
 					{
@@ -199,7 +199,7 @@ func TestFieldTrie_NativeState_fieldConvertersNative(t *testing.T) {
 		{
 			name: "Eth1DataVotes convertAll false",
 			args: &args{
-				field:   types.FieldIndex(10),
+				field:   types.FieldIndex(9),
 				indices: []uint64{1},
 				elements: []*ethpb.Eth1Data{
 					{
@@ -218,7 +218,7 @@ func TestFieldTrie_NativeState_fieldConvertersNative(t *testing.T) {
 		{
 			name: "Eth1DataVotes type not found",
 			args: &args{
-				field:      types.FieldIndex(10),
+				field:      types.FieldIndex(9),
 				indices:    []uint64{},
 				elements:   123,
 				convertAll: true,
@@ -229,7 +229,7 @@ func TestFieldTrie_NativeState_fieldConvertersNative(t *testing.T) {
 		{
 			name: "Balance",
 			args: &args{
-				field:      types.FieldIndex(13),
+				field:      types.FieldIndex(12),
 				indices:    []uint64{},
 				elements:   []uint64{12321312321, 12131241234123123},
 				convertAll: true,
@@ -239,7 +239,7 @@ func TestFieldTrie_NativeState_fieldConvertersNative(t *testing.T) {
 		{
 			name: "Validators",
 			args: &args{
-				field:   types.FieldIndex(12),
+				field:   types.FieldIndex(11),
 				indices: []uint64{},
 				elements: []*ethpb.Validator{
 					{
@@ -248,12 +248,12 @@ func TestFieldTrie_NativeState_fieldConvertersNative(t *testing.T) {
 				},
 				convertAll: true,
 			},
-			wantHex: []string{"0x79817c24fc7ba90cdac48fd462fafc1cb501884e847b18733f7ca6df214a301e"},
+			wantHex: []string{"0x4c7e4c5880b770b29fecb582a5e30088cec1bc5fc2add925091416df05097bcc"},
 		},
 		{
 			name: "Validators not found",
 			args: &args{
-				field:      types.FieldIndex(12),
+				field:      types.FieldIndex(11),
 				indices:    []uint64{},
 				elements:   123,
 				convertAll: true,
@@ -264,7 +264,7 @@ func TestFieldTrie_NativeState_fieldConvertersNative(t *testing.T) {
 		{
 			name: "Attestations",
 			args: &args{
-				field:   types.FieldIndex(18),
+				field:   types.FieldIndex(16),
 				indices: []uint64{},
 				elements: []*ethpb.PendingAttestation{
 					{
@@ -278,7 +278,7 @@ func TestFieldTrie_NativeState_fieldConvertersNative(t *testing.T) {
 		{
 			name: "Attestations convertAll false",
 			args: &args{
-				field:   types.FieldIndex(18),
+				field:   types.FieldIndex(16),
 				indices: []uint64{1},
 				elements: []*ethpb.PendingAttestation{
 					{

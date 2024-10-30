@@ -19,15 +19,11 @@ var (
 	ProcessEpochParticipation            = altair.ProcessEpochParticipation
 	ProcessInactivityScores              = altair.ProcessInactivityScores
 	ProcessRewardsAndPenaltiesPrecompute = altair.ProcessRewardsAndPenaltiesPrecompute
-	ProcessSlashings                     = e.ProcessSlashings
 	ProcessEth1DataReset                 = e.ProcessEth1DataReset
-	ProcessSlashingsReset                = e.ProcessSlashingsReset
 	ProcessRandaoMixesReset              = e.ProcessRandaoMixesReset
 	ProcessHistoricalDataUpdate          = e.ProcessHistoricalDataUpdate
 	ProcessParticipationFlagUpdates      = altair.ProcessParticipationFlagUpdates
-	ProcessSyncCommitteeUpdates          = altair.ProcessSyncCommitteeUpdates
 	AttestationsDelta                    = altair.AttestationsDelta
-	ProcessSyncAggregate                 = altair.ProcessSyncAggregate
 )
 
 // ProcessEpoch describes the per epoch operations that are performed on the beacon state.
@@ -40,12 +36,12 @@ var (
 //	    process_inactivity_updates(state)
 //	    process_rewards_and_penalties(state)
 //	    process_registry_updates(state)
-//	    process_slashings(state)
 //	    process_eth1_data_reset(state)
 //	    process_pending_deposits(state)  # New in EIP7251
 //	    process_effective_balance_updates(state)
-//	    process_slashings_reset(state)
 //	    process_randao_mixes_reset(state)
+//		process_historical_summaries_update(state)
+//		process_participation_flag_updates(state)
 func ProcessEpoch(ctx context.Context, state state.BeaconState) error {
 	_, span := trace.StartSpan(ctx, "electra.ProcessEpoch")
 	defer span.End()
@@ -78,19 +74,11 @@ func ProcessEpoch(ctx context.Context, state state.BeaconState) error {
 		return errors.Wrap(err, "could not process registry updates")
 	}
 
-	err = helpers.ProcessRewardFactorUpdate(state)
+	state, err = helpers.ProcessRewardAdjustmentFactor(state)
 	if err != nil {
 		return errors.Wrap(err, "could not update reserve and reward factor")
 	}
 
-	proportionalSlashingMultiplier, err := state.ProportionalSlashingMultiplier()
-	if err != nil {
-		return err
-	}
-	state, err = ProcessSlashings(state, proportionalSlashingMultiplier)
-	if err != nil {
-		return err
-	}
 	state, err = ProcessEth1DataReset(state)
 	if err != nil {
 		return err
@@ -103,10 +91,6 @@ func ProcessEpoch(ctx context.Context, state state.BeaconState) error {
 		return err
 	}
 
-	state, err = ProcessSlashingsReset(state)
-	if err != nil {
-		return err
-	}
 	state, err = ProcessRandaoMixesReset(state)
 	if err != nil {
 		return err
@@ -116,12 +100,7 @@ func ProcessEpoch(ctx context.Context, state state.BeaconState) error {
 		return err
 	}
 
-	state, err = ProcessParticipationFlagUpdates(state)
-	if err != nil {
-		return err
-	}
-
-	_, err = ProcessSyncCommitteeUpdates(ctx, state)
+	_, err = ProcessParticipationFlagUpdates(state)
 	if err != nil {
 		return err
 	}

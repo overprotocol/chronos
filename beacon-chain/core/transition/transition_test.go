@@ -209,8 +209,6 @@ func createFullBlockWithOperations(t *testing.T) (state.BeaconState,
 		BodyRoot:   bodyRoot[:],
 	})
 	require.NoError(t, err)
-	err = beaconState.SetSlashings(make([]uint64, params.BeaconConfig().EpochsPerSlashingsVector))
-	require.NoError(t, err)
 	cp := beaconState.CurrentJustifiedCheckpoint()
 	var mockRoot [32]byte
 	copy(mockRoot[:], "hello-world")
@@ -372,11 +370,9 @@ func TestProcessEpochPrecompute_CanProcess(t *testing.T) {
 	epoch := primitives.Epoch(1)
 
 	atts := []*ethpb.PendingAttestation{{Data: &ethpb.AttestationData{Target: &ethpb.Checkpoint{Root: make([]byte, 32)}}, InclusionDelay: 1}}
-	slashing := make([]uint64, params.BeaconConfig().EpochsPerSlashingsVector)
 	base := &ethpb.BeaconState{
 		Slot:                       params.BeaconConfig().SlotsPerEpoch.Mul(uint64(epoch)) + 1,
 		BlockRoots:                 make([][]byte, 128),
-		Slashings:                  slashing,
 		RandaoMixes:                make([][]byte, params.BeaconConfig().EpochsPerHistoricalVector),
 		CurrentEpochAttestations:   atts,
 		FinalizedCheckpoint:        &ethpb.Checkpoint{Root: make([]byte, fieldparams.RootLength)},
@@ -394,9 +390,8 @@ func TestProcessEpochPrecompute_CanProcess(t *testing.T) {
 	}
 	s, err := state_native.InitializeFromProtoPhase0(base)
 	require.NoError(t, err)
-	newState, err := transition.ProcessEpochPrecompute(context.Background(), s)
+	_, err = transition.ProcessEpochPrecompute(context.Background(), s)
 	require.NoError(t, err)
-	assert.Equal(t, uint64(0), newState.Slashings()[2], "Unexpected slashed balance")
 }
 
 func TestProcessBlock_OverMaxProposerSlashings(t *testing.T) {
@@ -542,13 +537,6 @@ func TestProcessSlots_ThroughAltairEpoch(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, params.BeaconConfig().MaxValidatorsPerCommittee, uint64(len(p)))
 
-	sc, err := st.CurrentSyncCommittee()
-	require.NoError(t, err)
-	require.Equal(t, params.BeaconConfig().SyncCommitteeSize, uint64(len(sc.Pubkeys)))
-
-	sc, err = st.NextSyncCommittee()
-	require.NoError(t, err)
-	require.Equal(t, params.BeaconConfig().SyncCommitteeSize, uint64(len(sc.Pubkeys)))
 }
 
 func TestProcessSlots_OnlyAltairEpoch(t *testing.T) {
@@ -580,13 +568,6 @@ func TestProcessSlots_OnlyAltairEpoch(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, params.BeaconConfig().MaxValidatorsPerCommittee, uint64(len(p)))
 
-	sc, err := st.CurrentSyncCommittee()
-	require.NoError(t, err)
-	require.Equal(t, params.BeaconConfig().SyncCommitteeSize, uint64(len(sc.Pubkeys)))
-
-	sc, err = st.NextSyncCommittee()
-	require.NoError(t, err)
-	require.Equal(t, params.BeaconConfig().SyncCommitteeSize, uint64(len(sc.Pubkeys)))
 }
 
 func TestProcessSlots_OnlyBellatrixEpoch(t *testing.T) {
@@ -618,13 +599,6 @@ func TestProcessSlots_OnlyBellatrixEpoch(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, params.BeaconConfig().MaxValidatorsPerCommittee, uint64(len(p)))
 
-	sc, err := st.CurrentSyncCommittee()
-	require.NoError(t, err)
-	require.Equal(t, params.BeaconConfig().SyncCommitteeSize, uint64(len(sc.Pubkeys)))
-
-	sc, err = st.NextSyncCommittee()
-	require.NoError(t, err)
-	require.Equal(t, params.BeaconConfig().SyncCommitteeSize, uint64(len(sc.Pubkeys)))
 }
 
 func TestProcessSlots_ThroughBellatrixEpoch(t *testing.T) {

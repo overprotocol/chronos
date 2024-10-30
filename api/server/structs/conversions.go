@@ -31,6 +31,7 @@ func ValidatorFromConsensus(v *eth.Validator) *Validator {
 		ActivationEpoch:            fmt.Sprintf("%d", v.ActivationEpoch),
 		ExitEpoch:                  fmt.Sprintf("%d", v.ExitEpoch),
 		WithdrawableEpoch:          fmt.Sprintf("%d", v.WithdrawableEpoch),
+		PrincipalBalance:           fmt.Sprintf("%d", v.PrincipalBalance),
 	}
 }
 
@@ -207,101 +208,6 @@ func SignedValidatorRegistrationFromConsensus(vr *eth.SignedValidatorRegistratio
 	return &SignedValidatorRegistration{
 		Message:   ValidatorRegistrationFromConsensus(vr.Message),
 		Signature: hexutil.Encode(vr.Signature),
-	}
-}
-
-func (s *SignedContributionAndProof) ToConsensus() (*eth.SignedContributionAndProof, error) {
-	msg, err := s.Message.ToConsensus()
-	if err != nil {
-		return nil, server.NewDecodeError(err, "Message")
-	}
-	sig, err := bytesutil.DecodeHexWithLength(s.Signature, fieldparams.BLSSignatureLength)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "Signature")
-	}
-
-	return &eth.SignedContributionAndProof{
-		Message:   msg,
-		Signature: sig,
-	}, nil
-}
-
-func SignedContributionAndProofFromConsensus(c *eth.SignedContributionAndProof) *SignedContributionAndProof {
-	contribution := ContributionAndProofFromConsensus(c.Message)
-	return &SignedContributionAndProof{
-		Message:   contribution,
-		Signature: hexutil.Encode(c.Signature),
-	}
-}
-
-func (c *ContributionAndProof) ToConsensus() (*eth.ContributionAndProof, error) {
-	contribution, err := c.Contribution.ToConsensus()
-	if err != nil {
-		return nil, server.NewDecodeError(err, "Contribution")
-	}
-	aggregatorIndex, err := strconv.ParseUint(c.AggregatorIndex, 10, 64)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "AggregatorIndex")
-	}
-	selectionProof, err := bytesutil.DecodeHexWithLength(c.SelectionProof, 96)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "SelectionProof")
-	}
-
-	return &eth.ContributionAndProof{
-		AggregatorIndex: primitives.ValidatorIndex(aggregatorIndex),
-		Contribution:    contribution,
-		SelectionProof:  selectionProof,
-	}, nil
-}
-
-func ContributionAndProofFromConsensus(c *eth.ContributionAndProof) *ContributionAndProof {
-	contribution := SyncCommitteeContributionFromConsensus(c.Contribution)
-	return &ContributionAndProof{
-		AggregatorIndex: fmt.Sprintf("%d", c.AggregatorIndex),
-		Contribution:    contribution,
-		SelectionProof:  hexutil.Encode(c.SelectionProof),
-	}
-}
-
-func (s *SyncCommitteeContribution) ToConsensus() (*eth.SyncCommitteeContribution, error) {
-	slot, err := strconv.ParseUint(s.Slot, 10, 64)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "Slot")
-	}
-	bbRoot, err := bytesutil.DecodeHexWithLength(s.BeaconBlockRoot, fieldparams.RootLength)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "BeaconBlockRoot")
-	}
-	subcommitteeIndex, err := strconv.ParseUint(s.SubcommitteeIndex, 10, 64)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "SubcommitteeIndex")
-	}
-	aggBits, err := hexutil.Decode(s.AggregationBits)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "AggregationBits")
-	}
-	sig, err := bytesutil.DecodeHexWithLength(s.Signature, fieldparams.BLSSignatureLength)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "Signature")
-	}
-
-	return &eth.SyncCommitteeContribution{
-		Slot:              primitives.Slot(slot),
-		BlockRoot:         bbRoot,
-		SubcommitteeIndex: subcommitteeIndex,
-		AggregationBits:   aggBits,
-		Signature:         sig,
-	}, nil
-}
-
-func SyncCommitteeContributionFromConsensus(c *eth.SyncCommitteeContribution) *SyncCommitteeContribution {
-	return &SyncCommitteeContribution{
-		Slot:              fmt.Sprintf("%d", c.Slot),
-		BeaconBlockRoot:   hexutil.Encode(c.BlockRoot),
-		SubcommitteeIndex: fmt.Sprintf("%d", c.SubcommitteeIndex),
-		AggregationBits:   hexutil.Encode(c.AggregationBits),
-		Signature:         hexutil.Encode(c.Signature),
 	}
 }
 
@@ -505,30 +411,6 @@ func CheckpointFromConsensus(c *eth.Checkpoint) *Checkpoint {
 	}
 }
 
-func (s *SyncCommitteeSubscription) ToConsensus() (*validator.SyncCommitteeSubscription, error) {
-	index, err := strconv.ParseUint(s.ValidatorIndex, 10, 64)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "ValidatorIndex")
-	}
-	scIndices := make([]uint64, len(s.SyncCommitteeIndices))
-	for i, ix := range s.SyncCommitteeIndices {
-		scIndices[i], err = strconv.ParseUint(ix, 10, 64)
-		if err != nil {
-			return nil, server.NewDecodeError(err, fmt.Sprintf("SyncCommitteeIndices[%d]", i))
-		}
-	}
-	epoch, err := strconv.ParseUint(s.UntilEpoch, 10, 64)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "UntilEpoch")
-	}
-
-	return &validator.SyncCommitteeSubscription{
-		ValidatorIndex:       primitives.ValidatorIndex(index),
-		SyncCommitteeIndices: scIndices,
-		UntilEpoch:           primitives.Epoch(epoch),
-	}, nil
-}
-
 func (b *BeaconCommitteeSubscription) ToConsensus() (*validator.BeaconCommitteeSubscription, error) {
 	valIndex, err := strconv.ParseUint(b.ValidatorIndex, 10, 64)
 	if err != nil {
@@ -601,64 +483,6 @@ func ExitFromConsensus(e *eth.VoluntaryExit) *VoluntaryExit {
 		ValidatorIndex: fmt.Sprintf("%d", e.ValidatorIndex),
 	}
 }
-
-func (m *SyncCommitteeMessage) ToConsensus() (*eth.SyncCommitteeMessage, error) {
-	slot, err := strconv.ParseUint(m.Slot, 10, 64)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "Slot")
-	}
-	root, err := bytesutil.DecodeHexWithLength(m.BeaconBlockRoot, fieldparams.RootLength)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "BeaconBlockRoot")
-	}
-	valIndex, err := strconv.ParseUint(m.ValidatorIndex, 10, 64)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "ValidatorIndex")
-	}
-	sig, err := bytesutil.DecodeHexWithLength(m.Signature, fieldparams.BLSSignatureLength)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "Signature")
-	}
-
-	return &eth.SyncCommitteeMessage{
-		Slot:           primitives.Slot(slot),
-		BlockRoot:      root,
-		ValidatorIndex: primitives.ValidatorIndex(valIndex),
-		Signature:      sig,
-	}, nil
-}
-
-func SyncCommitteeFromConsensus(sc *eth.SyncCommittee) *SyncCommittee {
-	var sPubKeys []string
-	for _, p := range sc.Pubkeys {
-		sPubKeys = append(sPubKeys, hexutil.Encode(p))
-	}
-
-	return &SyncCommittee{
-		Pubkeys:         sPubKeys,
-		AggregatePubkey: hexutil.Encode(sc.AggregatePubkey),
-	}
-}
-
-func (sc *SyncCommittee) ToConsensus() (*eth.SyncCommittee, error) {
-	var pubKeys [][]byte
-	for _, p := range sc.Pubkeys {
-		pubKey, err := bytesutil.DecodeHexWithLength(p, fieldparams.BLSPubkeyLength)
-		if err != nil {
-			return nil, server.NewDecodeError(err, "Pubkeys")
-		}
-		pubKeys = append(pubKeys, pubKey)
-	}
-	aggPubKey, err := bytesutil.DecodeHexWithLength(sc.AggregatePubkey, fieldparams.BLSPubkeyLength)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "AggregatePubkey")
-	}
-	return &eth.SyncCommittee{
-		Pubkeys:         pubKeys,
-		AggregatePubkey: aggPubKey,
-	}, nil
-}
-
 func Eth1DataFromConsensus(e1d *eth.Eth1Data) *Eth1Data {
 	return &Eth1Data{
 		DepositRoot:  hexutil.Encode(e1d.DepositRoot),

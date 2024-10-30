@@ -18,6 +18,5 @@ type GetReservesResponse struct {
 
 type Reserves struct {
 	RewardAdjustmentFactor string `json:"reward_adjustment_factor"`
-	PreviousEpochReserve   string `json:"previous_epoch_reserve"`
-	CurrentEpochReserve    string `json:"current_epoch_reserve"`
+	Reserves               string `json:"reserves"`
 }

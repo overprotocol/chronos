@@ -14,7 +14,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/encoding/bytesutil"
 	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing/trace"
 	enginev1 "github.com/prysmaticlabs/prysm/v5/proto/engine/v1"
-	eth "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	"github.com/prysmaticlabs/prysm/v5/runtime/version"
 	"github.com/prysmaticlabs/prysm/v5/time/slots"
@@ -123,7 +122,7 @@ func ProcessPendingDeposits(ctx context.Context, st state.BeaconState, activeBal
 	isChurnLimitReached := false
 
 	var pendingDepositsToBatchVerify []*ethpb.PendingDeposit
-	var pendingDepositsToPostpone []*eth.PendingDeposit
+	var pendingDepositsToPostpone []*ethpb.PendingDeposit
 
 	depBalToConsume, err := st.DepositBalanceToConsume()
 	if err != nil {
@@ -165,7 +164,7 @@ func ProcessPendingDeposits(ctx context.Context, st state.BeaconState, activeBal
 
 		if isValidatorWithdrawn {
 			// note: the validator will never be active, just increase the balance
-			if err := helpers.IncreaseBalance(st, index, pendingDeposit.Amount); err != nil {
+			if err := helpers.IncreaseBalanceAndAdjustPrincipalBalance(st, index, pendingDeposit.Amount); err != nil {
 				return errors.Wrap(err, "could not increase balance")
 			}
 		} else if isValidatorExited {
@@ -179,7 +178,7 @@ func ProcessPendingDeposits(ctx context.Context, st state.BeaconState, activeBal
 
 			// note: the following code deviates from the spec in order to perform batch signature verification
 			if found {
-				if err := helpers.IncreaseBalance(st, index, pendingDeposit.Amount); err != nil {
+				if err := helpers.IncreaseBalanceAndAdjustPrincipalBalance(st, index, pendingDeposit.Amount); err != nil {
 					return errors.Wrap(err, "could not increase balance")
 				}
 			} else {
@@ -278,7 +277,7 @@ func batchProcessNewPendingDeposits(ctx context.Context, state state.BeaconState
 //	else:
 //	    validator_index = ValidatorIndex(validator_pubkeys.index(deposit.pubkey))
 //	    # Increase balance
-//	    increase_balance(state, validator_index, deposit.amount)
+//	    increase_balance_and_adjust_deposit(state, validator_index, deposit.amount)
 func ApplyPendingDeposit(ctx context.Context, st state.BeaconState, deposit *ethpb.PendingDeposit) error {
 	_, span := trace.StartSpan(ctx, "electra.ApplyPendingDeposit")
 	defer span.End()
@@ -301,7 +300,7 @@ func ApplyPendingDeposit(ctx context.Context, st state.BeaconState, deposit *eth
 		}
 		return nil
 	}
-	return helpers.IncreaseBalance(st, index, deposit.Amount)
+	return helpers.IncreaseBalanceAndAdjustPrincipalBalance(st, index, deposit.Amount)
 }
 
 // AddValidatorToRegistry updates the beacon state with validator information
@@ -350,11 +349,13 @@ func AddValidatorToRegistry(beaconState state.BeaconState, pubKey []byte, withdr
 //	    exit_epoch=FAR_FUTURE_EPOCH,
 //	    withdrawable_epoch=FAR_FUTURE_EPOCH,
 //	    effective_balance=Gwei(0),
+//	    principal_balance=Gwei(0),
 //	)
 //
 //	# [Modified in Electra:EIP7251]
 //	max_effective_balance = get_max_effective_balance(validator)
 //	validator.effective_balance = min(amount - amount % EFFECTIVE_BALANCE_INCREMENT, max_effective_balance)
+//	validator.principal_balance = amount
 //
 //	return validator
 func GetValidatorFromDeposit(pubKey []byte, withdrawalCredentials []byte, amount uint64) *ethpb.Validator {
@@ -366,9 +367,11 @@ func GetValidatorFromDeposit(pubKey []byte, withdrawalCredentials []byte, amount
 		ExitEpoch:                  params.BeaconConfig().FarFutureEpoch,
 		WithdrawableEpoch:          params.BeaconConfig().FarFutureEpoch,
 		EffectiveBalance:           0,
+		PrincipalBalance:           0,
 	}
 	maxEffectiveBalance := helpers.ValidatorMaxEffectiveBalance(validator)
 	validator.EffectiveBalance = min(amount-(amount%params.BeaconConfig().EffectiveBalanceIncrement), maxEffectiveBalance)
+	validator.PrincipalBalance = amount
 	return validator
 }
 

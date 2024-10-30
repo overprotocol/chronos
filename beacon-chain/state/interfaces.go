@@ -33,14 +33,11 @@ type BeaconState interface {
 // defined in the consensus specification for the beacon chain.
 type SpecParametersProvider interface {
 	InactivityPenaltyQuotient() (uint64, error)
-	ProportionalSlashingMultiplier() (uint64, error)
 }
 
 // StateProver defines the ability to create Merkle proofs for beacon state fields.
 type Prover interface {
 	FinalizedRootProof(ctx context.Context) ([][]byte, error)
-	CurrentSyncCommitteeProof(ctx context.Context) ([][]byte, error)
-	NextSyncCommitteeProof(ctx context.Context) ([][]byte, error)
 }
 
 // ReadOnlyBeaconState defines a struct which only has read access to beacon state methods.
@@ -57,7 +54,6 @@ type ReadOnlyBeaconState interface {
 	ReadOnlyWithdrawals
 	ReadOnlyParticipation
 	ReadOnlyInactivity
-	ReadOnlySyncCommittee
 	ReadOnlyDeposits
 	ToProtoUnsafe() interface{}
 	ToProto() interface{}
@@ -66,12 +62,9 @@ type ReadOnlyBeaconState interface {
 	Slot() primitives.Slot
 	Fork() *ethpb.Fork
 	LatestBlockHeader() *ethpb.BeaconBlockHeader
-	HistoricalRoots() ([][]byte, error)
 	HistoricalSummaries() ([]*ethpb.HistoricalSummary, error)
 	RewardAdjustmentFactor() uint64
-	PreviousEpochReserve() uint64
-	CurrentEpochReserve() uint64
-	Slashings() []uint64
+	Reserves() uint64
 	FieldReferencesCount() map[string]uint64
 	RecordStateMetrics()
 	MarshalSSZ() ([]byte, error)
@@ -92,7 +85,6 @@ type WriteOnlyBeaconState interface {
 	WriteOnlyAttestations
 	WriteOnlyParticipation
 	WriteOnlyInactivity
-	WriteOnlySyncCommittee
 	WriteOnlyWithdrawals
 	WriteOnlyDeposits
 	SetGenesisTime(val uint64) error
@@ -100,14 +92,9 @@ type WriteOnlyBeaconState interface {
 	SetSlot(val primitives.Slot) error
 	SetFork(val *ethpb.Fork) error
 	SetLatestBlockHeader(val *ethpb.BeaconBlockHeader) error
-	SetHistoricalRoots(val [][]byte) error
+	SetReserves(val uint64) error
 	SetRewardAdjustmentFactor(val uint64) error
-	SetSlashings(val []uint64) error
-	UpdateSlashingsAtIndex(idx, val uint64) error
-	AppendHistoricalRoots(root [32]byte) error
 	AppendHistoricalSummaries(*ethpb.HistoricalSummary) error
-	SetPreviousEpochReserve(val uint64) error
-	SetCurrentEpochReserve(val uint64) error
 	SetLatestExecutionPayloadHeader(payload interfaces.ExecutionData) error
 }
 
@@ -123,6 +110,7 @@ type ReadOnlyValidator interface {
 	Copy() *ethpb.Validator
 	Slashed() bool
 	IsNil() bool
+	PrincipalBalance() uint64
 }
 
 // ReadOnlyValidators defines a struct which only has read access to validators methods.
@@ -199,7 +187,7 @@ type ReadOnlyAttestations interface {
 
 // ReadOnlyWithdrawals defines a struct which only has read access to withdrawal methods.
 type ReadOnlyWithdrawals interface {
-	ExpectedWithdrawals() ([]*enginev1.Withdrawal, uint64, error)
+	ExpectedWithdrawals() ([]*enginev1.Withdrawal, uint64, uint64, error)
 	NextWithdrawalValidatorIndex() (primitives.ValidatorIndex, error)
 	NextWithdrawalIndex() (uint64, error)
 	PendingBalanceToWithdraw(idx primitives.ValidatorIndex) (uint64, error)
@@ -217,12 +205,6 @@ type ReadOnlyParticipation interface {
 // ReadOnlyInactivity defines a struct which only has read access to inactivity methods.
 type ReadOnlyInactivity interface {
 	InactivityScores() ([]uint64, error)
-}
-
-// ReadOnlySyncCommittee defines a struct which only has read access to sync committee methods.
-type ReadOnlySyncCommittee interface {
-	CurrentSyncCommittee() (*ethpb.SyncCommittee, error)
-	NextSyncCommittee() (*ethpb.SyncCommittee, error)
 }
 
 type ReadOnlyDeposits interface {
@@ -303,12 +285,6 @@ type WriteOnlyParticipation interface {
 type WriteOnlyInactivity interface {
 	AppendInactivityScore(s uint64) error
 	SetInactivityScores(val []uint64) error
-}
-
-// WriteOnlySyncCommittee defines a struct which only has write access to sync committee methods.
-type WriteOnlySyncCommittee interface {
-	SetCurrentSyncCommittee(val *ethpb.SyncCommittee) error
-	SetNextSyncCommittee(val *ethpb.SyncCommittee) error
 }
 
 type WriteOnlyWithdrawals interface {

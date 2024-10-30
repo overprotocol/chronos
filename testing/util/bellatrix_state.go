@@ -9,10 +9,8 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
 	state_native "github.com/prysmaticlabs/prysm/v5/beacon-chain/state/state-native"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state/stateutil"
-	fieldparams "github.com/prysmaticlabs/prysm/v5/config/fieldparams"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/crypto/bls"
-	"github.com/prysmaticlabs/prysm/v5/encoding/bytesutil"
 	enginev1 "github.com/prysmaticlabs/prysm/v5/proto/engine/v1"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 )
@@ -67,14 +65,12 @@ func emptyGenesisStateBellatrix() (state.BeaconState, error) {
 			Epoch:           0,
 		},
 		// Validator registry fields.
-		Validators:           []*ethpb.Validator{},
-		Balances:             []uint64{},
-		PreviousEpochReserve: 0,
-		CurrentEpochReserve:  0,
-		InactivityScores:     []uint64{},
+		Validators:       []*ethpb.Validator{},
+		Balances:         []uint64{},
+		Reserves:         0,
+		InactivityScores: []uint64{},
 
 		JustificationBits:          []byte{0},
-		HistoricalRoots:            [][]byte{},
 		RewardAdjustmentFactor:     0,
 		CurrentEpochParticipation:  []byte{},
 		PreviousEpochParticipation: []byte{},
@@ -118,8 +114,6 @@ func buildGenesisBeaconStateBellatrix(genesisTime uint64, preState state.BeaconS
 		stateRoots[i] = zeroHash
 	}
 
-	slashings := make([]uint64, params.BeaconConfig().EpochsPerSlashingsVector)
-
 	genesisValidatorsRoot, err := stateutil.ValidatorRegistryRoot(preState.Validators())
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not hash tree root genesis validators %v", err)
@@ -159,8 +153,7 @@ func buildGenesisBeaconStateBellatrix(genesisTime uint64, preState state.BeaconS
 		// Validator registry fields.
 		Validators:                 preState.Validators(),
 		Balances:                   preState.Balances(),
-		PreviousEpochReserve:       preState.PreviousEpochReserve(),
-		CurrentEpochReserve:        preState.CurrentEpochReserve(),
+		Reserves:                   preState.Reserves(),
 		PreviousEpochParticipation: prevEpochParticipation,
 		CurrentEpochParticipation:  currEpochParticipation,
 		InactivityScores:           scores,
@@ -183,10 +176,8 @@ func buildGenesisBeaconStateBellatrix(genesisTime uint64, preState state.BeaconS
 			Root:  params.BeaconConfig().ZeroHash[:],
 		},
 
-		HistoricalRoots: [][]byte{},
-		BlockRoots:      blockRoots,
-		StateRoots:      stateRoots,
-		Slashings:       slashings,
+		BlockRoots: blockRoots,
+		StateRoots: stateRoots,
 
 		// Eth1 data.
 		Eth1Data:         eth1Data,
@@ -194,7 +185,6 @@ func buildGenesisBeaconStateBellatrix(genesisTime uint64, preState state.BeaconS
 		Eth1DepositIndex: preState.Eth1DepositIndex(),
 	}
 
-	var scBits [fieldparams.SyncAggregateSyncCommitteeBytesLength]byte
 	bodyRoot, err := (&ethpb.BeaconBlockBodyBellatrix{
 		RandaoReveal: make([]byte, 96),
 		Eth1Data: &ethpb.Eth1Data{
@@ -202,10 +192,6 @@ func buildGenesisBeaconStateBellatrix(genesisTime uint64, preState state.BeaconS
 			BlockHash:   make([]byte, 32),
 		},
 		Graffiti: make([]byte, 32),
-		SyncAggregate: &ethpb.SyncAggregate{
-			SyncCommitteeBits:      scBits[:],
-			SyncCommitteeSignature: make([]byte, 96),
-		},
 		ExecutionPayload: &enginev1.ExecutionPayload{
 			ParentHash:    make([]byte, 32),
 			FeeRecipient:  make([]byte, 20),
@@ -227,19 +213,6 @@ func buildGenesisBeaconStateBellatrix(genesisTime uint64, preState state.BeaconS
 		ParentRoot: zeroHash,
 		StateRoot:  zeroHash,
 		BodyRoot:   bodyRoot[:],
-	}
-
-	var pubKeys [][]byte
-	for i := uint64(0); i < params.BeaconConfig().SyncCommitteeSize; i++ {
-		pubKeys = append(pubKeys, bytesutil.PadTo([]byte{}, params.BeaconConfig().BLSPubkeyLength))
-	}
-	st.CurrentSyncCommittee = &ethpb.SyncCommittee{
-		Pubkeys:         pubKeys,
-		AggregatePubkey: bytesutil.PadTo([]byte{}, params.BeaconConfig().BLSPubkeyLength),
-	}
-	st.NextSyncCommittee = &ethpb.SyncCommittee{
-		Pubkeys:         bytesutil.SafeCopy2dBytes(pubKeys),
-		AggregatePubkey: bytesutil.PadTo([]byte{}, params.BeaconConfig().BLSPubkeyLength),
 	}
 
 	st.LatestExecutionPayloadHeader = &enginev1.ExecutionPayloadHeader{

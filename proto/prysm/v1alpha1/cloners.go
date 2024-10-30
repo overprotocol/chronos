@@ -1,9 +1,5 @@
 package eth
 
-import (
-	"github.com/prysmaticlabs/prysm/v5/encoding/bytesutil"
-)
-
 type copier[T any] interface {
 	Copy() T
 }
@@ -32,32 +28,6 @@ func CopyValidator(val *Validator) *Validator {
 		ActivationEpoch:            val.ActivationEpoch,
 		ExitEpoch:                  val.ExitEpoch,
 		WithdrawableEpoch:          val.WithdrawableEpoch,
-	}
-}
-
-// CopySyncCommitteeMessage copies the provided sync committee message object.
-func CopySyncCommitteeMessage(s *SyncCommitteeMessage) *SyncCommitteeMessage {
-	if s == nil {
-		return nil
-	}
-	return &SyncCommitteeMessage{
-		Slot:           s.Slot,
-		BlockRoot:      bytesutil.SafeCopyBytes(s.BlockRoot),
-		ValidatorIndex: s.ValidatorIndex,
-		Signature:      bytesutil.SafeCopyBytes(s.Signature),
-	}
-}
-
-// CopySyncCommitteeContribution copies the provided sync committee contribution object.
-func CopySyncCommitteeContribution(c *SyncCommitteeContribution) *SyncCommitteeContribution {
-	if c == nil {
-		return nil
-	}
-	return &SyncCommitteeContribution{
-		Slot:              c.Slot,
-		BlockRoot:         bytesutil.SafeCopyBytes(c.BlockRoot),
-		SubcommitteeIndex: c.SubcommitteeIndex,
-		AggregationBits:   bytesutil.SafeCopyBytes(c.AggregationBits),
-		Signature:         bytesutil.SafeCopyBytes(c.Signature),
+		PrincipalBalance:           val.PrincipalBalance,
 	}
 }

@@ -13,14 +13,6 @@ import (
 func UpgradeToDeneb(state state.BeaconState) (state.BeaconState, error) {
 	epoch := time.CurrentEpoch(state)
 
-	currentSyncCommittee, err := state.CurrentSyncCommittee()
-	if err != nil {
-		return nil, err
-	}
-	nextSyncCommittee, err := state.NextSyncCommittee()
-	if err != nil {
-		return nil, err
-	}
 	prevEpochParticipation, err := state.PreviousEpochParticipation()
 	if err != nil {
 		return nil, err
@@ -57,10 +49,6 @@ func UpgradeToDeneb(state state.BeaconState) (state.BeaconState, error) {
 	if err != nil {
 		return nil, err
 	}
-	historicalRoots, err := state.HistoricalRoots()
-	if err != nil {
-		return nil, err
-	}
 
 	s := &ethpb.BeaconStateDeneb{
 		GenesisTime:           state.GenesisTime(),
@@ -74,17 +62,14 @@ func UpgradeToDeneb(state state.BeaconState) (state.BeaconState, error) {
 		LatestBlockHeader:           state.LatestBlockHeader(),
 		BlockRoots:                  state.BlockRoots(),
 		StateRoots:                  state.StateRoots(),
-		HistoricalRoots:             historicalRoots,
 		RewardAdjustmentFactor:      state.RewardAdjustmentFactor(),
 		Eth1Data:                    state.Eth1Data(),
 		Eth1DataVotes:               state.Eth1DataVotes(),
 		Eth1DepositIndex:            state.Eth1DepositIndex(),
 		Validators:                  state.Validators(),
 		Balances:                    state.Balances(),
-		PreviousEpochReserve:        state.PreviousEpochReserve(),
-		CurrentEpochReserve:         state.CurrentEpochReserve(),
+		Reserves:                    state.Reserves(),
 		RandaoMixes:                 state.RandaoMixes(),
-		Slashings:                   state.Slashings(),
 		PreviousEpochParticipation:  prevEpochParticipation,
 		CurrentEpochParticipation:   currentEpochParticipation,
 		JustificationBits:           state.JustificationBits(),
@@ -92,8 +77,6 @@ func UpgradeToDeneb(state state.BeaconState) (state.BeaconState, error) {
 		CurrentJustifiedCheckpoint:  state.CurrentJustifiedCheckpoint(),
 		FinalizedCheckpoint:         state.FinalizedCheckpoint(),
 		InactivityScores:            inactivityScores,
-		CurrentSyncCommittee:        currentSyncCommittee,
-		NextSyncCommittee:           nextSyncCommittee,
 		LatestExecutionPayloadHeader: &enginev1.ExecutionPayloadHeaderDeneb{
 			ParentHash:       payloadHeader.ParentHash(),
 			FeeRecipient:     payloadHeader.FeeRecipient(),

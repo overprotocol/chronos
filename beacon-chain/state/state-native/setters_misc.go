@@ -89,47 +89,6 @@ func (b *BeaconState) SetFork(val *ethpb.Fork) error {
 	return nil
 }
 
-// SetHistoricalRoots for the beacon state. Updates the entire
-// list to a new value by overwriting the previous one.
-func (b *BeaconState) SetHistoricalRoots(val [][]byte) error {
-	b.lock.Lock()
-	defer b.lock.Unlock()
-
-	b.sharedFieldReferences[types.HistoricalRoots].MinusRef()
-	b.sharedFieldReferences[types.HistoricalRoots] = stateutil.NewRef(1)
-
-	roots := make([][32]byte, len(val))
-	for i, r := range val {
-		copy(roots[i][:], r)
-	}
-	b.historicalRoots = roots
-	b.markFieldAsDirty(types.HistoricalRoots)
-	return nil
-}
-
-// AppendHistoricalRoots for the beacon state. Appends the new value
-// to the end of list.
-func (b *BeaconState) AppendHistoricalRoots(root [32]byte) error {
-	b.lock.Lock()
-	defer b.lock.Unlock()
-
-	if b.version > version.Bellatrix {
-		return errNotSupported("AppendHistoricalRoots", b.version)
-	}
-
-	roots := b.historicalRoots
-	if b.sharedFieldReferences[types.HistoricalRoots].Refs() > 1 {
-		roots = make([][32]byte, 0, len(b.historicalRoots)+1)
-		roots = append(roots, b.historicalRoots...)
-		b.sharedFieldReferences[types.HistoricalRoots].MinusRef()
-		b.sharedFieldReferences[types.HistoricalRoots] = stateutil.NewRef(1)
-	}
-
-	b.historicalRoots = append(roots, root)
-	b.markFieldAsDirty(types.HistoricalRoots)
-	return nil
-}
-
 // AppendHistoricalSummaries for the beacon state. Appends the new value
 // to the end of list.
 func (b *BeaconState) AppendHistoricalSummaries(summary *ethpb.HistoricalSummary) error {
@@ -163,23 +122,13 @@ func (b *BeaconState) SetRewardAdjustmentFactor(val uint64) error {
 	return nil
 }
 
-// SetPreviousEpochReserve for the beacon state.
-func (b *BeaconState) SetPreviousEpochReserve(val uint64) error {
+// SetReserves for the beacon state.
+func (b *BeaconState) SetReserves(val uint64) error {
 	b.lock.Lock()
 	defer b.lock.Unlock()
 
-	b.previousEpochReserve = val
-	b.markFieldAsDirty(types.PreviousEpochReserve)
-	return nil
-}
-
-// SetCurrentEpochReserve for the beacon state.
-func (b *BeaconState) SetCurrentEpochReserve(val uint64) error {
-	b.lock.Lock()
-	defer b.lock.Unlock()
-
-	b.currentEpochReserve = val
-	b.markFieldAsDirty(types.CurrentEpochReserve)
+	b.reserves = val
+	b.markFieldAsDirty(types.Reserves)
 	return nil
 }
 

@@ -256,7 +256,7 @@ func TestService_BroadcastAttestationWithDiscoveryAttempts(t *testing.T) {
 		// Set for 2nd peer
 		if i == 2 {
 			s.dv5Listener = listener
-			s.metaData = wrapper.WrappedMetadataV0(new(ethpb.MetaDataV0))
+			s.metaData = wrapper.WrappedMetadataV1(new(ethpb.MetaDataV1))
 			bitV := bitfield.NewBitvector64()
 			bitV.SetBitAt(subnet, true)
 			s.updateSubnetRecordWithMetadata(bitV)
@@ -377,73 +377,6 @@ func TestService_BroadcastAttestationWithDiscoveryAttempts(t *testing.T) {
 	require.NoError(t, p.BroadcastAttestation(context.Background(), subnet, msg))
 	if util.WaitTimeout(&wg, 4*time.Second) {
 		t.Error("Failed to receive pubsub within 4s")
-	}
-}
-
-func TestService_BroadcastSyncCommittee(t *testing.T) {
-	p1 := p2ptest.NewTestP2P(t)
-	p2 := p2ptest.NewTestP2P(t)
-	p1.Connect(p2)
-	if len(p1.BHost.Network().Peers()) == 0 {
-		t.Fatal("No peers")
-	}
-
-	p := &Service{
-		host:                  p1.BHost,
-		pubsub:                p1.PubSub(),
-		joinedTopics:          map[string]*pubsub.Topic{},
-		cfg:                   &Config{},
-		genesisTime:           time.Now(),
-		genesisValidatorsRoot: bytesutil.PadTo([]byte{'A'}, 32),
-		subnetsLock:           make(map[uint64]*sync.RWMutex),
-		subnetsLockLock:       sync.Mutex{},
-		peers: peers.NewStatus(context.Background(), &peers.StatusConfig{
-			ScorerParams: &scorers.Config{},
-		}),
-	}
-
-	msg := util.HydrateSyncCommittee(&ethpb.SyncCommitteeMessage{})
-	subnet := uint64(5)
-
-	topic := SyncCommitteeSubnetTopicFormat
-	GossipTypeMapping[reflect.TypeOf(msg)] = topic
-	digest, err := p.currentForkDigest()
-	require.NoError(t, err)
-	topic = fmt.Sprintf(topic, digest, subnet)
-
-	// External peer subscribes to the topic.
-	topic += p.Encoding().ProtocolSuffix()
-	sub, err := p2.SubscribeToTopic(topic)
-	require.NoError(t, err)
-
-	time.Sleep(50 * time.Millisecond) // libp2p fails without this delay...
-
-	// Async listen for the pubsub, must be before the broadcast.
-	var wg sync.WaitGroup
-	wg.Add(1)
-	go func(tt *testing.T) {
-		defer wg.Done()
-		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
-		defer cancel()
-
-		incomingMessage, err := sub.Next(ctx)
-		require.NoError(t, err)
-
-		result := &ethpb.SyncCommitteeMessage{}
-		require.NoError(t, p.Encoding().DecodeGossip(incomingMessage.Data, result))
-		if !proto.Equal(result, msg) {
-			tt.Errorf("Did not receive expected message, got %+v, wanted %+v", result, msg)
-		}
-	}(t)
-
-	// Broadcasting nil should fail.
-	ctx := context.Background()
-	require.ErrorContains(t, "attempted to broadcast nil", p.BroadcastSyncCommitteeMessage(ctx, subnet, nil))
-
-	// Broadcast to peers and wait.
-	require.NoError(t, p.BroadcastSyncCommitteeMessage(ctx, subnet, msg))
-	if util.WaitTimeout(&wg, 1*time.Second) {
-		t.Error("Failed to receive pubsub within 1s")
 	}
 }
 

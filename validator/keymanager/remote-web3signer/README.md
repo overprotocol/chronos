@@ -39,9 +39,6 @@ with url
     - DEPOSIT <- not supported
     - RANDAO_REVEAL <- *validatorpb.SignRequest_Epoch
     - VOLUNTARY_EXIT <- *validatorpb.SignRequest_Exit
-    - SYNC_COMMITTEE_MESSAGE <- *validatorpb.SignRequest_SyncMessageBlockRoot
-    - SYNC_COMMITTEE_SELECTION_PROOF <- *validatorpb.SignRequest_SyncAggregatorSelectionData
-    - SYNC_COMMITTEE_CONTRIBUTION_AND_PROOF <- *validatorpb.SignRequest_ContributionAndProof
 - Reload Keys: reloads all public keys from the web3signer.
 - Get Server Status: returns OK if the web3signer is ok.
 

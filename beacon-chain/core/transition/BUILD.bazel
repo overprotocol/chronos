@@ -79,7 +79,6 @@ go_test(
         "//beacon-chain/core/helpers:go_default_library",
         "//beacon-chain/core/signing:go_default_library",
         "//beacon-chain/core/time:go_default_library",
-        "//beacon-chain/p2p/types:go_default_library",
         "//beacon-chain/state:go_default_library",
         "//beacon-chain/state/state-native:go_default_library",
         "//config/fieldparams:go_default_library",

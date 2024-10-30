@@ -123,7 +123,6 @@ func metaDataFromConfig(cfg *Config) (metadata.Metadata, error) {
 	defaultMd := &pb.MetaDataV1{
 		SeqNumber: 0,
 		Attnets:   bitfield.NewBitvector64(),
-		Syncnets:  bitfield.NewBitvector4(),
 	}
 	wrappedDefaultMd := wrapper.WrappedMetadataV1(defaultMd)
 
@@ -186,13 +185,13 @@ func metaDataFromFile(path string) (metadata.Metadata, error) {
 	if err != nil {
 		// If unmarshal failed, try to unmarshal for V0
 		log.WithError(err).Info("Error unmarshalling V1 metadata from file, try to unmarshal for V0.")
-		md0 := &pb.MetaDataV0{}
+		md0 := &pb.MetaDataV1{}
 		md0Err := md0.UnmarshalSSZ(src)
 		if md0Err != nil {
 			log.WithError(md0Err).Error("Error unmarshalling V0 metadata from file")
 			return nil, md0Err
 		}
-		return wrapper.WrappedMetadataV0(md0), nil
+		return wrapper.WrappedMetadataV1(md0), nil
 	}
 	return wrapper.WrappedMetadataV1(md), nil
 }
@@ -221,18 +220,17 @@ func migrateFromProtoToSsz(path string) (metadata.Metadata, error) {
 		return nil, err
 	}
 
-	md := &pb.MetaDataV0{}
+	md := &pb.MetaDataV1{}
 	if err := proto.Unmarshal(src, md); err != nil {
 		return nil, err
 	}
 
-	wmd := wrapper.WrappedMetadataV0(md)
+	wmd := wrapper.WrappedMetadataV1(md)
 	// increment sequence number
 	seqNum := wmd.SequenceNumber() + 1
 	newMd := &pb.MetaDataV1{
 		SeqNumber: seqNum,
 		Attnets:   wmd.AttnetsBitfield().Bytes(),
-		Syncnets:  bitfield.NewBitvector4(),
 	}
 	wrappedNewMd := wrapper.WrappedMetadataV1(newMd)
 

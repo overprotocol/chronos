@@ -12,16 +12,14 @@ import (
 // gossipTopicMappings represent the protocol ID to protobuf message type map for easy
 // lookup.
 var gossipTopicMappings = map[string]func() proto.Message{
-	BlockSubnetTopicFormat:                    func() proto.Message { return &ethpb.SignedBeaconBlock{} },
-	AttestationSubnetTopicFormat:              func() proto.Message { return &ethpb.Attestation{} },
-	ExitSubnetTopicFormat:                     func() proto.Message { return &ethpb.SignedVoluntaryExit{} },
-	ProposerSlashingSubnetTopicFormat:         func() proto.Message { return &ethpb.ProposerSlashing{} },
-	AttesterSlashingSubnetTopicFormat:         func() proto.Message { return &ethpb.AttesterSlashing{} },
-	AggregateAndProofSubnetTopicFormat:        func() proto.Message { return &ethpb.SignedAggregateAttestationAndProof{} },
-	SyncContributionAndProofSubnetTopicFormat: func() proto.Message { return &ethpb.SignedContributionAndProof{} },
-	SyncCommitteeSubnetTopicFormat:            func() proto.Message { return &ethpb.SyncCommitteeMessage{} },
-	BlsToExecutionChangeSubnetTopicFormat:     func() proto.Message { return &ethpb.SignedBLSToExecutionChange{} },
-	BlobSubnetTopicFormat:                     func() proto.Message { return &ethpb.BlobSidecar{} },
+	BlockSubnetTopicFormat:                func() proto.Message { return &ethpb.SignedBeaconBlock{} },
+	AttestationSubnetTopicFormat:          func() proto.Message { return &ethpb.Attestation{} },
+	ExitSubnetTopicFormat:                 func() proto.Message { return &ethpb.SignedVoluntaryExit{} },
+	ProposerSlashingSubnetTopicFormat:     func() proto.Message { return &ethpb.ProposerSlashing{} },
+	AttesterSlashingSubnetTopicFormat:     func() proto.Message { return &ethpb.AttesterSlashing{} },
+	AggregateAndProofSubnetTopicFormat:    func() proto.Message { return &ethpb.SignedAggregateAttestationAndProof{} },
+	BlsToExecutionChangeSubnetTopicFormat: func() proto.Message { return &ethpb.SignedBLSToExecutionChange{} },
+	BlobSubnetTopicFormat:                 func() proto.Message { return &ethpb.BlobSidecar{} },
 }
 
 // GossipTopicMappings is a function to return the assigned data type

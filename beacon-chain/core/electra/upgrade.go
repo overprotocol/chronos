@@ -69,8 +69,6 @@ import (
 //	    balances=pre.balances,
 //	    # Randomness
 //	    randao_mixes=pre.randao_mixes,
-//	    # Slashings
-//	    slashings=pre.slashings,
 //	    # Participation
 //	    previous_epoch_participation=pre.previous_epoch_participation,
 //	    current_epoch_participation=pre.current_epoch_participation,
@@ -81,9 +79,6 @@ import (
 //	    finalized_checkpoint=pre.finalized_checkpoint,
 //	    # Inactivity
 //	    inactivity_scores=pre.inactivity_scores,
-//	    # Sync
-//	    current_sync_committee=pre.current_sync_committee,
-//	    next_sync_committee=pre.next_sync_committee,
 //	    # Execution-layer
 //	    latest_execution_payload_header=latest_execution_payload_header,  # [Modified in Electra:EIP6110:EIP7002]
 //	    # Withdrawals
@@ -123,14 +118,6 @@ import (
 //
 //	return post
 func UpgradeToElectra(beaconState state.BeaconState) (state.BeaconState, error) {
-	currentSyncCommittee, err := beaconState.CurrentSyncCommittee()
-	if err != nil {
-		return nil, err
-	}
-	nextSyncCommittee, err := beaconState.NextSyncCommittee()
-	if err != nil {
-		return nil, err
-	}
 	prevEpochParticipation, err := beaconState.PreviousEpochParticipation()
 	if err != nil {
 		return nil, err
@@ -164,10 +151,6 @@ func UpgradeToElectra(beaconState state.BeaconState) (state.BeaconState, error) 
 		return nil, err
 	}
 	summaries, err := beaconState.HistoricalSummaries()
-	if err != nil {
-		return nil, err
-	}
-	historicalRoots, err := beaconState.HistoricalRoots()
 	if err != nil {
 		return nil, err
 	}
@@ -220,14 +203,11 @@ func UpgradeToElectra(beaconState state.BeaconState) (state.BeaconState, error) 
 		LatestBlockHeader:           beaconState.LatestBlockHeader(),
 		BlockRoots:                  beaconState.BlockRoots(),
 		StateRoots:                  beaconState.StateRoots(),
-		HistoricalRoots:             historicalRoots,
 		RewardAdjustmentFactor:      beaconState.RewardAdjustmentFactor(),
 		Validators:                  beaconState.Validators(),
 		Balances:                    beaconState.Balances(),
-		PreviousEpochReserve:        beaconState.PreviousEpochReserve(),
-		CurrentEpochReserve:         beaconState.CurrentEpochReserve(),
+		Reserves:                    beaconState.Reserves(),
 		RandaoMixes:                 beaconState.RandaoMixes(),
-		Slashings:                   beaconState.Slashings(),
 		PreviousEpochParticipation:  prevEpochParticipation,
 		CurrentEpochParticipation:   currentEpochParticipation,
 		JustificationBits:           beaconState.JustificationBits(),
@@ -235,8 +215,6 @@ func UpgradeToElectra(beaconState state.BeaconState) (state.BeaconState, error) 
 		CurrentJustifiedCheckpoint:  beaconState.CurrentJustifiedCheckpoint(),
 		FinalizedCheckpoint:         beaconState.FinalizedCheckpoint(),
 		InactivityScores:            inactivityScores,
-		CurrentSyncCommittee:        currentSyncCommittee,
-		NextSyncCommittee:           nextSyncCommittee,
 		LatestExecutionPayloadHeader: &enginev1.ExecutionPayloadHeaderElectra{
 			ParentHash:       payloadHeader.ParentHash(),
 			FeeRecipient:     payloadHeader.FeeRecipient(),

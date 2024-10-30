@@ -17,8 +17,7 @@ var _ pubsub.SubscriptionFilter = (*Service)(nil)
 // It is set at this limit to handle the possibility
 // of double topic subscriptions at fork boundaries.
 // -> 64 Attestation Subnets * 2.
-// -> 4 Sync Committee Subnets * 2.
-// -> Block,Aggregate,ProposerSlashing,AttesterSlashing,Exits,SyncContribution * 2.
+// -> Block,Aggregate,ProposerSlashing,AttesterSlashing,Exits * 2.
 const pubsubSubscriptionRequestLimit = 200
 
 // CanSubscribe returns true if the topic is of interest and we could subscribe to it.

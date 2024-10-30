@@ -14,7 +14,6 @@ import (
 
 func TestUpgradeToDeneb(t *testing.T) {
 	st, _ := util.DeterministicGenesisStateCapella(t, params.BeaconConfig().MaxValidatorsPerCommittee)
-	require.NoError(t, st.SetHistoricalRoots([][]byte{{1}}))
 	preForkState := st.Copy()
 	mSt, err := deneb.UpgradeToDeneb(st)
 	require.NoError(t, err)
@@ -31,7 +30,6 @@ func TestUpgradeToDeneb(t *testing.T) {
 	require.DeepSSZEqual(t, preForkState.Validators(), mSt.Validators())
 	require.DeepSSZEqual(t, preForkState.Balances(), mSt.Balances())
 	require.DeepSSZEqual(t, preForkState.RandaoMixes(), mSt.RandaoMixes())
-	require.DeepSSZEqual(t, preForkState.Slashings(), mSt.Slashings())
 	require.DeepSSZEqual(t, preForkState.JustificationBits(), mSt.JustificationBits())
 	require.DeepSSZEqual(t, preForkState.PreviousJustifiedCheckpoint(), mSt.PreviousJustifiedCheckpoint())
 	require.DeepSSZEqual(t, preForkState.CurrentJustifiedCheckpoint(), mSt.CurrentJustifiedCheckpoint())
@@ -47,29 +45,12 @@ func TestUpgradeToDeneb(t *testing.T) {
 	require.NoError(t, err)
 	require.DeepSSZEqual(t, make([]uint64, numValidators), s)
 
-	hr1, err := preForkState.HistoricalRoots()
-	require.NoError(t, err)
-	hr2, err := mSt.HistoricalRoots()
-	require.NoError(t, err)
-	require.DeepEqual(t, hr1, hr2)
-
 	f := mSt.Fork()
 	require.DeepSSZEqual(t, &ethpb.Fork{
 		PreviousVersion: st.Fork().CurrentVersion,
 		CurrentVersion:  params.BeaconConfig().DenebForkVersion,
 		Epoch:           time.CurrentEpoch(st),
 	}, f)
-	csc, err := mSt.CurrentSyncCommittee()
-	require.NoError(t, err)
-	psc, err := preForkState.CurrentSyncCommittee()
-	require.NoError(t, err)
-	require.DeepSSZEqual(t, psc, csc)
-	nsc, err := mSt.NextSyncCommittee()
-	require.NoError(t, err)
-	psc, err = preForkState.NextSyncCommittee()
-	require.NoError(t, err)
-	require.DeepSSZEqual(t, psc, nsc)
-
 	header, err := mSt.LatestExecutionPayloadHeader()
 	require.NoError(t, err)
 	protoHeader, ok := header.Proto().(*enginev1.ExecutionPayloadHeaderDeneb)

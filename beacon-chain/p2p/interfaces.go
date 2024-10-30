@@ -34,7 +34,6 @@ type P2P interface {
 type Broadcaster interface {
 	Broadcast(context.Context, proto.Message) error
 	BroadcastAttestation(ctx context.Context, subnet uint64, att ethpb.Att) error
-	BroadcastSyncCommitteeMessage(ctx context.Context, subnet uint64, sMsg *ethpb.SyncCommitteeMessage) error
 	BroadcastBlob(ctx context.Context, subnet uint64, blob *ethpb.BlobSidecar) error
 }
 

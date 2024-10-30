@@ -28,7 +28,6 @@ type BeaconState struct {
 	blockRootsMultiValue                *MultiValueBlockRoots
 	stateRoots                          customtypes.StateRoots
 	stateRootsMultiValue                *MultiValueStateRoots
-	historicalRoots                     customtypes.HistoricalRoots
 	historicalSummaries                 []*ethpb.HistoricalSummary
 	rewardAdjustmentFactor              uint64
 	eth1Data                            *ethpb.Eth1Data
@@ -37,12 +36,10 @@ type BeaconState struct {
 	validators                          []*ethpb.Validator
 	validatorsMultiValue                *MultiValueValidators
 	balances                            []uint64
-	previousEpochReserve                uint64
-	currentEpochReserve                 uint64
+	reserves                            uint64
 	balancesMultiValue                  *MultiValueBalances
 	randaoMixes                         customtypes.RandaoMixes
 	randaoMixesMultiValue               *MultiValueRandaoMixes
-	slashings                           []uint64
 	previousEpochAttestations           []*ethpb.PendingAttestation
 	currentEpochAttestations            []*ethpb.PendingAttestation
 	previousEpochParticipation          []byte
@@ -53,8 +50,6 @@ type BeaconState struct {
 	finalizedCheckpoint                 *ethpb.Checkpoint
 	inactivityScores                    []uint64
 	inactivityScoresMultiValue          *MultiValueInactivityScores
-	currentSyncCommittee                *ethpb.SyncCommittee
-	nextSyncCommittee                   *ethpb.SyncCommittee
 	latestExecutionPayloadHeader        *enginev1.ExecutionPayloadHeader
 	latestExecutionPayloadHeaderCapella *enginev1.ExecutionPayloadHeaderCapella
 	latestExecutionPayloadHeaderDeneb   *enginev1.ExecutionPayloadHeaderDeneb
@@ -88,7 +83,6 @@ type beaconStateMarshalable struct {
 	LatestBlockHeader                   *ethpb.BeaconBlockHeader                `json:"latest_block_header" yaml:"latest_block_header"`
 	BlockRoots                          customtypes.BlockRoots                  `json:"block_roots" yaml:"block_roots"`
 	StateRoots                          customtypes.StateRoots                  `json:"state_roots" yaml:"state_roots"`
-	HistoricalRoots                     customtypes.HistoricalRoots             `json:"historical_roots" yaml:"historical_roots"`
 	HistoricalSummaries                 []*ethpb.HistoricalSummary              `json:"historical_summaries" yaml:"historical_summaries"`
 	RewardAdjustmentFactor              uint64                                  `json:"reward_adjustment_factor" yaml:"reward_adjustment_factor"`
 	Eth1Data                            *ethpb.Eth1Data                         `json:"eth_1_data" yaml:"eth_1_data"`
@@ -96,10 +90,8 @@ type beaconStateMarshalable struct {
 	Eth1DepositIndex                    uint64                                  `json:"eth_1_deposit_index" yaml:"eth_1_deposit_index"`
 	Validators                          []*ethpb.Validator                      `json:"validators" yaml:"validators"`
 	Balances                            []uint64                                `json:"balances" yaml:"balances"`
-	PreviousEpochReserve                uint64                                  `json:"previous_epoch_reserve" yaml:"previous_epoch_reserve"`
-	CurrentEpochReserve                 uint64                                  `json:"current_epoch_reserve" yaml:"current_epoch_reserve"`
+	Reserves                            uint64                                  `json:"reserves" yaml:"reserves"`
 	RandaoMixes                         customtypes.RandaoMixes                 `json:"randao_mixes" yaml:"randao_mixes"`
-	Slashings                           []uint64                                `json:"slashings" yaml:"slashings"`
 	PreviousEpochAttestations           []*ethpb.PendingAttestation             `json:"previous_epoch_attestations" yaml:"previous_epoch_attestations"`
 	CurrentEpochAttestations            []*ethpb.PendingAttestation             `json:"current_epoch_attestations" yaml:"current_epoch_attestations"`
 	PreviousEpochParticipation          []byte                                  `json:"previous_epoch_participation" yaml:"previous_epoch_participation"`
@@ -109,8 +101,6 @@ type beaconStateMarshalable struct {
 	CurrentJustifiedCheckpoint          *ethpb.Checkpoint                       `json:"current_justified_checkpoint" yaml:"current_justified_checkpoint"`
 	FinalizedCheckpoint                 *ethpb.Checkpoint                       `json:"finalized_checkpoint" yaml:"finalized_checkpoint"`
 	InactivityScores                    []uint64                                `json:"inactivity_scores" yaml:"inactivity_scores"`
-	CurrentSyncCommittee                *ethpb.SyncCommittee                    `json:"current_sync_committee" yaml:"current_sync_committee"`
-	NextSyncCommittee                   *ethpb.SyncCommittee                    `json:"next_sync_committee" yaml:"next_sync_committee"`
 	LatestExecutionPayloadHeader        *enginev1.ExecutionPayloadHeader        `json:"latest_execution_payload_header" yaml:"latest_execution_payload_header"`
 	LatestExecutionPayloadHeaderCapella *enginev1.ExecutionPayloadHeaderCapella `json:"latest_execution_payload_header_capella" yaml:"latest_execution_payload_header_capella"`
 	LatestExecutionPayloadHeaderDeneb   *enginev1.ExecutionPayloadHeaderDeneb   `json:"latest_execution_payload_header_deneb" yaml:"latest_execution_payload_header_deneb"`
@@ -157,7 +147,6 @@ func (b *BeaconState) MarshalJSON() ([]byte, error) {
 		LatestBlockHeader:                   b.latestBlockHeader,
 		BlockRoots:                          bRoots,
 		StateRoots:                          sRoots,
-		HistoricalRoots:                     b.historicalRoots,
 		HistoricalSummaries:                 b.historicalSummaries,
 		RewardAdjustmentFactor:              b.rewardAdjustmentFactor,
 		Eth1Data:                            b.eth1Data,
@@ -165,10 +154,8 @@ func (b *BeaconState) MarshalJSON() ([]byte, error) {
 		Eth1DepositIndex:                    b.eth1DepositIndex,
 		Validators:                          vals,
 		Balances:                            balances,
-		PreviousEpochReserve:                b.previousEpochReserve,
-		CurrentEpochReserve:                 b.currentEpochReserve,
+		Reserves:                            b.reserves,
 		RandaoMixes:                         mixes,
-		Slashings:                           b.slashings,
 		PreviousEpochAttestations:           b.previousEpochAttestations,
 		CurrentEpochAttestations:            b.currentEpochAttestations,
 		PreviousEpochParticipation:          b.previousEpochParticipation,
@@ -178,8 +165,6 @@ func (b *BeaconState) MarshalJSON() ([]byte, error) {
 		CurrentJustifiedCheckpoint:          b.currentJustifiedCheckpoint,
 		FinalizedCheckpoint:                 b.finalizedCheckpoint,
 		InactivityScores:                    inactivityScores,
-		CurrentSyncCommittee:                b.currentSyncCommittee,
-		NextSyncCommittee:                   b.nextSyncCommittee,
 		LatestExecutionPayloadHeader:        b.latestExecutionPayloadHeader,
 		LatestExecutionPayloadHeaderCapella: b.latestExecutionPayloadHeaderCapella,
 		LatestExecutionPayloadHeaderDeneb:   b.latestExecutionPayloadHeaderDeneb,

@@ -222,11 +222,6 @@ func TestCreateLocalNode(t *testing.T) {
 			attSubnets := new([]byte)
 			require.NoError(t, localNode.Node().Record().Load(enr.WithEntry(attSubnetEnrKey, attSubnets)))
 			require.DeepSSZEqual(t, []byte{0, 0, 0, 0, 0, 0, 0, 0}, *attSubnets)
-
-			// Check sync committees subnets.
-			syncSubnets := new([]byte)
-			require.NoError(t, localNode.Node().Record().Load(enr.WithEntry(syncCommsSubnetEnrKey, syncSubnets)))
-			require.DeepSSZEqual(t, []byte{0}, *syncSubnets)
 		})
 	}
 }
@@ -492,7 +487,7 @@ func addPeer(t *testing.T, p *peers.Status, state peerdata.PeerConnectionState, 
 	}
 	p.Add(new(enr.Record), id, nil, dir)
 	p.SetConnectionState(id, state)
-	p.SetMetadata(id, wrapper.WrappedMetadataV0(&ethpb.MetaDataV0{
+	p.SetMetadata(id, wrapper.WrappedMetadataV1(&ethpb.MetaDataV1{
 		SeqNumber: 0,
 		Attnets:   bitfield.NewBitvector64(),
 	}))
@@ -525,7 +520,7 @@ func TestRefreshENR_ForkBoundaries(t *testing.T) {
 				listener, err := newListener(createListener)
 				assert.NoError(t, err)
 				s.dv5Listener = listener
-				s.metaData = wrapper.WrappedMetadataV0(new(ethpb.MetaDataV0))
+				s.metaData = wrapper.WrappedMetadataV1(new(ethpb.MetaDataV1))
 				s.updateSubnetRecordWithMetadata([]byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
 				return s
 			},
@@ -557,7 +552,7 @@ func TestRefreshENR_ForkBoundaries(t *testing.T) {
 				listener, err := newListener(createListener)
 				assert.NoError(t, err)
 				s.dv5Listener = listener
-				s.metaData = wrapper.WrappedMetadataV0(new(ethpb.MetaDataV0))
+				s.metaData = wrapper.WrappedMetadataV1(new(ethpb.MetaDataV1))
 				s.updateSubnetRecordWithMetadata([]byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01})
 				cache.SubnetIDs.AddPersistentCommittee([]uint64{1, 2, 3, 23}, 0)
 				return s
@@ -589,14 +584,13 @@ func TestRefreshENR_ForkBoundaries(t *testing.T) {
 				params.BeaconConfig().InitializeForkSchedule()
 
 				s.dv5Listener = listener
-				s.metaData = wrapper.WrappedMetadataV0(new(ethpb.MetaDataV0))
+				s.metaData = wrapper.WrappedMetadataV1(new(ethpb.MetaDataV1))
 				s.updateSubnetRecordWithMetadata([]byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01})
 				cache.SubnetIDs.AddPersistentCommittee([]uint64{1, 2, 3, 23}, 0)
 				return s
 			},
 			postValidation: func(t *testing.T, s *Service) {
 				assert.Equal(t, version.Altair, s.metaData.Version())
-				assert.DeepEqual(t, bitfield.Bitvector4{0x00}, s.metaData.MetadataObjV1().Syncnets)
 				assert.DeepEqual(t, bitfield.Bitvector64{0xe, 0x0, 0x80, 0x0, 0x0, 0x0, 0x0, 0x0}, s.metaData.AttnetsBitfield())
 			},
 		},
@@ -623,13 +617,12 @@ func TestRefreshENR_ForkBoundaries(t *testing.T) {
 				params.BeaconConfig().InitializeForkSchedule()
 
 				s.dv5Listener = listener
-				s.metaData = wrapper.WrappedMetadataV0(new(ethpb.MetaDataV0))
+				s.metaData = wrapper.WrappedMetadataV1(new(ethpb.MetaDataV1))
 				s.updateSubnetRecordWithMetadata([]byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
 				return s
 			},
 			postValidation: func(t *testing.T, s *Service) {
 				assert.Equal(t, version.Altair, s.metaData.Version())
-				assert.DeepEqual(t, bitfield.Bitvector4{0x00}, s.metaData.MetadataObjV1().Syncnets)
 				currEpoch := slots.ToEpoch(slots.CurrentSlot(uint64(s.genesisTime.Unix())))
 				subs, err := computeSubscribedSubnets(s.dv5Listener.LocalNode().ID(), currEpoch)
 				assert.NoError(t, err)
@@ -664,15 +657,13 @@ func TestRefreshENR_ForkBoundaries(t *testing.T) {
 				params.BeaconConfig().InitializeForkSchedule()
 
 				s.dv5Listener = listener
-				s.metaData = wrapper.WrappedMetadataV0(new(ethpb.MetaDataV0))
+				s.metaData = wrapper.WrappedMetadataV1(new(ethpb.MetaDataV1))
 				s.updateSubnetRecordWithMetadata([]byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
 				cache.SubnetIDs.AddPersistentCommittee([]uint64{1, 2, 3, 23}, 0)
-				cache.SyncSubnetIDs.AddSyncCommitteeSubnets([]byte{'A'}, 0, []uint64{0, 1}, 0)
 				return s
 			},
 			postValidation: func(t *testing.T, s *Service) {
 				assert.Equal(t, version.Altair, s.metaData.Version())
-				assert.DeepEqual(t, bitfield.Bitvector4{0x03}, s.metaData.MetadataObjV1().Syncnets)
 				assert.DeepEqual(t, bitfield.Bitvector64{0xe, 0x0, 0x80, 0x0, 0x0, 0x0, 0x0, 0x0}, s.metaData.AttnetsBitfield())
 			},
 		},
@@ -684,7 +675,6 @@ func TestRefreshENR_ForkBoundaries(t *testing.T) {
 			tt.postValidation(t, s)
 			s.dv5Listener.Close()
 			cache.SubnetIDs.EmptyAllCaches()
-			cache.SyncSubnetIDs.EmptyAllCaches()
 		})
 	}
 }

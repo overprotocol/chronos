@@ -42,8 +42,6 @@ import (
 //	    balances=pre.balances,
 //	    # Randomness
 //	    randao_mixes=pre.randao_mixes,
-//	    # Slashings
-//	    slashings=pre.slashings,
 //	    # Participation
 //	    previous_epoch_participation=[ParticipationFlags(0b0000_0000) for _ in range(len(pre.validators))],
 //	    current_epoch_participation=[ParticipationFlags(0b0000_0000) for _ in range(len(pre.validators))],
@@ -57,20 +55,10 @@ import (
 //	)
 //	# Fill in previous epoch participation from the pre state's pending attestations
 //	translate_participation(post, pre.previous_epoch_attestations)
-//
-//	# Fill in sync committees
-//	# Note: A duplicate committee is assigned for the current and next committee at the fork boundary
-//	post.current_sync_committee = get_next_sync_committee(post)
-//	post.next_sync_committee = get_next_sync_committee(post)
-//	return post
 func UpgradeToAltair(ctx context.Context, state state.BeaconState) (state.BeaconState, error) {
 	epoch := time.CurrentEpoch(state)
 
 	numValidators := state.NumValidators()
-	hrs, err := state.HistoricalRoots()
-	if err != nil {
-		return nil, err
-	}
 	s := &ethpb.BeaconStateAltair{
 		GenesisTime:           state.GenesisTime(),
 		GenesisValidatorsRoot: state.GenesisValidatorsRoot(),
@@ -83,17 +71,14 @@ func UpgradeToAltair(ctx context.Context, state state.BeaconState) (state.Beacon
 		LatestBlockHeader:           state.LatestBlockHeader(),
 		BlockRoots:                  state.BlockRoots(),
 		StateRoots:                  state.StateRoots(),
-		HistoricalRoots:             hrs,
 		RewardAdjustmentFactor:      state.RewardAdjustmentFactor(),
 		Eth1Data:                    state.Eth1Data(),
 		Eth1DataVotes:               state.Eth1DataVotes(),
 		Eth1DepositIndex:            state.Eth1DepositIndex(),
 		Validators:                  state.Validators(),
 		Balances:                    state.Balances(),
-		PreviousEpochReserve:        state.PreviousEpochReserve(),
-		CurrentEpochReserve:         state.CurrentEpochReserve(),
+		Reserves:                    state.Reserves(),
 		RandaoMixes:                 state.RandaoMixes(),
-		Slashings:                   state.Slashings(),
 		PreviousEpochParticipation:  make([]byte, numValidators),
 		CurrentEpochParticipation:   make([]byte, numValidators),
 		JustificationBits:           state.JustificationBits(),
@@ -116,16 +101,6 @@ func UpgradeToAltair(ctx context.Context, state state.BeaconState) (state.Beacon
 		return nil, err
 	}
 
-	committee, err := NextSyncCommittee(ctx, newState)
-	if err != nil {
-		return nil, err
-	}
-	if err := newState.SetCurrentSyncCommittee(committee); err != nil {
-		return nil, err
-	}
-	if err := newState.SetNextSyncCommittee(committee); err != nil {
-		return nil, err
-	}
 	return newState, nil
 }
 

@@ -442,30 +442,6 @@ func TestKeymanager_Sign(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "SYNC_COMMITTEE_CONTRIBUTION_AND_PROOF",
-			args: args{
-				request: mock.GetMockSignRequest("SYNC_COMMITTEE_CONTRIBUTION_AND_PROOF"),
-			},
-			want:    desiredSig,
-			wantErr: false,
-		},
-		{
-			name: "SYNC_COMMITTEE_MESSAGE",
-			args: args{
-				request: mock.GetMockSignRequest("SYNC_COMMITTEE_MESSAGE"),
-			},
-			want:    desiredSig,
-			wantErr: false,
-		},
-		{
-			name: "SYNC_COMMITTEE_SELECTION_PROOF",
-			args: args{
-				request: mock.GetMockSignRequest("SYNC_COMMITTEE_SELECTION_PROOF"),
-			},
-			want:    desiredSig,
-			wantErr: false,
-		},
-		{
 			name: "VOLUNTARY_EXIT",
 			args: args{
 				request: mock.GetMockSignRequest("VOLUNTARY_EXIT"),

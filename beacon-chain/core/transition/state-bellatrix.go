@@ -9,7 +9,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
 	state_native "github.com/prysmaticlabs/prysm/v5/beacon-chain/state/state-native"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state/stateutil"
-	fieldparams "github.com/prysmaticlabs/prysm/v5/config/fieldparams"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/blocks"
 	enginev1 "github.com/prysmaticlabs/prysm/v5/proto/engine/v1"
@@ -118,8 +117,6 @@ func OptimizedGenesisBeaconStateBellatrix(genesisTime uint64, preState state.Bea
 		stateRoots[i] = zeroHash
 	}
 
-	slashings := make([]uint64, params.BeaconConfig().EpochsPerSlashingsVector)
-
 	genesisValidatorsRoot, err := stateutil.ValidatorRegistryRoot(preState.Validators())
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not hash tree root genesis validators %v", err)
@@ -156,10 +153,9 @@ func OptimizedGenesisBeaconStateBellatrix(genesisTime uint64, preState state.Bea
 		},
 
 		// Validator registry fields.
-		Validators:           preState.Validators(),
-		Balances:             preState.Balances(),
-		PreviousEpochReserve: preState.PreviousEpochReserve(),
-		CurrentEpochReserve:  preState.CurrentEpochReserve(),
+		Validators: preState.Validators(),
+		Balances:   preState.Balances(),
+		Reserves:   preState.Reserves(),
 
 		// Randomness and committees.
 		RandaoMixes: randaoMixes,
@@ -180,10 +176,8 @@ func OptimizedGenesisBeaconStateBellatrix(genesisTime uint64, preState state.Bea
 		},
 
 		RewardAdjustmentFactor: preState.RewardAdjustmentFactor(),
-		HistoricalRoots:        [][]byte{},
 		BlockRoots:             blockRoots,
 		StateRoots:             stateRoots,
-		Slashings:              slashings,
 
 		// Eth1 data.
 		Eth1Data:                     eth1Data,
@@ -200,10 +194,6 @@ func OptimizedGenesisBeaconStateBellatrix(genesisTime uint64, preState state.Bea
 			BlockHash:   make([]byte, 32),
 		},
 		Graffiti: make([]byte, 32),
-		SyncAggregate: &ethpb.SyncAggregate{
-			SyncCommitteeBits:      make([]byte, fieldparams.SyncCommitteeLength/8),
-			SyncCommitteeSignature: make([]byte, fieldparams.BLSSignatureLength),
-		},
 		ExecutionPayload: &enginev1.ExecutionPayload{
 			ParentHash:    make([]byte, 32),
 			FeeRecipient:  make([]byte, 20),
@@ -231,16 +221,6 @@ func OptimizedGenesisBeaconStateBellatrix(genesisTime uint64, preState state.Bea
 	if err != nil {
 		return nil, err
 	}
-	sc, err := altair.NextSyncCommittee(context.Background(), ist)
-	if err != nil {
-		return nil, err
-	}
-	if err := ist.SetNextSyncCommittee(sc); err != nil {
-		return nil, err
-	}
-	if err := ist.SetCurrentSyncCommittee(sc); err != nil {
-		return nil, err
-	}
 	return ist, nil
 }
 
@@ -255,13 +235,11 @@ func EmptyGenesisStateBellatrix() (state.BeaconState, error) {
 			Epoch:           0,
 		},
 		// Validator registry fields.
-		Validators:           []*ethpb.Validator{},
-		Balances:             []uint64{},
-		PreviousEpochReserve: 0,
-		CurrentEpochReserve:  0,
+		Validators: []*ethpb.Validator{},
+		Balances:   []uint64{},
+		Reserves:   0,
 
 		JustificationBits:      []byte{0},
-		HistoricalRoots:        [][]byte{},
 		RewardAdjustmentFactor: 0,
 
 		// Eth1 data.

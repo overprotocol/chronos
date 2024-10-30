@@ -14,14 +14,6 @@ import (
 func UpgradeToBellatrix(state state.BeaconState) (state.BeaconState, error) {
 	epoch := time.CurrentEpoch(state)
 
-	currentSyncCommittee, err := state.CurrentSyncCommittee()
-	if err != nil {
-		return nil, err
-	}
-	nextSyncCommittee, err := state.NextSyncCommittee()
-	if err != nil {
-		return nil, err
-	}
 	prevEpochParticipation, err := state.PreviousEpochParticipation()
 	if err != nil {
 		return nil, err
@@ -35,10 +27,6 @@ func UpgradeToBellatrix(state state.BeaconState) (state.BeaconState, error) {
 		return nil, err
 	}
 
-	hrs, err := state.HistoricalRoots()
-	if err != nil {
-		return nil, err
-	}
 	s := &ethpb.BeaconStateBellatrix{
 		GenesisTime:           state.GenesisTime(),
 		GenesisValidatorsRoot: state.GenesisValidatorsRoot(),
@@ -51,17 +39,14 @@ func UpgradeToBellatrix(state state.BeaconState) (state.BeaconState, error) {
 		LatestBlockHeader:           state.LatestBlockHeader(),
 		BlockRoots:                  state.BlockRoots(),
 		StateRoots:                  state.StateRoots(),
-		HistoricalRoots:             hrs,
 		RewardAdjustmentFactor:      state.RewardAdjustmentFactor(),
 		Eth1Data:                    state.Eth1Data(),
 		Eth1DataVotes:               state.Eth1DataVotes(),
 		Eth1DepositIndex:            state.Eth1DepositIndex(),
 		Validators:                  state.Validators(),
 		Balances:                    state.Balances(),
-		PreviousEpochReserve:        state.PreviousEpochReserve(),
-		CurrentEpochReserve:         state.CurrentEpochReserve(),
+		Reserves:                    state.Reserves(),
 		RandaoMixes:                 state.RandaoMixes(),
-		Slashings:                   state.Slashings(),
 		PreviousEpochParticipation:  prevEpochParticipation,
 		CurrentEpochParticipation:   currentEpochParticipation,
 		JustificationBits:           state.JustificationBits(),
@@ -69,8 +54,6 @@ func UpgradeToBellatrix(state state.BeaconState) (state.BeaconState, error) {
 		CurrentJustifiedCheckpoint:  state.CurrentJustifiedCheckpoint(),
 		FinalizedCheckpoint:         state.FinalizedCheckpoint(),
 		InactivityScores:            inactivityScores,
-		CurrentSyncCommittee:        currentSyncCommittee,
-		NextSyncCommittee:           nextSyncCommittee,
 		LatestExecutionPayloadHeader: &enginev1.ExecutionPayloadHeader{
 			ParentHash:       make([]byte, 32),
 			FeeRecipient:     make([]byte, 20),

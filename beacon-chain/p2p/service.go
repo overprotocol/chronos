@@ -146,7 +146,6 @@ func NewService(ctx context.Context, cfg *Config) (*Service, error) {
 
 	// Reinitialize them in the event we are running a custom config.
 	attestationSubnetCount = params.BeaconConfig().AttestationSubnetCount
-	syncCommsSubnetCount = params.BeaconConfig().SyncCommitteeSubnetCount
 
 	gs, err := pubsub.NewGossipSub(s.ctx, s.host, psOpts...)
 	if err != nil {

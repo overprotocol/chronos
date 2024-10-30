@@ -108,8 +108,6 @@ type Validator struct {
 	proposerSettings *proposer.Settings
 }
 
-func (_ *Validator) LogSubmittedSyncCommitteeMessages() {}
-
 func (_ *Validator) Done() {
 	panic("implement me")
 }
@@ -159,14 +157,6 @@ func (_ *Validator) ProposeBlock(_ context.Context, _ primitives.Slot, _ [48]byt
 }
 
 func (_ *Validator) SubmitAggregateAndProof(_ context.Context, _ primitives.Slot, _ [48]byte) {
-	panic("implement me")
-}
-
-func (_ *Validator) SubmitSyncCommitteeMessage(_ context.Context, _ primitives.Slot, _ [48]byte) {
-	panic("implement me")
-}
-
-func (_ *Validator) SubmitSignedContributionAndProof(_ context.Context, _ primitives.Slot, _ [48]byte) {
 	panic("implement me")
 }
 

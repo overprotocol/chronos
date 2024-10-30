@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/pkg/errors"
-	"github.com/prysmaticlabs/go-bitfield"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/altair"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/blocks"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
@@ -21,7 +20,6 @@ import (
 	consensusblocks "github.com/prysmaticlabs/prysm/v5/consensus-types/blocks"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
 	"github.com/prysmaticlabs/prysm/v5/crypto/bls"
-	"github.com/prysmaticlabs/prysm/v5/encoding/bytesutil"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 )
 
@@ -111,8 +109,6 @@ func buildGenesisBeaconState(genesisTime uint64, preState state.BeaconState, eth
 		stateRoots[i] = zeroHash
 	}
 
-	slashings := make([]uint64, params.BeaconConfig().EpochsPerSlashingsVector)
-
 	genesisValidatorsRoot, err := stateutil.ValidatorRegistryRoot(preState.Validators())
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not hash tree root genesis validators %v", err)
@@ -146,8 +142,7 @@ func buildGenesisBeaconState(genesisTime uint64, preState state.BeaconState, eth
 		// Validator registry fields.
 		Validators:                 preState.Validators(),
 		Balances:                   preState.Balances(),
-		PreviousEpochReserve:       preState.PreviousEpochReserve(),
-		CurrentEpochReserve:        preState.CurrentEpochReserve(),
+		Reserves:                   preState.Reserves(),
 		PreviousEpochParticipation: prevEpochParticipation,
 		CurrentEpochParticipation:  currEpochParticipation,
 		InactivityScores:           scores,
@@ -170,10 +165,8 @@ func buildGenesisBeaconState(genesisTime uint64, preState state.BeaconState, eth
 			Root:  params.BeaconConfig().ZeroHash[:],
 		},
 
-		HistoricalRoots: [][]byte{},
-		BlockRoots:      blockRoots,
-		StateRoots:      stateRoots,
-		Slashings:       slashings,
+		BlockRoots: blockRoots,
+		StateRoots: stateRoots,
 
 		// Eth1 data.
 		Eth1Data:         eth1Data,
@@ -181,7 +174,6 @@ func buildGenesisBeaconState(genesisTime uint64, preState state.BeaconState, eth
 		Eth1DepositIndex: preState.Eth1DepositIndex(),
 	}
 
-	var scBits [fieldparams.SyncAggregateSyncCommitteeBytesLength]byte
 	bodyRoot, err := (&ethpb.BeaconBlockBodyAltair{
 		RandaoReveal: make([]byte, 96),
 		Eth1Data: &ethpb.Eth1Data{
@@ -189,10 +181,6 @@ func buildGenesisBeaconState(genesisTime uint64, preState state.BeaconState, eth
 			BlockHash:   make([]byte, 32),
 		},
 		Graffiti: make([]byte, 32),
-		SyncAggregate: &ethpb.SyncAggregate{
-			SyncCommitteeBits:      make([]byte, len(scBits[:])),
-			SyncCommitteeSignature: make([]byte, 96),
-		},
 	}).HashTreeRoot()
 	if err != nil {
 		return nil, errors.Wrap(err, "could not hash tree root empty block body")
@@ -202,19 +190,6 @@ func buildGenesisBeaconState(genesisTime uint64, preState state.BeaconState, eth
 		ParentRoot: zeroHash,
 		StateRoot:  zeroHash,
 		BodyRoot:   bodyRoot[:],
-	}
-
-	var pubKeys [][]byte
-	for i := uint64(0); i < params.BeaconConfig().SyncCommitteeSize; i++ {
-		pubKeys = append(pubKeys, bytesutil.PadTo([]byte{}, params.BeaconConfig().BLSPubkeyLength))
-	}
-	st.CurrentSyncCommittee = &ethpb.SyncCommittee{
-		Pubkeys:         pubKeys,
-		AggregatePubkey: bytesutil.PadTo([]byte{}, params.BeaconConfig().BLSPubkeyLength),
-	}
-	st.NextSyncCommittee = &ethpb.SyncCommittee{
-		Pubkeys:         bytesutil.SafeCopy2dBytes(pubKeys),
-		AggregatePubkey: bytesutil.PadTo([]byte{}, params.BeaconConfig().BLSPubkeyLength),
 	}
 
 	return state_native.InitializeFromProtoAltair(st)
@@ -230,14 +205,12 @@ func emptyGenesisState() (state.BeaconState, error) {
 			Epoch:           0,
 		},
 		// Validator registry fields.
-		Validators:           []*ethpb.Validator{},
-		Balances:             []uint64{},
-		PreviousEpochReserve: 0,
-		CurrentEpochReserve:  0,
-		InactivityScores:     []uint64{},
+		Validators:       []*ethpb.Validator{},
+		Balances:         []uint64{},
+		Reserves:         0,
+		InactivityScores: []uint64{},
 
 		JustificationBits:          []byte{0},
-		HistoricalRoots:            [][]byte{},
 		RewardAdjustmentFactor:     0,
 		CurrentEpochParticipation:  []byte{},
 		PreviousEpochParticipation: []byte{},
@@ -252,7 +225,6 @@ func emptyGenesisState() (state.BeaconState, error) {
 
 // NewBeaconBlockAltair creates a beacon block with minimum marshalable fields.
 func NewBeaconBlockAltair() *ethpb.SignedBeaconBlockAltair {
-	var scBits [fieldparams.SyncAggregateSyncCommitteeBytesLength]byte
 	return &ethpb.SignedBeaconBlockAltair{
 		Block: &ethpb.BeaconBlockAltair{
 			ParentRoot: make([]byte, fieldparams.RootLength),
@@ -269,10 +241,6 @@ func NewBeaconBlockAltair() *ethpb.SignedBeaconBlockAltair {
 				Deposits:          []*ethpb.Deposit{},
 				ProposerSlashings: []*ethpb.ProposerSlashing{},
 				VoluntaryExits:    []*ethpb.SignedVoluntaryExit{},
-				SyncAggregate: &ethpb.SyncAggregate{
-					SyncCommitteeBits:      scBits[:],
-					SyncCommitteeSignature: make([]byte, 96),
-				},
 			},
 		},
 		Signature: make([]byte, 96),
@@ -412,29 +380,6 @@ func GenerateFullBlockAltair(
 		return nil, err
 	}
 
-	var newSyncAggregate *ethpb.SyncAggregate
-	if conf.FullSyncAggregate {
-		newSyncAggregate, err = generateSyncAggregate(bState, privs, parentRoot)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed generating syncAggregate")
-		}
-	} else {
-		var syncCommitteeBits []byte
-		currSize := new(ethpb.SyncAggregate).SyncCommitteeBits.Len()
-		switch currSize {
-		case 512:
-			syncCommitteeBits = bitfield.NewBitvector512()
-		case 32:
-			syncCommitteeBits = bitfield.NewBitvector32()
-		default:
-			return nil, errors.New("invalid bit vector size")
-		}
-		newSyncAggregate = &ethpb.SyncAggregate{
-			SyncCommitteeBits:      syncCommitteeBits,
-			SyncCommitteeSignature: append([]byte{0xC0}, make([]byte, 95)...),
-		}
-	}
-
 	if slot == currentSlot {
 		slot = currentSlot + 1
 	}
@@ -467,7 +412,6 @@ func GenerateFullBlockAltair(
 			VoluntaryExits:    exits,
 			Deposits:          newDeposits,
 			Graffiti:          make([]byte, fieldparams.RootLength),
-			SyncAggregate:     newSyncAggregate,
 		},
 	}
 

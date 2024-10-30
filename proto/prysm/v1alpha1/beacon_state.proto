@@ -27,7 +27,6 @@ message BeaconState {
   BeaconBlockHeader latest_block_header = 2001;
   repeated bytes block_roots = 2002 [(ethereum.eth.ext.ssz_size) = "block_roots.size"];
   repeated bytes state_roots = 2003 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
-  repeated bytes historical_roots = 2004 [(ethereum.eth.ext.ssz_size) = "?,32", (ethereum.eth.ext.ssz_max)  = "16777216"];
   uint64 reward_adjustment_factor = 2005;
 
   // Eth1 [3001-4000]
@@ -38,14 +37,10 @@ message BeaconState {
   // Registry [4001-5000]
   repeated Validator validators = 4001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
   repeated uint64 balances = 4002 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
-  uint64 previous_epoch_reserve = 4003;
-  uint64 current_epoch_reserve = 4004;
+  uint64 reserves = 4003;
 
   // Randomness [5001-6000]
   repeated bytes randao_mixes = 5001 [(ethereum.eth.ext.ssz_size) = "randao_mixes.size"];
-
-  // Slashings [6001-7000]
-  repeated uint64 slashings = 6001 [(ethereum.eth.ext.ssz_size) = "slashings.size"];
 
   // Attestations [7001-8000]
   repeated PendingAttestation previous_epoch_attestations = 7001 [(ethereum.eth.ext.ssz_max) = "previous_epoch_attestations.max"];
@@ -72,7 +67,6 @@ message BeaconStateAltair {
   BeaconBlockHeader latest_block_header = 2001;
   repeated bytes block_roots = 2002 [(ethereum.eth.ext.ssz_size) = "block_roots.size"];
   repeated bytes state_roots = 2003 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
-  repeated bytes historical_roots = 2004 [(ethereum.eth.ext.ssz_size) = "?,32", (ethereum.eth.ext.ssz_max)  = "16777216"];
   uint64 reward_adjustment_factor = 2005;
 
   // Eth1 [3001-4000]
@@ -83,14 +77,10 @@ message BeaconStateAltair {
   // Registry [4001-5000]
   repeated Validator validators = 4001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
   repeated uint64 balances = 4002 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
-  uint64 previous_epoch_reserve = 4003;
-  uint64 current_epoch_reserve = 4004;
+  uint64 reserves = 4003;
 
   // Randomness [5001-6000]
   repeated bytes randao_mixes = 5001 [(ethereum.eth.ext.ssz_size) = "randao_mixes.size"];
-
-  // Slashings [6001-7000]
-  repeated uint64 slashings = 6001 [(ethereum.eth.ext.ssz_size) = "slashings.size"];
 
   // Participation [7001-8000]
   bytes previous_epoch_participation = 7001 [(ethereum.eth.ext.ssz_max) = "1099511627776"]; // [New in Altair, replaced previous_epoch_attestations]
@@ -105,8 +95,6 @@ message BeaconStateAltair {
 
   // New Altair fields [9001-10000]
   repeated uint64 inactivity_scores = 9001 [(ethereum.eth.ext.ssz_max) = "1099511627776"]; // [New in Altair]
-  SyncCommittee current_sync_committee = 9002; // [New in Altair]
-  SyncCommittee next_sync_committee = 9003; // [New in Altair]
 }
 
 message Fork {
@@ -124,11 +112,6 @@ message PendingAttestation {
   uint64 inclusion_delay = 3 [(ethereum.eth.ext.cast_type) = "github.com/prysmaticlabs/prysm/v5/consensus-types/primitives.Slot"];
   // The proposer who included the attestation in the block.
   uint64 proposer_index = 4 [(ethereum.eth.ext.cast_type) = "github.com/prysmaticlabs/prysm/v5/consensus-types/primitives.ValidatorIndex"];
-}
-
-message HistoricalBatch {
-  repeated bytes block_roots = 1 [(ethereum.eth.ext.ssz_size) = "block_roots.size"];
-  repeated bytes state_roots = 2 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
 }
 
 // The state summary object is defined for summarizing a state
@@ -181,19 +164,6 @@ message DepositMessage {
   uint64 amount = 3;
 }
 
-// SyncCommittee serves as committees to facilitate light client syncing to beacon chain.
-message SyncCommittee {
-  repeated bytes pubkeys = 1  [(ethereum.eth.ext.ssz_size) = "sync_committee_bits.size,48"];
-  bytes aggregate_pubkey = 2 [(ethereum.eth.ext.ssz_size) = "48"];
-}
-
-// SyncAggregatorSelectionData is used to sign over and then check whether the aggregator is selected within a subcommittee.
-message SyncAggregatorSelectionData {
-  // Slot of this signing data.
-  uint64 slot = 1 [(ethereum.eth.ext.cast_type) = "github.com/prysmaticlabs/prysm/v5/consensus-types/primitives.Slot"];
-  // Subcommittee index of this signing data.
-  uint64 subcommittee_index = 2;
-}
 
 message BeaconStateBellatrix {
   // Versioning [1001-2000]
@@ -206,7 +176,6 @@ message BeaconStateBellatrix {
   BeaconBlockHeader latest_block_header = 2001;
   repeated bytes block_roots = 2002 [(ethereum.eth.ext.ssz_size) = "block_roots.size"];
   repeated bytes state_roots = 2003 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
-  repeated bytes historical_roots = 2004 [(ethereum.eth.ext.ssz_size) = "?,32", (ethereum.eth.ext.ssz_max)  = "16777216"];
   uint64 reward_adjustment_factor = 2005;
 
   // Eth1 [3001-4000]
@@ -217,14 +186,10 @@ message BeaconStateBellatrix {
   // Registry [4001-5000]
   repeated Validator validators = 4001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
   repeated uint64 balances = 4002 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
-  uint64 previous_epoch_reserve = 4003;
-  uint64 current_epoch_reserve = 4004;
+  uint64 reserves = 4003;
 
   // Randomness [5001-6000]
   repeated bytes randao_mixes = 5001 [(ethereum.eth.ext.ssz_size) = "randao_mixes.size"];
-
-  // Slashings [6001-7000]
-  repeated uint64 slashings = 6001 [(ethereum.eth.ext.ssz_size) = "slashings.size"];
 
   // Participation [7001-8000]
   bytes previous_epoch_participation = 7001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
@@ -239,8 +204,6 @@ message BeaconStateBellatrix {
 
   // Altair fields [9001-10000]
   repeated uint64 inactivity_scores = 9001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
-  SyncCommittee current_sync_committee = 9002; // [New in Altair]
-  SyncCommittee next_sync_committee = 9003; // [New in Altair]
 
   // Bellatrix fields [10001-11000]
   ethereum.engine.v1.ExecutionPayloadHeader latest_execution_payload_header = 10001; // [New in Bellatrix]
@@ -257,7 +220,6 @@ message BeaconStateCapella {
   BeaconBlockHeader latest_block_header = 2001;
   repeated bytes block_roots = 2002 [(ethereum.eth.ext.ssz_size) = "block_roots.size"];
   repeated bytes state_roots = 2003 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
-  repeated bytes historical_roots = 2004 [(ethereum.eth.ext.ssz_size) = "?,32", (ethereum.eth.ext.ssz_max)  = "16777216"];
   uint64 reward_adjustment_factor = 2005;
 
   // Eth1 [3001-4000]
@@ -268,14 +230,10 @@ message BeaconStateCapella {
   // Registry [4001-5000]
   repeated Validator validators = 4001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
   repeated uint64 balances = 4002 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
-  uint64 previous_epoch_reserve = 4003;
-  uint64 current_epoch_reserve = 4004;
+  uint64 reserves = 4003;
 
   // Randomness [5001-6000]
   repeated bytes randao_mixes = 5001 [(ethereum.eth.ext.ssz_size) = "randao_mixes.size"];
-
-  // Slashings [6001-7000]
-  repeated uint64 slashings = 6001 [(ethereum.eth.ext.ssz_size) = "slashings.size"];
 
   // Participation [7001-8000]
   bytes previous_epoch_participation = 7001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
@@ -290,8 +248,6 @@ message BeaconStateCapella {
 
   // Altair fields [9001-10000]
   repeated uint64 inactivity_scores = 9001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
-  SyncCommittee current_sync_committee = 9002; // [New in Altair]
-  SyncCommittee next_sync_committee = 9003; // [New in Altair]
 
   // Bellatrix fields [10001-11000]
   ethereum.engine.v1.ExecutionPayloadHeaderCapella latest_execution_payload_header = 10001; // [New in Bellatrix]
@@ -313,7 +269,6 @@ message BeaconStateDeneb {
   BeaconBlockHeader latest_block_header = 2001;
   repeated bytes block_roots = 2002 [(ethereum.eth.ext.ssz_size) = "block_roots.size"];
   repeated bytes state_roots = 2003 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
-  repeated bytes historical_roots = 2004 [(ethereum.eth.ext.ssz_size) = "?,32", (ethereum.eth.ext.ssz_max)  = "16777216"];
   uint64 reward_adjustment_factor = 2005;
 
   // Eth1 [3001-4000]
@@ -324,14 +279,10 @@ message BeaconStateDeneb {
   // Registry [4001-5000]
   repeated Validator validators = 4001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
   repeated uint64 balances = 4002 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
-  uint64 previous_epoch_reserve = 4003;
-  uint64 current_epoch_reserve = 4004;
+  uint64 reserves = 4003;
 
   // Randomness [5001-6000]
   repeated bytes randao_mixes = 5001 [(ethereum.eth.ext.ssz_size) = "randao_mixes.size"];
-
-  // Slashings [6001-7000]
-  repeated uint64 slashings = 6001 [(ethereum.eth.ext.ssz_size) = "slashings.size"];
 
   // Participation [7001-8000]
   bytes previous_epoch_participation = 7001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
@@ -346,8 +297,6 @@ message BeaconStateDeneb {
 
   // Fields introduced in Altair fork [9001-10000]
   repeated uint64 inactivity_scores = 9001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
-  SyncCommittee current_sync_committee = 9002;
-  SyncCommittee next_sync_committee = 9003;
 
   // Fields introduced in Bellatrix fork [10001-11000]
   ethereum.engine.v1.ExecutionPayloadHeaderDeneb latest_execution_payload_header = 10001; // [New in Deneb]
@@ -369,20 +318,15 @@ message BeaconStateElectra {
   BeaconBlockHeader latest_block_header = 2001;
   repeated bytes block_roots = 2002 [(ethereum.eth.ext.ssz_size) = "block_roots.size"];
   repeated bytes state_roots = 2003 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
-  repeated bytes historical_roots = 2004 [(ethereum.eth.ext.ssz_size) = "?,32", (ethereum.eth.ext.ssz_max)  = "16777216"];
   uint64 reward_adjustment_factor = 2005;
 
   // Registry [4001-5000]
   repeated Validator validators = 4001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
   repeated uint64 balances = 4002 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
-  uint64 previous_epoch_reserve = 4003;
-  uint64 current_epoch_reserve = 4004;
+  uint64 reserves = 4003;
 
   // Randomness [5001-6000]
   repeated bytes randao_mixes = 5001 [(ethereum.eth.ext.ssz_size) = "randao_mixes.size"];
-
-  // Slashings [6001-7000]
-  repeated uint64 slashings = 6001 [(ethereum.eth.ext.ssz_size) = "slashings.size"];
 
   // Participation [7001-8000]
   bytes previous_epoch_participation = 7001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
@@ -397,8 +341,6 @@ message BeaconStateElectra {
 
   // Fields introduced in Altair fork [9001-10000]
   repeated uint64 inactivity_scores = 9001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
-  SyncCommittee current_sync_committee = 9002;
-  SyncCommittee next_sync_committee = 9003;
 
   // Fields introduced in Bellatrix fork [10001-11000]
   ethereum.engine.v1.ExecutionPayloadHeaderDeneb latest_execution_payload_header = 10001; // [New in Electra]
@@ -428,7 +370,6 @@ message PowBlock {
   bytes total_difficulty = 3 [(ethereum.eth.ext.ssz_size) = "32"];
 }
 
-// HistoricalSummary matches the components of the phase0 `HistoricalBatch` making the two hash_tree_root-compatible.
 message HistoricalSummary {
   bytes block_summary_root = 1 [(ethereum.eth.ext.ssz_size) = "32"];
   bytes state_summary_root = 2 [(ethereum.eth.ext.ssz_size) = "32"];
@@ -446,7 +387,6 @@ message BeaconStateOld {
   BeaconBlockHeader latest_block_header = 2001;
   repeated bytes block_roots = 2002 [(ethereum.eth.ext.ssz_size) = "block_roots.size"];
   repeated bytes state_roots = 2003 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
-  repeated bytes historical_roots = 2004 [(ethereum.eth.ext.ssz_size) = "?,32", (ethereum.eth.ext.ssz_max) = "16777216"];
 
   // Eth1 [3001-4000]
   Eth1Data eth1_data = 3001;
@@ -459,9 +399,6 @@ message BeaconStateOld {
 
   // Randomness [5001-6000]
   repeated bytes randao_mixes = 5001 [(ethereum.eth.ext.ssz_size) = "randao_mixes.size"];
-
-  // Slashings [6001-7000]
-  repeated uint64 slashings = 6001 [(ethereum.eth.ext.ssz_size) = "slashings.size"];
 
   // Attestations [7001-8000]
   repeated PendingAttestation previous_epoch_attestations = 7001 [(ethereum.eth.ext.ssz_max) = "previous_epoch_attestations.max"];
@@ -488,7 +425,6 @@ message BeaconStateOldAltair {
   BeaconBlockHeader latest_block_header = 2001;
   repeated bytes block_roots = 2002 [(ethereum.eth.ext.ssz_size) = "block_roots.size"];
   repeated bytes state_roots = 2003 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
-  repeated bytes historical_roots = 2004 [(ethereum.eth.ext.ssz_size) = "?,32", (ethereum.eth.ext.ssz_max)  = "16777216"];
 
   // Eth1 [3001-4000]
   Eth1Data eth1_data = 3001;
@@ -501,9 +437,6 @@ message BeaconStateOldAltair {
 
   // Randomness [5001-6000]
   repeated bytes randao_mixes = 5001 [(ethereum.eth.ext.ssz_size) = "randao_mixes.size"];
-
-  // Slashings [6001-7000]
-  repeated uint64 slashings = 6001 [(ethereum.eth.ext.ssz_size) = "slashings.size"];
 
   // Participation [7001-8000]
   bytes previous_epoch_participation = 7001 [(ethereum.eth.ext.ssz_max) = "1099511627776"]; // [New in Altair, replaced previous_epoch_attestations]
@@ -518,8 +451,6 @@ message BeaconStateOldAltair {
 
   // New Altair fields [9001-10000]
   repeated uint64 inactivity_scores = 9001 [(ethereum.eth.ext.ssz_max) = "1099511627776"]; // [New in Altair]
-  SyncCommittee current_sync_committee = 9002; // [New in Altair]
-  SyncCommittee next_sync_committee = 9003; // [New in Altair]
 }
 
 message BeaconStateOldBellatrix {
@@ -533,7 +464,6 @@ message BeaconStateOldBellatrix {
   BeaconBlockHeader latest_block_header = 2001;
   repeated bytes block_roots = 2002 [(ethereum.eth.ext.ssz_size) = "block_roots.size"];
   repeated bytes state_roots = 2003 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
-  repeated bytes historical_roots = 2004 [(ethereum.eth.ext.ssz_size) = "?,32", (ethereum.eth.ext.ssz_max)  = "16777216"];
 
   // Eth1 [3001-4000]
   Eth1Data eth1_data = 3001;
@@ -546,9 +476,6 @@ message BeaconStateOldBellatrix {
 
   // Randomness [5001-6000]
   repeated bytes randao_mixes = 5001 [(ethereum.eth.ext.ssz_size) = "randao_mixes.size"];
-
-  // Slashings [6001-7000]
-  repeated uint64 slashings = 6001 [(ethereum.eth.ext.ssz_size) = "slashings.size"];
 
   // Participation [7001-8000]
   bytes previous_epoch_participation = 7001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
@@ -563,8 +490,6 @@ message BeaconStateOldBellatrix {
 
   // Altair fields [9001-10000]
   repeated uint64 inactivity_scores = 9001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
-  SyncCommittee current_sync_committee = 9002; // [New in Altair]
-  SyncCommittee next_sync_committee = 9003; // [New in Altair]
 
   // Bellatrix fields [10001-11000]
   ethereum.engine.v1.ExecutionPayloadHeader latest_execution_payload_header = 10001; // [New in Bellatrix]
@@ -581,7 +506,6 @@ message BeaconStateOldCapella {
   BeaconBlockHeader latest_block_header = 2001;
   repeated bytes block_roots = 2002 [(ethereum.eth.ext.ssz_size) = "block_roots.size"];
   repeated bytes state_roots = 2003 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
-  repeated bytes historical_roots = 2004 [(ethereum.eth.ext.ssz_size) = "?,32", (ethereum.eth.ext.ssz_max)  = "16777216"];
 
   // Eth1 [3001-4000]
   Eth1Data eth1_data = 3001;
@@ -594,9 +518,6 @@ message BeaconStateOldCapella {
 
   // Randomness [5001-6000]
   repeated bytes randao_mixes = 5001 [(ethereum.eth.ext.ssz_size) = "randao_mixes.size"];
-
-  // Slashings [6001-7000]
-  repeated uint64 slashings = 6001 [(ethereum.eth.ext.ssz_size) = "slashings.size"];
 
   // Participation [7001-8000]
   bytes previous_epoch_participation = 7001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
@@ -611,8 +532,6 @@ message BeaconStateOldCapella {
 
   // Altair fields [9001-10000]
   repeated uint64 inactivity_scores = 9001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
-  SyncCommittee current_sync_committee = 9002; // [New in Altair]
-  SyncCommittee next_sync_committee = 9003; // [New in Altair]
 
   // Bellatrix fields [10001-11000]
   ethereum.engine.v1.ExecutionPayloadHeaderCapella latest_execution_payload_header = 10001; // [New in Bellatrix]
@@ -634,7 +553,6 @@ message BeaconStateOldDeneb {
   BeaconBlockHeader latest_block_header = 2001;
   repeated bytes block_roots = 2002 [(ethereum.eth.ext.ssz_size) = "block_roots.size"];
   repeated bytes state_roots = 2003 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
-  repeated bytes historical_roots = 2004 [(ethereum.eth.ext.ssz_size) = "?,32", (ethereum.eth.ext.ssz_max)  = "16777216"];
 
   // Eth1 [3001-4000]
   Eth1Data eth1_data = 3001;
@@ -647,9 +565,6 @@ message BeaconStateOldDeneb {
 
   // Randomness [5001-6000]
   repeated bytes randao_mixes = 5001 [(ethereum.eth.ext.ssz_size) = "randao_mixes.size"];
-
-  // Slashings [6001-7000]
-  repeated uint64 slashings = 6001 [(ethereum.eth.ext.ssz_size) = "slashings.size"];
 
   // Participation [7001-8000]
   bytes previous_epoch_participation = 7001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
@@ -664,8 +579,6 @@ message BeaconStateOldDeneb {
 
   // Fields introduced in Altair fork [9001-10000]
   repeated uint64 inactivity_scores = 9001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
-  SyncCommittee current_sync_committee = 9002;
-  SyncCommittee next_sync_committee = 9003;
   // Fields introduced in Bellatrix fork [10001-11000]
   ethereum.engine.v1.ExecutionPayloadHeaderDeneb latest_execution_payload_header = 10001; // [New in Deneb]
 
@@ -686,17 +599,13 @@ message BeaconStateOldElectra {
   BeaconBlockHeader latest_block_header = 2001;
   repeated bytes block_roots = 2002 [(ethereum.eth.ext.ssz_size) = "block_roots.size"];
   repeated bytes state_roots = 2003 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
-  repeated bytes historical_roots = 2004 [(ethereum.eth.ext.ssz_size) = "?,32", (ethereum.eth.ext.ssz_max)  = "16777216"];
-  
+
   // Registry [4001-5000]
   repeated Validator validators = 4001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
   repeated uint64 balances = 4002 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
 
   // Randomness [5001-6000]
   repeated bytes randao_mixes = 5001 [(ethereum.eth.ext.ssz_size) = "randao_mixes.size"];
-
-  // Slashings [6001-7000]
-  repeated uint64 slashings = 6001 [(ethereum.eth.ext.ssz_size) = "slashings.size"];
 
   // Participation [7001-8000]
   bytes previous_epoch_participation = 7001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
@@ -711,8 +620,6 @@ message BeaconStateOldElectra {
 
   // Fields introduced in Altair fork [9001-10000]
   repeated uint64 inactivity_scores = 9001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
-  SyncCommittee current_sync_committee = 9002;
-  SyncCommittee next_sync_committee = 9003;
 
   // Fields introduced in Bellatrix fork [10001-11000]
   ethereum.engine.v1.ExecutionPayloadHeaderDeneb latest_execution_payload_header = 10001;

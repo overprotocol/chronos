@@ -187,7 +187,6 @@ message BeaconBlockBody {
 
 
 // The block body of an (HF1) beacon block.
-// The new addition is SyncAggregate for light client support.
 message BeaconBlockBodyAltair {
     // The validators RANDAO reveal 96 byte value.
     bytes randao_reveal = 1 [(ethereum.eth.ext.ssz_size) = "96"];
@@ -216,9 +215,6 @@ message BeaconBlockBodyAltair {
 
     // At most MAX_VOLUNTARY_EXITS.
     repeated SignedVoluntaryExit voluntary_exits = 8 [(ethereum.eth.ext.ssz_max) = "16"];
-
-    // Sync aggregate object to track sync committee votes for light client support. [New in ]
-    SyncAggregate sync_aggregate = 9;
 }
 
 // Proposer slashings are proofs that a slashable offense has been committed by
@@ -353,15 +349,6 @@ message IndexedAttestationElectra {
     bytes signature = 3 [(ethereum.eth.ext.ssz_size) = "96"];
 }
 
-// The sync aggregate object for the beacon chain to track sync committee votes and to
-// support light client infra.
-message SyncAggregate {
-    // Sync committee bits as Bitvector to track votes.
-    bytes sync_committee_bits = 1 [(ethereum.eth.ext.ssz_size) = "sync_committee_bytes.size", (ethereum.eth.ext.cast_type) = "sync_committee_bits.type"];
-
-    // BLS aggregated signature of the sync committee for the ones that voted.
-    bytes sync_committee_signature = 2 [(ethereum.eth.ext.ssz_size) = "96"];
-}
 
 message SignedBeaconBlockBellatrix {
     // The unsigned beacon block itself.
@@ -417,11 +404,8 @@ message BeaconBlockBodyBellatrix {
     // At most MAX_VOLUNTARY_EXITS.
     repeated SignedVoluntaryExit voluntary_exits = 8 [(ethereum.eth.ext.ssz_max) = "16"];
 
-    // Sync aggregate object for the beacon chain to track sync committee votes. New in Altair network upgrade.
-    SyncAggregate sync_aggregate = 9;
-
     // Execution payload from the execution chain. New in Bellatrix network upgrade.
-    ethereum.engine.v1.ExecutionPayload execution_payload = 10;
+    ethereum.engine.v1.ExecutionPayload execution_payload = 9;
 }
 
 message SignedBlindedBeaconBlockBellatrix {
@@ -475,11 +459,8 @@ message BlindedBeaconBlockBodyBellatrix {
     // At most MAX_VOLUNTARY_EXITS.
     repeated SignedVoluntaryExit voluntary_exits = 8 [(ethereum.eth.ext.ssz_max) = "16"];
 
-    // Sync aggregate object for the beacon chain to track sync committee votes. New in Altair network upgrade.
-    SyncAggregate sync_aggregate = 9;
-
     // Execution payload header from the execution chain. New in Bellatrix network upgrade to accommodate MEV interaction.
-    ethereum.engine.v1.ExecutionPayloadHeader execution_payload_header = 10;
+    ethereum.engine.v1.ExecutionPayloadHeader execution_payload_header = 9;
 }
 
 message SignedBeaconBlockContentsDeneb {
@@ -548,16 +529,13 @@ message BeaconBlockBodyDeneb {
     // At most MAX_VOLUNTARY_EXITS.
     repeated SignedVoluntaryExit voluntary_exits = 8 [(ethereum.eth.ext.ssz_max) = "16"];
 
-    // Sync aggregate object for the beacon chain to track sync committee votes. New in Altair network upgrade.
-    SyncAggregate sync_aggregate = 9;
-
     // Execution payload from the execution chain. New in Bellatrix network upgrade.
-    ethereum.engine.v1.ExecutionPayloadDeneb execution_payload = 10;
+    ethereum.engine.v1.ExecutionPayloadDeneb execution_payload = 9;
 
     // At most MAX_BLS_TO_EXECUTION_CHANGES. New in Capella network upgrade.
-    repeated SignedBLSToExecutionChange bls_to_execution_changes = 11 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated SignedBLSToExecutionChange bls_to_execution_changes = 10 [(ethereum.eth.ext.ssz_max) = "16"];
 
-    repeated bytes blob_kzg_commitments = 12 [(ethereum.eth.ext.ssz_size) = "?,48", (ethereum.eth.ext.ssz_max)  = "max_blob_commitments.size"];
+    repeated bytes blob_kzg_commitments = 11 [(ethereum.eth.ext.ssz_size) = "?,48", (ethereum.eth.ext.ssz_max)  = "max_blob_commitments.size"];
 }
 
 message SignedBeaconBlockCapella {
@@ -614,14 +592,11 @@ message BeaconBlockBodyCapella {
     // At most MAX_VOLUNTARY_EXITS.
     repeated SignedVoluntaryExit voluntary_exits = 8 [(ethereum.eth.ext.ssz_max) = "16"];
 
-    // Sync aggregate object for the beacon chain to track sync committee votes. New in Altair network upgrade.
-    SyncAggregate sync_aggregate = 9;
-
     // Execution payload from the execution chain. New in Bellatrix network upgrade.
-    ethereum.engine.v1.ExecutionPayloadCapella execution_payload = 11;
+    ethereum.engine.v1.ExecutionPayloadCapella execution_payload = 9;
 
     // At most MAX_BLS_TO_EXECUTION_CHANGES. New in Capella network upgrade.
-    repeated SignedBLSToExecutionChange bls_to_execution_changes = 12 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated SignedBLSToExecutionChange bls_to_execution_changes = 10 [(ethereum.eth.ext.ssz_max) = "16"];
 }
 
 message SignedBlindedBeaconBlockCapella {
@@ -675,14 +650,11 @@ message BlindedBeaconBlockBodyCapella {
     // At most MAX_VOLUNTARY_EXITS.
     repeated SignedVoluntaryExit voluntary_exits = 8 [(ethereum.eth.ext.ssz_max) = "16"];
 
-    // Sync aggregate object for the beacon chain to track sync committee votes. New in Altair network upgrade.
-    SyncAggregate sync_aggregate = 9;
-
     // Execution payload header from the execution chain. New in Bellatrix network upgrade to accommodate MEV interaction.
-    ethereum.engine.v1.ExecutionPayloadHeaderCapella execution_payload_header = 11;
+    ethereum.engine.v1.ExecutionPayloadHeaderCapella execution_payload_header = 9;
 
     // At most MAX_BLS_TO_EXECUTION_CHANGES. New in Capella network upgrade.
-    repeated SignedBLSToExecutionChange bls_to_execution_changes = 12 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated SignedBLSToExecutionChange bls_to_execution_changes = 10 [(ethereum.eth.ext.ssz_max) = "16"];
 }
 
 message SignedBlindedBeaconBlockDeneb {
@@ -736,16 +708,13 @@ message BlindedBeaconBlockBodyDeneb {
     // At most MAX_VOLUNTARY_EXITS.
     repeated SignedVoluntaryExit voluntary_exits = 8 [(ethereum.eth.ext.ssz_max) = "16"];
 
-    // Sync aggregate object for the beacon chain to track sync committee votes. New in Altair network upgrade.
-    SyncAggregate sync_aggregate = 9;
-
     // Execution payload header from the execution chain. New in Bellatrix network upgrade to accommodate MEV interaction.
-    ethereum.engine.v1.ExecutionPayloadHeaderDeneb execution_payload_header = 10;
+    ethereum.engine.v1.ExecutionPayloadHeaderDeneb execution_payload_header = 9;
 
     // At most MAX_BLS_TO_EXECUTION_CHANGES. New in Capella network upgrade.
-    repeated SignedBLSToExecutionChange bls_to_execution_changes = 11 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated SignedBLSToExecutionChange bls_to_execution_changes = 10 [(ethereum.eth.ext.ssz_max) = "16"];
 
-    repeated bytes blob_kzg_commitments = 12 [(ethereum.eth.ext.ssz_size) = "?,48", (ethereum.eth.ext.ssz_max)  = "max_blob_commitments.size"];
+    repeated bytes blob_kzg_commitments = 11 [(ethereum.eth.ext.ssz_size) = "?,48", (ethereum.eth.ext.ssz_max)  = "max_blob_commitments.size"];
 }
 
 message SignedBeaconBlockContentsElectra {
@@ -806,17 +775,20 @@ message BeaconBlockBodyElectra {
     repeated AttestationElectra attestations = 5 [(ethereum.eth.ext.ssz_max) = "8"];
 
     // At most MAX_VOLUNTARY_EXITS.
-    repeated SignedVoluntaryExit voluntary_exits = 6 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated SignedVoluntaryExit voluntary_exits = 8 [(ethereum.eth.ext.ssz_max) = "16"];
 
     // Sync aggregate object for the beacon chain to track sync committee votes. New in Altair network upgrade.
-    SyncAggregate sync_aggregate = 7;
+    SyncAggregate sync_aggregate = 9;
 
     // Execution payload from the execution chain. New in Bellatrix network upgrade.
-    ethereum.engine.v1.ExecutionPayloadDeneb execution_payload = 8;
+    ethereum.engine.v1.ExecutionPayloadDeneb execution_payload = 10;
 
-    repeated bytes blob_kzg_commitments = 9 [(ethereum.eth.ext.ssz_size) = "?,48", (ethereum.eth.ext.ssz_max)  = "max_blob_commitments.size"];
+    // At most MAX_BLS_TO_EXECUTION_CHANGES. New in Capella network upgrade.
+    repeated SignedBLSToExecutionChange bls_to_execution_changes = 11 [(ethereum.eth.ext.ssz_max) = "16"];
 
-    ethereum.engine.v1.ExecutionRequests execution_requests = 10;
+    repeated bytes blob_kzg_commitments = 12 [(ethereum.eth.ext.ssz_size) = "?,48", (ethereum.eth.ext.ssz_max)  = "max_blob_commitments.size"];
+
+    ethereum.engine.v1.ExecutionRequests execution_requests = 13;
 }
 
 message SignedBlindedBeaconBlockElectra {
@@ -862,17 +834,20 @@ message BlindedBeaconBlockBodyElectra {
     repeated AttestationElectra attestations = 5 [(ethereum.eth.ext.ssz_max) = "8"];
 
     // At most MAX_VOLUNTARY_EXITS.
-    repeated SignedVoluntaryExit voluntary_exits = 6 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated SignedVoluntaryExit voluntary_exits = 8 [(ethereum.eth.ext.ssz_max) = "16"];
 
     // Sync aggregate object for the beacon chain to track sync committee votes. New in Altair network upgrade.
-    SyncAggregate sync_aggregate = 7;
+    SyncAggregate sync_aggregate = 9;
 
     // Execution payload header from the execution chain. New in Bellatrix network upgrade to accommodate MEV interaction.
-    ethereum.engine.v1.ExecutionPayloadHeaderDeneb execution_payload_header = 8;
+    ethereum.engine.v1.ExecutionPayloadHeaderDeneb execution_payload_header = 10;
 
-    repeated bytes blob_kzg_commitments = 9 [(ethereum.eth.ext.ssz_size) = "?,48", (ethereum.eth.ext.ssz_max)  = "max_blob_commitments.size"];
+    // At most MAX_BLS_TO_EXECUTION_CHANGES. New in Capella network upgrade.
+    repeated SignedBLSToExecutionChange bls_to_execution_changes = 11 [(ethereum.eth.ext.ssz_max) = "16"];
 
-    ethereum.engine.v1.ExecutionRequests execution_requests = 10;
+    repeated bytes blob_kzg_commitments = 12 [(ethereum.eth.ext.ssz_size) = "?,48", (ethereum.eth.ext.ssz_max)  = "max_blob_commitments.size"];
+
+    ethereum.engine.v1.ExecutionRequests execution_requests = 13;
 }
 
 message ValidatorRegistrationV1 {

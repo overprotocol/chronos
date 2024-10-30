@@ -243,9 +243,6 @@ func (b *BeaconBlockAltair) ToConsensus() (*eth.BeaconBlockAltair, error) {
 	if b.Body.Eth1Data == nil {
 		return nil, server.NewDecodeError(errNilValue, "Body.Eth1Data")
 	}
-	if b.Body.SyncAggregate == nil {
-		return nil, server.NewDecodeError(errNilValue, "Body.SyncAggregate")
-	}
 
 	slot, err := strconv.ParseUint(b.Slot, 10, 64)
 	if err != nil {
@@ -303,14 +300,6 @@ func (b *BeaconBlockAltair) ToConsensus() (*eth.BeaconBlockAltair, error) {
 	if err != nil {
 		return nil, server.NewDecodeError(err, "Body.VoluntaryExits")
 	}
-	syncCommitteeBits, err := bytesutil.DecodeHexWithLength(b.Body.SyncAggregate.SyncCommitteeBits, fieldparams.SyncAggregateSyncCommitteeBytesLength)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "Body.SyncAggregate.SyncCommitteeBits")
-	}
-	syncCommitteeSig, err := bytesutil.DecodeHexWithLength(b.Body.SyncAggregate.SyncCommitteeSignature, fieldparams.BLSSignatureLength)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "Body.SyncAggregate.SyncCommitteeSignature")
-	}
 
 	return &eth.BeaconBlockAltair{
 		Slot:          primitives.Slot(slot),
@@ -330,10 +319,6 @@ func (b *BeaconBlockAltair) ToConsensus() (*eth.BeaconBlockAltair, error) {
 			Attestations:      atts,
 			Deposits:          deposits,
 			VoluntaryExits:    exits,
-			SyncAggregate: &eth.SyncAggregate{
-				SyncCommitteeBits:      syncCommitteeBits,
-				SyncCommitteeSignature: syncCommitteeSig,
-			},
 		},
 	}, nil
 }
@@ -375,9 +360,6 @@ func (b *BeaconBlockBellatrix) ToConsensus() (*eth.BeaconBlockBellatrix, error) 
 	}
 	if b.Body.Eth1Data == nil {
 		return nil, server.NewDecodeError(errNilValue, "Body.Eth1Data")
-	}
-	if b.Body.SyncAggregate == nil {
-		return nil, server.NewDecodeError(errNilValue, "Body.SyncAggregate")
 	}
 	if b.Body.ExecutionPayload == nil {
 		return nil, server.NewDecodeError(errNilValue, "Body.ExecutionPayload")
@@ -438,14 +420,6 @@ func (b *BeaconBlockBellatrix) ToConsensus() (*eth.BeaconBlockBellatrix, error) 
 	exits, err := SignedExitsToConsensus(b.Body.VoluntaryExits)
 	if err != nil {
 		return nil, server.NewDecodeError(err, "Body.VoluntaryExits")
-	}
-	syncCommitteeBits, err := bytesutil.DecodeHexWithLength(b.Body.SyncAggregate.SyncCommitteeBits, fieldparams.SyncAggregateSyncCommitteeBytesLength)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "Body.SyncAggregate.SyncCommitteeBits")
-	}
-	syncCommitteeSig, err := bytesutil.DecodeHexWithLength(b.Body.SyncAggregate.SyncCommitteeSignature, fieldparams.BLSSignatureLength)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "Body.SyncAggregate.SyncCommitteeSignature")
 	}
 	payloadParentHash, err := bytesutil.DecodeHexWithLength(b.Body.ExecutionPayload.ParentHash, common.HashLength)
 	if err != nil {
@@ -529,10 +503,6 @@ func (b *BeaconBlockBellatrix) ToConsensus() (*eth.BeaconBlockBellatrix, error) 
 			Attestations:      atts,
 			Deposits:          deposits,
 			VoluntaryExits:    exits,
-			SyncAggregate: &eth.SyncAggregate{
-				SyncCommitteeBits:      syncCommitteeBits,
-				SyncCommitteeSignature: syncCommitteeSig,
-			},
 			ExecutionPayload: &enginev1.ExecutionPayload{
 				ParentHash:    payloadParentHash,
 				FeeRecipient:  payloadFeeRecipient,
@@ -590,9 +560,6 @@ func (b *BlindedBeaconBlockBellatrix) ToConsensus() (*eth.BlindedBeaconBlockBell
 	}
 	if b.Body.Eth1Data == nil {
 		return nil, server.NewDecodeError(errNilValue, "Body.Eth1Data")
-	}
-	if b.Body.SyncAggregate == nil {
-		return nil, server.NewDecodeError(errNilValue, "Body.SyncAggregate")
 	}
 	if b.Body.ExecutionPayloadHeader == nil {
 		return nil, server.NewDecodeError(errNilValue, "Body.ExecutionPayloadHeader")
@@ -653,14 +620,6 @@ func (b *BlindedBeaconBlockBellatrix) ToConsensus() (*eth.BlindedBeaconBlockBell
 	exits, err := SignedExitsToConsensus(b.Body.VoluntaryExits)
 	if err != nil {
 		return nil, server.NewDecodeError(err, "Body.VoluntaryExits")
-	}
-	syncCommitteeBits, err := bytesutil.DecodeHexWithLength(b.Body.SyncAggregate.SyncCommitteeBits, fieldparams.SyncAggregateSyncCommitteeBytesLength)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "Body.SyncAggregate.SyncCommitteeBits")
-	}
-	syncCommitteeSig, err := bytesutil.DecodeHexWithLength(b.Body.SyncAggregate.SyncCommitteeSignature, fieldparams.BLSSignatureLength)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "Body.SyncAggregate.SyncCommitteeSignature")
 	}
 	payloadParentHash, err := bytesutil.DecodeHexWithLength(b.Body.ExecutionPayloadHeader.ParentHash, common.HashLength)
 	if err != nil {
@@ -736,10 +695,6 @@ func (b *BlindedBeaconBlockBellatrix) ToConsensus() (*eth.BlindedBeaconBlockBell
 			Attestations:      atts,
 			Deposits:          deposits,
 			VoluntaryExits:    exits,
-			SyncAggregate: &eth.SyncAggregate{
-				SyncCommitteeBits:      syncCommitteeBits,
-				SyncCommitteeSignature: syncCommitteeSig,
-			},
 			ExecutionPayloadHeader: &enginev1.ExecutionPayloadHeader{
 				ParentHash:       payloadParentHash,
 				FeeRecipient:     payloadFeeRecipient,
@@ -797,9 +752,6 @@ func (b *BeaconBlockCapella) ToConsensus() (*eth.BeaconBlockCapella, error) {
 	}
 	if b.Body.Eth1Data == nil {
 		return nil, server.NewDecodeError(errNilValue, "Body.Eth1Data")
-	}
-	if b.Body.SyncAggregate == nil {
-		return nil, server.NewDecodeError(errNilValue, "Body.SyncAggregate")
 	}
 	if b.Body.ExecutionPayload == nil {
 		return nil, server.NewDecodeError(errNilValue, "Body.ExecutionPayload")
@@ -861,14 +813,7 @@ func (b *BeaconBlockCapella) ToConsensus() (*eth.BeaconBlockCapella, error) {
 	if err != nil {
 		return nil, server.NewDecodeError(err, "Body.VoluntaryExits")
 	}
-	syncCommitteeBits, err := bytesutil.DecodeHexWithLength(b.Body.SyncAggregate.SyncCommitteeBits, fieldparams.SyncAggregateSyncCommitteeBytesLength)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "Body.SyncAggregate.SyncCommitteeBits")
-	}
-	syncCommitteeSig, err := bytesutil.DecodeHexWithLength(b.Body.SyncAggregate.SyncCommitteeSignature, fieldparams.BLSSignatureLength)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "Body.SyncAggregate.SyncCommitteeSignature")
-	}
+
 	payloadParentHash, err := bytesutil.DecodeHexWithLength(b.Body.ExecutionPayload.ParentHash, common.HashLength)
 	if err != nil {
 		return nil, server.NewDecodeError(err, "Body.ExecutionPayload.ParentHash")
@@ -984,10 +929,6 @@ func (b *BeaconBlockCapella) ToConsensus() (*eth.BeaconBlockCapella, error) {
 			Attestations:      atts,
 			Deposits:          deposits,
 			VoluntaryExits:    exits,
-			SyncAggregate: &eth.SyncAggregate{
-				SyncCommitteeBits:      syncCommitteeBits,
-				SyncCommitteeSignature: syncCommitteeSig,
-			},
 			ExecutionPayload: &enginev1.ExecutionPayloadCapella{
 				ParentHash:    payloadParentHash,
 				FeeRecipient:  payloadFeeRecipient,
@@ -1048,9 +989,6 @@ func (b *BlindedBeaconBlockCapella) ToConsensus() (*eth.BlindedBeaconBlockCapell
 	if b.Body.Eth1Data == nil {
 		return nil, server.NewDecodeError(errNilValue, "Body.Eth1Data")
 	}
-	if b.Body.SyncAggregate == nil {
-		return nil, server.NewDecodeError(errNilValue, "Body.SyncAggregate")
-	}
 	if b.Body.ExecutionPayloadHeader == nil {
 		return nil, server.NewDecodeError(errNilValue, "Body.ExecutionPayloadHeader")
 	}
@@ -1110,14 +1048,6 @@ func (b *BlindedBeaconBlockCapella) ToConsensus() (*eth.BlindedBeaconBlockCapell
 	exits, err := SignedExitsToConsensus(b.Body.VoluntaryExits)
 	if err != nil {
 		return nil, server.NewDecodeError(err, "Body.VoluntaryExits")
-	}
-	syncCommitteeBits, err := bytesutil.DecodeHexWithLength(b.Body.SyncAggregate.SyncCommitteeBits, fieldparams.SyncAggregateSyncCommitteeBytesLength)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "Body.SyncAggregate.SyncCommitteeBits")
-	}
-	syncCommitteeSig, err := bytesutil.DecodeHexWithLength(b.Body.SyncAggregate.SyncCommitteeSignature, fieldparams.BLSSignatureLength)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "Body.SyncAggregate.SyncCommitteeSignature")
 	}
 	payloadParentHash, err := bytesutil.DecodeHexWithLength(b.Body.ExecutionPayloadHeader.ParentHash, common.HashLength)
 	if err != nil {
@@ -1202,10 +1132,6 @@ func (b *BlindedBeaconBlockCapella) ToConsensus() (*eth.BlindedBeaconBlockCapell
 			Attestations:      atts,
 			Deposits:          deposits,
 			VoluntaryExits:    exits,
-			SyncAggregate: &eth.SyncAggregate{
-				SyncCommitteeBits:      syncCommitteeBits,
-				SyncCommitteeSignature: syncCommitteeSig,
-			},
 			ExecutionPayloadHeader: &enginev1.ExecutionPayloadHeaderCapella{
 				ParentHash:       payloadParentHash,
 				FeeRecipient:     payloadFeeRecipient,
@@ -1316,9 +1242,6 @@ func (b *BeaconBlockDeneb) ToConsensus() (*eth.BeaconBlockDeneb, error) {
 	if b.Body.Eth1Data == nil {
 		return nil, server.NewDecodeError(errNilValue, "Body.Eth1Data")
 	}
-	if b.Body.SyncAggregate == nil {
-		return nil, server.NewDecodeError(errNilValue, "Body.SyncAggregate")
-	}
 	if b.Body.ExecutionPayload == nil {
 		return nil, server.NewDecodeError(errNilValue, "Body.ExecutionPayload")
 	}
@@ -1378,14 +1301,6 @@ func (b *BeaconBlockDeneb) ToConsensus() (*eth.BeaconBlockDeneb, error) {
 	exits, err := SignedExitsToConsensus(b.Body.VoluntaryExits)
 	if err != nil {
 		return nil, server.NewDecodeError(err, "Body.VoluntaryExits")
-	}
-	syncCommitteeBits, err := bytesutil.DecodeHexWithLength(b.Body.SyncAggregate.SyncCommitteeBits, fieldparams.SyncAggregateSyncCommitteeBytesLength)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "Body.SyncAggregate.SyncCommitteeBits")
-	}
-	syncCommitteeSig, err := bytesutil.DecodeHexWithLength(b.Body.SyncAggregate.SyncCommitteeSignature, fieldparams.BLSSignatureLength)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "Body.SyncAggregate.SyncCommitteeSignature")
 	}
 	payloadParentHash, err := bytesutil.DecodeHexWithLength(b.Body.ExecutionPayload.ParentHash, common.HashLength)
 	if err != nil {
@@ -1522,10 +1437,6 @@ func (b *BeaconBlockDeneb) ToConsensus() (*eth.BeaconBlockDeneb, error) {
 			Attestations:      atts,
 			Deposits:          deposits,
 			VoluntaryExits:    exits,
-			SyncAggregate: &eth.SyncAggregate{
-				SyncCommitteeBits:      syncCommitteeBits,
-				SyncCommitteeSignature: syncCommitteeSig,
-			},
 			ExecutionPayload: &enginev1.ExecutionPayloadDeneb{
 				ParentHash:    payloadParentHash,
 				FeeRecipient:  payloadFeeRecipient,
@@ -1617,9 +1528,6 @@ func (b *BlindedBeaconBlockDeneb) ToConsensus() (*eth.BlindedBeaconBlockDeneb, e
 	if b.Body.Eth1Data == nil {
 		return nil, server.NewDecodeError(errNilValue, "Body.Eth1Data")
 	}
-	if b.Body.SyncAggregate == nil {
-		return nil, server.NewDecodeError(errNilValue, "Body.SyncAggregate")
-	}
 	if b.Body.ExecutionPayloadHeader == nil {
 		return nil, server.NewDecodeError(errNilValue, "Body.ExecutionPayloadHeader")
 	}
@@ -1679,14 +1587,6 @@ func (b *BlindedBeaconBlockDeneb) ToConsensus() (*eth.BlindedBeaconBlockDeneb, e
 	exits, err := SignedExitsToConsensus(b.Body.VoluntaryExits)
 	if err != nil {
 		return nil, server.NewDecodeError(err, "Body.VoluntaryExits")
-	}
-	syncCommitteeBits, err := bytesutil.DecodeHexWithLength(b.Body.SyncAggregate.SyncCommitteeBits, fieldparams.SyncAggregateSyncCommitteeBytesLength)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "Body.SyncAggregate.SyncCommitteeBits")
-	}
-	syncCommitteeSig, err := bytesutil.DecodeHexWithLength(b.Body.SyncAggregate.SyncCommitteeSignature, fieldparams.BLSSignatureLength)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "Body.SyncAggregate.SyncCommitteeSignature")
 	}
 	payloadParentHash, err := bytesutil.DecodeHexWithLength(b.Body.ExecutionPayloadHeader.ParentHash, common.HashLength)
 	if err != nil {
@@ -1793,10 +1693,6 @@ func (b *BlindedBeaconBlockDeneb) ToConsensus() (*eth.BlindedBeaconBlockDeneb, e
 			Attestations:      atts,
 			Deposits:          deposits,
 			VoluntaryExits:    exits,
-			SyncAggregate: &eth.SyncAggregate{
-				SyncCommitteeBits:      syncCommitteeBits,
-				SyncCommitteeSignature: syncCommitteeSig,
-			},
 			ExecutionPayloadHeader: &enginev1.ExecutionPayloadHeaderDeneb{
 				ParentHash:       payloadParentHash,
 				FeeRecipient:     payloadFeeRecipient,
@@ -1919,9 +1815,6 @@ func (b *BeaconBlockElectra) ToConsensus() (*eth.BeaconBlockElectra, error) {
 	if b.Body == nil {
 		return nil, server.NewDecodeError(errNilValue, "Body")
 	}
-	if b.Body.SyncAggregate == nil {
-		return nil, server.NewDecodeError(errNilValue, "Body.SyncAggregate")
-	}
 	if b.Body.ExecutionPayload == nil {
 		return nil, server.NewDecodeError(errNilValue, "Body.ExecutionPayload")
 	}
@@ -1965,14 +1858,6 @@ func (b *BeaconBlockElectra) ToConsensus() (*eth.BeaconBlockElectra, error) {
 	exits, err := SignedExitsToConsensus(b.Body.VoluntaryExits)
 	if err != nil {
 		return nil, server.NewDecodeError(err, "Body.VoluntaryExits")
-	}
-	syncCommitteeBits, err := bytesutil.DecodeHexWithLength(b.Body.SyncAggregate.SyncCommitteeBits, fieldparams.SyncAggregateSyncCommitteeBytesLength)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "Body.SyncAggregate.SyncCommitteeBits")
-	}
-	syncCommitteeSig, err := bytesutil.DecodeHexWithLength(b.Body.SyncAggregate.SyncCommitteeSignature, fieldparams.BLSSignatureLength)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "Body.SyncAggregate.SyncCommitteeSignature")
 	}
 	payloadParentHash, err := bytesutil.DecodeHexWithLength(b.Body.ExecutionPayload.ParentHash, common.HashLength)
 	if err != nil {
@@ -2120,10 +2005,6 @@ func (b *BeaconBlockElectra) ToConsensus() (*eth.BeaconBlockElectra, error) {
 			AttesterSlashings: attesterSlashings,
 			Attestations:      atts,
 			VoluntaryExits:    exits,
-			SyncAggregate: &eth.SyncAggregate{
-				SyncCommitteeBits:      syncCommitteeBits,
-				SyncCommitteeSignature: syncCommitteeSig,
-			},
 			ExecutionPayload: &enginev1.ExecutionPayloadElectra{
 				ParentHash:    payloadParentHash,
 				FeeRecipient:  payloadFeeRecipient,
@@ -2215,9 +2096,6 @@ func (b *BlindedBeaconBlockElectra) ToConsensus() (*eth.BlindedBeaconBlockElectr
 	if b.Body == nil {
 		return nil, server.NewDecodeError(errNilValue, "Body")
 	}
-	if b.Body.SyncAggregate == nil {
-		return nil, server.NewDecodeError(errNilValue, "Body.SyncAggregate")
-	}
 	if b.Body.ExecutionPayloadHeader == nil {
 		return nil, server.NewDecodeError(errNilValue, "Body.ExecutionPayloadHeader")
 	}
@@ -2261,14 +2139,6 @@ func (b *BlindedBeaconBlockElectra) ToConsensus() (*eth.BlindedBeaconBlockElectr
 	exits, err := SignedExitsToConsensus(b.Body.VoluntaryExits)
 	if err != nil {
 		return nil, server.NewDecodeError(err, "Body.VoluntaryExits")
-	}
-	syncCommitteeBits, err := bytesutil.DecodeHexWithLength(b.Body.SyncAggregate.SyncCommitteeBits, fieldparams.SyncAggregateSyncCommitteeBytesLength)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "Body.SyncAggregate.SyncCommitteeBits")
-	}
-	syncCommitteeSig, err := bytesutil.DecodeHexWithLength(b.Body.SyncAggregate.SyncCommitteeSignature, fieldparams.BLSSignatureLength)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "Body.SyncAggregate.SyncCommitteeSignature")
 	}
 	payloadParentHash, err := bytesutil.DecodeHexWithLength(b.Body.ExecutionPayloadHeader.ParentHash, common.HashLength)
 	if err != nil {
@@ -2382,10 +2252,6 @@ func (b *BlindedBeaconBlockElectra) ToConsensus() (*eth.BlindedBeaconBlockElectr
 			AttesterSlashings: attesterSlashings,
 			Attestations:      atts,
 			VoluntaryExits:    exits,
-			SyncAggregate: &eth.SyncAggregate{
-				SyncCommitteeBits:      syncCommitteeBits,
-				SyncCommitteeSignature: syncCommitteeSig,
-			},
 			ExecutionPayloadHeader: &enginev1.ExecutionPayloadHeaderElectra{
 				ParentHash:       payloadParentHash,
 				FeeRecipient:     payloadFeeRecipient,
@@ -2508,10 +2374,6 @@ func BeaconBlockAltairFromConsensus(b *eth.BeaconBlockAltair) *BeaconBlockAltair
 			Attestations:      AttsFromConsensus(b.Body.Attestations),
 			Deposits:          DepositsFromConsensus(b.Body.Deposits),
 			VoluntaryExits:    SignedExitsFromConsensus(b.Body.VoluntaryExits),
-			SyncAggregate: &SyncAggregate{
-				SyncCommitteeBits:      hexutil.Encode(b.Body.SyncAggregate.SyncCommitteeBits),
-				SyncCommitteeSignature: hexutil.Encode(b.Body.SyncAggregate.SyncCommitteeSignature),
-			},
 		},
 	}
 }
@@ -2535,18 +2397,14 @@ func BlindedBeaconBlockBellatrixFromConsensus(b *eth.BlindedBeaconBlockBellatrix
 		ParentRoot:    hexutil.Encode(b.ParentRoot),
 		StateRoot:     hexutil.Encode(b.StateRoot),
 		Body: &BlindedBeaconBlockBodyBellatrix{
-			RandaoReveal:      hexutil.Encode(b.Body.RandaoReveal),
-			Eth1Data:          Eth1DataFromConsensus(b.Body.Eth1Data),
-			Graffiti:          hexutil.Encode(b.Body.Graffiti),
-			ProposerSlashings: ProposerSlashingsFromConsensus(b.Body.ProposerSlashings),
-			AttesterSlashings: AttesterSlashingsFromConsensus(b.Body.AttesterSlashings),
-			Attestations:      AttsFromConsensus(b.Body.Attestations),
-			Deposits:          DepositsFromConsensus(b.Body.Deposits),
-			VoluntaryExits:    SignedExitsFromConsensus(b.Body.VoluntaryExits),
-			SyncAggregate: &SyncAggregate{
-				SyncCommitteeBits:      hexutil.Encode(b.Body.SyncAggregate.SyncCommitteeBits),
-				SyncCommitteeSignature: hexutil.Encode(b.Body.SyncAggregate.SyncCommitteeSignature),
-			},
+			RandaoReveal:           hexutil.Encode(b.Body.RandaoReveal),
+			Eth1Data:               Eth1DataFromConsensus(b.Body.Eth1Data),
+			Graffiti:               hexutil.Encode(b.Body.Graffiti),
+			ProposerSlashings:      ProposerSlashingsFromConsensus(b.Body.ProposerSlashings),
+			AttesterSlashings:      AttesterSlashingsFromConsensus(b.Body.AttesterSlashings),
+			Attestations:           AttsFromConsensus(b.Body.Attestations),
+			Deposits:               DepositsFromConsensus(b.Body.Deposits),
+			VoluntaryExits:         SignedExitsFromConsensus(b.Body.VoluntaryExits),
 			ExecutionPayloadHeader: payload,
 		},
 	}, nil
@@ -2583,11 +2441,7 @@ func BeaconBlockBellatrixFromConsensus(b *eth.BeaconBlockBellatrix) (*BeaconBloc
 			Attestations:      AttsFromConsensus(b.Body.Attestations),
 			Deposits:          DepositsFromConsensus(b.Body.Deposits),
 			VoluntaryExits:    SignedExitsFromConsensus(b.Body.VoluntaryExits),
-			SyncAggregate: &SyncAggregate{
-				SyncCommitteeBits:      hexutil.Encode(b.Body.SyncAggregate.SyncCommitteeBits),
-				SyncCommitteeSignature: hexutil.Encode(b.Body.SyncAggregate.SyncCommitteeSignature),
-			},
-			ExecutionPayload: payload,
+			ExecutionPayload:  payload,
 		},
 	}, nil
 }
@@ -2615,18 +2469,14 @@ func BlindedBeaconBlockCapellaFromConsensus(b *eth.BlindedBeaconBlockCapella) (*
 		ParentRoot:    hexutil.Encode(b.ParentRoot),
 		StateRoot:     hexutil.Encode(b.StateRoot),
 		Body: &BlindedBeaconBlockBodyCapella{
-			RandaoReveal:      hexutil.Encode(b.Body.RandaoReveal),
-			Eth1Data:          Eth1DataFromConsensus(b.Body.Eth1Data),
-			Graffiti:          hexutil.Encode(b.Body.Graffiti),
-			ProposerSlashings: ProposerSlashingsFromConsensus(b.Body.ProposerSlashings),
-			AttesterSlashings: AttesterSlashingsFromConsensus(b.Body.AttesterSlashings),
-			Attestations:      AttsFromConsensus(b.Body.Attestations),
-			Deposits:          DepositsFromConsensus(b.Body.Deposits),
-			VoluntaryExits:    SignedExitsFromConsensus(b.Body.VoluntaryExits),
-			SyncAggregate: &SyncAggregate{
-				SyncCommitteeBits:      hexutil.Encode(b.Body.SyncAggregate.SyncCommitteeBits),
-				SyncCommitteeSignature: hexutil.Encode(b.Body.SyncAggregate.SyncCommitteeSignature),
-			},
+			RandaoReveal:           hexutil.Encode(b.Body.RandaoReveal),
+			Eth1Data:               Eth1DataFromConsensus(b.Body.Eth1Data),
+			Graffiti:               hexutil.Encode(b.Body.Graffiti),
+			ProposerSlashings:      ProposerSlashingsFromConsensus(b.Body.ProposerSlashings),
+			AttesterSlashings:      AttesterSlashingsFromConsensus(b.Body.AttesterSlashings),
+			Attestations:           AttsFromConsensus(b.Body.Attestations),
+			Deposits:               DepositsFromConsensus(b.Body.Deposits),
+			VoluntaryExits:         SignedExitsFromConsensus(b.Body.VoluntaryExits),
 			ExecutionPayloadHeader: payload,
 			BLSToExecutionChanges:  SignedBLSChangesFromConsensus(b.Body.BlsToExecutionChanges),
 		},
@@ -2656,18 +2506,14 @@ func BeaconBlockCapellaFromConsensus(b *eth.BeaconBlockCapella) (*BeaconBlockCap
 		ParentRoot:    hexutil.Encode(b.ParentRoot),
 		StateRoot:     hexutil.Encode(b.StateRoot),
 		Body: &BeaconBlockBodyCapella{
-			RandaoReveal:      hexutil.Encode(b.Body.RandaoReveal),
-			Eth1Data:          Eth1DataFromConsensus(b.Body.Eth1Data),
-			Graffiti:          hexutil.Encode(b.Body.Graffiti),
-			ProposerSlashings: ProposerSlashingsFromConsensus(b.Body.ProposerSlashings),
-			AttesterSlashings: AttesterSlashingsFromConsensus(b.Body.AttesterSlashings),
-			Attestations:      AttsFromConsensus(b.Body.Attestations),
-			Deposits:          DepositsFromConsensus(b.Body.Deposits),
-			VoluntaryExits:    SignedExitsFromConsensus(b.Body.VoluntaryExits),
-			SyncAggregate: &SyncAggregate{
-				SyncCommitteeBits:      hexutil.Encode(b.Body.SyncAggregate.SyncCommitteeBits),
-				SyncCommitteeSignature: hexutil.Encode(b.Body.SyncAggregate.SyncCommitteeSignature),
-			},
+			RandaoReveal:          hexutil.Encode(b.Body.RandaoReveal),
+			Eth1Data:              Eth1DataFromConsensus(b.Body.Eth1Data),
+			Graffiti:              hexutil.Encode(b.Body.Graffiti),
+			ProposerSlashings:     ProposerSlashingsFromConsensus(b.Body.ProposerSlashings),
+			AttesterSlashings:     AttesterSlashingsFromConsensus(b.Body.AttesterSlashings),
+			Attestations:          AttsFromConsensus(b.Body.Attestations),
+			Deposits:              DepositsFromConsensus(b.Body.Deposits),
+			VoluntaryExits:        SignedExitsFromConsensus(b.Body.VoluntaryExits),
 			ExecutionPayload:      payload,
 			BLSToExecutionChanges: SignedBLSChangesFromConsensus(b.Body.BlsToExecutionChanges),
 		},
@@ -2744,18 +2590,14 @@ func BlindedBeaconBlockDenebFromConsensus(b *eth.BlindedBeaconBlockDeneb) (*Blin
 		ParentRoot:    hexutil.Encode(b.ParentRoot),
 		StateRoot:     hexutil.Encode(b.StateRoot),
 		Body: &BlindedBeaconBlockBodyDeneb{
-			RandaoReveal:      hexutil.Encode(b.Body.RandaoReveal),
-			Eth1Data:          Eth1DataFromConsensus(b.Body.Eth1Data),
-			Graffiti:          hexutil.Encode(b.Body.Graffiti),
-			ProposerSlashings: ProposerSlashingsFromConsensus(b.Body.ProposerSlashings),
-			AttesterSlashings: AttesterSlashingsFromConsensus(b.Body.AttesterSlashings),
-			Attestations:      AttsFromConsensus(b.Body.Attestations),
-			Deposits:          DepositsFromConsensus(b.Body.Deposits),
-			VoluntaryExits:    SignedExitsFromConsensus(b.Body.VoluntaryExits),
-			SyncAggregate: &SyncAggregate{
-				SyncCommitteeBits:      hexutil.Encode(b.Body.SyncAggregate.SyncCommitteeBits),
-				SyncCommitteeSignature: hexutil.Encode(b.Body.SyncAggregate.SyncCommitteeSignature),
-			},
+			RandaoReveal:           hexutil.Encode(b.Body.RandaoReveal),
+			Eth1Data:               Eth1DataFromConsensus(b.Body.Eth1Data),
+			Graffiti:               hexutil.Encode(b.Body.Graffiti),
+			ProposerSlashings:      ProposerSlashingsFromConsensus(b.Body.ProposerSlashings),
+			AttesterSlashings:      AttesterSlashingsFromConsensus(b.Body.AttesterSlashings),
+			Attestations:           AttsFromConsensus(b.Body.Attestations),
+			Deposits:               DepositsFromConsensus(b.Body.Deposits),
+			VoluntaryExits:         SignedExitsFromConsensus(b.Body.VoluntaryExits),
 			ExecutionPayloadHeader: payload,
 			BLSToExecutionChanges:  SignedBLSChangesFromConsensus(b.Body.BlsToExecutionChanges),
 			BlobKzgCommitments:     blobKzgCommitments,
@@ -2802,10 +2644,6 @@ func BeaconBlockDenebFromConsensus(b *eth.BeaconBlockDeneb) (*BeaconBlockDeneb, 
 			Attestations:      AttsFromConsensus(b.Body.Attestations),
 			Deposits:          DepositsFromConsensus(b.Body.Deposits),
 			VoluntaryExits:    SignedExitsFromConsensus(b.Body.VoluntaryExits),
-			SyncAggregate: &SyncAggregate{
-				SyncCommitteeBits:      hexutil.Encode(b.Body.SyncAggregate.SyncCommitteeBits),
-				SyncCommitteeSignature: hexutil.Encode(b.Body.SyncAggregate.SyncCommitteeSignature),
-			},
 			ExecutionPayload: &ExecutionPayloadDeneb{
 				ParentHash:    hexutil.Encode(b.Body.ExecutionPayload.ParentHash),
 				FeeRecipient:  hexutil.Encode(b.Body.ExecutionPayload.FeeRecipient),
@@ -2901,16 +2739,12 @@ func BlindedBeaconBlockElectraFromConsensus(b *eth.BlindedBeaconBlockElectra) (*
 		ParentRoot:    hexutil.Encode(b.ParentRoot),
 		StateRoot:     hexutil.Encode(b.StateRoot),
 		Body: &BlindedBeaconBlockBodyElectra{
-			RandaoReveal:      hexutil.Encode(b.Body.RandaoReveal),
-			Graffiti:          hexutil.Encode(b.Body.Graffiti),
-			ProposerSlashings: ProposerSlashingsFromConsensus(b.Body.ProposerSlashings),
-			AttesterSlashings: AttesterSlashingsElectraFromConsensus(b.Body.AttesterSlashings),
-			Attestations:      AttsElectraFromConsensus(b.Body.Attestations),
-			VoluntaryExits:    SignedExitsFromConsensus(b.Body.VoluntaryExits),
-			SyncAggregate: &SyncAggregate{
-				SyncCommitteeBits:      hexutil.Encode(b.Body.SyncAggregate.SyncCommitteeBits),
-				SyncCommitteeSignature: hexutil.Encode(b.Body.SyncAggregate.SyncCommitteeSignature),
-			},
+			RandaoReveal:           hexutil.Encode(b.Body.RandaoReveal),
+			Graffiti:               hexutil.Encode(b.Body.Graffiti),
+			ProposerSlashings:      ProposerSlashingsFromConsensus(b.Body.ProposerSlashings),
+			AttesterSlashings:      AttesterSlashingsElectraFromConsensus(b.Body.AttesterSlashings),
+			Attestations:           AttsElectraFromConsensus(b.Body.Attestations),
+			VoluntaryExits:         SignedExitsFromConsensus(b.Body.VoluntaryExits),
 			ExecutionPayloadHeader: payload,
 			BlobKzgCommitments:     blobKzgCommitments,
 			ExecutionRequests:      ExecutionRequestsFromConsensus(b.Body.ExecutionRequests),
@@ -2952,16 +2786,12 @@ func BeaconBlockElectraFromConsensus(b *eth.BeaconBlockElectra) (*BeaconBlockEle
 		ParentRoot:    hexutil.Encode(b.ParentRoot),
 		StateRoot:     hexutil.Encode(b.StateRoot),
 		Body: &BeaconBlockBodyElectra{
-			RandaoReveal:      hexutil.Encode(b.Body.RandaoReveal),
-			Graffiti:          hexutil.Encode(b.Body.Graffiti),
-			ProposerSlashings: ProposerSlashingsFromConsensus(b.Body.ProposerSlashings),
-			AttesterSlashings: AttesterSlashingsElectraFromConsensus(b.Body.AttesterSlashings),
-			Attestations:      AttsElectraFromConsensus(b.Body.Attestations),
-			VoluntaryExits:    SignedExitsFromConsensus(b.Body.VoluntaryExits),
-			SyncAggregate: &SyncAggregate{
-				SyncCommitteeBits:      hexutil.Encode(b.Body.SyncAggregate.SyncCommitteeBits),
-				SyncCommitteeSignature: hexutil.Encode(b.Body.SyncAggregate.SyncCommitteeSignature),
-			},
+			RandaoReveal:       hexutil.Encode(b.Body.RandaoReveal),
+			Graffiti:           hexutil.Encode(b.Body.Graffiti),
+			ProposerSlashings:  ProposerSlashingsFromConsensus(b.Body.ProposerSlashings),
+			AttesterSlashings:  AttesterSlashingsElectraFromConsensus(b.Body.AttesterSlashings),
+			Attestations:       AttsElectraFromConsensus(b.Body.Attestations),
+			VoluntaryExits:     SignedExitsFromConsensus(b.Body.VoluntaryExits),
 			ExecutionPayload:   payload,
 			BlobKzgCommitments: blobKzgCommitments,
 			ExecutionRequests:  ExecutionRequestsFromConsensus(b.Body.ExecutionRequests),

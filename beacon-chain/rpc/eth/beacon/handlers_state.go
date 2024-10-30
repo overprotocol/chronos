@@ -1,32 +1,21 @@
 package beacon
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/prysmaticlabs/prysm/v5/api/server/structs"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/altair"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/rpc/eth/helpers"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/rpc/eth/shared"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/rpc/lookup"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
-	"github.com/prysmaticlabs/prysm/v5/encoding/bytesutil"
 	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing/trace"
 	"github.com/prysmaticlabs/prysm/v5/network/httputil"
-	ethpbalpha "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	"github.com/prysmaticlabs/prysm/v5/time/slots"
 )
-
-type syncCommitteeStateRequest struct {
-	epoch   *primitives.Epoch
-	stateId []byte
-}
 
 // GetStateRoot calculates HashTreeRoot for state with given 'stateId'. If stateId is root, same value will be returned.
 func (s *Server) GetStateRoot(w http.ResponseWriter, r *http.Request) {
@@ -142,194 +131,4 @@ func (s *Server) GetRandao(w http.ResponseWriter, r *http.Request) {
 		Finalized:           isFinalized,
 	}
 	httputil.WriteJson(w, resp)
-}
-
-// GetSyncCommittees retrieves the sync committees for the given epoch.
-// If the epoch is not passed in, then the sync committees for the epoch of the state will be obtained.
-func (s *Server) GetSyncCommittees(w http.ResponseWriter, r *http.Request) {
-	ctx, span := trace.StartSpan(r.Context(), "beacon.GetSyncCommittees")
-	defer span.End()
-
-	stateId := r.PathValue("state_id")
-	if stateId == "" {
-		httputil.HandleError(w, "state_id is required in URL params", http.StatusBadRequest)
-		return
-	}
-	rawEpoch, e, ok := shared.UintFromQuery(w, r, "epoch", false)
-	if !ok {
-		return
-	}
-	epoch := primitives.Epoch(e)
-
-	currentSlot := s.GenesisTimeFetcher.CurrentSlot()
-	currentEpoch := slots.ToEpoch(currentSlot)
-	currentPeriodStartEpoch, err := slots.SyncCommitteePeriodStartEpoch(currentEpoch)
-	if err != nil {
-		httputil.HandleError(w, fmt.Sprintf("Could not calculate start period for slot %d: %v", currentSlot, err), http.StatusInternalServerError)
-		return
-	}
-
-	requestNextCommittee := false
-	if rawEpoch != "" {
-		reqPeriodStartEpoch, err := slots.SyncCommitteePeriodStartEpoch(epoch)
-		if err != nil {
-			httputil.HandleError(w, fmt.Sprintf("Could not calculate start period for epoch %d: %v", e, err), http.StatusInternalServerError)
-			return
-		}
-		if reqPeriodStartEpoch > currentPeriodStartEpoch+params.BeaconConfig().EpochsPerSyncCommitteePeriod {
-			httputil.HandleError(
-				w,
-				fmt.Sprintf("Could not fetch sync committee too far in the future (requested epoch %d, current epoch %d)", e, currentEpoch),
-				http.StatusBadRequest,
-			)
-			return
-		}
-		if reqPeriodStartEpoch > currentPeriodStartEpoch {
-			requestNextCommittee = true
-			epoch = currentPeriodStartEpoch
-		}
-	}
-
-	syncCommitteeReq := &syncCommitteeStateRequest{
-		epoch:   nil,
-		stateId: []byte(stateId),
-	}
-	if rawEpoch != "" {
-		syncCommitteeReq.epoch = &epoch
-	}
-	st, ok := s.stateForSyncCommittee(ctx, w, syncCommitteeReq)
-	if !ok {
-		return
-	}
-
-	var committeeIndices []string
-	var committee *ethpbalpha.SyncCommittee
-	if requestNextCommittee {
-		// Get the next sync committee and sync committee indices from the state.
-		committeeIndices, committee, err = nextCommitteeIndicesFromState(st)
-		if err != nil {
-			httputil.HandleError(w, "Could not get next sync committee indices: "+err.Error(), http.StatusInternalServerError)
-			return
-		}
-	} else {
-		// Get the current sync committee and sync committee indices from the state.
-		committeeIndices, committee, err = currentCommitteeIndicesFromState(st)
-		if err != nil {
-			httputil.HandleError(w, "Could not get current sync committee indices: "+err.Error(), http.StatusInternalServerError)
-			return
-		}
-	}
-	subcommittees, err := extractSyncSubcommittees(st, committee)
-	if err != nil {
-		httputil.HandleError(w, "Could not extract sync subcommittees: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	isOptimistic, err := helpers.IsOptimistic(ctx, []byte(stateId), s.OptimisticModeFetcher, s.Stater, s.ChainInfoFetcher, s.BeaconDB)
-	if err != nil {
-		httputil.HandleError(w, "Could not check optimistic status: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	blockRoot, err := st.LatestBlockHeader().HashTreeRoot()
-	if err != nil {
-		httputil.HandleError(w, "Could not calculate root of latest block header: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-	isFinalized := s.FinalizationFetcher.IsFinalized(ctx, blockRoot)
-
-	resp := structs.GetSyncCommitteeResponse{
-		Data: &structs.SyncCommitteeValidators{
-			Validators:          committeeIndices,
-			ValidatorAggregates: subcommittees,
-		},
-		ExecutionOptimistic: isOptimistic,
-		Finalized:           isFinalized,
-	}
-	httputil.WriteJson(w, resp)
-}
-
-func committeeIndicesFromState(st state.BeaconState, committee *ethpbalpha.SyncCommittee) ([]string, *ethpbalpha.SyncCommittee, error) {
-	committeeIndices := make([]string, len(committee.Pubkeys))
-	for i, key := range committee.Pubkeys {
-		index, ok := st.ValidatorIndexByPubkey(bytesutil.ToBytes48(key))
-		if !ok {
-			return nil, nil, fmt.Errorf(
-				"validator index not found for pubkey %#x",
-				bytesutil.Trunc(key),
-			)
-		}
-		committeeIndices[i] = strconv.FormatUint(uint64(index), 10)
-	}
-	return committeeIndices, committee, nil
-}
-
-func currentCommitteeIndicesFromState(st state.BeaconState) ([]string, *ethpbalpha.SyncCommittee, error) {
-	committee, err := st.CurrentSyncCommittee()
-	if err != nil {
-		return nil, nil, fmt.Errorf(
-			"could not get sync committee: %w", err,
-		)
-	}
-
-	return committeeIndicesFromState(st, committee)
-}
-
-func nextCommitteeIndicesFromState(st state.BeaconState) ([]string, *ethpbalpha.SyncCommittee, error) {
-	committee, err := st.NextSyncCommittee()
-	if err != nil {
-		return nil, nil, fmt.Errorf(
-			"could not get sync committee: %w", err,
-		)
-	}
-
-	return committeeIndicesFromState(st, committee)
-}
-
-func extractSyncSubcommittees(st state.BeaconState, committee *ethpbalpha.SyncCommittee) ([][]string, error) {
-	subcommitteeCount := params.BeaconConfig().SyncCommitteeSubnetCount
-	subcommittees := make([][]string, subcommitteeCount)
-	for i := uint64(0); i < subcommitteeCount; i++ {
-		pubkeys, err := altair.SyncSubCommitteePubkeys(committee, primitives.CommitteeIndex(i))
-		if err != nil {
-			return nil, fmt.Errorf(
-				"failed to get subcommittee pubkeys: %w", err,
-			)
-		}
-		subcommittee := make([]string, len(pubkeys))
-		for j, key := range pubkeys {
-			index, ok := st.ValidatorIndexByPubkey(bytesutil.ToBytes48(key))
-			if !ok {
-				return nil, fmt.Errorf(
-					"validator index not found for pubkey %#x",
-					bytesutil.Trunc(key),
-				)
-			}
-			subcommittee[j] = strconv.FormatUint(uint64(index), 10)
-		}
-		subcommittees[i] = subcommittee
-	}
-	return subcommittees, nil
-}
-
-func (s *Server) stateForSyncCommittee(ctx context.Context, w http.ResponseWriter, req *syncCommitteeStateRequest) (state.BeaconState, bool) {
-	if req.epoch != nil {
-		slot, err := slots.EpochStart(*req.epoch)
-		if err != nil {
-			httputil.HandleError(w, fmt.Sprintf("Could not calculate start slot for epoch %d: %v", *req.epoch, err), http.StatusInternalServerError)
-			return nil, false
-		}
-		st, err := s.Stater.State(ctx, []byte(strconv.FormatUint(uint64(slot), 10)))
-		if err != nil {
-			shared.WriteStateFetchError(w, err)
-			return nil, false
-		}
-		return st, true
-	}
-	st, err := s.Stater.State(ctx, req.stateId)
-	if err != nil {
-		shared.WriteStateFetchError(w, err)
-		return nil, false
-	}
-	return st, true
 }

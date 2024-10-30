@@ -86,7 +86,6 @@ func (body *BeaconBlockBodyAltair) Copy() *BeaconBlockBodyAltair {
 		Attestations:      CopySlice(body.Attestations),
 		Deposits:          CopySlice(body.Deposits),
 		VoluntaryExits:    CopySlice(body.VoluntaryExits),
-		SyncAggregate:     body.SyncAggregate.Copy(),
 	}
 }
 
@@ -129,7 +128,6 @@ func (body *BeaconBlockBodyBellatrix) Copy() *BeaconBlockBodyBellatrix {
 		Attestations:      CopySlice(body.Attestations),
 		Deposits:          CopySlice(body.Deposits),
 		VoluntaryExits:    CopySlice(body.VoluntaryExits),
-		SyncAggregate:     body.SyncAggregate.Copy(),
 		ExecutionPayload:  body.ExecutionPayload.Copy(),
 	}
 }
@@ -173,7 +171,6 @@ func (body *BeaconBlockBodyCapella) Copy() *BeaconBlockBodyCapella {
 		Attestations:          CopySlice(body.Attestations),
 		Deposits:              CopySlice(body.Deposits),
 		VoluntaryExits:        CopySlice(body.VoluntaryExits),
-		SyncAggregate:         body.SyncAggregate.Copy(),
 		ExecutionPayload:      body.ExecutionPayload.Copy(),
 		BlsToExecutionChanges: CopySlice(body.BlsToExecutionChanges),
 	}
@@ -218,7 +215,6 @@ func (body *BlindedBeaconBlockBodyCapella) Copy() *BlindedBeaconBlockBodyCapella
 		Attestations:           CopySlice(body.Attestations),
 		Deposits:               CopySlice(body.Deposits),
 		VoluntaryExits:         CopySlice(body.VoluntaryExits),
-		SyncAggregate:          body.SyncAggregate.Copy(),
 		ExecutionPayloadHeader: body.ExecutionPayloadHeader.Copy(),
 		BlsToExecutionChanges:  CopySlice(body.BlsToExecutionChanges),
 	}
@@ -263,7 +259,6 @@ func (body *BlindedBeaconBlockBodyDeneb) Copy() *BlindedBeaconBlockBodyDeneb {
 		Attestations:           CopySlice(body.Attestations),
 		Deposits:               CopySlice(body.Deposits),
 		VoluntaryExits:         CopySlice(body.VoluntaryExits),
-		SyncAggregate:          body.SyncAggregate.Copy(),
 		ExecutionPayloadHeader: body.ExecutionPayloadHeader.Copy(),
 		BlsToExecutionChanges:  CopySlice(body.BlsToExecutionChanges),
 		BlobKzgCommitments:     CopyBlobKZGs(body.BlobKzgCommitments),
@@ -307,7 +302,6 @@ func (body *BlindedBeaconBlockBodyElectra) Copy() *BlindedBeaconBlockBodyElectra
 		AttesterSlashings:      CopySlice(body.AttesterSlashings),
 		Attestations:           CopySlice(body.Attestations),
 		VoluntaryExits:         CopySlice(body.VoluntaryExits),
-		SyncAggregate:          body.SyncAggregate.Copy(),
 		ExecutionPayloadHeader: body.ExecutionPayloadHeader.Copy(),
 		BlobKzgCommitments:     CopyBlobKZGs(body.BlobKzgCommitments),
 		ExecutionRequests:      CopyExecutionRequests(body.ExecutionRequests),
@@ -353,7 +347,6 @@ func (body *BlindedBeaconBlockBodyBellatrix) Copy() *BlindedBeaconBlockBodyBella
 		Attestations:           CopySlice(body.Attestations),
 		Deposits:               CopySlice(body.Deposits),
 		VoluntaryExits:         CopySlice(body.VoluntaryExits),
-		SyncAggregate:          body.SyncAggregate.Copy(),
 		ExecutionPayloadHeader: body.ExecutionPayloadHeader.Copy(),
 	}
 }
@@ -422,7 +415,6 @@ func (body *BeaconBlockBodyDeneb) Copy() *BeaconBlockBodyDeneb {
 		Attestations:          CopySlice(body.Attestations),
 		Deposits:              CopySlice(body.Deposits),
 		VoluntaryExits:        CopySlice(body.VoluntaryExits),
-		SyncAggregate:         body.SyncAggregate.Copy(),
 		ExecutionPayload:      body.ExecutionPayload.Copy(),
 		BlsToExecutionChanges: CopySlice(body.BlsToExecutionChanges),
 		BlobKzgCommitments:    CopyBlobKZGs(body.BlobKzgCommitments),
@@ -466,7 +458,6 @@ func (body *BeaconBlockBodyElectra) Copy() *BeaconBlockBodyElectra {
 		AttesterSlashings:  CopySlice(body.AttesterSlashings),
 		Attestations:       CopySlice(body.Attestations),
 		VoluntaryExits:     CopySlice(body.VoluntaryExits),
-		SyncAggregate:      body.SyncAggregate.Copy(),
 		ExecutionPayload:   body.ExecutionPayload.Copy(),
 		BlobKzgCommitments: CopyBlobKZGs(body.BlobKzgCommitments),
 		ExecutionRequests:  CopyExecutionRequests(body.ExecutionRequests),
@@ -567,17 +558,6 @@ func (exit *VoluntaryExit) Copy() *VoluntaryExit {
 	return &VoluntaryExit{
 		Epoch:          exit.Epoch,
 		ValidatorIndex: exit.ValidatorIndex,
-	}
-}
-
-// Copy --
-func (a *SyncAggregate) Copy() *SyncAggregate {
-	if a == nil {
-		return nil
-	}
-	return &SyncAggregate{
-		SyncCommitteeBits:      bytesutil.SafeCopyBytes(a.SyncCommitteeBits),
-		SyncCommitteeSignature: bytesutil.SafeCopyBytes(a.SyncCommitteeSignature),
 	}
 }
 

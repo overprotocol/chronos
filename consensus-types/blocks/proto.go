@@ -371,7 +371,6 @@ func (b *BeaconBlockBody) Proto() (proto.Message, error) {
 			Attestations:      b.attestations,
 			Deposits:          b.deposits,
 			VoluntaryExits:    b.voluntaryExits,
-			SyncAggregate:     b.syncAggregate,
 		}, nil
 	case version.Bellatrix:
 		if b.IsBlinded() {
@@ -392,7 +391,6 @@ func (b *BeaconBlockBody) Proto() (proto.Message, error) {
 				Attestations:           b.attestations,
 				Deposits:               b.deposits,
 				VoluntaryExits:         b.voluntaryExits,
-				SyncAggregate:          b.syncAggregate,
 				ExecutionPayloadHeader: ph,
 			}, nil
 		}
@@ -413,7 +411,6 @@ func (b *BeaconBlockBody) Proto() (proto.Message, error) {
 			Attestations:      b.attestations,
 			Deposits:          b.deposits,
 			VoluntaryExits:    b.voluntaryExits,
-			SyncAggregate:     b.syncAggregate,
 			ExecutionPayload:  p,
 		}, nil
 	case version.Capella:
@@ -435,7 +432,6 @@ func (b *BeaconBlockBody) Proto() (proto.Message, error) {
 				Attestations:           b.attestations,
 				Deposits:               b.deposits,
 				VoluntaryExits:         b.voluntaryExits,
-				SyncAggregate:          b.syncAggregate,
 				ExecutionPayloadHeader: ph,
 				BlsToExecutionChanges:  b.blsToExecutionChanges,
 			}, nil
@@ -457,7 +453,6 @@ func (b *BeaconBlockBody) Proto() (proto.Message, error) {
 			Attestations:          b.attestations,
 			Deposits:              b.deposits,
 			VoluntaryExits:        b.voluntaryExits,
-			SyncAggregate:         b.syncAggregate,
 			ExecutionPayload:      p,
 			BlsToExecutionChanges: b.blsToExecutionChanges,
 		}, nil
@@ -480,7 +475,6 @@ func (b *BeaconBlockBody) Proto() (proto.Message, error) {
 				Attestations:           b.attestations,
 				Deposits:               b.deposits,
 				VoluntaryExits:         b.voluntaryExits,
-				SyncAggregate:          b.syncAggregate,
 				ExecutionPayloadHeader: ph,
 				BlsToExecutionChanges:  b.blsToExecutionChanges,
 				BlobKzgCommitments:     b.blobKzgCommitments,
@@ -503,7 +497,6 @@ func (b *BeaconBlockBody) Proto() (proto.Message, error) {
 			Attestations:          b.attestations,
 			Deposits:              b.deposits,
 			VoluntaryExits:        b.voluntaryExits,
-			SyncAggregate:         b.syncAggregate,
 			ExecutionPayload:      p,
 			BlsToExecutionChanges: b.blsToExecutionChanges,
 			BlobKzgCommitments:    b.blobKzgCommitments,
@@ -525,7 +518,6 @@ func (b *BeaconBlockBody) Proto() (proto.Message, error) {
 				AttesterSlashings:      b.attesterSlashingsElectra,
 				Attestations:           b.attestationsElectra,
 				VoluntaryExits:         b.voluntaryExits,
-				SyncAggregate:          b.syncAggregate,
 				ExecutionPayloadHeader: ph,
 				BlobKzgCommitments:     b.blobKzgCommitments,
 				ExecutionRequests:      b.executionRequests,
@@ -546,7 +538,6 @@ func (b *BeaconBlockBody) Proto() (proto.Message, error) {
 			AttesterSlashings:  b.attesterSlashingsElectra,
 			Attestations:       b.attestationsElectra,
 			VoluntaryExits:     b.voluntaryExits,
-			SyncAggregate:      b.syncAggregate,
 			ExecutionPayload:   p,
 			BlobKzgCommitments: b.blobKzgCommitments,
 			ExecutionRequests:  b.executionRequests,
@@ -961,7 +952,6 @@ func initBlockBodyFromProtoAltair(pb *eth.BeaconBlockBodyAltair) (*BeaconBlockBo
 		attestations:      pb.Attestations,
 		deposits:          pb.Deposits,
 		voluntaryExits:    pb.VoluntaryExits,
-		syncAggregate:     pb.SyncAggregate,
 	}
 	return b, nil
 }
@@ -986,7 +976,6 @@ func initBlockBodyFromProtoBellatrix(pb *eth.BeaconBlockBodyBellatrix) (*BeaconB
 		attestations:      pb.Attestations,
 		deposits:          pb.Deposits,
 		voluntaryExits:    pb.VoluntaryExits,
-		syncAggregate:     pb.SyncAggregate,
 		executionPayload:  p,
 	}
 	return b, nil
@@ -1012,7 +1001,6 @@ func initBlindedBlockBodyFromProtoBellatrix(pb *eth.BlindedBeaconBlockBodyBellat
 		attestations:           pb.Attestations,
 		deposits:               pb.Deposits,
 		voluntaryExits:         pb.VoluntaryExits,
-		syncAggregate:          pb.SyncAggregate,
 		executionPayloadHeader: ph,
 	}
 	return b, nil
@@ -1038,7 +1026,6 @@ func initBlockBodyFromProtoCapella(pb *eth.BeaconBlockBodyCapella) (*BeaconBlock
 		attestations:          pb.Attestations,
 		deposits:              pb.Deposits,
 		voluntaryExits:        pb.VoluntaryExits,
-		syncAggregate:         pb.SyncAggregate,
 		executionPayload:      p,
 		blsToExecutionChanges: pb.BlsToExecutionChanges,
 	}
@@ -1065,7 +1052,6 @@ func initBlindedBlockBodyFromProtoCapella(pb *eth.BlindedBeaconBlockBodyCapella)
 		attestations:           pb.Attestations,
 		deposits:               pb.Deposits,
 		voluntaryExits:         pb.VoluntaryExits,
-		syncAggregate:          pb.SyncAggregate,
 		executionPayloadHeader: ph,
 		blsToExecutionChanges:  pb.BlsToExecutionChanges,
 	}
@@ -1092,7 +1078,6 @@ func initBlockBodyFromProtoDeneb(pb *eth.BeaconBlockBodyDeneb) (*BeaconBlockBody
 		attestations:          pb.Attestations,
 		deposits:              pb.Deposits,
 		voluntaryExits:        pb.VoluntaryExits,
-		syncAggregate:         pb.SyncAggregate,
 		executionPayload:      p,
 		blsToExecutionChanges: pb.BlsToExecutionChanges,
 		blobKzgCommitments:    pb.BlobKzgCommitments,
@@ -1120,7 +1105,6 @@ func initBlindedBlockBodyFromProtoDeneb(pb *eth.BlindedBeaconBlockBodyDeneb) (*B
 		attestations:           pb.Attestations,
 		deposits:               pb.Deposits,
 		voluntaryExits:         pb.VoluntaryExits,
-		syncAggregate:          pb.SyncAggregate,
 		executionPayloadHeader: ph,
 		blsToExecutionChanges:  pb.BlsToExecutionChanges,
 		blobKzgCommitments:     pb.BlobKzgCommitments,
@@ -1150,7 +1134,6 @@ func initBlockBodyFromProtoElectra(pb *eth.BeaconBlockBodyElectra) (*BeaconBlock
 		attesterSlashingsElectra: pb.AttesterSlashings,
 		attestationsElectra:      pb.Attestations,
 		voluntaryExits:           pb.VoluntaryExits,
-		syncAggregate:            pb.SyncAggregate,
 		executionPayload:         p,
 		blobKzgCommitments:       pb.BlobKzgCommitments,
 		executionRequests:        er,
@@ -1180,7 +1163,6 @@ func initBlindedBlockBodyFromProtoElectra(pb *eth.BlindedBeaconBlockBodyElectra)
 		attesterSlashingsElectra: pb.AttesterSlashings,
 		attestationsElectra:      pb.Attestations,
 		voluntaryExits:           pb.VoluntaryExits,
-		syncAggregate:            pb.SyncAggregate,
 		executionPayloadHeader:   ph,
 		blobKzgCommitments:       pb.BlobKzgCommitments,
 		executionRequests:        er,

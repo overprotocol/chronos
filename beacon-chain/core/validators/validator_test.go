@@ -205,7 +205,6 @@ func TestSlashValidator_OK(t *testing.T) {
 
 	base := &ethpb.BeaconState{
 		Validators:  registry,
-		Slashings:   make([]uint64, params.BeaconConfig().EpochsPerSlashingsVector),
 		RandaoMixes: make([][]byte, params.BeaconConfig().EpochsPerHistoricalVector),
 		Balances:    balances,
 	}
@@ -225,13 +224,9 @@ func TestSlashValidator_OK(t *testing.T) {
 	v, err := state.ValidatorAtIndex(slashedIdx)
 	require.NoError(t, err)
 	assert.Equal(t, true, v.Slashed, "Validator not slashed despite supposed to being slashed")
-	assert.Equal(t, time.CurrentEpoch(state)+params.BeaconConfig().EpochsPerSlashingsVector, v.WithdrawableEpoch, "Withdrawable epoch not the expected value")
+	assert.Equal(t, time.CurrentEpoch(state)+params.BeaconConfig().MinSlashingWithdrawableDelay, v.WithdrawableEpoch, "Withdrawable epoch not the expected value")
 
-	maxBalance := params.BeaconConfig().MaxEffectiveBalance
-	slashedBalance := state.Slashings()[state.Slot().Mod(uint64(params.BeaconConfig().EpochsPerSlashingsVector))]
-	assert.Equal(t, maxBalance, slashedBalance, "Slashed balance isn't the expected amount")
-
-	whistleblowerReward := slashedBalance / params.BeaconConfig().WhistleBlowerRewardQuotient
+	whistleblowerReward := v.EffectiveBalance / params.BeaconConfig().WhistleBlowerRewardQuotient
 	bal, err := state.BalanceAtIndex(proposer)
 	require.NoError(t, err)
 	// The proposer is the whistleblower in phase 0.
@@ -240,7 +235,7 @@ func TestSlashValidator_OK(t *testing.T) {
 	require.NoError(t, err)
 	v, err = state.ValidatorAtIndex(slashedIdx)
 	require.NoError(t, err)
-	assert.Equal(t, maxBalance-(v.EffectiveBalance/params.BeaconConfig().MinSlashingPenaltyQuotient), bal, "Did not get expected balance for slashed validator")
+	assert.Equal(t, v.EffectiveBalance-(v.EffectiveBalance/params.BeaconConfig().MinSlashingPenaltyQuotient), bal, "Did not get expected balance for slashed validator")
 }
 
 func TestSlashValidator_Electra(t *testing.T) {
@@ -258,7 +253,6 @@ func TestSlashValidator_Electra(t *testing.T) {
 
 	base := &ethpb.BeaconStateElectra{
 		Validators:  registry,
-		Slashings:   make([]uint64, params.BeaconConfig().EpochsPerSlashingsVector),
 		RandaoMixes: make([][]byte, params.BeaconConfig().EpochsPerHistoricalVector),
 		Balances:    balances,
 	}
@@ -278,13 +272,9 @@ func TestSlashValidator_Electra(t *testing.T) {
 	v, err := state.ValidatorAtIndex(slashedIdx)
 	require.NoError(t, err)
 	assert.Equal(t, true, v.Slashed, "Validator not slashed despite supposed to being slashed")
-	assert.Equal(t, time.CurrentEpoch(state)+params.BeaconConfig().EpochsPerSlashingsVector, v.WithdrawableEpoch, "Withdrawable epoch not the expected value")
+	assert.Equal(t, time.CurrentEpoch(state)+params.BeaconConfig().MinSlashingWithdrawableDelay, v.WithdrawableEpoch, "Withdrawable epoch not the expected value")
 
-	maxBalance := params.BeaconConfig().MaxEffectiveBalance
-	slashedBalance := state.Slashings()[state.Slot().Mod(uint64(params.BeaconConfig().EpochsPerSlashingsVector))]
-	assert.Equal(t, maxBalance, slashedBalance, "Slashed balance isn't the expected amount")
-
-	whistleblowerReward := slashedBalance / params.BeaconConfig().WhistleBlowerRewardQuotientElectra
+	whistleblowerReward := v.EffectiveBalance / params.BeaconConfig().WhistleBlowerRewardQuotientElectra
 	bal, err := state.BalanceAtIndex(proposer)
 	require.NoError(t, err)
 	// The proposer is the whistleblower.
@@ -293,7 +283,7 @@ func TestSlashValidator_Electra(t *testing.T) {
 	require.NoError(t, err)
 	v, err = state.ValidatorAtIndex(slashedIdx)
 	require.NoError(t, err)
-	assert.Equal(t, maxBalance-(v.EffectiveBalance/params.BeaconConfig().MinSlashingPenaltyQuotientElectra), bal, "Did not get expected balance for slashed validator")
+	assert.Equal(t, v.EffectiveBalance-(v.EffectiveBalance/params.BeaconConfig().MinSlashingPenaltyQuotientElectra), bal, "Did not get expected balance for slashed validator")
 }
 
 func TestActivatedValidatorIndices(t *testing.T) {
@@ -362,15 +352,15 @@ func TestSlashedValidatorIndices(t *testing.T) {
 			state: &ethpb.BeaconState{
 				Validators: []*ethpb.Validator{
 					{
-						WithdrawableEpoch: params.BeaconConfig().EpochsPerSlashingsVector,
+						WithdrawableEpoch: params.BeaconConfig().MinSlashingWithdrawableDelay,
 						Slashed:           true,
 					},
 					{
-						WithdrawableEpoch: params.BeaconConfig().EpochsPerSlashingsVector,
+						WithdrawableEpoch: params.BeaconConfig().MinSlashingWithdrawableDelay,
 						Slashed:           false,
 					},
 					{
-						WithdrawableEpoch: params.BeaconConfig().EpochsPerSlashingsVector,
+						WithdrawableEpoch: params.BeaconConfig().MinSlashingWithdrawableDelay,
 						Slashed:           true,
 					},
 				},
@@ -381,7 +371,7 @@ func TestSlashedValidatorIndices(t *testing.T) {
 			state: &ethpb.BeaconState{
 				Validators: []*ethpb.Validator{
 					{
-						WithdrawableEpoch: params.BeaconConfig().EpochsPerSlashingsVector,
+						WithdrawableEpoch: params.BeaconConfig().MinSlashingWithdrawableDelay,
 					},
 				},
 			},
@@ -391,7 +381,7 @@ func TestSlashedValidatorIndices(t *testing.T) {
 			state: &ethpb.BeaconState{
 				Validators: []*ethpb.Validator{
 					{
-						WithdrawableEpoch: params.BeaconConfig().EpochsPerSlashingsVector,
+						WithdrawableEpoch: params.BeaconConfig().MinSlashingWithdrawableDelay,
 						Slashed:           true,
 					},
 				},

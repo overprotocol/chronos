@@ -44,8 +44,6 @@ func (f FieldIndex) String() string {
 		return "blockRoots"
 	case StateRoots:
 		return "stateRoots"
-	case HistoricalRoots:
-		return "historicalRoots"
 	case RewardAdjustmentFactor:
 		return "rewardAdjustmentFactor"
 	case Eth1Data:
@@ -58,14 +56,10 @@ func (f FieldIndex) String() string {
 		return "validators"
 	case Balances:
 		return "balances"
-	case PreviousEpochReserve:
-		return "previousEpochReserve"
-	case CurrentEpochReserve:
-		return "currentEpochReserve"
+	case Reserves:
+		return "reserves"
 	case RandaoMixes:
 		return "randaoMixes"
-	case Slashings:
-		return "slashings"
 	case PreviousEpochAttestations:
 		return "previousEpochAttestations"
 	case CurrentEpochAttestations:
@@ -84,10 +78,6 @@ func (f FieldIndex) String() string {
 		return "finalizedCheckpoint"
 	case InactivityScores:
 		return "inactivityScores"
-	case CurrentSyncCommittee:
-		return "currentSyncCommittee"
-	case NextSyncCommittee:
-		return "nextSyncCommittee"
 	case LatestExecutionPayloadHeader:
 		return "latestExecutionPayloadHeader"
 	case LatestExecutionPayloadHeaderCapella:
@@ -133,64 +123,54 @@ func (f FieldIndex) RealPosition() int {
 		return 5
 	case StateRoots:
 		return 6
-	case HistoricalRoots:
-		return 7
 	case RewardAdjustmentFactor:
-		return 8
+		return 7
 	case Eth1Data:
-		return 9
+		return 8
 	case Eth1DataVotes:
-		return 10
+		return 9
 	case Eth1DepositIndex:
-		return 11
+		return 10
 	case Validators:
-		return 12
+		return 11
 	case Balances:
+		return 12
+	case Reserves:
 		return 13
-	case PreviousEpochReserve:
-		return 14
-	case CurrentEpochReserve:
-		return 15
 	case RandaoMixes:
-		return 16
-	case Slashings:
-		return 17
+		return 14
 	case PreviousEpochAttestations, PreviousEpochParticipationBits:
-		return 18
+		return 15
 	case CurrentEpochAttestations, CurrentEpochParticipationBits:
-		return 19
+		return 16
 	case JustificationBits:
-		return 20
+		return 17
 	case PreviousJustifiedCheckpoint:
-		return 21
+		return 18
 	case CurrentJustifiedCheckpoint:
-		return 22
+		return 19
 	case FinalizedCheckpoint:
-		return 23
+		return 20
 	case InactivityScores:
-		return 24
-	case CurrentSyncCommittee:
-		return 25
-	case NextSyncCommittee:
-		return 26
+		return 21
 	case LatestExecutionPayloadHeader, LatestExecutionPayloadHeaderCapella, LatestExecutionPayloadHeaderDeneb:
-		return 27
+		return 22
 	case NextWithdrawalIndex:
-		return 28
+		return 23
 	case NextWithdrawalValidatorIndex:
-		return 29
+		return 24
 	case HistoricalSummaries:
-		return 30
+		return 25
 	case DepositBalanceToConsume:
-		return 31
+		return 26
 	case ExitBalanceToConsume:
-		return 32
+		return 27
 	case EarliestExitEpoch:
-		return 33
+		return 28
 	case PendingDeposits:
-		return 34
+		return 29
 	case PendingPartialWithdrawals:
-		return 35
+		return 30
 	default:
 		return -1
 	}
@@ -221,17 +201,14 @@ const (
 	LatestBlockHeader
 	BlockRoots
 	StateRoots
-	HistoricalRoots
 	RewardAdjustmentFactor
 	Eth1Data
 	Eth1DataVotes
 	Eth1DepositIndex
 	Validators
 	Balances
-	PreviousEpochReserve
-	CurrentEpochReserve
+	Reserves
 	RandaoMixes
-	Slashings
 	PreviousEpochAttestations
 	CurrentEpochAttestations
 	PreviousEpochParticipationBits
@@ -241,8 +218,6 @@ const (
 	CurrentJustifiedCheckpoint
 	FinalizedCheckpoint
 	InactivityScores
-	CurrentSyncCommittee
-	NextSyncCommittee
 	LatestExecutionPayloadHeader
 	LatestExecutionPayloadHeaderCapella
 	LatestExecutionPayloadHeaderDeneb

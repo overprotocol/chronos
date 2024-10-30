@@ -73,23 +73,6 @@ func ByteArrayRootWithLimit(roots [][]byte, limit uint64) ([32]byte, error) {
 	return mixedLen, nil
 }
 
-// SlashingsRoot computes the HashTreeRoot Merkleization of
-// a list of uint64 slashing values according to the Ethereum
-// Simple Serialize specification.
-func SlashingsRoot(slashings []uint64) ([32]byte, error) {
-	slashingMarshaling := make([][]byte, fieldparams.SlashingsLength)
-	for i := 0; i < len(slashings) && i < len(slashingMarshaling); i++ {
-		slashBuf := make([]byte, 8)
-		binary.LittleEndian.PutUint64(slashBuf, slashings[i])
-		slashingMarshaling[i] = slashBuf
-	}
-	slashingChunks, err := PackByChunk(slashingMarshaling)
-	if err != nil {
-		return [32]byte{}, errors.Wrap(err, "could not pack slashings into chunks")
-	}
-	return BitwiseMerkleize(slashingChunks, uint64(len(slashingChunks)), uint64(len(slashingChunks)))
-}
-
 // TransactionsRoot computes the HTR for the Transactions' property of the ExecutionPayload
 // The code was largely copy/pasted from the code generated to compute the HTR of the entire
 // ExecutionPayload.

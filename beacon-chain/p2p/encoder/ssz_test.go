@@ -58,7 +58,6 @@ type BeaconBlockHeaderCreator struct{}
 type SignedBeaconBlockHeaderCreator struct{}
 type IndexedAttestationCreator struct{}
 type IndexedAttestationElectraCreator struct{}
-type SyncAggregateCreator struct{}
 type SignedBeaconBlockBellatrixCreator struct{}
 type BeaconBlockBellatrixCreator struct{}
 type BeaconBlockBodyBellatrixCreator struct{}
@@ -97,12 +96,9 @@ type BeaconStateCreator struct{}
 type BeaconStateAltairCreator struct{}
 type ForkCreator struct{}
 type PendingAttestationCreator struct{}
-type HistoricalBatchCreator struct{}
 type SigningDataCreator struct{}
 type ForkDataCreator struct{}
 type DepositMessageCreator struct{}
-type SyncCommitteeCreator struct{}
-type SyncAggregatorSelectionDataCreator struct{}
 type BeaconStateBellatrixCreator struct{}
 type BeaconStateCapellaCreator struct{}
 type BeaconStateDenebCreator struct{}
@@ -115,14 +111,9 @@ type PendingPartialWithdrawalCreator struct{}
 type StatusCreator struct{}
 type BeaconBlocksByRangeRequestCreator struct{}
 type ENRForkIDCreator struct{}
-type MetaDataV0Creator struct{}
 type MetaDataV1Creator struct{}
 type BlobSidecarsByRangeRequestCreator struct{}
 type DepositSnapshotCreator struct{}
-type SyncCommitteeMessageCreator struct{}
-type SyncCommitteeContributionCreator struct{}
-type ContributionAndProofCreator struct{}
-type SignedContributionAndProofCreator struct{}
 type ValidatorCreator struct{}
 type BLSToExecutionChangeCreator struct{}
 type SignedBLSToExecutionChangeCreator struct{}
@@ -172,7 +163,6 @@ func (IndexedAttestationCreator) Create() MarshalerProtoMessage { return &ethpb.
 func (IndexedAttestationElectraCreator) Create() MarshalerProtoMessage {
 	return &ethpb.IndexedAttestationElectra{}
 }
-func (SyncAggregateCreator) Create() MarshalerProtoMessage { return &ethpb.SyncAggregate{} }
 func (SignedBeaconBlockBellatrixCreator) Create() MarshalerProtoMessage {
 	return &ethpb.SignedBeaconBlockBellatrix{}
 }
@@ -261,14 +251,10 @@ func (BeaconStateCreator) Create() MarshalerProtoMessage        { return &ethpb.
 func (BeaconStateAltairCreator) Create() MarshalerProtoMessage  { return &ethpb.BeaconStateAltair{} }
 func (ForkCreator) Create() MarshalerProtoMessage               { return &ethpb.Fork{} }
 func (PendingAttestationCreator) Create() MarshalerProtoMessage { return &ethpb.PendingAttestation{} }
-func (HistoricalBatchCreator) Create() MarshalerProtoMessage    { return &ethpb.HistoricalBatch{} }
 func (SigningDataCreator) Create() MarshalerProtoMessage        { return &ethpb.SigningData{} }
 func (ForkDataCreator) Create() MarshalerProtoMessage           { return &ethpb.ForkData{} }
 func (DepositMessageCreator) Create() MarshalerProtoMessage     { return &ethpb.DepositMessage{} }
-func (SyncCommitteeCreator) Create() MarshalerProtoMessage      { return &ethpb.SyncCommittee{} }
-func (SyncAggregatorSelectionDataCreator) Create() MarshalerProtoMessage {
-	return &ethpb.SyncAggregatorSelectionData{}
-}
+
 func (BeaconStateBellatrixCreator) Create() MarshalerProtoMessage {
 	return &ethpb.BeaconStateBellatrix{}
 }
@@ -289,25 +275,12 @@ func (BeaconBlocksByRangeRequestCreator) Create() MarshalerProtoMessage {
 	return &ethpb.BeaconBlocksByRangeRequest{}
 }
 func (ENRForkIDCreator) Create() MarshalerProtoMessage  { return &ethpb.ENRForkID{} }
-func (MetaDataV0Creator) Create() MarshalerProtoMessage { return &ethpb.MetaDataV0{} }
 func (MetaDataV1Creator) Create() MarshalerProtoMessage { return &ethpb.MetaDataV1{} }
 func (BlobSidecarsByRangeRequestCreator) Create() MarshalerProtoMessage {
 	return &ethpb.BlobSidecarsByRangeRequest{}
 }
 func (DepositSnapshotCreator) Create() MarshalerProtoMessage { return &ethpb.DepositSnapshot{} }
-func (SyncCommitteeMessageCreator) Create() MarshalerProtoMessage {
-	return &ethpb.SyncCommitteeMessage{}
-}
-func (SyncCommitteeContributionCreator) Create() MarshalerProtoMessage {
-	return &ethpb.SyncCommitteeContribution{}
-}
-func (ContributionAndProofCreator) Create() MarshalerProtoMessage {
-	return &ethpb.ContributionAndProof{}
-}
-func (SignedContributionAndProofCreator) Create() MarshalerProtoMessage {
-	return &ethpb.SignedContributionAndProof{}
-}
-func (ValidatorCreator) Create() MarshalerProtoMessage { return &ethpb.Validator{} }
+func (ValidatorCreator) Create() MarshalerProtoMessage       { return &ethpb.Validator{} }
 func (BLSToExecutionChangeCreator) Create() MarshalerProtoMessage {
 	return &ethpb.BLSToExecutionChange{}
 }
@@ -341,7 +314,6 @@ var creators = []MarshalerProtoCreator{
 	SignedBeaconBlockHeaderCreator{},
 	IndexedAttestationCreator{},
 	IndexedAttestationElectraCreator{},
-	SyncAggregateCreator{},
 	SignedBeaconBlockBellatrixCreator{},
 	BeaconBlockBellatrixCreator{},
 	BeaconBlockBodyBellatrixCreator{},
@@ -380,12 +352,9 @@ var creators = []MarshalerProtoCreator{
 	BeaconStateAltairCreator{},
 	ForkCreator{},
 	PendingAttestationCreator{},
-	HistoricalBatchCreator{},
 	SigningDataCreator{},
 	ForkDataCreator{},
 	DepositMessageCreator{},
-	SyncCommitteeCreator{},
-	SyncAggregatorSelectionDataCreator{},
 	BeaconStateBellatrixCreator{},
 	BeaconStateCapellaCreator{},
 	BeaconStateDenebCreator{},
@@ -398,14 +367,9 @@ var creators = []MarshalerProtoCreator{
 	StatusCreator{},
 	BeaconBlocksByRangeRequestCreator{},
 	ENRForkIDCreator{},
-	MetaDataV0Creator{},
 	MetaDataV1Creator{},
 	BlobSidecarsByRangeRequestCreator{},
 	DepositSnapshotCreator{},
-	SyncCommitteeMessageCreator{},
-	SyncCommitteeContributionCreator{},
-	ContributionAndProofCreator{},
-	SignedContributionAndProofCreator{},
 	ValidatorCreator{},
 	BLSToExecutionChangeCreator{},
 	SignedBLSToExecutionChangeCreator{},

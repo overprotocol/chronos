@@ -66,7 +66,6 @@ func TestProcessEpoch_CanProcessElectra(t *testing.T) {
 	require.NoError(t, st.SetPendingDeposits(deps))
 	err := electra.ProcessEpoch(context.Background(), st)
 	require.NoError(t, err)
-	require.Equal(t, uint64(0), st.Slashings()[2], "Unexpected slashed balance")
 
 	b := st.Balances()
 	require.Equal(t, params.BeaconConfig().MaxValidatorsPerCommittee, uint64(len(b)))
@@ -83,14 +82,6 @@ func TestProcessEpoch_CanProcessElectra(t *testing.T) {
 	p, err = st.CurrentEpochParticipation()
 	require.NoError(t, err)
 	require.Equal(t, params.BeaconConfig().MaxValidatorsPerCommittee, uint64(len(p)))
-
-	sc, err := st.CurrentSyncCommittee()
-	require.NoError(t, err)
-	require.Equal(t, params.BeaconConfig().SyncCommitteeSize, uint64(len(sc.Pubkeys)))
-
-	sc, err = st.NextSyncCommittee()
-	require.NoError(t, err)
-	require.Equal(t, params.BeaconConfig().SyncCommitteeSize, uint64(len(sc.Pubkeys)))
 
 	res, err := st.DepositBalanceToConsume()
 	require.NoError(t, err)

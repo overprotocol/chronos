@@ -88,12 +88,6 @@ func StatusFromString(s string) (bool, Status) {
 	}
 }
 
-type SyncCommitteeSubscription struct {
-	ValidatorIndex       primitives.ValidatorIndex
-	SyncCommitteeIndices []uint64
-	UntilEpoch           primitives.Epoch
-}
-
 type BeaconCommitteeSubscription struct {
 	ValidatorIndex   primitives.ValidatorIndex
 	CommitteeIndex   primitives.CommitteeIndex

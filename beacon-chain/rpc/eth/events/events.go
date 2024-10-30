@@ -24,7 +24,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing/trace"
 	"github.com/prysmaticlabs/prysm/v5/network/httputil"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/eth/v1"
-	ethpbv2 "github.com/prysmaticlabs/prysm/v5/proto/eth/v2"
 	eth "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	"github.com/prysmaticlabs/prysm/v5/runtime/version"
 	"github.com/prysmaticlabs/prysm/v5/time/slots"
@@ -47,8 +46,6 @@ const (
 	FinalizedCheckpointTopic = "finalized_checkpoint"
 	// ChainReorgTopic represents a chain reorganization event topic.
 	ChainReorgTopic = "chain_reorg"
-	// SyncCommitteeContributionTopic represents a new sync committee contribution event topic.
-	SyncCommitteeContributionTopic = "contribution_and_proof"
 	// BLSToExecutionChangeTopic represents a new received BLS to execution change event topic.
 	BLSToExecutionChangeTopic = "bls_to_execution_change"
 	// PayloadAttributesTopic represents a new payload attributes for execution payload building event topic.
@@ -59,10 +56,6 @@ const (
 	ProposerSlashingTopic = "proposer_slashing"
 	// AttesterSlashingTopic represents a new attester slashing event topic
 	AttesterSlashingTopic = "attester_slashing"
-	// LightClientFinalityUpdateTopic represents a new light client finality update event topic.
-	LightClientFinalityUpdateTopic = "light_client_finality_update"
-	// LightClientOptimisticUpdateTopic represents a new light client optimistic update event topic.
-	LightClientOptimisticUpdateTopic = "light_client_optimistic_update"
 )
 
 var (
@@ -85,24 +78,21 @@ type StreamingResponseWriter interface {
 type lazyReader func() io.Reader
 
 var opsFeedEventTopics = map[feed.EventType]string{
-	operation.AggregatedAttReceived:             AttestationTopic,
-	operation.UnaggregatedAttReceived:           AttestationTopic,
-	operation.ExitReceived:                      VoluntaryExitTopic,
-	operation.SyncCommitteeContributionReceived: SyncCommitteeContributionTopic,
-	operation.BLSToExecutionChangeReceived:      BLSToExecutionChangeTopic,
-	operation.BlobSidecarReceived:               BlobSidecarTopic,
-	operation.AttesterSlashingReceived:          AttesterSlashingTopic,
-	operation.ProposerSlashingReceived:          ProposerSlashingTopic,
+	operation.AggregatedAttReceived:        AttestationTopic,
+	operation.UnaggregatedAttReceived:      AttestationTopic,
+	operation.ExitReceived:                 VoluntaryExitTopic,
+	operation.BLSToExecutionChangeReceived: BLSToExecutionChangeTopic,
+	operation.BlobSidecarReceived:          BlobSidecarTopic,
+	operation.AttesterSlashingReceived:     AttesterSlashingTopic,
+	operation.ProposerSlashingReceived:     ProposerSlashingTopic,
 }
 
 var stateFeedEventTopics = map[feed.EventType]string{
-	statefeed.NewHead:                     HeadTopic,
-	statefeed.MissedSlot:                  PayloadAttributesTopic,
-	statefeed.FinalizedCheckpoint:         FinalizedCheckpointTopic,
-	statefeed.LightClientFinalityUpdate:   LightClientFinalityUpdateTopic,
-	statefeed.LightClientOptimisticUpdate: LightClientOptimisticUpdateTopic,
-	statefeed.Reorg:                       ChainReorgTopic,
-	statefeed.BlockProcessed:              BlockTopic,
+	statefeed.NewHead:             HeadTopic,
+	statefeed.MissedSlot:          PayloadAttributesTopic,
+	statefeed.FinalizedCheckpoint: FinalizedCheckpointTopic,
+	statefeed.Reorg:               ChainReorgTopic,
+	statefeed.BlockProcessed:      BlockTopic,
 }
 
 var topicsForStateFeed = topicsForFeed(stateFeedEventTopics)
@@ -370,8 +360,6 @@ func topicForEvent(event *feed.Event) string {
 		return AttestationTopic
 	case *operation.ExitReceivedData:
 		return VoluntaryExitTopic
-	case *operation.SyncCommitteeContributionReceivedData:
-		return SyncCommitteeContributionTopic
 	case *operation.BLSToExecutionChangeReceivedData:
 		return BLSToExecutionChangeTopic
 	case *operation.BlobSidecarReceivedData:
@@ -384,10 +372,6 @@ func topicForEvent(event *feed.Event) string {
 		return HeadTopic
 	case *ethpb.EventFinalizedCheckpoint:
 		return FinalizedCheckpointTopic
-	case *ethpbv2.LightClientFinalityUpdateWithVersion:
-		return LightClientFinalityUpdateTopic
-	case *ethpbv2.LightClientOptimisticUpdateWithVersion:
-		return LightClientOptimisticUpdateTopic
 	case *ethpb.EventChainReorg:
 		return ChainReorgTopic
 	case *statefeed.BlockProcessedData:
@@ -449,10 +433,6 @@ func (s *Server) lazyReaderForEvent(ctx context.Context, event *feed.Event, topi
 		return func() io.Reader {
 			return jsonMarshalReader(eventName, structs.SignedExitFromConsensus(v.Exit))
 		}, nil
-	case *operation.SyncCommitteeContributionReceivedData:
-		return func() io.Reader {
-			return jsonMarshalReader(eventName, structs.SignedContributionAndProofFromConsensus(v.Contribution))
-		}, nil
 	case *operation.BLSToExecutionChangeReceivedData:
 		return func() io.Reader {
 			return jsonMarshalReader(eventName, structs.SignedBLSChangeFromConsensus(v.Change))
@@ -483,30 +463,6 @@ func (s *Server) lazyReaderForEvent(ctx context.Context, event *feed.Event, topi
 	case *ethpb.EventFinalizedCheckpoint:
 		return func() io.Reader {
 			return jsonMarshalReader(eventName, structs.FinalizedCheckpointEventFromV1(v))
-		}, nil
-	case *ethpbv2.LightClientFinalityUpdateWithVersion:
-		cv, err := structs.LightClientFinalityUpdateFromConsensus(v.Data)
-		if err != nil {
-			return nil, errors.Wrap(err, "LightClientFinalityUpdateWithVersion event conversion failure")
-		}
-		ev := &structs.LightClientFinalityUpdateEvent{
-			Version: version.String(int(v.Version)),
-			Data:    cv,
-		}
-		return func() io.Reader {
-			return jsonMarshalReader(eventName, ev)
-		}, nil
-	case *ethpbv2.LightClientOptimisticUpdateWithVersion:
-		cv, err := structs.LightClientOptimisticUpdateFromConsensus(v.Data)
-		if err != nil {
-			return nil, errors.Wrap(err, "LightClientOptimisticUpdateWithVersion event conversion failure")
-		}
-		ev := &structs.LightClientOptimisticUpdateEvent{
-			Version: version.String(int(v.Version)),
-			Data:    cv,
-		}
-		return func() io.Reader {
-			return jsonMarshalReader(eventName, ev)
 		}, nil
 	case *ethpb.EventChainReorg:
 		return func() io.Reader {
@@ -585,7 +541,7 @@ func (s *Server) currentPayloadAttributes(ctx context.Context) (lazyReader, erro
 			SuggestedFeeRecipient: hexutil.Encode(feeRecipient),
 		}
 	case version.Capella:
-		withdrawals, _, err := headState.ExpectedWithdrawals()
+		withdrawals, _, _, err := headState.ExpectedWithdrawals()
 		if err != nil {
 			return nil, errors.Wrap(err, "could not get head state expected withdrawals")
 		}
@@ -596,7 +552,7 @@ func (s *Server) currentPayloadAttributes(ctx context.Context) (lazyReader, erro
 			Withdrawals:           structs.WithdrawalsFromConsensus(withdrawals),
 		}
 	case version.Deneb, version.Electra:
-		withdrawals, _, err := headState.ExpectedWithdrawals()
+		withdrawals, _, _, err := headState.ExpectedWithdrawals()
 		if err != nil {
 			return nil, errors.Wrap(err, "could not get head state expected withdrawals")
 		}

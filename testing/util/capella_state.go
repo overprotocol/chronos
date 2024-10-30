@@ -9,7 +9,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
 	state_native "github.com/prysmaticlabs/prysm/v5/beacon-chain/state/state-native"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state/stateutil"
-	fieldparams "github.com/prysmaticlabs/prysm/v5/config/fieldparams"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/crypto/bls"
 	enginev1 "github.com/prysmaticlabs/prysm/v5/proto/engine/v1"
@@ -66,14 +65,12 @@ func emptyGenesisStateCapella() (state.BeaconState, error) {
 			Epoch:           0,
 		},
 		// Validator registry fields.
-		Validators:           []*ethpb.Validator{},
-		Balances:             []uint64{},
-		PreviousEpochReserve: 0,
-		CurrentEpochReserve:  0,
-		InactivityScores:     []uint64{},
+		Validators:       []*ethpb.Validator{},
+		Balances:         []uint64{},
+		Reserves:         0,
+		InactivityScores: []uint64{},
 
 		JustificationBits:          []byte{0},
-		HistoricalRoots:            [][]byte{},
 		RewardAdjustmentFactor:     0,
 		CurrentEpochParticipation:  []byte{},
 		PreviousEpochParticipation: []byte{},
@@ -116,8 +113,6 @@ func buildGenesisBeaconStateCapella(genesisTime uint64, preState state.BeaconSta
 	for i := 0; i < len(stateRoots); i++ {
 		stateRoots[i] = zeroHash
 	}
-
-	slashings := make([]uint64, params.BeaconConfig().EpochsPerSlashingsVector)
 
 	genesisValidatorsRoot, err := stateutil.ValidatorRegistryRoot(preState.Validators())
 	if err != nil {
@@ -173,10 +168,8 @@ func buildGenesisBeaconStateCapella(genesisTime uint64, preState state.BeaconSta
 			Root:  params.BeaconConfig().ZeroHash[:],
 		},
 
-		HistoricalRoots: [][]byte{},
-		BlockRoots:      blockRoots,
-		StateRoots:      stateRoots,
-		Slashings:       slashings,
+		BlockRoots: blockRoots,
+		StateRoots: stateRoots,
 
 		// Eth1 data.
 		Eth1Data:         eth1Data,
@@ -184,7 +177,6 @@ func buildGenesisBeaconStateCapella(genesisTime uint64, preState state.BeaconSta
 		Eth1DepositIndex: preState.Eth1DepositIndex(),
 	}
 
-	var scBits [fieldparams.SyncAggregateSyncCommitteeBytesLength]byte
 	bodyRoot, err := (&ethpb.BeaconBlockBodyCapella{
 		RandaoReveal: make([]byte, 96),
 		Eth1Data: &ethpb.Eth1Data{
@@ -192,10 +184,6 @@ func buildGenesisBeaconStateCapella(genesisTime uint64, preState state.BeaconSta
 			BlockHash:   make([]byte, 32),
 		},
 		Graffiti: make([]byte, 32),
-		SyncAggregate: &ethpb.SyncAggregate{
-			SyncCommitteeBits:      scBits[:],
-			SyncCommitteeSignature: make([]byte, 96),
-		},
 		ExecutionPayload: &enginev1.ExecutionPayloadCapella{
 			ParentHash:    make([]byte, 32),
 			FeeRecipient:  make([]byte, 20),
@@ -218,25 +206,6 @@ func buildGenesisBeaconStateCapella(genesisTime uint64, preState state.BeaconSta
 		ParentRoot: zeroHash,
 		StateRoot:  zeroHash,
 		BodyRoot:   bodyRoot[:],
-	}
-
-	var pubKeys [][]byte
-	vals := preState.Validators()
-	for i := uint64(0); i < params.BeaconConfig().SyncCommitteeSize; i++ {
-		j := i % uint64(len(vals))
-		pubKeys = append(pubKeys, vals[j].PublicKey)
-	}
-	aggregated, err := bls.AggregatePublicKeys(pubKeys)
-	if err != nil {
-		return nil, err
-	}
-	st.CurrentSyncCommittee = &ethpb.SyncCommittee{
-		Pubkeys:         pubKeys,
-		AggregatePubkey: aggregated.Marshal(),
-	}
-	st.NextSyncCommittee = &ethpb.SyncCommittee{
-		Pubkeys:         pubKeys,
-		AggregatePubkey: aggregated.Marshal(),
 	}
 
 	st.LatestExecutionPayloadHeader = &enginev1.ExecutionPayloadHeaderCapella{

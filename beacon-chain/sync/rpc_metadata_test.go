@@ -29,7 +29,7 @@ func TestMetaDataRPCHandler_ReceivesMetadata(t *testing.T) {
 	p1.Connect(p2)
 	assert.Equal(t, 1, len(p1.BHost.Network().Peers()), "Expected peers to be connected")
 	bitfield := [8]byte{'A', 'B'}
-	p1.LocalMetadata = wrapper.WrappedMetadataV0(&pb.MetaDataV0{
+	p1.LocalMetadata = wrapper.WrappedMetadataV1(&pb.MetaDataV1{
 		SeqNumber: 2,
 		Attnets:   bitfield[:],
 	})
@@ -56,9 +56,9 @@ func TestMetaDataRPCHandler_ReceivesMetadata(t *testing.T) {
 	p2.BHost.SetStreamHandler(pcl, func(stream network.Stream) {
 		defer wg.Done()
 		expectSuccess(t, stream)
-		out := new(pb.MetaDataV0)
+		out := new(pb.MetaDataV1)
 		assert.NoError(t, r.cfg.p2p.Encoding().DecodeWithMaxLength(stream, out))
-		assert.DeepEqual(t, p1.LocalMetadata.InnerObject(), out, "MetadataV0 unequal")
+		assert.DeepEqual(t, p1.LocalMetadata.InnerObject(), out, "MetaDataV1 unequal")
 	})
 	stream1, err := p1.BHost.NewStream(context.Background(), p2.BHost.ID(), pcl)
 	require.NoError(t, err)
@@ -82,7 +82,7 @@ func TestMetadataRPCHandler_SendsMetadata(t *testing.T) {
 	p1.Connect(p2)
 	assert.Equal(t, 1, len(p1.BHost.Network().Peers()), "Expected peers to be connected")
 	bitfield := [8]byte{'A', 'B'}
-	p2.LocalMetadata = wrapper.WrappedMetadataV0(&pb.MetaDataV0{
+	p2.LocalMetadata = wrapper.WrappedMetadataV1(&pb.MetaDataV1{
 		SeqNumber: 2,
 		Attnets:   bitfield[:],
 	})
@@ -126,7 +126,7 @@ func TestMetadataRPCHandler_SendsMetadata(t *testing.T) {
 	assert.NoError(t, err)
 
 	if !equality.DeepEqual(md.InnerObject(), p2.LocalMetadata.InnerObject()) {
-		t.Fatalf("MetadataV0 unequal, received %v but wanted %v", md, p2.LocalMetadata)
+		t.Fatalf("MetaDataV1 unequal, received %v but wanted %v", md, p2.LocalMetadata)
 	}
 
 	if util.WaitTimeout(&wg, 1*time.Second) {
@@ -151,7 +151,7 @@ func TestMetadataRPCHandler_SendsMetadataAltair(t *testing.T) {
 	p1.Connect(p2)
 	assert.Equal(t, 1, len(p1.BHost.Network().Peers()), "Expected peers to be connected")
 	bitfield := [8]byte{'A', 'B'}
-	p2.LocalMetadata = wrapper.WrappedMetadataV0(&pb.MetaDataV0{
+	p2.LocalMetadata = wrapper.WrappedMetadataV1(&pb.MetaDataV1{
 		SeqNumber: 2,
 		Attnets:   bitfield[:],
 	})
@@ -205,7 +205,6 @@ func TestMetadataRPCHandler_SendsMetadataAltair(t *testing.T) {
 	p2.LocalMetadata = wrapper.WrappedMetadataV1(&pb.MetaDataV1{
 		SeqNumber: 2,
 		Attnets:   bitfield[:],
-		Syncnets:  []byte{0x0},
 	})
 
 	wg.Add(1)

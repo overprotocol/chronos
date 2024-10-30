@@ -31,10 +31,8 @@ func TestUpgradeToCapella(t *testing.T) {
 	require.DeepSSZEqual(t, preForkState.Eth1DepositIndex(), mSt.Eth1DepositIndex())
 	require.DeepSSZEqual(t, preForkState.Validators(), mSt.Validators())
 	require.DeepSSZEqual(t, preForkState.Balances(), mSt.Balances())
-	require.Equal(t, preForkState.PreviousEpochReserve(), mSt.PreviousEpochReserve())
-	require.Equal(t, preForkState.CurrentEpochReserve(), mSt.CurrentEpochReserve())
+	require.Equal(t, preForkState.Reserves(), mSt.Reserves())
 	require.DeepSSZEqual(t, preForkState.RandaoMixes(), mSt.RandaoMixes())
-	require.DeepSSZEqual(t, preForkState.Slashings(), mSt.Slashings())
 	require.DeepSSZEqual(t, preForkState.JustificationBits(), mSt.JustificationBits())
 	require.DeepSSZEqual(t, preForkState.PreviousJustifiedCheckpoint(), mSt.PreviousJustifiedCheckpoint())
 	require.DeepSSZEqual(t, preForkState.CurrentJustifiedCheckpoint(), mSt.CurrentJustifiedCheckpoint())
@@ -56,16 +54,6 @@ func TestUpgradeToCapella(t *testing.T) {
 		CurrentVersion:  params.BeaconConfig().CapellaForkVersion,
 		Epoch:           time.CurrentEpoch(st),
 	}, f)
-	csc, err := mSt.CurrentSyncCommittee()
-	require.NoError(t, err)
-	psc, err := preForkState.CurrentSyncCommittee()
-	require.NoError(t, err)
-	require.DeepSSZEqual(t, psc, csc)
-	nsc, err := mSt.NextSyncCommittee()
-	require.NoError(t, err)
-	psc, err = preForkState.NextSyncCommittee()
-	require.NoError(t, err)
-	require.DeepSSZEqual(t, psc, nsc)
 
 	header, err := mSt.LatestExecutionPayloadHeader()
 	require.NoError(t, err)

@@ -86,17 +86,6 @@ func ComputeFieldRootsWithHasher(ctx context.Context, state *BeaconState) ([][]b
 	}
 	fieldRoots[types.StateRoots.RealPosition()] = stateRootsRoot[:]
 
-	// HistoricalRoots slice root.
-	hRoots := make([][]byte, len(state.historicalRoots))
-	for i := range hRoots {
-		hRoots[i] = state.historicalRoots[i][:]
-	}
-	historicalRootsRt, err := ssz.ByteArrayRootWithLimit(hRoots, fieldparams.HistoricalRootsLength)
-	if err != nil {
-		return nil, errors.Wrap(err, "could not compute historical roots merkleization")
-	}
-	fieldRoots[types.HistoricalRoots.RealPosition()] = historicalRootsRt[:]
-
 	// RewardAdjustmentFactor root.
 	rewardAdjustmentFactorRoot := ssz.Uint64Root(state.rewardAdjustmentFactor)
 	fieldRoots[types.RewardAdjustmentFactor.RealPosition()] = rewardAdjustmentFactorRoot[:]
@@ -137,13 +126,9 @@ func ComputeFieldRootsWithHasher(ctx context.Context, state *BeaconState) ([][]b
 	}
 	fieldRoots[types.Balances.RealPosition()] = balancesRoot[:]
 
-	// PreviousEpochReserve root.
-	previousEpochReserveRoot := ssz.Uint64Root(state.previousEpochReserve)
-	fieldRoots[types.PreviousEpochReserve.RealPosition()] = previousEpochReserveRoot[:]
-
-	// CurrentEpochReserve root.
-	currentEpochReserveRoot := ssz.Uint64Root(state.currentEpochReserve)
-	fieldRoots[types.CurrentEpochReserve.RealPosition()] = currentEpochReserveRoot[:]
+	// Reserves root.
+	reservesRoot := ssz.Uint64Root(state.reserves)
+	fieldRoots[types.Reserves.RealPosition()] = reservesRoot[:]
 
 	// RandaoMixes array root.
 	randaoRootsRoot, err := stateutil.ArraysRoot(state.randaoMixesVal().Slice(), fieldparams.RandaoMixesLength)
@@ -151,13 +136,6 @@ func ComputeFieldRootsWithHasher(ctx context.Context, state *BeaconState) ([][]b
 		return nil, errors.Wrap(err, "could not compute randao roots merkleization")
 	}
 	fieldRoots[types.RandaoMixes.RealPosition()] = randaoRootsRoot[:]
-
-	// Slashings array root.
-	slashingsRootsRoot, err := ssz.SlashingsRoot(state.slashings)
-	if err != nil {
-		return nil, errors.Wrap(err, "could not compute slashings merkleization")
-	}
-	fieldRoots[types.Slashings.RealPosition()] = slashingsRootsRoot[:]
 
 	if state.version == version.Phase0 {
 		// PreviousEpochAttestations slice root.
@@ -223,20 +201,6 @@ func ComputeFieldRootsWithHasher(ctx context.Context, state *BeaconState) ([][]b
 			return nil, errors.Wrap(err, "could not compute inactivityScoreRoot")
 		}
 		fieldRoots[types.InactivityScores.RealPosition()] = inactivityScoresRoot[:]
-
-		// Current sync committee root.
-		currentSyncCommitteeRoot, err := stateutil.SyncCommitteeRoot(state.currentSyncCommittee)
-		if err != nil {
-			return nil, errors.Wrap(err, "could not compute sync committee merkleization")
-		}
-		fieldRoots[types.CurrentSyncCommittee.RealPosition()] = currentSyncCommitteeRoot[:]
-
-		// Next sync committee root.
-		nextSyncCommitteeRoot, err := stateutil.SyncCommitteeRoot(state.nextSyncCommittee)
-		if err != nil {
-			return nil, errors.Wrap(err, "could not compute sync committee merkleization")
-		}
-		fieldRoots[types.NextSyncCommittee.RealPosition()] = nextSyncCommitteeRoot[:]
 	}
 
 	if state.version == version.Bellatrix {

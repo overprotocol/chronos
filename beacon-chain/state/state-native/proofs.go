@@ -11,70 +11,12 @@ import (
 )
 
 const (
-	finalizedRootIndex = uint64(111) // Precomputed value.
+	finalizedRootIndex = uint64(105) // Precomputed value.
 )
 
 // FinalizedRootGeneralizedIndex for the beacon state.
 func FinalizedRootGeneralizedIndex() uint64 {
 	return finalizedRootIndex
-}
-
-// CurrentSyncCommitteeGeneralizedIndex for the beacon state.
-func (b *BeaconState) CurrentSyncCommitteeGeneralizedIndex() (uint64, error) {
-	if b.version == version.Phase0 {
-		return 0, errNotSupported("CurrentSyncCommitteeGeneralizedIndex", b.version)
-	}
-
-	return uint64(types.CurrentSyncCommittee.RealPosition()), nil
-}
-
-// NextSyncCommitteeGeneralizedIndex for the beacon state.
-func (b *BeaconState) NextSyncCommitteeGeneralizedIndex() (uint64, error) {
-	if b.version == version.Phase0 {
-		return 0, errNotSupported("NextSyncCommitteeGeneralizedIndex", b.version)
-	}
-
-	return uint64(types.NextSyncCommittee.RealPosition()), nil
-}
-
-// CurrentSyncCommitteeProof from the state's Merkle trie representation.
-func (b *BeaconState) CurrentSyncCommitteeProof(ctx context.Context) ([][]byte, error) {
-	b.lock.Lock()
-	defer b.lock.Unlock()
-
-	if b.version == version.Phase0 {
-		return nil, errNotSupported("CurrentSyncCommitteeProof", b.version)
-	}
-
-	// In case the Merkle layers of the trie are not populated, we need
-	// to perform some initialization.
-	if err := b.initializeMerkleLayers(ctx); err != nil {
-		return nil, err
-	}
-	// Our beacon state uses a "dirty" fields pattern which requires us to
-	// recompute branches of the Merkle layers that are marked as dirty.
-	if err := b.recomputeDirtyFields(ctx); err != nil {
-		return nil, err
-	}
-	return trie.ProofFromMerkleLayers(b.merkleLayers, types.CurrentSyncCommittee.RealPosition()), nil
-}
-
-// NextSyncCommitteeProof from the state's Merkle trie representation.
-func (b *BeaconState) NextSyncCommitteeProof(ctx context.Context) ([][]byte, error) {
-	b.lock.Lock()
-	defer b.lock.Unlock()
-
-	if b.version == version.Phase0 {
-		return nil, errNotSupported("NextSyncCommitteeProof", b.version)
-	}
-
-	if err := b.initializeMerkleLayers(ctx); err != nil {
-		return nil, err
-	}
-	if err := b.recomputeDirtyFields(ctx); err != nil {
-		return nil, err
-	}
-	return trie.ProofFromMerkleLayers(b.merkleLayers, types.NextSyncCommittee.RealPosition()), nil
 }
 
 // FinalizedRootProof crafts a Merkle proof for the finalized root

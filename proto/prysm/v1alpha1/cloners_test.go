@@ -80,26 +80,6 @@ func TestCopyValidator(t *testing.T) {
 	assert.NotEmpty(t, got, "Copied validator has empty fields")
 }
 
-func TestCopySyncCommitteeMessage(t *testing.T) {
-	scm := genSyncCommitteeMessage()
-
-	got := v1alpha1.CopySyncCommitteeMessage(scm)
-	if !reflect.DeepEqual(got, scm) {
-		t.Errorf("CopySyncCommitteeMessage() = %v, want %v", got, scm)
-	}
-	assert.NotEmpty(t, got, "Copied sync committee message has empty fields")
-}
-
-func TestCopySyncCommitteeContribution(t *testing.T) {
-	scc := genSyncCommitteeContribution()
-
-	got := v1alpha1.CopySyncCommitteeContribution(scc)
-	if !reflect.DeepEqual(got, scc) {
-		t.Errorf("CopySyncCommitteeContribution() = %v, want %v", got, scc)
-	}
-	assert.NotEmpty(t, got, "Copied sync committee contribution has empty fields")
-}
-
 func TestCopyPendingAttestationSlice(t *testing.T) {
 	tests := []struct {
 		name  string
@@ -563,23 +543,7 @@ func genValidator() *v1alpha1.Validator {
 		ActivationEpoch:            14325,
 		ExitEpoch:                  23425,
 		WithdrawableEpoch:          30000,
-	}
-}
-
-func genSyncCommitteeContribution() *v1alpha1.SyncCommitteeContribution {
-	return &v1alpha1.SyncCommitteeContribution{
-		Slot:              12333,
-		BlockRoot:         bytes(32),
-		SubcommitteeIndex: 4444,
-		AggregationBits:   bytes(32),
-		Signature:         bytes(32),
-	}
-}
-
-func genSyncAggregate() *v1alpha1.SyncAggregate {
-	return &v1alpha1.SyncAggregate{
-		SyncCommitteeBits:      bytes(32),
-		SyncCommitteeSignature: bytes(32),
+		PrincipalBalance:           12345,
 	}
 }
 
@@ -593,7 +557,6 @@ func genBeaconBlockBodyAltair() *v1alpha1.BeaconBlockBodyAltair {
 		Attestations:      genAttestations(10),
 		Deposits:          genDeposits(5),
 		VoluntaryExits:    genSignedVoluntaryExits(12),
-		SyncAggregate:     genSyncAggregate(),
 	}
 }
 
@@ -624,7 +587,6 @@ func genBeaconBlockBodyBellatrix() *v1alpha1.BeaconBlockBodyBellatrix {
 		Attestations:      genAttestations(10),
 		Deposits:          genDeposits(5),
 		VoluntaryExits:    genSignedVoluntaryExits(12),
-		SyncAggregate:     genSyncAggregate(),
 		ExecutionPayload:  genPayload(),
 	}
 }
@@ -656,7 +618,6 @@ func genBeaconBlockBodyCapella() *v1alpha1.BeaconBlockBodyCapella {
 		Attestations:          genAttestations(10),
 		Deposits:              genDeposits(5),
 		VoluntaryExits:        genSignedVoluntaryExits(12),
-		SyncAggregate:         genSyncAggregate(),
 		ExecutionPayload:      genPayloadCapella(),
 		BlsToExecutionChanges: genBLSToExecutionChanges(10),
 	}
@@ -689,7 +650,6 @@ func genBlindedBeaconBlockBodyCapella() *v1alpha1.BlindedBeaconBlockBodyCapella 
 		Attestations:           genAttestations(10),
 		Deposits:               genDeposits(5),
 		VoluntaryExits:         genSignedVoluntaryExits(12),
-		SyncAggregate:          genSyncAggregate(),
 		ExecutionPayloadHeader: genPayloadHeaderCapella(),
 		BlsToExecutionChanges:  genBLSToExecutionChanges(10),
 	}
@@ -722,7 +682,6 @@ func genBeaconBlockBodyDeneb() *v1alpha1.BeaconBlockBodyDeneb {
 		Attestations:          genAttestations(10),
 		Deposits:              genDeposits(5),
 		VoluntaryExits:        genSignedVoluntaryExits(12),
-		SyncAggregate:         genSyncAggregate(),
 		ExecutionPayload:      genPayloadDeneb(),
 		BlsToExecutionChanges: genBLSToExecutionChanges(10),
 		BlobKzgCommitments:    getKZGCommitments(4),
@@ -756,7 +715,6 @@ func genBlindedBeaconBlockBodyDeneb() *v1alpha1.BlindedBeaconBlockBodyDeneb {
 		Attestations:           genAttestations(10),
 		Deposits:               genDeposits(5),
 		VoluntaryExits:         genSignedVoluntaryExits(12),
-		SyncAggregate:          genSyncAggregate(),
 		ExecutionPayloadHeader: genPayloadHeaderDeneb(),
 		BlsToExecutionChanges:  genBLSToExecutionChanges(10),
 		BlobKzgCommitments:     getKZGCommitments(4),
@@ -785,15 +743,6 @@ func genSignedBlindedBeaconBlockDeneb() *v1alpha1.SignedBlindedBeaconBlockDeneb 
 	return &v1alpha1.SignedBlindedBeaconBlockDeneb{
 		Message:   genBlindedBeaconBlockDeneb(),
 		Signature: bytes(32),
-	}
-}
-
-func genSyncCommitteeMessage() *v1alpha1.SyncCommitteeMessage {
-	return &v1alpha1.SyncCommitteeMessage{
-		Slot:           424555,
-		BlockRoot:      bytes(32),
-		ValidatorIndex: 5443,
-		Signature:      bytes(32),
 	}
 }
 
@@ -1050,7 +999,6 @@ func genBlindedBeaconBlockBodyElectra() *v1alpha1.BlindedBeaconBlockBodyElectra 
 		AttesterSlashings:      genAttesterSlashingsElectra(5),
 		Attestations:           genAttestationsElectra(10),
 		VoluntaryExits:         genSignedVoluntaryExits(12),
-		SyncAggregate:          genSyncAggregate(),
 		ExecutionPayloadHeader: genPayloadHeaderElectra(),
 		BlobKzgCommitments:     getKZGCommitments(4),
 		ExecutionRequests:      genExecutionRequests(),
@@ -1082,7 +1030,6 @@ func genBeaconBlockBodyElectra() *v1alpha1.BeaconBlockBodyElectra {
 		AttesterSlashings:  genAttesterSlashingsElectra(5),
 		Attestations:       genAttestationsElectra(10),
 		VoluntaryExits:     genSignedVoluntaryExits(12),
-		SyncAggregate:      genSyncAggregate(),
 		ExecutionPayload:   genPayloadElectra(),
 		BlobKzgCommitments: getKZGCommitments(4),
 		ExecutionRequests:  genExecutionRequests(),

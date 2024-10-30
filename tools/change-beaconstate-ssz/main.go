@@ -95,14 +95,12 @@ func main() {
 		newSt.LatestBlockHeader = st.LatestBlockHeader
 		newSt.BlockRoots = st.BlockRoots
 		newSt.StateRoots = st.StateRoots
-		newSt.HistoricalRoots = st.HistoricalRoots
 		newSt.Eth1Data = st.Eth1Data
 		newSt.Eth1DataVotes = st.Eth1DataVotes
 		newSt.Eth1DepositIndex = st.Eth1DepositIndex
 		newSt.Validators = st.Validators
 		newSt.Balances = st.Balances
 		newSt.RandaoMixes = st.RandaoMixes
-		newSt.Slashings = st.Slashings
 		newSt.PreviousEpochAttestations = st.PreviousEpochAttestations
 		newSt.CurrentEpochAttestations = st.CurrentEpochAttestations
 		newSt.JustificationBits = st.JustificationBits
@@ -110,10 +108,9 @@ func main() {
 		newSt.CurrentJustifiedCheckpoint = st.CurrentJustifiedCheckpoint
 		newSt.FinalizedCheckpoint = st.FinalizedCheckpoint
 
-		// Fill: RewardAdjustmentFactor, PreviousEpochReserve, CurrentEpochReserve
+		// Fill: RewardAdjustmentFactor, Reserves
 		newSt.RewardAdjustmentFactor = 0
-		newSt.PreviousEpochReserve = 0
-		newSt.CurrentEpochReserve = 0
+		newSt.Reserves = 0
 
 		output, err = newSt.MarshalSSZ()
 		if err != nil {
@@ -136,23 +133,20 @@ func main() {
 		newSt.LatestBlockHeader = st.LatestBlockHeader
 		newSt.BlockRoots = st.BlockRoots
 		newSt.StateRoots = st.StateRoots
-		newSt.HistoricalRoots = st.HistoricalRoots
 		newSt.Eth1Data = st.Eth1Data
 		newSt.Eth1DataVotes = st.Eth1DataVotes
 		newSt.Eth1DepositIndex = st.Eth1DepositIndex
 		newSt.Validators = st.Validators
 		newSt.Balances = st.Balances
 		newSt.RandaoMixes = st.RandaoMixes
-		newSt.Slashings = st.Slashings
 		newSt.JustificationBits = st.JustificationBits
 		newSt.PreviousJustifiedCheckpoint = st.PreviousJustifiedCheckpoint
 		newSt.CurrentJustifiedCheckpoint = st.CurrentJustifiedCheckpoint
 		newSt.FinalizedCheckpoint = st.FinalizedCheckpoint
 
-		// Fill: RewardAdjustmentFactor, PreviousEpochReserve, CurrentEpochReserve
+		// Fill: RewardAdjustmentFactor, Reserves
 		newSt.RewardAdjustmentFactor = 0
-		newSt.PreviousEpochReserve = 0
-		newSt.CurrentEpochReserve = 0
+		newSt.Reserves = 0
 
 		output, err = newSt.MarshalSSZ()
 		if err != nil {
@@ -175,23 +169,20 @@ func main() {
 		newSt.LatestBlockHeader = st.LatestBlockHeader
 		newSt.BlockRoots = st.BlockRoots
 		newSt.StateRoots = st.StateRoots
-		newSt.HistoricalRoots = st.HistoricalRoots
 		newSt.Eth1Data = st.Eth1Data
 		newSt.Eth1DataVotes = st.Eth1DataVotes
 		newSt.Eth1DepositIndex = st.Eth1DepositIndex
 		newSt.Validators = st.Validators
 		newSt.Balances = st.Balances
 		newSt.RandaoMixes = st.RandaoMixes
-		newSt.Slashings = st.Slashings
 		newSt.JustificationBits = st.JustificationBits
 		newSt.PreviousJustifiedCheckpoint = st.PreviousJustifiedCheckpoint
 		newSt.CurrentJustifiedCheckpoint = st.CurrentJustifiedCheckpoint
 		newSt.FinalizedCheckpoint = st.FinalizedCheckpoint
 
-		// Fill: RewardAdjustmentFactor, PreviousEpochReserve, CurrentEpochReserve
+		// Fill: RewardAdjustmentFactor, Reserves
 		newSt.RewardAdjustmentFactor = 0
-		newSt.PreviousEpochReserve = 0
-		newSt.CurrentEpochReserve = 0
+		newSt.Reserves = 0
 
 		output, err = newSt.MarshalSSZ()
 		if err != nil {
@@ -214,23 +205,20 @@ func main() {
 		newSt.LatestBlockHeader = st.LatestBlockHeader
 		newSt.BlockRoots = st.BlockRoots
 		newSt.StateRoots = st.StateRoots
-		newSt.HistoricalRoots = st.HistoricalRoots
 		newSt.Eth1Data = st.Eth1Data
 		newSt.Eth1DataVotes = st.Eth1DataVotes
 		newSt.Eth1DepositIndex = st.Eth1DepositIndex
 		newSt.Validators = st.Validators
 		newSt.Balances = st.Balances
 		newSt.RandaoMixes = st.RandaoMixes
-		newSt.Slashings = st.Slashings
 		newSt.JustificationBits = st.JustificationBits
 		newSt.PreviousJustifiedCheckpoint = st.PreviousJustifiedCheckpoint
 		newSt.CurrentJustifiedCheckpoint = st.CurrentJustifiedCheckpoint
 		newSt.FinalizedCheckpoint = st.FinalizedCheckpoint
 
-		// Fill: RewardAdjustmentFactor, PreviousEpochReserve, CurrentEpochReserve
+		// Fill: RewardAdjustmentFactor, Reserves
 		newSt.RewardAdjustmentFactor = 0
-		newSt.PreviousEpochReserve = 0
-		newSt.CurrentEpochReserve = 0
+		newSt.Reserves = 0
 
 		output, err = newSt.MarshalSSZ()
 		if err != nil {
@@ -254,23 +242,20 @@ func main() {
 		newSt.LatestBlockHeader = st.LatestBlockHeader
 		newSt.BlockRoots = st.BlockRoots
 		newSt.StateRoots = st.StateRoots
-		newSt.HistoricalRoots = st.HistoricalRoots
 		newSt.Eth1Data = st.Eth1Data
 		newSt.Eth1DataVotes = st.Eth1DataVotes
 		newSt.Eth1DepositIndex = st.Eth1DepositIndex
 		newSt.Validators = st.Validators
 		newSt.Balances = st.Balances
 		newSt.RandaoMixes = st.RandaoMixes
-		newSt.Slashings = st.Slashings
 		newSt.JustificationBits = st.JustificationBits
 		newSt.PreviousJustifiedCheckpoint = st.PreviousJustifiedCheckpoint
 		newSt.CurrentJustifiedCheckpoint = st.CurrentJustifiedCheckpoint
 		newSt.FinalizedCheckpoint = st.FinalizedCheckpoint
 
-		// Fill: RewardAdjustmentFactor, PreviousEpochReserve, CurrentEpochReserve
+		// Fill: RewardAdjustmentFactor, Reserves
 		newSt.RewardAdjustmentFactor = 0
-		newSt.PreviousEpochReserve = 0
-		newSt.CurrentEpochReserve = 0
+		newSt.Reserves = 0
 
 		output, err = newSt.MarshalSSZ()
 		if err != nil {
@@ -293,20 +278,17 @@ func main() {
 		newSt.LatestBlockHeader = st.LatestBlockHeader
 		newSt.BlockRoots = st.BlockRoots
 		newSt.StateRoots = st.StateRoots
-		newSt.HistoricalRoots = st.HistoricalRoots
 		newSt.Validators = st.Validators
 		newSt.Balances = st.Balances
 		newSt.RandaoMixes = st.RandaoMixes
-		newSt.Slashings = st.Slashings
 		newSt.JustificationBits = st.JustificationBits
 		newSt.PreviousJustifiedCheckpoint = st.PreviousJustifiedCheckpoint
 		newSt.CurrentJustifiedCheckpoint = st.CurrentJustifiedCheckpoint
 		newSt.FinalizedCheckpoint = st.FinalizedCheckpoint
 
-		// Fill: RewardAdjustmentFactor, PreviousEpochReserve, CurrentEpochReserve
+		// Fill: RewardAdjustmentFactor, Reserves
 		newSt.RewardAdjustmentFactor = 0
-		newSt.PreviousEpochReserve = 0
-		newSt.CurrentEpochReserve = 0
+		newSt.Reserves = 0
 
 		output, err = newSt.MarshalSSZ()
 		if err != nil {

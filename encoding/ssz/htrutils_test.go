@@ -55,15 +55,6 @@ func TestByteArrayRootWithLimit(t *testing.T) {
 	assert.Equal(t, expected, result)
 }
 
-func TestSlashingsRoot(t *testing.T) {
-	testSlashingsRoot := []uint64{123, 234}
-	expected := [32]byte{123, 0, 0, 0, 0, 0, 0, 0, 234, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-
-	result, err := ssz.SlashingsRoot(testSlashingsRoot)
-	require.NoError(t, err)
-	assert.Equal(t, expected, result)
-}
-
 func TestTransactionsRoot(t *testing.T) {
 	tests := []struct {
 		name    string

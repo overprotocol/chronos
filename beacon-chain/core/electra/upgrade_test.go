@@ -16,7 +16,6 @@ import (
 
 func TestUpgradeToElectra(t *testing.T) {
 	st, _ := util.DeterministicGenesisStateDeneb(t, params.BeaconConfig().MaxValidatorsPerCommittee)
-	require.NoError(t, st.SetHistoricalRoots([][]byte{{1}}))
 	vals := st.Validators()
 	vals[0].ActivationEpoch = params.BeaconConfig().FarFutureEpoch
 	vals[1].WithdrawalCredentials = []byte{params.BeaconConfig().CompoundingWithdrawalPrefixByte}
@@ -41,7 +40,6 @@ func TestUpgradeToElectra(t *testing.T) {
 	require.DeepSSZEqual(t, preForkState.Eth1DataVotes(), mSt.Eth1DataVotes())
 	require.DeepSSZEqual(t, preForkState.Eth1DepositIndex(), mSt.Eth1DepositIndex())
 	require.DeepSSZEqual(t, preForkState.RandaoMixes(), mSt.RandaoMixes())
-	require.DeepSSZEqual(t, preForkState.Slashings(), mSt.Slashings())
 	require.DeepSSZEqual(t, preForkState.JustificationBits(), mSt.JustificationBits())
 	require.DeepSSZEqual(t, preForkState.PreviousJustifiedCheckpoint(), mSt.PreviousJustifiedCheckpoint())
 	require.DeepSSZEqual(t, preForkState.CurrentJustifiedCheckpoint(), mSt.CurrentJustifiedCheckpoint())
@@ -76,28 +74,12 @@ func TestUpgradeToElectra(t *testing.T) {
 	require.NoError(t, err)
 	require.DeepSSZEqual(t, make([]uint64, numValidators), s)
 
-	hr1, err := preForkState.HistoricalRoots()
-	require.NoError(t, err)
-	hr2, err := mSt.HistoricalRoots()
-	require.NoError(t, err)
-	require.DeepEqual(t, hr1, hr2)
-
 	f := mSt.Fork()
 	require.DeepSSZEqual(t, &ethpb.Fork{
 		PreviousVersion: st.Fork().CurrentVersion,
 		CurrentVersion:  params.BeaconConfig().ElectraForkVersion,
 		Epoch:           time.CurrentEpoch(st),
 	}, f)
-	csc, err := mSt.CurrentSyncCommittee()
-	require.NoError(t, err)
-	psc, err := preForkState.CurrentSyncCommittee()
-	require.NoError(t, err)
-	require.DeepSSZEqual(t, psc, csc)
-	nsc, err := mSt.NextSyncCommittee()
-	require.NoError(t, err)
-	psc, err = preForkState.NextSyncCommittee()
-	require.NoError(t, err)
-	require.DeepSSZEqual(t, psc, nsc)
 
 	header, err := mSt.LatestExecutionPayloadHeader()
 	require.NoError(t, err)

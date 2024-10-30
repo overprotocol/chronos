@@ -11,7 +11,6 @@ import (
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/gorilla/mux"
 	"github.com/prysmaticlabs/prysm/v5/api/server/structs"
 	chainMock "github.com/prysmaticlabs/prysm/v5/beacon-chain/blockchain/testing"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
@@ -138,7 +137,7 @@ func TestEstimatedActivation(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			request := httptest.NewRequest(http.MethodPost, "http://example.com//chronos/validator/estimated_activation/{validator_id}", nil)
-			request = mux.SetURLVars(request, map[string]string{"validator_id": tt.input})
+			request.SetPathValue("validator_id", tt.input)
 			writer := httptest.NewRecorder()
 			writer.Body = &bytes.Buffer{}
 
@@ -170,7 +169,7 @@ func TestEstimatedActivation_NoPendingValidators(t *testing.T) {
 
 	t.Run("empty request", func(t *testing.T) {
 		request := httptest.NewRequest(http.MethodPost, "http://example.com//chronos/validator/estimated_activation/{validator_id}", nil)
-		request = mux.SetURLVars(request, map[string]string{"validator_id": ""})
+		request.SetPathValue("validator_id", "")
 		writer := httptest.NewRecorder()
 		writer.Body = &bytes.Buffer{}
 
@@ -227,7 +226,7 @@ func TestGetEpochReward(t *testing.T) {
 
 		request := httptest.NewRequest(
 			"GET", "/chronos/states/epoch_reward/{epoch}", nil)
-		request = mux.SetURLVars(request, map[string]string{"epoch": "100"})
+		request.SetPathValue("epoch", "100")
 		writer := httptest.NewRecorder()
 		writer.Body = &bytes.Buffer{}
 
@@ -254,7 +253,7 @@ func TestGetEpochReward(t *testing.T) {
 
 		request := httptest.NewRequest(
 			"GET", "/chronos/states/epoch_reward/{epoch}", nil)
-		request = mux.SetURLVars(request, map[string]string{"epoch": "latest"})
+		request.SetPathValue("epoch", "latest")
 		writer := httptest.NewRecorder()
 		writer.Body = &bytes.Buffer{}
 
@@ -270,8 +269,8 @@ func TestGetEpochReward(t *testing.T) {
 	})
 
 	t.Run("correctly get epoch reward when boost", func(t *testing.T) {
-		require.NoError(t, st.SetRewardAdjustmentFactor(uint64(200000)))
-		require.NoError(t, st.SetPreviousEpochReserve(uint64(10000000)))
+		require.NoError(t, st.SetRewardAdjustmentFactor(uint64(20)))
+		require.NoError(t, st.SetReserves(uint64(10000000)))
 
 		chainService := &chainMock.ChainService{Slot: &currentSlot, State: st, Optimistic: true}
 
@@ -284,7 +283,7 @@ func TestGetEpochReward(t *testing.T) {
 
 		request := httptest.NewRequest(
 			"GET", "/chronos/states/epoch_reward/{epoch}", nil)
-		request = mux.SetURLVars(request, map[string]string{"epoch": "100"})
+		request.SetPathValue("epoch", "100")
 		writer := httptest.NewRecorder()
 		writer.Body = &bytes.Buffer{}
 
@@ -310,13 +309,11 @@ func TestGetReserves(t *testing.T) {
 
 		var (
 			wantRewardAdjustmentFactor = uint64(200000)
-			wantPreviousEpochReserve   = uint64(10000000)
-			wantCurrentEpochReserve    = uint64(9000000)
+			wantReserves               = uint64(10000000)
 		)
 
 		require.NoError(t, st.SetRewardAdjustmentFactor(wantRewardAdjustmentFactor))
-		require.NoError(t, st.SetPreviousEpochReserve(wantPreviousEpochReserve))
-		require.NoError(t, st.SetCurrentEpochReserve(wantCurrentEpochReserve))
+		require.NoError(t, st.SetReserves(wantReserves))
 
 		s := &Server{
 			FinalizationFetcher:   mockChainService,
@@ -325,7 +322,7 @@ func TestGetReserves(t *testing.T) {
 		}
 		request := httptest.NewRequest(
 			"GET", "/over/v1/beacon/states/{state_id}/reserves", nil)
-		request = mux.SetURLVars(request, map[string]string{"state_id": "head"})
+		request.SetPathValue("state_id", "head")
 		writer := httptest.NewRecorder()
 		writer.Body = &bytes.Buffer{}
 
@@ -337,8 +334,7 @@ func TestGetReserves(t *testing.T) {
 		assert.Equal(t, false, resp.Finalized)
 		expectedReserves := &structs.Reserves{
 			RewardAdjustmentFactor: strconv.FormatUint(wantRewardAdjustmentFactor, 10),
-			PreviousEpochReserve:   strconv.FormatUint(wantPreviousEpochReserve, 10),
-			CurrentEpochReserve:    strconv.FormatUint(wantCurrentEpochReserve, 10),
+			Reserves:               strconv.FormatUint(wantReserves, 10),
 		}
 		require.DeepEqual(t, expectedReserves, resp.Data)
 	})
@@ -351,7 +347,6 @@ func TestGetReserves(t *testing.T) {
 		}
 		request := httptest.NewRequest(
 			"GET", "/over/v1/beacon/states/{state_id}/reserves", nil)
-		request = mux.SetURLVars(request, map[string]string{})
 		writer := httptest.NewRecorder()
 		writer.Body = &bytes.Buffer{}
 

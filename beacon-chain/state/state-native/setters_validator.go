@@ -195,44 +195,6 @@ func (b *BeaconState) UpdateBalancesAtIndex(idx primitives.ValidatorIndex, val u
 	return nil
 }
 
-// SetSlashings for the beacon state. Updates the entire
-// list to a new value by overwriting the previous one.
-func (b *BeaconState) SetSlashings(val []uint64) error {
-	b.lock.Lock()
-	defer b.lock.Unlock()
-
-	b.sharedFieldReferences[types.Slashings].MinusRef()
-	b.sharedFieldReferences[types.Slashings] = stateutil.NewRef(1)
-
-	b.slashings = val
-	b.markFieldAsDirty(types.Slashings)
-	return nil
-}
-
-// UpdateSlashingsAtIndex for the beacon state. Updates the slashings
-// at a specific index to a new value.
-func (b *BeaconState) UpdateSlashingsAtIndex(idx, val uint64) error {
-	if uint64(len(b.slashings)) <= idx {
-		return errors.Errorf("invalid index provided %d", idx)
-	}
-	b.lock.Lock()
-	defer b.lock.Unlock()
-
-	s := b.slashings
-	if b.sharedFieldReferences[types.Slashings].Refs() > 1 {
-		s = b.slashingsVal()
-		b.sharedFieldReferences[types.Slashings].MinusRef()
-		b.sharedFieldReferences[types.Slashings] = stateutil.NewRef(1)
-	}
-
-	s[idx] = val
-
-	b.slashings = s
-
-	b.markFieldAsDirty(types.Slashings)
-	return nil
-}
-
 // AppendValidator for the beacon state. Appends the new value
 // to the end of list.
 func (b *BeaconState) AppendValidator(val *ethpb.Validator) error {

@@ -156,6 +156,50 @@ func IncreaseBalance(state state.BeaconState, idx primitives.ValidatorIndex, del
 	return state.UpdateBalancesAtIndex(idx, newBal)
 }
 
+// IncreaseBalanceAndAdjustPrincipalBalance increase validator with the given 'index' balance by 'delta' in Gwei
+// and adjust the principal balance.
+//
+// Spec pseudocode definition:
+//
+// def increase_balance_and_adjust_principal_balance(state: BeaconState, index: ValidatorIndex, delta: Gwei) -> None:
+//
+//	increase_balance(state, index, delta)
+//
+//	validator = state.validators[index]
+//
+//	if state.balances[index] >= validator.principal_balance + delta:
+//
+//		validator.principal_balance += delta
+//
+//	elif state.balances[index] >= validator.principal_balance:
+//
+//		validator.principal_balance = state.balances[index]
+func IncreaseBalanceAndAdjustPrincipalBalance(state state.BeaconState, idx primitives.ValidatorIndex, delta uint64) error {
+	if err := IncreaseBalance(state, idx, delta); err != nil {
+		return err
+	}
+
+	validator, err := state.ValidatorAtIndex(idx)
+	if err != nil {
+		return err
+	}
+
+	balance, err := state.BalanceAtIndex(idx)
+	if err != nil {
+		return err
+	}
+
+	if balance >= validator.PrincipalBalance+delta {
+		validator.PrincipalBalance += delta
+	} else if balance >= validator.PrincipalBalance {
+		validator.PrincipalBalance = balance
+	} else {
+		return nil
+	}
+
+	return state.UpdateValidatorAtIndex(idx, validator)
+}
+
 // IncreaseBalanceWithVal increases validator with the given 'index' balance by 'delta' in Gwei.
 // This method is flattened version of the spec method, taking in the raw balance and returning
 // the post balance.
@@ -186,6 +230,61 @@ func DecreaseBalance(state state.BeaconState, idx primitives.ValidatorIndex, del
 		return err
 	}
 	return state.UpdateBalancesAtIndex(idx, DecreaseBalanceWithVal(balAtIdx, delta))
+}
+
+// DecreaseBalanceAndAdjustPrincipalBalance decreases validator with the given 'index' balance by 'delta' in Gwei.
+// and adjust the principal balance.
+//
+// def decrease_balance_and_adjust_principal_balance(state: BeaconState, index: ValidatorIndex, delta: Gwei) -> None:
+//
+//	prev_balance = state.balances[index]
+//	decrease_balance(state, index, delta)
+//
+//	validator = state.validators[index]
+//	if prev_balance >= MIN_ACTIVATION_BALANCE:
+//		adjusted_principal_balance = uint256(validator.principal_balance) * uint256(state.balances[index]) / uint256(prev_balance)
+//		validator.principal_balance = max(adjusted_principal_balance, MIN_ACTIVATION_BALANCE)
+//	elif validator.principal_balance != MIN_ACTIVATION_BALANCE:
+//		validator.principal_balance = MIN_ACTIVATION_BALANCE
+func DecreaseBalanceAndAdjustPrincipalBalance(state state.BeaconState, idx primitives.ValidatorIndex, delta uint64) error {
+	prevBalance, err := state.BalanceAtIndex(idx)
+	if err != nil {
+		return err
+	}
+
+	if err = DecreaseBalance(state, idx, delta); err != nil {
+		return err
+	}
+
+	balance, err := state.BalanceAtIndex(idx)
+	if err != nil {
+		return err
+	}
+
+	validator, err := state.ValidatorAtIndex(idx)
+	if err != nil {
+		return err
+	}
+	if prevBalance >= params.BeaconConfig().MinActivationBalance {
+		principalBalance := new(big.Int).SetUint64(validator.PrincipalBalance)
+		balanceBig := new(big.Int).SetUint64(balance)
+		prevBalanceBig := new(big.Int).SetUint64(prevBalance)
+
+		result := new(big.Int).Mul(principalBalance, balanceBig) // Multiply principalBalance by balance
+		result.Div(result, prevBalanceBig)                       // Divide by prevBalance
+
+		minActivationBalance := new(big.Int).SetUint64(params.BeaconConfig().MinActivationBalance)
+		if result.Cmp(minActivationBalance) < 0 {
+			result.Set(minActivationBalance)
+		}
+		validator.PrincipalBalance = result.Uint64()
+	} else if validator.PrincipalBalance != params.BeaconConfig().MinActivationBalance {
+		validator.PrincipalBalance = params.BeaconConfig().MinActivationBalance
+	} else {
+		return nil
+	}
+	// only update when changes are made
+	return state.UpdateValidatorAtIndex(idx, validator)
 }
 
 // DecreaseBalanceWithVal decreases validator with the given 'index' balance by 'delta' in Gwei.
@@ -251,26 +350,6 @@ func TargetDepositPlan(epoch primitives.Epoch) uint64 {
 	}
 }
 
-func ProcessRewardFactorUpdate(state state.BeaconState) error {
-	// update reward adjustment factor
-	calculatedFactor, err := CalculateRewardAdjustmentFactor(state)
-	if err != nil {
-		return err
-	}
-	err = state.SetRewardAdjustmentFactor(calculatedFactor)
-	if err != nil {
-		return err
-	}
-
-	// update previous epoch reserve
-	err = state.SetPreviousEpochReserve(state.CurrentEpochReserve())
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // TotalRewardWithReserveUsage returns the total reward and total reserve usage in the given epoch.
 // Reserve is always depleted in Over tokenomics.
 func TotalRewardWithReserveUsage(s state.ReadOnlyBeaconState) (uint64, uint64) {
@@ -284,122 +363,101 @@ func TotalRewardWithReserveUsage(s state.ReadOnlyBeaconState) (uint64, uint64) {
 func EpochFeedbackBoost(s state.ReadOnlyBeaconState) uint64 {
 	cfg := params.BeaconConfig()
 	rewardAdjustmentFactor := s.RewardAdjustmentFactor()
-	feedbackBoost := cfg.MaxTokenSupply / cfg.RewardFeedbackPrecision * rewardAdjustmentFactor / cfg.EpochsPerYear
+	feedbackBoost := cfg.MaxTokenSupply / cfg.RewardAdjustmentFactorPrecision * rewardAdjustmentFactor / cfg.EpochsPerYear
 
-	if reserve := s.PreviousEpochReserve(); feedbackBoost > reserve {
-		return reserve
+	if reserves := s.Reserves(); feedbackBoost > reserves {
+		return reserves
 	}
 	return feedbackBoost
 }
 
-// CalcutateRewardAdjustmentFactor returns the adjustment factor for the next epoch.
+// ProcessRewardAdjustmentFactor sets the adjustment factor for the next epoch.
 // This is pseudo code from the spec.
 //
 // Spec code:
 //
-//	def calc_feedback(
-//		deposit,
-//		target_deposit,
-//		pending_deposit,
-//		exit_deposit,
-//		target_change_rate,
-//		threshold
-//	):
-//		deposit_delta = pending_deposit - exit_deposit
+// def process_reward_adjustment_factor(state: BeaconState) -> None:
+// _, future_total_active_balance = get_balance_with_queue(state)
+// target_deposit = get_target_deposit(state)
 //
-//	 	future_deposit = deposit + deposit_delta
-//	 	error_rate = abs(future_deposit - target_deposit) / target_deposit
-//
-//	 	scale = max(min_change_rate, min(1.0, error_rate / threshold))
-//
-//	 	if future_deposit > target_deposit:
-//	     	return -target_change_rate * scale
-//	 	else:
-//	     	return target_change_rate * scale
-//
-//	def process_feedback(epoch, deposit, pending_deposit, exit_deposit):
-//
-//		target_deposit = TARGET_DEPOSIT_PLAN[epoch]
-//
-//		bias_delta = calc_feedback(
-//			deposit,
-//			target_deposit,
-//			pending_deposit,
-//			exit_deposit,
-//			threshold=FEEDBACK_THRESHOLD
-//			target_change_rate = TARGET_CHANGE_RATE
-//		)
-//
-//		return bias_delta
-//
-//	def process_validator_reward(epoch, parent, deposit, pending_deposit, exit_deposit):
-//
-//		prev_bias = parent.bias
-//
-//		bias_delta = process_feedback(epoch, deposit, pending_deposit, exit_deposit)
-//		bias = prev_bias + bias_delta
-//		bias = max(0, bias)
-//		bias = min(bias, MAX_BOOST_YIELD[epoch])
-//
-//		return bias
-func CalculateRewardAdjustmentFactor(state state.ReadOnlyBeaconState) (uint64, error) {
-	cfg := params.BeaconConfig()
-	epoch := slots.ToEpoch(state.Slot())
+// if future_total_active_balance > target_deposit:
+// decrease_reward_adjustment_factor(state, REWARD_ADJUSTMENT_FACTOR_DELTA)
+// elif future_total_active_balance < target_deposit:
+// increase_reward_adjustment_factor(state, REWARD_ADJUSTMENT_FACTOR_DELTA)
+func ProcessRewardAdjustmentFactor(state state.BeaconState) (state.BeaconState, error) {
 	futureDeposit, err := TotalBalanceWithQueue(state)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 	targetDeposit := TargetDepositPlan(time.NextEpoch(state))
 
-	// Using big integers for precise calculation
-	bigFutureDeposit := big.NewInt(int64(futureDeposit)) // lint:ignore uintcast -- changeRate will not exceed int64 because of total issuance.
-	bigTargetDeposit := big.NewInt(int64(targetDeposit)) // lint:ignore uintcast -- changeRate will not exceed int64 because of total issuance.
-	bigRewardPrecision := big.NewInt(int64(cfg.RewardFeedbackPrecision))
+	if futureDeposit > targetDeposit {
+		err = DecreaseRewardAdjustmentFactor(state)
+		if err != nil {
+			return nil, err
+		}
+	} else if futureDeposit < targetDeposit {
+		err = IncreaseRewardAdjustmentFactor(state)
+		if err != nil {
+			return nil, err
+		}
+	}
 
-	// Calculate the gap and error rate to make mitigating factor
-	gap := new(big.Int).Abs(new(big.Int).Sub(bigFutureDeposit, bigTargetDeposit))
-	numerator := new(big.Int).Mul(gap, bigRewardPrecision)
-	errRate := new(big.Int).Div(numerator, bigTargetDeposit)
-	mitigatingFactor := big.NewInt(int64(mathutil.Max(1000000, mathutil.Min(cfg.RewardFeedbackPrecision, errRate.Uint64()*cfg.RewardFeedbackThresholdReciprocal)))) // lint:ignore uintcast -- errRate will not exceed int64 because of truncation.
+	return state, nil
+}
 
-	// Calculate the change rate
-	targetChangeRate := big.NewInt(int64(cfg.TargetChangeRate))
-	changeRate := new(big.Int).Div(new(big.Int).Mul(targetChangeRate, mitigatingFactor), bigRewardPrecision).Uint64() // lint:ignore uintcast -- changeRate will not exceed int64 because of value limit.
-
-	bias := state.RewardAdjustmentFactor()
-	if futureDeposit >= targetDeposit {
-		if bias <= changeRate {
-			bias = 0
-		} else {
-			bias -= changeRate
+// DecreaseRewardAdjustmentFactor reduces the RewardAdjustmentFactor with fixed amount.
+// If the RewardAdjustmentFactor is less than the given amount, it sets the RewardAdjustmentFactor to 0.
+func DecreaseRewardAdjustmentFactor(state state.BeaconState) error {
+	delta := params.BeaconConfig().RewardAdjustmentFactorDelta
+	factor := state.RewardAdjustmentFactor()
+	if factor < delta {
+		err := state.SetRewardAdjustmentFactor(0)
+		if err != nil {
+			return err
 		}
 	} else {
-		bias += changeRate
+		err := state.SetRewardAdjustmentFactor(factor - delta)
+		if err != nil {
+			return err
+		}
 	}
 
-	return TruncateRewardAdjustmentFactor(bias, epoch), nil
+	return nil
 }
 
-// TruncateRewardAdjustmentFactor truncates the given bias to the min and max bounds.
-// The min and max bounds are defined in the spec.
-func TruncateRewardAdjustmentFactor(bias uint64, epoch primitives.Epoch) uint64 {
-	maxBoostYield := MaxBoostYield(epoch)
-	if maxBoostYield < bias {
-		bias = maxBoostYield
+// IncreaseRewardAdjustmentFactor increases the RewardAdjustmentFactor with fixed amount.
+// If the RewardAdjustmentFactor is larger than the MaxRewardAdjustmentFactors[year],
+// it sets the RewardAdjustmentFactor to MaxRewardAdjustmentFactors[year].
+func IncreaseRewardAdjustmentFactor(state state.BeaconState) error {
+	epoch := slots.ToEpoch(state.Slot())
+	newFactor := state.RewardAdjustmentFactor() + params.BeaconConfig().RewardAdjustmentFactorDelta
+
+	maxBoostYield := MaxRewardAdjustmentFactor(epoch)
+	if maxBoostYield < newFactor {
+		err := state.SetRewardAdjustmentFactor(maxBoostYield)
+		if err != nil {
+			return err
+		}
+	} else {
+		err := state.SetRewardAdjustmentFactor(newFactor)
+		if err != nil {
+			return err
+		}
 	}
 
-	return bias
+	return nil
 }
 
-// MaxBoostYield gets the maximum boost yield of corresponding year for the given epoch.
-func MaxBoostYield(epoch primitives.Epoch) uint64 {
+// MaxRewardAdjustmentFactor gets the maximum reward adjustment factor of corresponding year for the given epoch.
+func MaxRewardAdjustmentFactor(epoch primitives.Epoch) uint64 {
 	cfg := params.BeaconConfig()
 	year := EpochToYear(epoch)
-	if year >= len(cfg.MaxBoostYield) {
-		year = len(cfg.MaxBoostYield) - 1
+	if year >= len(cfg.MaxRewardAdjustmentFactors) {
+		year = len(cfg.MaxRewardAdjustmentFactors) - 1
 	}
 
-	return cfg.MaxBoostYield[year]
+	return cfg.MaxRewardAdjustmentFactors[year]
 }
 
 // EpochToYear converts an epoch to a year.
@@ -409,17 +467,17 @@ func EpochToYear(epoch primitives.Epoch) int {
 	return year
 }
 
-// DecreaseCurrentReserve reduces the current reserve by the given amount.
+// DecreaseReserves reduces the reserve by the given amount.
 // If the reserve is less than the given amount, it sets the reserve to 0.
-func DecreaseCurrentReserve(state state.BeaconState, sub uint64) error {
-	currentReserve := state.CurrentEpochReserve()
-	if currentReserve < sub {
-		err := state.SetCurrentEpochReserve(0)
+func DecreaseReserves(state state.BeaconState, delta uint64) error {
+	reserve := state.Reserves()
+	if reserve < delta {
+		err := state.SetReserves(0)
 		if err != nil {
 			return err
 		}
 	} else {
-		err := state.SetCurrentEpochReserve(currentReserve - sub)
+		err := state.SetReserves(reserve - delta)
 		if err != nil {
 			return err
 		}

@@ -21,14 +21,11 @@ import (
 //	process_inactivity_updates(state)  # [New in Altair]
 //	process_rewards_and_penalties(state)  # [Modified in Altair]
 //	process_registry_updates(state)
-//	process_slashings(state)  # [Modified in Altair]
 //	process_eth1_data_reset(state)
 //	process_effective_balance_updates(state)
-//	process_slashings_reset(state)
 //	process_randao_mixes_reset(state)
 //	process_historical_roots_update(state)
 //	process_participation_flag_updates(state)  # [New in Altair]
-//	process_sync_committee_updates(state)  # [New in Altair]
 func ProcessEpoch(ctx context.Context, state state.BeaconState) error {
 	ctx, span := trace.StartSpan(ctx, "altair.ProcessEpoch")
 	defer span.End()
@@ -69,29 +66,17 @@ func ProcessEpoch(ctx context.Context, state state.BeaconState) error {
 		return errors.Wrap(err, "could not process registry updates")
 	}
 
-	err = helpers.ProcessRewardFactorUpdate(state)
+	state, err = helpers.ProcessRewardAdjustmentFactor(state)
 	if err != nil {
 		return errors.Wrap(err, "could not update reserve and reward factor")
 	}
 
 	// Modified in Altair and Bellatrix.
-	proportionalSlashingMultiplier, err := state.ProportionalSlashingMultiplier()
-	if err != nil {
-		return err
-	}
-	state, err = e.ProcessSlashings(state, proportionalSlashingMultiplier)
-	if err != nil {
-		return err
-	}
 	state, err = e.ProcessEth1DataReset(state)
 	if err != nil {
 		return err
 	}
 	state, err = e.ProcessEffectiveBalanceUpdates(state)
-	if err != nil {
-		return err
-	}
-	state, err = e.ProcessSlashingsReset(state)
 	if err != nil {
 		return err
 	}
@@ -105,13 +90,7 @@ func ProcessEpoch(ctx context.Context, state state.BeaconState) error {
 	}
 
 	// New in Altair.
-	state, err = ProcessParticipationFlagUpdates(state)
-	if err != nil {
-		return err
-	}
-
-	// New in Altair.
-	_, err = ProcessSyncCommitteeUpdates(ctx, state)
+	_, err = ProcessParticipationFlagUpdates(state)
 	if err != nil {
 		return err
 	}

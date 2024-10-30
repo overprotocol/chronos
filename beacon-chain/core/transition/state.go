@@ -145,8 +145,6 @@ func OptimizedGenesisBeaconState(genesisTime uint64, preState state.BeaconState,
 		stateRoots[i] = zeroHash
 	}
 
-	slashings := make([]uint64, params.BeaconConfig().EpochsPerSlashingsVector)
-
 	genesisValidatorsRoot, err := stateutil.ValidatorRegistryRoot(preState.Validators())
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not hash tree root genesis validators %v", err)
@@ -165,10 +163,9 @@ func OptimizedGenesisBeaconState(genesisTime uint64, preState state.BeaconState,
 		},
 
 		// Validator registry fields.
-		Validators:           preState.Validators(),
-		Balances:             preState.Balances(),
-		PreviousEpochReserve: preState.PreviousEpochReserve(),
-		CurrentEpochReserve:  preState.CurrentEpochReserve(),
+		Validators: preState.Validators(),
+		Balances:   preState.Balances(),
+		Reserves:   preState.Reserves(),
 
 		// Randomness and committees.
 		RandaoMixes: randaoMixes,
@@ -189,10 +186,8 @@ func OptimizedGenesisBeaconState(genesisTime uint64, preState state.BeaconState,
 		},
 
 		RewardAdjustmentFactor:    preState.RewardAdjustmentFactor(),
-		HistoricalRoots:           [][]byte{},
 		BlockRoots:                blockRoots,
 		StateRoots:                stateRoots,
-		Slashings:                 slashings,
 		CurrentEpochAttestations:  []*ethpb.PendingAttestation{},
 		PreviousEpochAttestations: []*ethpb.PendingAttestation{},
 
@@ -249,13 +244,11 @@ func EmptyGenesisState() (state.BeaconState, error) {
 		StateRoots:  stateRoots,
 		RandaoMixes: mixes,
 		// Validator registry fields.
-		Validators:           []*ethpb.Validator{},
-		Balances:             []uint64{},
-		PreviousEpochReserve: 0,
-		CurrentEpochReserve:  0,
+		Validators: []*ethpb.Validator{},
+		Balances:   []uint64{},
+		Reserves:   0,
 
 		JustificationBits:         []byte{0},
-		HistoricalRoots:           [][]byte{},
 		RewardAdjustmentFactor:    0,
 		CurrentEpochAttestations:  []*ethpb.PendingAttestation{},
 		PreviousEpochAttestations: []*ethpb.PendingAttestation{},

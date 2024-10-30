@@ -300,10 +300,6 @@ func BuildSignedBeaconBlockFromExecutionPayload(blk interfaces.ReadOnlySignedBea
 	if err := checkPayloadAgainstHeader(wrappedPayload, payloadHeader); err != nil {
 		return nil, err
 	}
-	syncAgg, err := b.Body().SyncAggregate()
-	if err != nil {
-		return nil, errors.Wrap(err, "could not get sync aggregate from block body")
-	}
 	parentRoot := b.ParentRoot()
 	stateRoot := b.StateRoot()
 	randaoReveal := b.Body().RandaoReveal()
@@ -354,7 +350,6 @@ func BuildSignedBeaconBlockFromExecutionPayload(blk interfaces.ReadOnlySignedBea
 					Attestations:      atts,
 					Deposits:          b.Body().Deposits(),
 					VoluntaryExits:    b.Body().VoluntaryExits(),
-					SyncAggregate:     syncAgg,
 					ExecutionPayload:  p,
 				},
 			},
@@ -406,7 +401,6 @@ func BuildSignedBeaconBlockFromExecutionPayload(blk interfaces.ReadOnlySignedBea
 					Attestations:          atts,
 					Deposits:              b.Body().Deposits(),
 					VoluntaryExits:        b.Body().VoluntaryExits(),
-					SyncAggregate:         syncAgg,
 					ExecutionPayload:      p,
 					BlsToExecutionChanges: blsToExecutionChanges,
 				},
@@ -463,7 +457,6 @@ func BuildSignedBeaconBlockFromExecutionPayload(blk interfaces.ReadOnlySignedBea
 					Attestations:          atts,
 					Deposits:              b.Body().Deposits(),
 					VoluntaryExits:        b.Body().VoluntaryExits(),
-					SyncAggregate:         syncAgg,
 					ExecutionPayload:      p,
 					BlsToExecutionChanges: blsToExecutionChanges,
 					BlobKzgCommitments:    commitments,
@@ -521,7 +514,6 @@ func BuildSignedBeaconBlockFromExecutionPayload(blk interfaces.ReadOnlySignedBea
 					AttesterSlashings:  attSlashings,
 					Attestations:       atts,
 					VoluntaryExits:     b.Body().VoluntaryExits(),
-					SyncAggregate:      syncAgg,
 					ExecutionPayload:   p,
 					BlobKzgCommitments: commitments,
 					ExecutionRequests:  er,
