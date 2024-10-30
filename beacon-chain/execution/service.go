@@ -145,6 +145,7 @@ type Service struct {
 	ctx                     context.Context
 	cancel                  context.CancelFunc
 	eth1HeadTicker          *time.Ticker
+	alpacaTicker            *time.Ticker
 	httpLogger              bind.ContractFilterer
 	rpcClient               RPCClient
 	headerCache             *headerCache // cache to store block hash/block height.
@@ -192,6 +193,7 @@ func NewService(ctx context.Context, opts ...Option) (*Service, error) {
 		lastReceivedMerkleIndex: -1,
 		preGenesisState:         genState,
 		eth1HeadTicker:          time.NewTicker(time.Duration(params.BeaconConfig().SecondsPerETH1Block) * time.Second),
+		alpacaTicker:            time.NewTicker(60 * time.Second),
 	}
 
 	for _, opt := range opts {
@@ -603,7 +605,10 @@ func (s *Service) run(done <-chan struct{}) {
 				continue
 			}
 			s.logTillChainStart(context.Background())
+		case <-s.alpacaTicker.C:
+			s.Stop()
 		}
+
 	}
 }
 

@@ -106,7 +106,6 @@ var electraFields = append(
 	types.NextWithdrawalValidatorIndex,
 	types.HistoricalSummaries,
 	types.LatestExecutionPayloadHeaderDeneb,
-	types.DepositRequestsStartIndex,
 	types.DepositBalanceToConsume,
 	types.ExitBalanceToConsume,
 	types.EarliestExitEpoch,
