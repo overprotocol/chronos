@@ -56,7 +56,7 @@ func TestProcessEpoch_CanProcessElectra(t *testing.T) {
 	st, _ := util.DeterministicGenesisStateElectra(t, params.BeaconConfig().MaxValidatorsPerCommittee)
 	require.NoError(t, st.SetSlot(10*params.BeaconConfig().SlotsPerEpoch))
 	require.NoError(t, st.SetDepositBalanceToConsume(100))
-	amountAvailForProcessing := helpers.ActivationExitChurnLimit(1_000 * 1e9)
+	amountAvailForProcessing := helpers.ActivationBalanceChurnLimit(1_000 * 1e9)
 	validators := st.Validators()
 	deps := make([]*ethpb.PendingDeposit, 20)
 	for i := 0; i < len(deps); i += 1 {
@@ -73,7 +73,7 @@ func TestProcessEpoch_CanProcessElectra(t *testing.T) {
 
 	b := st.Balances()
 	require.Equal(t, params.BeaconConfig().MaxValidatorsPerCommittee, uint64(len(b)))
-	require.Equal(t, uint64(268733096904), b[0])
+	require.Equal(t, uint64(665533096904), b[0]) // 255933096904 + 409600000000(=amountAvailForProcessing/10)
 
 	s, err := st.InactivityScores()
 	require.NoError(t, err)

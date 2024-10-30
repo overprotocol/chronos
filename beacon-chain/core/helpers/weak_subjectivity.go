@@ -70,20 +70,20 @@ func ComputeWeakSubjectivityPeriod(ctx context.Context, st state.ReadOnlyBeaconS
 	}
 
 	// Average effective balance in the given validator set, in Ether.
-	t, err := TotalActiveBalance(st)
+	totalBalance, err := TotalActiveBalance(st)
 	if err != nil {
 		return 0, fmt.Errorf("cannot find total active balance of validators: %w", err)
 	}
-	t = t / N / cfg.GweiPerEth
+	t := totalBalance / N / cfg.GweiPerEth
 
 	// Maximum effective balance per validator.
-	T := cfg.MaxEffectiveBalance / cfg.GweiPerEth
+	T := cfg.MaxEffectiveBalanceAlpaca / cfg.GweiPerEth
 
 	// Validator churn limit.
-	delta := ValidatorExitNoBiasChurnLimit(N)
+	delta := uint64(ExitBalanceChurnLimit(primitives.Gwei(totalBalance))) / cfg.MinActivationBalance
 
 	// Balance top-ups.
-	Delta := uint64(cfg.SlotsPerEpoch.Mul(cfg.MaxDeposits))
+	Delta := uint64(cfg.SlotsPerEpoch.Mul(cfg.MaxDepositsAlpaca))
 
 	if delta == 0 || Delta == 0 {
 		return 0, errors.New("either validator churn limit or balance top-ups is zero")

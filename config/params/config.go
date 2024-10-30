@@ -119,6 +119,7 @@ type BeaconChainConfig struct {
 	MaxAttestations                  uint64 `yaml:"MAX_ATTESTATIONS" spec:"true"`               // MaxAttestations defines the maximum allowed attestations in a beacon block.
 	MaxAttestationsElectra           uint64 `yaml:"MAX_ATTESTATIONS_ELECTRA" spec:"true"`       // MaxAttestationsElectra defines the maximum allowed attestations in a beacon block post Electra hard fork.
 	MaxDeposits                      uint64 `yaml:"MAX_DEPOSITS" spec:"true"`                   // MaxDeposits defines the maximum number of validator deposits in a block.
+	MaxDepositsAlpaca                uint64 `yaml:"MAX_DEPOSITS_ALPACA" spec:"true"`            // MaxDepositsAlpaca defines the maximum number of validator deposits in a block.
 	MaxVoluntaryExits                uint64 `yaml:"MAX_VOLUNTARY_EXITS" spec:"true"`            // MaxVoluntaryExits defines the maximum number of validator exits in a block.
 	MaxWithdrawalsPerPayload         uint64 `yaml:"MAX_WITHDRAWALS_PER_PAYLOAD" spec:"true"`    // MaxWithdrawalsPerPayload defines the maximum number of withdrawals in a block.
 	MaxPartialWithdrawalsPerPayload  uint64 `yaml:"MAX_PARTIAL_WITHDRAWALS_PER_PAYLOAD" spec:"true"`
@@ -235,21 +236,21 @@ type BeaconChainConfig struct {
 	MaxRequestBlocksDeneb            uint64           `yaml:"MAX_REQUEST_BLOCKS_DENEB" spec:"true"`              // MaxRequestBlocksDeneb is the maximum number of blocks in a single request after the deneb epoch.
 
 	// Values introduce in Electra upgrade
-	DataColumnSidecarSubnetCount          uint64 `yaml:"DATA_COLUMN_SIDECAR_SUBNET_COUNT" spec:"true"`           // DataColumnSidecarSubnetCount is the number of data column sidecar subnets used in the gossipsub protocol
-	MaxPerEpochActivationExitChurnLimit   uint64 `yaml:"MAX_PER_EPOCH_ACTIVATION_EXIT_CHURN_LIMIT" spec:"true"`  // MaxPerEpochActivationExitChurnLimit represents the maximum combined activation and exit churn.
-	MinPerEpochChurnLimitElectra          uint64 `yaml:"MIN_PER_EPOCH_CHURN_LIMIT_ELECTRA" spec:"true"`          // MinPerEpochChurnLimitElectra is the minimum amount of churn allotted for validator rotations for electra.
-	MaxRequestDataColumnSidecars          uint64 `yaml:"MAX_REQUEST_DATA_COLUMN_SIDECARS" spec:"true"`           // MaxRequestDataColumnSidecars is the maximum number of data column sidecars in a single request
-	MaxEffectiveBalanceElectra            uint64 `yaml:"MAX_EFFECTIVE_BALANCE_ELECTRA" spec:"true"`              // MaxEffectiveBalanceElectra is the maximal amount of Gwei that is effective for staking, increased in electra.
-	MinSlashingPenaltyQuotientElectra     uint64 `yaml:"MIN_SLASHING_PENALTY_QUOTIENT_ELECTRA" spec:"true"`      // MinSlashingPenaltyQuotientElectra is used to calculate the minimum penalty to prevent DoS attacks, modified for electra.
-	WhistleBlowerRewardQuotientElectra    uint64 `yaml:"WHISTLEBLOWER_REWARD_QUOTIENT_ELECTRA" spec:"true"`      // WhistleBlowerRewardQuotientElectra is used to calculate whistle blower reward, modified in electra.
-	PendingDepositLimit                   uint64 `yaml:"PENDING_DEPOSITS_LIMIT" spec:"true"`                     // PendingDepositLimit is the maximum number of pending balance deposits allowed in the beacon state.
-	PendingPartialWithdrawalsLimit        uint64 `yaml:"PENDING_PARTIAL_WITHDRAWALS_LIMIT" spec:"true"`          // PendingPartialWithdrawalsLimit is the maximum number of pending partial withdrawals allowed in the beacon state.
-	MaxPendingPartialsPerWithdrawalsSweep uint64 `yaml:"MAX_PENDING_PARTIALS_PER_WITHDRAWALS_SWEEP" spec:"true"` // MaxPendingPartialsPerWithdrawalsSweep is the maximum number of pending partial withdrawals to process per payload.
-	MaxPendingDepositsPerEpoch            uint64 `yaml:"MAX_PENDING_DEPOSITS_PER_EPOCH" spec:"true"`             // MaxPendingDepositsPerEpoch is the maximum number of pending deposits per epoch processing.
-	FullExitRequestAmount                 uint64 `yaml:"FULL_EXIT_REQUEST_AMOUNT" spec:"true"`                   // FullExitRequestAmount is the amount of Gwei required to request a full exit.
-	MaxWithdrawalRequestsPerPayload       uint64 `yaml:"MAX_WITHDRAWAL_REQUESTS_PER_PAYLOAD" spec:"true"`        // MaxWithdrawalRequestsPerPayload is the maximum number of execution layer withdrawal requests in each payload.
-	MaxDepositRequestsPerPayload          uint64 `yaml:"MAX_DEPOSIT_REQUESTS_PER_PAYLOAD" spec:"true"`           // MaxDepositRequestsPerPayload is the maximum number of execution layer deposits in each payload
-	UnsetDepositRequestsStartIndex        uint64 `yaml:"UNSET_DEPOSIT_REQUESTS_START_INDEX" spec:"true"`         // UnsetDepositRequestsStartIndex is used to check the start index for eip6110
+	DataColumnSidecarSubnetCount           uint64 `yaml:"DATA_COLUMN_SIDECAR_SUBNET_COUNT" spec:"true"`             // DataColumnSidecarSubnetCount is the number of data column sidecar subnets used in the gossipsub protocol
+	MinPerEpochActivationBalanceChurnLimit uint64 `yaml:"MIN_PER_EPOCH_ACTIVATION_BALANCE_CHURN_LIMIT" spec:"true"` // MinPerEpochActivationBalanceChurnLimit represents the minimum balance of activation churn.
+	MinPerEpochChurnLimitAlpaca            uint64 `yaml:"MIN_PER_EPOCH_CHURN_LIMIT_ALPACA" spec:"true"`             // MinPerEpochChurnLimitAlpaca is the minimum amount of churn allotted for validator rotations for alpaca.
+	MaxRequestDataColumnSidecars           uint64 `yaml:"MAX_REQUEST_DATA_COLUMN_SIDECARS" spec:"true"`             // MaxRequestDataColumnSidecars is the maximum number of data column sidecars in a single request
+	MaxEffectiveBalanceAlpaca              uint64 `yaml:"MAX_EFFECTIVE_BALANCE_ALPACA" spec:"true"`                 // MaxEffectiveBalanceAlpaca is the maximal amount of Gwei that is effective for staking, increased in alpaca.
+	MinSlashingPenaltyQuotientElectra      uint64 `yaml:"MIN_SLASHING_PENALTY_QUOTIENT_ELECTRA" spec:"true"`        // MinSlashingPenaltyQuotientElectra is used to calculate the minimum penalty to prevent DoS attacks, modified for electra.
+	WhistleBlowerRewardQuotientElectra     uint64 `yaml:"WHISTLEBLOWER_REWARD_QUOTIENT_ELECTRA" spec:"true"`        // WhistleBlowerRewardQuotientElectra is used to calculate whistle blower reward, modified in electra.
+	PendingDepositLimit                    uint64 `yaml:"PENDING_DEPOSITS_LIMIT" spec:"true"`                       // PendingDepositLimit is the maximum number of pending balance deposits allowed in the beacon state.
+	PendingPartialWithdrawalsLimit         uint64 `yaml:"PENDING_PARTIAL_WITHDRAWALS_LIMIT" spec:"true"`            // PendingPartialWithdrawalsLimit is the maximum number of pending partial withdrawals allowed in the beacon state.
+	MaxPendingPartialsPerWithdrawalsSweep  uint64 `yaml:"MAX_PENDING_PARTIALS_PER_WITHDRAWALS_SWEEP" spec:"true"`   // MaxPendingPartialsPerWithdrawalsSweep is the maximum number of pending partial withdrawals to process per payload.
+	MaxPendingDepositsPerEpoch             uint64 `yaml:"MAX_PENDING_DEPOSITS_PER_EPOCH" spec:"true"`               // MaxPendingDepositsPerEpoch is the maximum number of pending deposits per epoch processing.
+	FullExitRequestAmount                  uint64 `yaml:"FULL_EXIT_REQUEST_AMOUNT" spec:"true"`                     // FullExitRequestAmount is the amount of Gwei required to request a full exit.
+	MaxWithdrawalRequestsPerPayload        uint64 `yaml:"MAX_WITHDRAWAL_REQUESTS_PER_PAYLOAD" spec:"true"`          // MaxWithdrawalRequestsPerPayload is the maximum number of execution layer withdrawal requests in each payload.
+	MaxDepositRequestsPerPayload           uint64 `yaml:"MAX_DEPOSIT_REQUESTS_PER_PAYLOAD" spec:"true"`             // MaxDepositRequestsPerPayload is the maximum number of execution layer deposits in each payload
+	UnsetDepositRequestsStartIndex         uint64 `yaml:"UNSET_DEPOSIT_REQUESTS_START_INDEX" spec:"true"`           // UnsetDepositRequestsStartIndex is used to check the start index for eip6110
 
 	// Networking Specific Parameters
 	GossipMaxSize                   uint64          `yaml:"GOSSIP_MAX_SIZE" spec:"true"`                    // GossipMaxSize is the maximum allowed size of uncompressed gossip messages.
