@@ -20,7 +20,7 @@ func TestProcessEffectiveBalanceUpdates_SafeCopy(t *testing.T) {
 			},
 		},
 		Balances: []uint64{
-			params.BeaconConfig().MaxEffectiveBalanceElectra * 2,
+			params.BeaconConfig().MaxEffectiveBalanceAlpaca * 2,
 		},
 	}
 	st, err := state_native.InitializeFromProtoElectra(pb)
@@ -31,7 +31,7 @@ func TestProcessEffectiveBalanceUpdates_SafeCopy(t *testing.T) {
 	require.NoError(t, err)
 
 	require.Equal(t, st.Validators()[0].EffectiveBalance, params.BeaconConfig().MinActivationBalance)
-	require.Equal(t, copiedState.Validators()[0].EffectiveBalance, params.BeaconConfig().MaxEffectiveBalanceElectra)
+	require.Equal(t, copiedState.Validators()[0].EffectiveBalance, params.BeaconConfig().MaxEffectiveBalanceAlpaca)
 }
 
 func TestProcessEffectiveBalnceUpdates(t *testing.T) {
@@ -57,7 +57,7 @@ func TestProcessEffectiveBalnceUpdates(t *testing.T) {
 						},
 					},
 					Balances: []uint64{
-						params.BeaconConfig().MaxEffectiveBalanceElectra * 2,
+						params.BeaconConfig().MaxEffectiveBalanceAlpaca * 2,
 					},
 				}
 				st, err := state_native.InitializeFromProtoElectra(pb)
@@ -67,7 +67,7 @@ func TestProcessEffectiveBalnceUpdates(t *testing.T) {
 			check: func(t *testing.T, bs state.BeaconState) {
 				val, err := bs.ValidatorAtIndex(0)
 				require.NoError(t, err)
-				require.Equal(t, params.BeaconConfig().MaxEffectiveBalanceElectra, val.EffectiveBalance)
+				require.Equal(t, params.BeaconConfig().MaxEffectiveBalanceAlpaca, val.EffectiveBalance)
 			},
 		},
 		{
@@ -81,7 +81,7 @@ func TestProcessEffectiveBalnceUpdates(t *testing.T) {
 						},
 					},
 					Balances: []uint64{
-						params.BeaconConfig().MaxEffectiveBalanceElectra,
+						params.BeaconConfig().MaxEffectiveBalanceAlpaca,
 					},
 				}
 				st, err := state_native.InitializeFromProtoElectra(pb)

@@ -84,7 +84,6 @@ func Test_endpoints(t *testing.T) {
 	validatorRoutes := map[string][]string{
 		"/eth/v1/validator/duties/attester/{epoch}":        {http.MethodPost},
 		"/eth/v1/validator/duties/proposer/{epoch}":        {http.MethodGet},
-		"/eth/v1/validator/duties/sync/{epoch}":            {http.MethodPost},
 		"/eth/v2/validator/blocks/{slot}":                  {http.MethodGet},
 		"/eth/v3/validator/blocks/{slot}":                  {http.MethodGet},
 		"/eth/v1/validator/blinded_blocks/{slot}":          {http.MethodGet},

@@ -15,12 +15,11 @@ import (
 
 // AttDelta contains rewards and penalties for a single attestation.
 type AttDelta struct {
-	HeadReward        uint64
-	SourceReward      uint64
-	SourcePenalty     uint64
-	TargetReward      uint64
-	TargetPenalty     uint64
-	InactivityPenalty uint64
+	HeadReward    uint64
+	SourceReward  uint64
+	SourcePenalty uint64
+	TargetReward  uint64
+	TargetPenalty uint64
 }
 
 // InitializePrecomputeValidators precomputes individual validator for its attested balances and the total sum of validators attested balances of the epoch.
@@ -31,6 +30,7 @@ func InitializePrecomputeValidators(ctx context.Context, beaconState state.Beaco
 	bal := &precompute.Balance{}
 	prevEpoch := time.PrevEpoch(beaconState)
 	currentEpoch := time.CurrentEpoch(beaconState)
+	actualBalances := beaconState.Balances()
 	inactivityScores, err := beaconState.InactivityScores()
 	if err != nil {
 		return nil, nil, err
@@ -49,6 +49,8 @@ func InitializePrecomputeValidators(ctx context.Context, beaconState state.Beaco
 			InactivityScore:              inactivityScores[idx],
 			IsSlashed:                    val.Slashed(),
 			IsWithdrawableCurrentEpoch:   currentEpoch >= val.WithdrawableEpoch(),
+			PrincipalBalance:             val.PrincipalBalance(),
+			ActualBalance:                actualBalances[idx],
 		}
 		// Set validator's active status for current epoch.
 		if helpers.IsActiveValidatorUsingTrie(val, currentEpoch) {
@@ -80,9 +82,22 @@ func InitializePrecomputeValidators(ctx context.Context, beaconState state.Beaco
 // For a validator is inactive and the chain fails to finalize, the inactivity score increases by a fixed number, the total loss after N epochs is proportional to N**2/2.
 // For imperfectly active validators. The inactivity score's behavior is specified by this function:
 //
-//	If a validator fails to submit an attestation with the correct target, their inactivity score goes up by 4.
-//	If they successfully submit an attestation with the correct source and target, their inactivity score drops by 1
-//	If the chain has recently finalized, each validator's score drops by 16.
+//	If a validator fails to submit an attestation with the correct target, their inactivity score goes up by 2 (InactivityScoreBias).
+//	If they successfully submit an attestation with the correct source and target, their inactivity score drops by 1 (InactivityScoreRecoveryRate).
+//
+// Spec code:
+// def process_inactivity_updates(state: BeaconState) -> None:
+//
+//	# Skip the genesis epoch as score updates are based on the previous epoch participation
+//	if get_current_epoch(state) == GENESIS_EPOCH:
+//		return
+//
+//	for index in get_eligible_validator_indices(state):
+//		# Increase the inactivity score of inactive validators
+//		if index in get_unslashed_participating_indices(state, TIMELY_TARGET_FLAG_INDEX, get_previous_epoch(state)):
+//			state.inactivity_scores[index] -= min(INACTIVITY_SCORE_RECOVERY_RATE, state.inactivity_scores[index])
+//		else:
+//			state.inactivity_scores[index] += INACTIVITY_SCORE_BIAS
 func ProcessInactivityScores(
 	ctx context.Context,
 	beaconState state.BeaconState,
@@ -103,17 +118,17 @@ func ProcessInactivityScores(
 
 	bias := cfg.InactivityScoreBias
 	recoveryRate := cfg.InactivityScoreRecoveryRate
-	prevEpoch := time.PrevEpoch(beaconState)
-	finalizedEpoch := beaconState.FinalizedCheckpointEpoch()
 	for i, v := range vals {
 		if !precompute.EligibleForRewards(v) {
 			continue
 		}
 
 		if v.IsPrevEpochTargetAttester && !v.IsSlashed {
-			// Decrease inactivity score when validator gets target correct.
-			if v.InactivityScore > 0 {
-				v.InactivityScore -= 1
+			// Decrease inactivity score by InactivityScoreRecoveryRate when validator gets target correct.
+			if v.InactivityScore >= recoveryRate {
+				v.InactivityScore -= recoveryRate
+			} else {
+				v.InactivityScore = 0
 			}
 		} else {
 			v.InactivityScore, err = math.Add64(v.InactivityScore, bias)
@@ -122,14 +137,6 @@ func ProcessInactivityScores(
 			}
 		}
 
-		if !helpers.IsInInactivityLeak(prevEpoch, finalizedEpoch) {
-			score := recoveryRate
-			// Prevents underflow below 0.
-			if score > v.InactivityScore {
-				score = v.InactivityScore
-			}
-			v.InactivityScore -= score
-		}
 		inactivityScores[i] = v.InactivityScore
 	}
 
@@ -254,7 +261,7 @@ func ProcessRewardsAndPenaltiesPrecompute(
 		if err != nil {
 			return nil, err
 		}
-		balances[i] = helpers.DecreaseBalanceWithVal(balances[i], delta.SourcePenalty+delta.TargetPenalty+delta.InactivityPenalty)
+		balances[i] = helpers.DecreaseBalanceWithVal(balances[i], delta.SourcePenalty+delta.TargetPenalty)
 
 		vals[i].AfterEpochTransitionBalance = balances[i]
 		reserveUsage += attReserves[i]
@@ -277,7 +284,6 @@ func AttestationsDelta(beaconState state.BeaconState, bal *precompute.Balance, v
 	attDeltas := make([]*AttDelta, len(vals))
 	attReserveDeltas := make([]uint64, len(vals))
 
-	cfg := params.BeaconConfig()
 	prevEpoch := time.PrevEpoch(beaconState)
 	finalizedEpoch := beaconState.FinalizedCheckpointEpoch()
 	baseRewardPerIncrement, reserveUsagePerIncrement, err := BaseRewardPerIncrement(beaconState, bal.ActiveCurrentEpoch)
@@ -286,16 +292,8 @@ func AttestationsDelta(beaconState state.BeaconState, bal *precompute.Balance, v
 	}
 	leak := helpers.IsInInactivityLeak(prevEpoch, finalizedEpoch)
 
-	// Modified in Altair and Bellatrix.
-	bias := cfg.InactivityScoreBias
-	inactivityPenaltyQuotient, err := beaconState.InactivityPenaltyQuotient()
-	if err != nil {
-		return nil, nil, err
-	}
-	inactivityDenominator := bias * inactivityPenaltyQuotient
-
 	for i, v := range vals {
-		attDeltas[i], err = attestationDelta(bal, v, baseRewardPerIncrement, inactivityDenominator, leak)
+		attDeltas[i], err = attestationDelta(bal, v, baseRewardPerIncrement, leak)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -308,7 +306,7 @@ func AttestationsDelta(beaconState state.BeaconState, bal *precompute.Balance, v
 func attestationDelta(
 	bal *precompute.Balance,
 	val *precompute.Validator,
-	baseRewardPerIncrement, inactivityDenominator uint64,
+	baseRewardPerIncrement uint64,
 	inactivityLeak bool) (*AttDelta, error) {
 	eligible := val.IsActivePrevEpoch || (val.IsSlashed && !val.IsWithdrawableCurrentEpoch)
 	// Per spec `ActiveCurrentEpoch` can't be 0 to process attestation delta.
@@ -322,6 +320,9 @@ func attestationDelta(
 	baseReward := (effectiveBalance / increment) * baseRewardPerIncrement
 	activeIncrement := bal.ActiveCurrentEpoch / increment
 
+	penaltyNumerator := val.PrincipalBalance * cfg.InactivityPenaltyRate / cfg.InactivityPenaltyRatePrecision
+	bufferInLeak := penaltyNumerator * cfg.InactivityLeakPenaltyBuffer / cfg.InactivityLeakPenaltyBufferPrecision
+
 	weightDenominator := cfg.WeightDenominator
 	srcWeight := cfg.TimelySourceWeight
 	tgtWeight := cfg.TimelyTargetWeight
@@ -334,8 +335,15 @@ func attestationDelta(
 			n := baseReward * srcWeight * (bal.PrevEpochAttested / increment)
 			attDelta.SourceReward += n / (activeIncrement * weightDenominator)
 		}
-	} else {
-		attDelta.SourcePenalty += baseReward * srcWeight / weightDenominator
+	} else if val.InactivityScore > cfg.InactivityScorePenaltyThreshold {
+		denominator := (srcWeight + tgtWeight) * cfg.InactivityPenaltyDuration
+		penaltyDelta := (penaltyNumerator * srcWeight) / denominator
+
+		if !inactivityLeak {
+			attDelta.SourcePenalty += penaltyDelta
+		} else if val.PrincipalBalance < val.ActualBalance+bufferInLeak+penaltyDelta {
+			attDelta.SourcePenalty += penaltyDelta
+		}
 	}
 
 	// Process target reward / penalty
@@ -344,8 +352,15 @@ func attestationDelta(
 			n := baseReward * tgtWeight * (bal.PrevEpochTargetAttested / increment)
 			attDelta.TargetReward += n / (activeIncrement * weightDenominator)
 		}
-	} else {
-		attDelta.TargetPenalty += baseReward * tgtWeight / weightDenominator
+	} else if val.InactivityScore > cfg.InactivityScorePenaltyThreshold {
+		denominator := (srcWeight + tgtWeight) * cfg.InactivityPenaltyDuration
+		penaltyDelta := (penaltyNumerator * tgtWeight) / denominator
+
+		if !inactivityLeak {
+			attDelta.TargetPenalty += penaltyDelta
+		} else if val.PrincipalBalance < val.ActualBalance+bufferInLeak+penaltyDelta {
+			attDelta.TargetPenalty += penaltyDelta
+		}
 	}
 
 	// Process head reward / penalty with light layer reward
@@ -354,16 +369,6 @@ func attestationDelta(
 			n := baseReward * (headWeight + lightLayerWeight) * (bal.PrevEpochHeadAttested / increment)
 			attDelta.HeadReward += n / (activeIncrement * weightDenominator)
 		}
-	}
-
-	// Process finality delay penalty
-	// Apply an additional penalty to validators that did not vote on the correct target or slashed
-	if !val.IsPrevEpochTargetAttester || val.IsSlashed {
-		n, err := math.Mul64(effectiveBalance, val.InactivityScore)
-		if err != nil {
-			return &AttDelta{}, err
-		}
-		attDelta.InactivityPenalty = n / inactivityDenominator
 	}
 
 	return attDelta, nil

@@ -42,6 +42,12 @@ type Validator struct {
 
 	// InactivityScore of the validator. [New in Altair]
 	InactivityScore uint64
+
+	// PrincipalBalance of the validator. [New in Alpaca]
+	PrincipalBalance uint64
+
+	// ActualBalance of the validator
+	ActualBalance uint64
 }
 
 // Balance stores the pre computation of the total participated balances for a given epoch

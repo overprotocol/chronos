@@ -106,7 +106,7 @@ func TestActiveBalanceAtIndex(t *testing.T) {
 
 	ab, err = state.ActiveBalanceAtIndex(1)
 	require.NoError(t, err)
-	require.Equal(t, params.BeaconConfig().MaxEffectiveBalanceElectra, ab)
+	require.Equal(t, params.BeaconConfig().MaxEffectiveBalanceAlpaca, ab)
 
 	ab, err = state.ActiveBalanceAtIndex(2)
 	require.NoError(t, err)

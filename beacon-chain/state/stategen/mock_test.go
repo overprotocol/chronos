@@ -12,6 +12,7 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/transition"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/db"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
+	"github.com/prysmaticlabs/prysm/v5/config/params"
 	consensusblocks "github.com/prysmaticlabs/prysm/v5/consensus-types/blocks"
 	blocktest "github.com/prysmaticlabs/prysm/v5/consensus-types/blocks/testing"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/interfaces"
@@ -196,6 +197,11 @@ func (h *mockHistory) validateRoots() error {
 }
 
 func newMockHistory(t *testing.T, hist []mockHistorySpec, current primitives.Slot) *mockHistory {
+	// Make bailout buffer high enough, so validator will be active until the end of the test
+	cfg := params.BeaconConfig().Copy()
+	cfg.InactivityPenaltyRate = 100
+	params.OverrideBeaconConfig(cfg)
+
 	ctx := context.Background()
 	mh := &mockHistory{
 		blocks:       map[[32]byte]interfaces.ReadOnlySignedBeaconBlock{},

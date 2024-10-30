@@ -16,17 +16,17 @@ func TestBalanceChurnLimit(t *testing.T) {
 		expected      primitives.Gwei
 	}{
 		{
-			name:          "less than MIN_PER_EPOCH_CHURN_LIMIT_ELECTRA",
+			name:          "less than MIN_PER_EPOCH_CHURN_LIMIT_ALPACA",
 			activeBalance: 111,
-			expected:      primitives.Gwei(params.BeaconConfig().MinPerEpochChurnLimitElectra),
+			expected:      primitives.Gwei(params.BeaconConfig().MinPerEpochChurnLimitAlpaca),
 		},
 		{
 			name:          "modulo EFFECTIVE_BALANCE_INCREMENT",
-			activeBalance: primitives.Gwei(111 + params.BeaconConfig().MinPerEpochChurnLimitElectra*params.BeaconConfig().ChurnLimitQuotient),
-			expected:      primitives.Gwei(params.BeaconConfig().MinPerEpochChurnLimitElectra),
+			activeBalance: primitives.Gwei(111 + params.BeaconConfig().MinPerEpochChurnLimitAlpaca*params.BeaconConfig().ChurnLimitQuotient),
+			expected:      primitives.Gwei(params.BeaconConfig().MinPerEpochChurnLimitAlpaca),
 		},
 		{
-			name:          "more than MIN_PER_EPOCH_CHURN_LIMIT_ELECTRA",
+			name:          "more than MIN_PER_EPOCH_CHURN_LIMIT_ALPACA",
 			activeBalance: primitives.Gwei(2000 * params.BeaconConfig().EffectiveBalanceIncrement * params.BeaconConfig().ChurnLimitQuotient),
 			expected:      primitives.Gwei(2000 * params.BeaconConfig().EffectiveBalanceIncrement),
 		},
@@ -39,27 +39,57 @@ func TestBalanceChurnLimit(t *testing.T) {
 	}
 }
 
-func TestActivationExitChurnLimit(t *testing.T) {
+func TestActivationBalanceChurnLimit(t *testing.T) {
 	tests := []struct {
 		name          string
 		activeBalance primitives.Gwei
 		expected      primitives.Gwei
 	}{
 		{
-			name:          "less than MAX_PER_EPOCH_ACTIVATION_EXIT_CHURN_LIMIT",
+			name:          "less than MIN_PER_EPOCH_ACTIVATION_BALANCE_CHURN_LIMIT",
 			activeBalance: 1,
-			expected:      primitives.Gwei(params.BeaconConfig().MinPerEpochChurnLimitElectra),
+			expected:      primitives.Gwei(params.BeaconConfig().MinPerEpochActivationBalanceChurnLimit),
 		},
 		{
-			name:          "more than MAX_PER_EPOCH_ACTIVATION_EXIT_CHURN_LIMIT",
+			name:          "more than MIN_PER_EPOCH_ACTIVATION_BALANCE_CHURN_LIMIT",
 			activeBalance: primitives.Gwei(2000 * params.BeaconConfig().EffectiveBalanceIncrement * params.BeaconConfig().ChurnLimitQuotient),
-			expected:      primitives.Gwei(params.BeaconConfig().MaxPerEpochActivationExitChurnLimit),
+			expected:      primitives.Gwei(2000 * params.BeaconConfig().EffectiveBalanceIncrement),
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.expected, helpers.ActivationExitChurnLimit(tt.activeBalance))
+			assert.Equal(t, tt.expected, helpers.ActivationBalanceChurnLimit(tt.activeBalance))
+		})
+	}
+}
+
+func TestExitBalanceChurnLimit(t *testing.T) {
+	tests := []struct {
+		name          string
+		activeBalance primitives.Gwei
+		expected      primitives.Gwei
+	}{
+		{
+			name:          "less than MIN_PER_EPOCH_CHURN_LIMIT_ALPACA",
+			activeBalance: 111,
+			expected:      primitives.Gwei(params.BeaconConfig().MinPerEpochChurnLimitAlpaca),
+		},
+		{
+			name:          "modulo EFFECTIVE_BALANCE_INCREMENT",
+			activeBalance: primitives.Gwei(111 + params.BeaconConfig().MinPerEpochChurnLimitAlpaca*params.BeaconConfig().ChurnLimitQuotient),
+			expected:      primitives.Gwei(params.BeaconConfig().MinPerEpochChurnLimitAlpaca),
+		},
+		{
+			name:          "more than MIN_PER_EPOCH_CHURN_LIMIT_ELECTRA",
+			activeBalance: primitives.Gwei(2000 * params.BeaconConfig().EffectiveBalanceIncrement * params.BeaconConfig().ChurnLimitQuotient),
+			expected:      primitives.Gwei(2000 * params.BeaconConfig().EffectiveBalanceIncrement),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.expected, helpers.ExitBalanceChurnLimit(tt.activeBalance))
 		})
 	}
 }

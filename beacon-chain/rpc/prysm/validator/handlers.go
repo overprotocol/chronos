@@ -61,7 +61,7 @@ func (s *Server) GetParticipation(w http.ResponseWriter, r *http.Request) {
 // GetActiveSetChanges retrieves the active set changes for a given epoch.
 //
 // This data includes any activations, voluntary exits, and involuntary
-// ejections.
+// bailouts.
 func (s *Server) GetActiveSetChanges(w http.ResponseWriter, r *http.Request) {
 	ctx, span := trace.StartSpan(r.Context(), "validator.GetActiveSetChanges")
 	defer span.End()
@@ -93,8 +93,8 @@ func (s *Server) GetActiveSetChanges(w http.ResponseWriter, r *http.Request) {
 		ExitedIndices:       uint64SliceToStringSlice(as.ExitedIndices),
 		SlashedPublicKeys:   byteSlice2dToStringSlice(as.SlashedPublicKeys),
 		SlashedIndices:      uint64SliceToStringSlice(as.SlashedIndices),
-		EjectedPublicKeys:   byteSlice2dToStringSlice(as.EjectedPublicKeys),
-		EjectedIndices:      uint64SliceToStringSlice(as.EjectedIndices),
+		BailedOutPublicKeys: byteSlice2dToStringSlice(as.BailedOutPublicKeys),
+		BailedOutIndices:    uint64SliceToStringSlice(as.BailedOutIndices),
 	}
 	httputil.WriteJson(w, response)
 }

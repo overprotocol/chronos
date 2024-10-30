@@ -239,7 +239,7 @@ func UpgradeToElectra(beaconState state.BeaconState) (state.BeaconState, error) 
 		HistoricalSummaries:          summaries,
 
 		DepositBalanceToConsume:   0,
-		ExitBalanceToConsume:      helpers.ActivationExitChurnLimit(primitives.Gwei(tab)),
+		ExitBalanceToConsume:      helpers.ExitBalanceChurnLimit(primitives.Gwei(tab)),
 		EarliestExitEpoch:         earliestExitEpoch,
 		PendingDeposits:           make([]*ethpb.PendingDeposit, 0),
 		PendingPartialWithdrawals: make([]*ethpb.PendingPartialWithdrawal, 0),

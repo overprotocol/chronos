@@ -132,7 +132,7 @@ func TestUpgradeToElectra(t *testing.T) {
 
 	ebtc, err := mSt.ExitBalanceToConsume()
 	require.NoError(t, err)
-	require.Equal(t, helpers.ActivationExitChurnLimit(primitives.Gwei(tab)), ebtc)
+	require.Equal(t, helpers.ExitBalanceChurnLimit(primitives.Gwei(tab)), ebtc)
 
 	eee, err := mSt.EarliestExitEpoch()
 	require.NoError(t, err)

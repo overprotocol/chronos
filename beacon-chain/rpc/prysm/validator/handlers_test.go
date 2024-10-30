@@ -432,16 +432,21 @@ func TestServer_GetValidatorActiveSetChanges(t *testing.T) {
 
 	ctx := context.Background()
 	validators := make([]*ethpb.Validator, 8)
-	headState, err := util.NewBeaconState()
+	headState, err := util.NewBeaconStateAltair()
 	require.NoError(t, err)
 	require.NoError(t, headState.SetSlot(0))
 	require.NoError(t, headState.SetValidators(validators))
+
+	actualBalances := make([]uint64, 0)
+
 	for i := 0; i < len(validators); i++ {
 		activationEpoch := params.BeaconConfig().FarFutureEpoch
 		withdrawableEpoch := params.BeaconConfig().FarFutureEpoch
 		exitEpoch := params.BeaconConfig().FarFutureEpoch
 		slashed := false
 		balance := params.BeaconConfig().MaxEffectiveBalance
+		actualBalances = append(actualBalances, balance)
+
 		// Mark indices divisible by two as activated.
 		if i%2 == 0 {
 			activationEpoch = 0
@@ -454,10 +459,11 @@ func TestServer_GetValidatorActiveSetChanges(t *testing.T) {
 			exitEpoch = 0
 			withdrawableEpoch = params.BeaconConfig().MinValidatorWithdrawabilityDelay
 		} else if i%7 == 0 {
-			// Mark indices divisible by 7 as ejected.
+			// Mark indices divisible by 7 as bailed out.
 			exitEpoch = 0
 			withdrawableEpoch = params.BeaconConfig().MinValidatorWithdrawabilityDelay
-			balance = params.BeaconConfig().EjectionBalance
+			bailoutBuffer := balance * params.BeaconConfig().InactivityPenaltyRate / params.BeaconConfig().InactivityPenaltyRatePrecision
+			actualBalances[i] = balance - bailoutBuffer - 1
 		}
 		err := headState.UpdateValidatorAtIndex(primitives.ValidatorIndex(i), &ethpb.Validator{
 			ActivationEpoch:       activationEpoch,
@@ -467,9 +473,12 @@ func TestServer_GetValidatorActiveSetChanges(t *testing.T) {
 			WithdrawableEpoch:     withdrawableEpoch,
 			Slashed:               slashed,
 			ExitEpoch:             exitEpoch,
+			PrincipalBalance:      balance,
 		})
 		require.NoError(t, err)
 	}
+	require.NoError(t, headState.SetBalances(actualBalances))
+
 	b := util.NewBeaconBlock()
 	util.SaveBlock(t, ctx, beaconDB, b)
 
@@ -517,10 +526,10 @@ func TestServer_GetValidatorActiveSetChanges(t *testing.T) {
 		hexutil.Encode(pubKey(3)),
 	}
 	wantedSlashedIndices := []string{"3"}
-	wantedEjected := []string{
+	wantedBailedOut := []string{
 		hexutil.Encode(pubKey(7)),
 	}
-	wantedEjectedIndices := []string{"7"}
+	wantedBailedOutIndices := []string{"7"}
 	want := &structs.ActiveSetChanges{
 		Epoch:               "0",
 		ActivatedPublicKeys: wantedActive,
@@ -529,8 +538,8 @@ func TestServer_GetValidatorActiveSetChanges(t *testing.T) {
 		ExitedIndices:       wantedExitedIndices,
 		SlashedPublicKeys:   wantedSlashed,
 		SlashedIndices:      wantedSlashedIndices,
-		EjectedPublicKeys:   wantedEjected,
-		EjectedIndices:      wantedEjectedIndices,
+		BailedOutPublicKeys: wantedBailedOut,
+		BailedOutIndices:    wantedBailedOutIndices,
 	}
 
 	var as *structs.ActiveSetChanges

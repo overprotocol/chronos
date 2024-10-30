@@ -187,22 +187,22 @@ func TestExpectedWithdrawals(t *testing.T) {
 			Index:          strconv.FormatUint(0, 10),
 			ValidatorIndex: strconv.FormatUint(5, 10),
 			Address:        hexutil.Encode(validators[5].WithdrawalCredentials[12:]),
-			// Decreased due to epoch processing when state advanced forward
-			Amount: strconv.FormatUint(255991888589, 10),
+			// Same as MaxEffectiveBalance because its inactivity score is below penalty threshold
+			Amount: strconv.FormatUint(256000000000, 10),
 		}
 		expectedWithdrawal2 := &structs.ExpectedWithdrawal{
 			Index:          strconv.FormatUint(1, 10),
 			ValidatorIndex: strconv.FormatUint(14, 10),
 			Address:        hexutil.Encode(validators[14].WithdrawalCredentials[12:]),
-			// MaxEffectiveBalance + MinDepositAmount + decrease after epoch processing
-			Amount: strconv.FormatUint(256991888589, 10),
+			// MaxEffectiveBalance + MinDepositAmount
+			Amount: strconv.FormatUint(257000000000, 10),
 		}
 		expectedWithdrawal3 := &structs.ExpectedWithdrawal{
 			Index:          strconv.FormatUint(2, 10),
 			ValidatorIndex: strconv.FormatUint(15, 10),
 			Address:        hexutil.Encode(validators[15].WithdrawalCredentials[12:]),
-			// MinDepositAmount + decrease after epoch processing
-			Amount: strconv.FormatUint(991888589, 10),
+			// MinDepositAmount
+			Amount: strconv.FormatUint(1000000000, 10),
 		}
 		require.DeepEqual(t, expectedWithdrawal1, resp.Data[0])
 		require.DeepEqual(t, expectedWithdrawal2, resp.Data[1])

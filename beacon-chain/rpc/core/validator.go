@@ -607,8 +607,7 @@ func (s *Service) ValidatorParticipation(
 
 // ValidatorActiveSetChanges retrieves the active set changes for a given epoch.
 //
-// This data includes any activations, voluntary exits, and involuntary
-// ejections.
+// This data includes any activations, voluntary exits, and bail outs.
 func (s *Service) ValidatorActiveSetChanges(
 	ctx context.Context,
 	requestedEpoch primitives.Epoch,
@@ -636,23 +635,15 @@ func (s *Service) ValidatorActiveSetChanges(
 		}
 	}
 
-	activeValidatorCount, err := helpers.ActiveValidatorCount(ctx, requestedState, coreTime.CurrentEpoch(requestedState))
-	if err != nil {
-		return nil, &RpcError{
-			Err:    errors.Wrap(err, "could not get active validator count"),
-			Reason: Internal,
-		}
-	}
 	vs := requestedState.Validators()
 	activatedIndices := validators.ActivatedValidatorIndices(coreTime.CurrentEpoch(requestedState), vs)
-	activeDeposit, err := helpers.TotalActiveBalance(requestedState)
-	if err != nil {
-		return nil, &RpcError{
-			Err:    errors.Wrap(err, "could not get active deposit"),
-			Reason: Internal,
-		}
-	}
-	exitedIndices, err := validators.ExitedValidatorIndices(coreTime.CurrentEpoch(requestedState), vs, activeValidatorCount, activeDeposit)
+
+	// Determine whether requested epoch is in inactivity leak period.
+	previousEpoch := coreTime.PrevEpoch(requestedState)
+	finalizedEpoch := requestedState.FinalizedCheckpointEpoch()
+	isInInactivityLeak := helpers.IsInInactivityLeak(previousEpoch, finalizedEpoch)
+
+	exitedIndices, err := validators.ExitedValidatorIndices(requestedState, vs, isInInactivityLeak)
 	if err != nil {
 		return nil, &RpcError{
 			Err:    errors.Wrap(err, "could not determine exited validator indices"),
@@ -660,10 +651,10 @@ func (s *Service) ValidatorActiveSetChanges(
 		}
 	}
 	slashedIndices := validators.SlashedValidatorIndices(coreTime.CurrentEpoch(requestedState), vs)
-	ejectedIndices, err := validators.EjectedValidatorIndices(coreTime.CurrentEpoch(requestedState), vs, activeValidatorCount, activeDeposit)
+	bailedOutIndices, err := validators.BailedOutValidatorIndices(requestedState, vs, isInInactivityLeak)
 	if err != nil {
 		return nil, &RpcError{
-			Err:    errors.Wrap(err, "could not determine ejected validator indices"),
+			Err:    errors.Wrap(err, "could not determine bailed out validator indices"),
 			Reason: Internal,
 		}
 	}
@@ -672,7 +663,7 @@ func (s *Service) ValidatorActiveSetChanges(
 	activatedKeys := make([][]byte, len(activatedIndices))
 	exitedKeys := make([][]byte, len(exitedIndices))
 	slashedKeys := make([][]byte, len(slashedIndices))
-	ejectedKeys := make([][]byte, len(ejectedIndices))
+	bailedOutKeys := make([][]byte, len(bailedOutIndices))
 	for i, idx := range activatedIndices {
 		pubkey := requestedState.PubkeyAtIndex(idx)
 		activatedKeys[i] = pubkey[:]
@@ -685,10 +676,11 @@ func (s *Service) ValidatorActiveSetChanges(
 		pubkey := requestedState.PubkeyAtIndex(idx)
 		slashedKeys[i] = pubkey[:]
 	}
-	for i, idx := range ejectedIndices {
+	for i, idx := range bailedOutIndices {
 		pubkey := requestedState.PubkeyAtIndex(idx)
-		ejectedKeys[i] = pubkey[:]
+		bailedOutKeys[i] = pubkey[:]
 	}
+
 	return &ethpb.ActiveSetChanges{
 		Epoch:               requestedEpoch,
 		ActivatedPublicKeys: activatedKeys,
@@ -697,7 +689,7 @@ func (s *Service) ValidatorActiveSetChanges(
 		ExitedIndices:       exitedIndices,
 		SlashedPublicKeys:   slashedKeys,
 		SlashedIndices:      slashedIndices,
-		EjectedPublicKeys:   ejectedKeys,
-		EjectedIndices:      ejectedIndices,
+		BailedOutPublicKeys: bailedOutKeys,
+		BailedOutIndices:    bailedOutIndices,
 	}, nil
 }
