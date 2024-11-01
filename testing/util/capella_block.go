@@ -84,16 +84,6 @@ func GenerateFullBlockCapella(
 		}
 	}
 
-	numToGen = conf.NumDeposits
-	var newDeposits []*ethpb.Deposit
-	eth1Data := bState.Eth1Data()
-	if numToGen > 0 {
-		newDeposits, eth1Data, err = generateDepositsAndEth1Data(bState, numToGen)
-		if err != nil {
-			return nil, errors.Wrapf(err, "failed generating %d deposits:", numToGen)
-		}
-	}
-
 	numToGen = conf.NumVoluntaryExits
 	var exits []*ethpb.SignedVoluntaryExit
 	if numToGen > 0 {
@@ -185,16 +175,13 @@ func GenerateFullBlockCapella(
 		ParentRoot:    parentRoot[:],
 		ProposerIndex: idx,
 		Body: &ethpb.BeaconBlockBodyCapella{
-			Eth1Data:              eth1Data,
-			RandaoReveal:          reveal,
-			ProposerSlashings:     pSlashings,
-			AttesterSlashings:     aSlashings,
-			Attestations:          atts,
-			VoluntaryExits:        exits,
-			Deposits:              newDeposits,
-			Graffiti:              make([]byte, fieldparams.RootLength),
-			ExecutionPayload:      newExecutionPayloadCapella,
-			BlsToExecutionChanges: changes,
+			RandaoReveal:      reveal,
+			ProposerSlashings: pSlashings,
+			AttesterSlashings: aSlashings,
+			Attestations:      atts,
+			VoluntaryExits:    exits,
+			Graffiti:          make([]byte, fieldparams.RootLength),
+			ExecutionPayload:  newExecutionPayloadCapella,
 		},
 	}
 

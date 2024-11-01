@@ -1083,17 +1083,11 @@ func Test_initBlockBodyFromProtoBlindedDeneb(t *testing.T) {
 func bodyPbPhase0() *eth.BeaconBlockBody {
 	f := getFields()
 	return &eth.BeaconBlockBody{
-		RandaoReveal: f.sig[:],
-		Eth1Data: &eth.Eth1Data{
-			DepositRoot:  f.root[:],
-			DepositCount: 128,
-			BlockHash:    f.root[:],
-		},
+		RandaoReveal:      f.sig[:],
 		Graffiti:          f.root[:],
 		ProposerSlashings: f.proposerSlashings,
 		AttesterSlashings: f.attesterSlashings,
 		Attestations:      f.atts,
-		Deposits:          f.deposits,
 		VoluntaryExits:    f.voluntaryExits,
 	}
 }
@@ -1101,17 +1095,11 @@ func bodyPbPhase0() *eth.BeaconBlockBody {
 func bodyPbAltair() *eth.BeaconBlockBodyAltair {
 	f := getFields()
 	return &eth.BeaconBlockBodyAltair{
-		RandaoReveal: f.sig[:],
-		Eth1Data: &eth.Eth1Data{
-			DepositRoot:  f.root[:],
-			DepositCount: 128,
-			BlockHash:    f.root[:],
-		},
+		RandaoReveal:      f.sig[:],
 		Graffiti:          f.root[:],
 		ProposerSlashings: f.proposerSlashings,
 		AttesterSlashings: f.attesterSlashings,
 		Attestations:      f.atts,
-		Deposits:          f.deposits,
 		VoluntaryExits:    f.voluntaryExits,
 	}
 }
@@ -1119,17 +1107,11 @@ func bodyPbAltair() *eth.BeaconBlockBodyAltair {
 func bodyPbBellatrix() *eth.BeaconBlockBodyBellatrix {
 	f := getFields()
 	return &eth.BeaconBlockBodyBellatrix{
-		RandaoReveal: f.sig[:],
-		Eth1Data: &eth.Eth1Data{
-			DepositRoot:  f.root[:],
-			DepositCount: 128,
-			BlockHash:    f.root[:],
-		},
+		RandaoReveal:      f.sig[:],
 		Graffiti:          f.root[:],
 		ProposerSlashings: f.proposerSlashings,
 		AttesterSlashings: f.attesterSlashings,
 		Attestations:      f.atts,
-		Deposits:          f.deposits,
 		VoluntaryExits:    f.voluntaryExits,
 		ExecutionPayload:  f.execPayload,
 	}
@@ -1138,17 +1120,11 @@ func bodyPbBellatrix() *eth.BeaconBlockBodyBellatrix {
 func bodyPbBlindedBellatrix() *eth.BlindedBeaconBlockBodyBellatrix {
 	f := getFields()
 	return &eth.BlindedBeaconBlockBodyBellatrix{
-		RandaoReveal: f.sig[:],
-		Eth1Data: &eth.Eth1Data{
-			DepositRoot:  f.root[:],
-			DepositCount: 128,
-			BlockHash:    f.root[:],
-		},
+		RandaoReveal:           f.sig[:],
 		Graffiti:               f.root[:],
 		ProposerSlashings:      f.proposerSlashings,
 		AttesterSlashings:      f.attesterSlashings,
 		Attestations:           f.atts,
-		Deposits:               f.deposits,
 		VoluntaryExits:         f.voluntaryExits,
 		ExecutionPayloadHeader: f.execPayloadHeader,
 	}
@@ -1157,81 +1133,53 @@ func bodyPbBlindedBellatrix() *eth.BlindedBeaconBlockBodyBellatrix {
 func bodyPbCapella() *eth.BeaconBlockBodyCapella {
 	f := getFields()
 	return &eth.BeaconBlockBodyCapella{
-		RandaoReveal: f.sig[:],
-		Eth1Data: &eth.Eth1Data{
-			DepositRoot:  f.root[:],
-			DepositCount: 128,
-			BlockHash:    f.root[:],
-		},
-		Graffiti:              f.root[:],
-		ProposerSlashings:     f.proposerSlashings,
-		AttesterSlashings:     f.attesterSlashings,
-		Attestations:          f.atts,
-		Deposits:              f.deposits,
-		VoluntaryExits:        f.voluntaryExits,
-		ExecutionPayload:      f.execPayloadCapella,
-		BlsToExecutionChanges: f.blsToExecutionChanges,
+		RandaoReveal:      f.sig[:],
+		Graffiti:          f.root[:],
+		ProposerSlashings: f.proposerSlashings,
+		AttesterSlashings: f.attesterSlashings,
+		Attestations:      f.atts,
+		VoluntaryExits:    f.voluntaryExits,
+		ExecutionPayload:  f.execPayloadCapella,
 	}
 }
 
 func bodyPbBlindedCapella() *eth.BlindedBeaconBlockBodyCapella {
 	f := getFields()
 	return &eth.BlindedBeaconBlockBodyCapella{
-		RandaoReveal: f.sig[:],
-		Eth1Data: &eth.Eth1Data{
-			DepositRoot:  f.root[:],
-			DepositCount: 128,
-			BlockHash:    f.root[:],
-		},
+		RandaoReveal:           f.sig[:],
 		Graffiti:               f.root[:],
 		ProposerSlashings:      f.proposerSlashings,
 		AttesterSlashings:      f.attesterSlashings,
 		Attestations:           f.atts,
-		Deposits:               f.deposits,
 		VoluntaryExits:         f.voluntaryExits,
 		ExecutionPayloadHeader: f.execPayloadHeaderCapella,
-		BlsToExecutionChanges:  f.blsToExecutionChanges,
 	}
 }
 
 func bodyPbDeneb() *eth.BeaconBlockBodyDeneb {
 	f := getFields()
 	return &eth.BeaconBlockBodyDeneb{
-		RandaoReveal: f.sig[:],
-		Eth1Data: &eth.Eth1Data{
-			DepositRoot:  f.root[:],
-			DepositCount: 128,
-			BlockHash:    f.root[:],
-		},
-		Graffiti:              f.root[:],
-		ProposerSlashings:     f.proposerSlashings,
-		AttesterSlashings:     f.attesterSlashings,
-		Attestations:          f.atts,
-		Deposits:              f.deposits,
-		VoluntaryExits:        f.voluntaryExits,
-		ExecutionPayload:      f.execPayloadDeneb,
-		BlsToExecutionChanges: f.blsToExecutionChanges,
-		BlobKzgCommitments:    f.kzgCommitments,
+		RandaoReveal:       f.sig[:],
+		Graffiti:           f.root[:],
+		ProposerSlashings:  f.proposerSlashings,
+		AttesterSlashings:  f.attesterSlashings,
+		Attestations:       f.atts,
+		VoluntaryExits:     f.voluntaryExits,
+		ExecutionPayload:   f.execPayloadDeneb,
+		BlobKzgCommitments: f.kzgCommitments,
 	}
 }
 
 func bodyPbBlindedDeneb() *eth.BlindedBeaconBlockBodyDeneb {
 	f := getFields()
 	return &eth.BlindedBeaconBlockBodyDeneb{
-		RandaoReveal: f.sig[:],
-		Eth1Data: &eth.Eth1Data{
-			DepositRoot:  f.root[:],
-			DepositCount: 128,
-			BlockHash:    f.root[:],
-		},
+		RandaoReveal:           f.sig[:],
 		Graffiti:               f.root[:],
 		ProposerSlashings:      f.proposerSlashings,
 		AttesterSlashings:      f.attesterSlashings,
 		Attestations:           f.atts,
-		Deposits:               f.deposits,
 		VoluntaryExits:         f.voluntaryExits,
 		ExecutionPayloadHeader: f.execPayloadHeaderDeneb,
-		BlsToExecutionChanges:  f.blsToExecutionChanges,
 		BlobKzgCommitments:     f.kzgCommitments,
 	}
 }

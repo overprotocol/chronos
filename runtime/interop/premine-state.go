@@ -6,7 +6,6 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/pkg/errors"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/altair"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
 	state_native "github.com/prysmaticlabs/prysm/v5/beacon-chain/state/state-native"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state/stateutil"
@@ -188,9 +187,6 @@ func (s *PremineGenesisConfig) empty() (state.BeaconState, error) {
 	if err = e.SetFinalizedCheckpoint(zcp); err != nil {
 		return nil, err
 	}
-	if err = e.SetEth1DataVotes([]*ethpb.Eth1Data{}); err != nil {
-		return nil, err
-	}
 	if s.Version == version.Phase0 {
 		if err = e.SetCurrentEpochAttestations([]*ethpb.PendingAttestation{}); err != nil {
 			return nil, err
@@ -205,12 +201,6 @@ func (s *PremineGenesisConfig) empty() (state.BeaconState, error) {
 func (s *PremineGenesisConfig) processDeposits(ctx context.Context, g state.BeaconState) error {
 	deposits, err := s.deposits()
 	if err != nil {
-		return err
-	}
-	if err = s.setEth1Data(g); err != nil {
-		return err
-	}
-	if _, err = helpers.UpdateGenesisEth1Data(g, deposits, g.Eth1Data()); err != nil {
 		return err
 	}
 
@@ -257,17 +247,6 @@ func (s *PremineGenesisConfig) keys() ([]bls.SecretKey, []bls.PublicKey, error) 
 	return prv, pub, nil
 }
 
-func (s *PremineGenesisConfig) setEth1Data(g state.BeaconState) error {
-	if err := g.SetEth1DepositIndex(0); err != nil {
-		return err
-	}
-	dr, err := emptyDepositRoot()
-	if err != nil {
-		return err
-	}
-	return g.SetEth1Data(&ethpb.Eth1Data{DepositRoot: dr[:], BlockHash: s.GB.Hash().Bytes()})
-}
-
 func emptyDepositRoot() ([32]byte, error) {
 	t, err := trie.NewTrie(params.BeaconConfig().DepositContractTreeDepth)
 	if err != nil {
@@ -308,13 +287,7 @@ func (s *PremineGenesisConfig) populate(g state.BeaconState) error {
 	if err := s.setPrevEpochParticipation(g); err != nil {
 		return err
 	}
-	if err := s.setExecutionPayload(g); err != nil {
-		return err
-	}
-
-	// For pre-mined genesis, we want to keep the deposit root set to the root of an empty trie.
-	// This needs to be set again because the methods used by processDeposits mutate the state's eth1data.
-	return s.setEth1Data(g)
+	return s.setExecutionPayload(g)
 }
 
 func (s *PremineGenesisConfig) setGenesisValidatorsRoot(g state.BeaconState) error {
@@ -415,29 +388,17 @@ func (s *PremineGenesisConfig) setLatestBlockHeader(g state.BeaconState) error {
 	case version.Phase0:
 		body = &ethpb.BeaconBlockBody{
 			RandaoReveal: make([]byte, 96),
-			Eth1Data: &ethpb.Eth1Data{
-				DepositRoot: make([]byte, 32),
-				BlockHash:   make([]byte, 32),
-			},
-			Graffiti: make([]byte, 32),
+			Graffiti:     make([]byte, 32),
 		}
 	case version.Altair:
 		body = &ethpb.BeaconBlockBodyAltair{
 			RandaoReveal: make([]byte, 96),
-			Eth1Data: &ethpb.Eth1Data{
-				DepositRoot: make([]byte, 32),
-				BlockHash:   make([]byte, 32),
-			},
-			Graffiti: make([]byte, 32),
+			Graffiti:     make([]byte, 32),
 		}
 	case version.Bellatrix:
 		body = &ethpb.BeaconBlockBodyBellatrix{
 			RandaoReveal: make([]byte, 96),
-			Eth1Data: &ethpb.Eth1Data{
-				DepositRoot: make([]byte, 32),
-				BlockHash:   make([]byte, 32),
-			},
-			Graffiti: make([]byte, 32),
+			Graffiti:     make([]byte, 32),
 			ExecutionPayload: &enginev1.ExecutionPayload{
 				ParentHash:    make([]byte, 32),
 				FeeRecipient:  make([]byte, 20),
@@ -454,11 +415,7 @@ func (s *PremineGenesisConfig) setLatestBlockHeader(g state.BeaconState) error {
 	case version.Capella:
 		body = &ethpb.BeaconBlockBodyCapella{
 			RandaoReveal: make([]byte, 96),
-			Eth1Data: &ethpb.Eth1Data{
-				DepositRoot: make([]byte, 32),
-				BlockHash:   make([]byte, 32),
-			},
-			Graffiti: make([]byte, 32),
+			Graffiti:     make([]byte, 32),
 			ExecutionPayload: &enginev1.ExecutionPayloadCapella{
 				ParentHash:    make([]byte, 32),
 				FeeRecipient:  make([]byte, 20),
@@ -472,16 +429,11 @@ func (s *PremineGenesisConfig) setLatestBlockHeader(g state.BeaconState) error {
 				Transactions:  make([][]byte, 0),
 				Withdrawals:   make([]*enginev1.Withdrawal, 0),
 			},
-			BlsToExecutionChanges: make([]*ethpb.SignedBLSToExecutionChange, 0),
 		}
 	case version.Deneb:
 		body = &ethpb.BeaconBlockBodyDeneb{
 			RandaoReveal: make([]byte, 96),
-			Eth1Data: &ethpb.Eth1Data{
-				DepositRoot: make([]byte, 32),
-				BlockHash:   make([]byte, 32),
-			},
-			Graffiti: make([]byte, 32),
+			Graffiti:     make([]byte, 32),
 			ExecutionPayload: &enginev1.ExecutionPayloadDeneb{
 				ParentHash:    make([]byte, 32),
 				FeeRecipient:  make([]byte, 20),
@@ -495,17 +447,12 @@ func (s *PremineGenesisConfig) setLatestBlockHeader(g state.BeaconState) error {
 				Transactions:  make([][]byte, 0),
 				Withdrawals:   make([]*enginev1.Withdrawal, 0),
 			},
-			BlsToExecutionChanges: make([]*ethpb.SignedBLSToExecutionChange, 0),
-			BlobKzgCommitments:    make([][]byte, 0),
+			BlobKzgCommitments: make([][]byte, 0),
 		}
 	case version.Electra:
 		body = &ethpb.BeaconBlockBodyElectra{
 			RandaoReveal: make([]byte, 96),
-			Eth1Data: &ethpb.Eth1Data{
-				DepositRoot: make([]byte, 32),
-				BlockHash:   make([]byte, 32),
-			},
-			Graffiti: make([]byte, 32),
+			Graffiti:     make([]byte, 32),
 			ExecutionPayload: &enginev1.ExecutionPayloadElectra{
 				ParentHash:    make([]byte, 32),
 				FeeRecipient:  make([]byte, 20),
@@ -519,8 +466,7 @@ func (s *PremineGenesisConfig) setLatestBlockHeader(g state.BeaconState) error {
 				Transactions:  make([][]byte, 0),
 				Withdrawals:   make([]*enginev1.Withdrawal, 0),
 			},
-			BlsToExecutionChanges: make([]*ethpb.SignedBLSToExecutionChange, 0),
-			BlobKzgCommitments:    make([][]byte, 0),
+			BlobKzgCommitments: make([][]byte, 0),
 			ExecutionRequests: &enginev1.ExecutionRequests{
 				Deposits:    make([]*enginev1.DepositRequest, 0),
 				Withdrawals: make([]*enginev1.WithdrawalRequest, 0),

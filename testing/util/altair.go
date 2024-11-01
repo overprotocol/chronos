@@ -59,7 +59,7 @@ func GenesisBeaconState(ctx context.Context, deposits []*ethpb.Deposit, genesisT
 		return nil, errors.Wrap(err, "could not process validator deposits")
 	}
 
-	return buildGenesisBeaconState(genesisTime, st, st.Eth1Data())
+	return buildGenesisBeaconState(genesisTime, st)
 }
 
 // processPreGenesisDeposits processes a deposit for the beacon state Altair before chain start.
@@ -80,15 +80,11 @@ func processPreGenesisDeposits(
 	return beaconState, nil
 }
 
-func buildGenesisBeaconState(genesisTime uint64, preState state.BeaconState, eth1Data *ethpb.Eth1Data) (state.BeaconState, error) {
-	if eth1Data == nil {
-		return nil, errors.New("no eth1data provided for genesis state")
-	}
-
+func buildGenesisBeaconState(genesisTime uint64, preState state.BeaconState) (state.BeaconState, error) {
 	randaoMixes := make([][]byte, params.BeaconConfig().EpochsPerHistoricalVector)
 	for i := 0; i < len(randaoMixes); i++ {
 		h := make([]byte, 32)
-		copy(h, eth1Data.BlockHash)
+		copy(h, []byte{0x01})
 		randaoMixes[i] = h
 	}
 
@@ -167,20 +163,11 @@ func buildGenesisBeaconState(genesisTime uint64, preState state.BeaconState, eth
 
 		BlockRoots: blockRoots,
 		StateRoots: stateRoots,
-
-		// Eth1 data.
-		Eth1Data:         eth1Data,
-		Eth1DataVotes:    []*ethpb.Eth1Data{},
-		Eth1DepositIndex: preState.Eth1DepositIndex(),
 	}
 
 	bodyRoot, err := (&ethpb.BeaconBlockBodyAltair{
 		RandaoReveal: make([]byte, 96),
-		Eth1Data: &ethpb.Eth1Data{
-			DepositRoot: make([]byte, fieldparams.RootLength),
-			BlockHash:   make([]byte, 32),
-		},
-		Graffiti: make([]byte, 32),
+		Graffiti:     make([]byte, 32),
 	}).HashTreeRoot()
 	if err != nil {
 		return nil, errors.Wrap(err, "could not hash tree root empty block body")
@@ -214,11 +201,6 @@ func emptyGenesisState() (state.BeaconState, error) {
 		RewardAdjustmentFactor:     0,
 		CurrentEpochParticipation:  []byte{},
 		PreviousEpochParticipation: []byte{},
-
-		// Eth1 data.
-		Eth1Data:         &ethpb.Eth1Data{},
-		Eth1DataVotes:    []*ethpb.Eth1Data{},
-		Eth1DepositIndex: 0,
 	}
 	return state_native.InitializeFromProtoAltair(st)
 }
@@ -230,15 +212,10 @@ func NewBeaconBlockAltair() *ethpb.SignedBeaconBlockAltair {
 			ParentRoot: make([]byte, fieldparams.RootLength),
 			StateRoot:  make([]byte, fieldparams.RootLength),
 			Body: &ethpb.BeaconBlockBodyAltair{
-				RandaoReveal: make([]byte, 96),
-				Eth1Data: &ethpb.Eth1Data{
-					DepositRoot: make([]byte, fieldparams.RootLength),
-					BlockHash:   make([]byte, 32),
-				},
+				RandaoReveal:      make([]byte, 96),
 				Graffiti:          make([]byte, 32),
 				Attestations:      []*ethpb.Attestation{},
 				AttesterSlashings: []*ethpb.AttesterSlashing{},
-				Deposits:          []*ethpb.Deposit{},
 				ProposerSlashings: []*ethpb.ProposerSlashing{},
 				VoluntaryExits:    []*ethpb.SignedVoluntaryExit{},
 			},
@@ -350,16 +327,6 @@ func GenerateFullBlockAltair(
 		}
 	}
 
-	numToGen = conf.NumDeposits
-	var newDeposits []*ethpb.Deposit
-	eth1Data := bState.Eth1Data()
-	if numToGen > 0 {
-		newDeposits, eth1Data, err = generateDepositsAndEth1Data(bState, numToGen)
-		if err != nil {
-			return nil, errors.Wrapf(err, "failed generating %d deposits:", numToGen)
-		}
-	}
-
 	numToGen = conf.NumVoluntaryExits
 	var exits []*ethpb.SignedVoluntaryExit
 	if numToGen > 0 {
@@ -404,13 +371,11 @@ func GenerateFullBlockAltair(
 		ParentRoot:    parentRoot[:],
 		ProposerIndex: idx,
 		Body: &ethpb.BeaconBlockBodyAltair{
-			Eth1Data:          eth1Data,
 			RandaoReveal:      reveal,
 			ProposerSlashings: pSlashings,
 			AttesterSlashings: aSlashings,
 			Attestations:      atts,
 			VoluntaryExits:    exits,
-			Deposits:          newDeposits,
 			Graffiti:          make([]byte, fieldparams.RootLength),
 		},
 	}

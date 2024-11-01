@@ -36,9 +36,6 @@ func TestUpgradeToElectra(t *testing.T) {
 	require.DeepSSZEqual(t, preForkState.StateRoots(), mSt.StateRoots())
 	require.DeepSSZEqual(t, preForkState.Validators()[2:], mSt.Validators()[2:])
 	require.DeepSSZEqual(t, preForkState.Balances()[2:], mSt.Balances()[2:])
-	require.DeepSSZEqual(t, preForkState.Eth1Data(), mSt.Eth1Data())
-	require.DeepSSZEqual(t, preForkState.Eth1DataVotes(), mSt.Eth1DataVotes())
-	require.DeepSSZEqual(t, preForkState.Eth1DepositIndex(), mSt.Eth1DepositIndex())
 	require.DeepSSZEqual(t, preForkState.RandaoMixes(), mSt.RandaoMixes())
 	require.DeepSSZEqual(t, preForkState.JustificationBits(), mSt.JustificationBits())
 	require.DeepSSZEqual(t, preForkState.PreviousJustifiedCheckpoint(), mSt.PreviousJustifiedCheckpoint())
@@ -122,10 +119,6 @@ func TestUpgradeToElectra(t *testing.T) {
 	summaries, err := mSt.HistoricalSummaries()
 	require.NoError(t, err)
 	require.Equal(t, 0, len(summaries))
-
-	startIndex, err := mSt.DepositRequestsStartIndex()
-	require.NoError(t, err)
-	require.Equal(t, params.BeaconConfig().UnsetDepositRequestsStartIndex, startIndex)
 
 	balance, err := mSt.DepositBalanceToConsume()
 	require.NoError(t, err)

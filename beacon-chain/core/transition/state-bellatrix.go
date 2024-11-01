@@ -74,29 +74,16 @@ func GenesisBeaconStateBellatrix(ctx context.Context, deposits []*ethpb.Deposit,
 		return nil, errors.Wrap(err, "could not process validator deposits")
 	}
 
-	// After deposits have been processed, overwrite eth1data to what is passed in. This allows us to "pre-mine" validators
-	// without the deposit root and count mismatching the real deposit contract.
-	if err := st.SetEth1Data(eth1Data); err != nil {
-		return nil, err
-	}
-	if err := st.SetEth1DepositIndex(eth1Data.DepositCount); err != nil {
-		return nil, err
-	}
-
-	return OptimizedGenesisBeaconStateBellatrix(genesisTime, st, st.Eth1Data(), ep)
+	return OptimizedGenesisBeaconStateBellatrix(genesisTime, st, ep)
 }
 
 // OptimizedGenesisBeaconStateBellatrix is used to create a state that has already processed deposits. This is to efficiently
 // create a mainnet state at chainstart.
-func OptimizedGenesisBeaconStateBellatrix(genesisTime uint64, preState state.BeaconState, eth1Data *ethpb.Eth1Data, ep *enginev1.ExecutionPayload) (state.BeaconState, error) {
-	if eth1Data == nil {
-		return nil, errors.New("no eth1data provided for genesis state")
-	}
-
+func OptimizedGenesisBeaconStateBellatrix(genesisTime uint64, preState state.BeaconState, ep *enginev1.ExecutionPayload) (state.BeaconState, error) {
 	randaoMixes := make([][]byte, params.BeaconConfig().EpochsPerHistoricalVector)
 	for i := 0; i < len(randaoMixes); i++ {
 		h := make([]byte, 32)
-		copy(h, eth1Data.BlockHash)
+		copy(h, []byte{0x01})
 		randaoMixes[i] = h
 	}
 
@@ -179,21 +166,13 @@ func OptimizedGenesisBeaconStateBellatrix(genesisTime uint64, preState state.Bea
 		BlockRoots:             blockRoots,
 		StateRoots:             stateRoots,
 
-		// Eth1 data.
-		Eth1Data:                     eth1Data,
-		Eth1DataVotes:                []*ethpb.Eth1Data{},
-		Eth1DepositIndex:             preState.Eth1DepositIndex(),
 		LatestExecutionPayloadHeader: eph,
 		InactivityScores:             scores,
 	}
 
 	bodyRoot, err := (&ethpb.BeaconBlockBodyBellatrix{
 		RandaoReveal: make([]byte, 96),
-		Eth1Data: &ethpb.Eth1Data{
-			DepositRoot: make([]byte, 32),
-			BlockHash:   make([]byte, 32),
-		},
-		Graffiti: make([]byte, 32),
+		Graffiti:     make([]byte, 32),
 		ExecutionPayload: &enginev1.ExecutionPayload{
 			ParentHash:    make([]byte, 32),
 			FeeRecipient:  make([]byte, 20),
@@ -242,10 +221,6 @@ func EmptyGenesisStateBellatrix() (state.BeaconState, error) {
 		JustificationBits:      []byte{0},
 		RewardAdjustmentFactor: 0,
 
-		// Eth1 data.
-		Eth1Data:         &ethpb.Eth1Data{},
-		Eth1DataVotes:    []*ethpb.Eth1Data{},
-		Eth1DepositIndex: 0,
 		LatestExecutionPayloadHeader: &enginev1.ExecutionPayloadHeader{
 			ParentHash:       make([]byte, 32),
 			FeeRecipient:     make([]byte, 20),

@@ -42,7 +42,7 @@ func TestFuzzProcessBlockHeader_10000(t *testing.T) {
 
 		s, err := state_native.InitializeFromProtoUnsafePhase0(state)
 		require.NoError(t, err)
-		if block.Block == nil || block.Block.Body == nil || block.Block.Body.Eth1Data == nil {
+		if block.Block == nil || block.Block.Body == nil {
 			continue
 		}
 		wsb, err := blocks.NewSignedBeaconBlock(block)
@@ -76,21 +76,6 @@ func TestFuzzverifyDepositDataSigningRoot_10000(_ *testing.T) {
 	}
 }
 
-func TestFuzzProcessEth1DataInBlock_10000(t *testing.T) {
-	fuzzer := fuzz.NewWithSeed(0)
-	e := &ethpb.Eth1Data{}
-	state, err := state_native.InitializeFromProtoUnsafePhase0(&ethpb.BeaconState{})
-	require.NoError(t, err)
-	for i := 0; i < 10000; i++ {
-		fuzzer.Fuzz(state)
-		fuzzer.Fuzz(e)
-		s, err := ProcessEth1DataInBlock(context.Background(), state, e)
-		if err != nil && s != nil {
-			t.Fatalf("state should be nil on err. found: %v on error: %v for state: %v and eth1data: %v", s, err, state, e)
-		}
-	}
-}
-
 func TestFuzzareEth1DataEqual_10000(_ *testing.T) {
 	fuzzer := fuzz.NewWithSeed(0)
 	eth1data := &ethpb.Eth1Data{}
@@ -102,23 +87,6 @@ func TestFuzzareEth1DataEqual_10000(_ *testing.T) {
 		AreEth1DataEqual(eth1data, eth1data2)
 		AreEth1DataEqual(eth1data, eth1data)
 	}
-}
-
-func TestFuzzEth1DataHasEnoughSupport_10000(t *testing.T) {
-	fuzzer := fuzz.NewWithSeed(0)
-	eth1data := &ethpb.Eth1Data{}
-	var stateVotes []*ethpb.Eth1Data
-	for i := 0; i < 100000; i++ {
-		fuzzer.Fuzz(eth1data)
-		fuzzer.Fuzz(&stateVotes)
-		s, err := state_native.InitializeFromProtoPhase0(&ethpb.BeaconState{
-			Eth1DataVotes: stateVotes,
-		})
-		require.NoError(t, err)
-		_, err = Eth1DataHasEnoughSupport(s, eth1data)
-		_ = err
-	}
-
 }
 
 func TestFuzzProcessBlockHeaderNoVerify_10000(t *testing.T) {
@@ -293,20 +261,6 @@ func TestFuzzVerifyIndexedAttestationn_10000(t *testing.T) {
 		s, err := state_native.InitializeFromProtoUnsafePhase0(state)
 		require.NoError(t, err)
 		err = VerifyIndexedAttestation(ctx, s, idxAttestation)
-		_ = err
-	}
-}
-
-func TestFuzzverifyDeposit_10000(t *testing.T) {
-	fuzzer := fuzz.NewWithSeed(0)
-	state := &ethpb.BeaconState{}
-	deposit := &ethpb.Deposit{}
-	for i := 0; i < 10000; i++ {
-		fuzzer.Fuzz(state)
-		fuzzer.Fuzz(deposit)
-		s, err := state_native.InitializeFromProtoUnsafePhase0(state)
-		require.NoError(t, err)
-		err = VerifyDeposit(s, deposit)
 		_ = err
 	}
 }

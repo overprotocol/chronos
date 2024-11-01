@@ -165,9 +165,6 @@ func InitializeFromProtoUnsafePhase0(st *ethpb.BeaconState) (state.BeaconState, 
 		fork:                        st.Fork,
 		latestBlockHeader:           st.LatestBlockHeader,
 		rewardAdjustmentFactor:      st.RewardAdjustmentFactor,
-		eth1Data:                    st.Eth1Data,
-		eth1DataVotes:               st.Eth1DataVotes,
-		eth1DepositIndex:            st.Eth1DepositIndex,
 		reserves:                    st.Reserves,
 		previousEpochAttestations:   st.PreviousEpochAttestations,
 		currentEpochAttestations:    st.CurrentEpochAttestations,
@@ -262,9 +259,6 @@ func InitializeFromProtoUnsafeAltair(st *ethpb.BeaconStateAltair) (state.BeaconS
 		fork:                        st.Fork,
 		latestBlockHeader:           st.LatestBlockHeader,
 		rewardAdjustmentFactor:      st.RewardAdjustmentFactor,
-		eth1Data:                    st.Eth1Data,
-		eth1DataVotes:               st.Eth1DataVotes,
-		eth1DepositIndex:            st.Eth1DepositIndex,
 		reserves:                    st.Reserves,
 		previousEpochParticipation:  st.PreviousEpochParticipation,
 		currentEpochParticipation:   st.CurrentEpochParticipation,
@@ -362,9 +356,6 @@ func InitializeFromProtoUnsafeBellatrix(st *ethpb.BeaconStateBellatrix) (state.B
 		fork:                         st.Fork,
 		latestBlockHeader:            st.LatestBlockHeader,
 		rewardAdjustmentFactor:       st.RewardAdjustmentFactor,
-		eth1Data:                     st.Eth1Data,
-		eth1DataVotes:                st.Eth1DataVotes,
-		eth1DepositIndex:             st.Eth1DepositIndex,
 		reserves:                     st.Reserves,
 		previousEpochParticipation:   st.PreviousEpochParticipation,
 		currentEpochParticipation:    st.CurrentEpochParticipation,
@@ -464,9 +455,6 @@ func InitializeFromProtoUnsafeCapella(st *ethpb.BeaconStateCapella) (state.Beaco
 		fork:                                st.Fork,
 		latestBlockHeader:                   st.LatestBlockHeader,
 		rewardAdjustmentFactor:              st.RewardAdjustmentFactor,
-		eth1Data:                            st.Eth1Data,
-		eth1DataVotes:                       st.Eth1DataVotes,
-		eth1DepositIndex:                    st.Eth1DepositIndex,
 		reserves:                            st.Reserves,
 		previousEpochParticipation:          st.PreviousEpochParticipation,
 		currentEpochParticipation:           st.CurrentEpochParticipation,
@@ -570,9 +558,6 @@ func InitializeFromProtoUnsafeDeneb(st *ethpb.BeaconStateDeneb) (state.BeaconSta
 		fork:                              st.Fork,
 		latestBlockHeader:                 st.LatestBlockHeader,
 		rewardAdjustmentFactor:            st.RewardAdjustmentFactor,
-		eth1Data:                          st.Eth1Data,
-		eth1DataVotes:                     st.Eth1DataVotes,
-		eth1DepositIndex:                  st.Eth1DepositIndex,
 		reserves:                          st.Reserves,
 		previousEpochParticipation:        st.PreviousEpochParticipation,
 		currentEpochParticipation:         st.CurrentEpochParticipation,
@@ -674,9 +659,6 @@ func InitializeFromProtoUnsafeElectra(st *ethpb.BeaconStateElectra) (state.Beaco
 		fork:                              st.Fork,
 		latestBlockHeader:                 st.LatestBlockHeader,
 		rewardAdjustmentFactor:            st.RewardAdjustmentFactor,
-		eth1Data:                          st.Eth1Data,
-		eth1DataVotes:                     st.Eth1DataVotes,
-		eth1DepositIndex:                  st.Eth1DepositIndex,
 		reserves:                          st.Reserves,
 		previousEpochParticipation:        st.PreviousEpochParticipation,
 		currentEpochParticipation:         st.CurrentEpochParticipation,
@@ -688,7 +670,6 @@ func InitializeFromProtoUnsafeElectra(st *ethpb.BeaconStateElectra) (state.Beaco
 		nextWithdrawalIndex:               st.NextWithdrawalIndex,
 		nextWithdrawalValidatorIndex:      st.NextWithdrawalValidatorIndex,
 		historicalSummaries:               st.HistoricalSummaries,
-		depositRequestsStartIndex:         st.DepositRequestsStartIndex,
 		depositBalanceToConsume:           st.DepositBalanceToConsume,
 		exitBalanceToConsume:              st.ExitBalanceToConsume,
 		earliestExitEpoch:                 st.EarliestExitEpoch,
@@ -797,12 +778,10 @@ func (b *BeaconState) Copy() state.BeaconState {
 		// Primitive types, safe to copy.
 		genesisTime:                  b.genesisTime,
 		slot:                         b.slot,
-		eth1DepositIndex:             b.eth1DepositIndex,
 		nextWithdrawalIndex:          b.nextWithdrawalIndex,
 		nextWithdrawalValidatorIndex: b.nextWithdrawalValidatorIndex,
 		rewardAdjustmentFactor:       b.rewardAdjustmentFactor,
 		reserves:                     b.reserves,
-		depositRequestsStartIndex:    b.depositRequestsStartIndex,
 		depositBalanceToConsume:      b.depositBalanceToConsume,
 		exitBalanceToConsume:         b.exitBalanceToConsume,
 		earliestExitEpoch:            b.earliestExitEpoch,
@@ -816,7 +795,6 @@ func (b *BeaconState) Copy() state.BeaconState {
 		randaoMixesMultiValue:     b.randaoMixesMultiValue,
 		previousEpochAttestations: b.previousEpochAttestations,
 		currentEpochAttestations:  b.currentEpochAttestations,
-		eth1DataVotes:             b.eth1DataVotes,
 
 		// Large arrays, increases over time.
 		balances:                   b.balances,
@@ -836,7 +814,6 @@ func (b *BeaconState) Copy() state.BeaconState {
 		justificationBits:                   b.justificationBitsVal(),
 		fork:                                b.forkVal(),
 		latestBlockHeader:                   b.latestBlockHeaderVal(),
-		eth1Data:                            b.eth1DataVal(),
 		previousJustifiedCheckpoint:         b.previousJustifiedCheckpointVal(),
 		currentJustifiedCheckpoint:          b.currentJustifiedCheckpointVal(),
 		finalizedCheckpoint:                 b.finalizedCheckpointVal(),
@@ -1114,8 +1091,6 @@ func (b *BeaconState) rootSelector(ctx context.Context, field types.FieldIndex) 
 		return b.genesisValidatorsRoot, nil
 	case types.Slot:
 		return ssz.Uint64Root(uint64(b.slot)), nil
-	case types.Eth1DepositIndex:
-		return ssz.Uint64Root(b.eth1DepositIndex), nil
 	case types.Fork:
 		return ssz.ForkRoot(b.fork)
 	case types.LatestBlockHeader:
@@ -1126,22 +1101,6 @@ func (b *BeaconState) rootSelector(ctx context.Context, field types.FieldIndex) 
 		return b.stateRootsRootSelector(field)
 	case types.RewardAdjustmentFactor:
 		return ssz.Uint64Root(b.rewardAdjustmentFactor), nil
-	case types.Eth1Data:
-		return stateutil.Eth1Root(b.eth1Data)
-	case types.Eth1DataVotes:
-		if b.rebuildTrie[field] {
-			err := b.resetFieldTrie(
-				field,
-				b.eth1DataVotes,
-				params.BeaconConfig().Eth1DataVotesLength(),
-			)
-			if err != nil {
-				return [32]byte{}, err
-			}
-			delete(b.rebuildTrie, field)
-			return b.stateFieldLeaves[field].TrieRoot()
-		}
-		return b.recomputeFieldTrie(field, b.eth1DataVotes)
 	case types.Validators:
 		return b.validatorsRootSelector(field)
 	case types.Balances:
@@ -1208,8 +1167,6 @@ func (b *BeaconState) rootSelector(ctx context.Context, field types.FieldIndex) 
 		return ssz.Uint64Root(uint64(b.nextWithdrawalValidatorIndex)), nil
 	case types.HistoricalSummaries:
 		return stateutil.HistoricalSummariesRoot(b.historicalSummaries)
-	case types.DepositRequestsStartIndex:
-		return ssz.Uint64Root(b.depositRequestsStartIndex), nil
 	case types.DepositBalanceToConsume:
 		return ssz.Uint64Root(uint64(b.depositBalanceToConsume)), nil
 	case types.ExitBalanceToConsume:

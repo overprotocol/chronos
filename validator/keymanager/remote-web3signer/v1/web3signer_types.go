@@ -144,12 +144,10 @@ type BeaconBlock struct {
 // BeaconBlockBody a sub property of BeaconBlock.
 type BeaconBlockBody struct {
 	RandaoReveal      hexutil.Bytes          `json:"randao_reveal"`
-	Eth1Data          *Eth1Data              `json:"eth1_data"`
 	Graffiti          hexutil.Bytes          `json:"graffiti"` // 32 bytes
 	ProposerSlashings []*ProposerSlashing    `json:"proposer_slashings"`
 	AttesterSlashings []*AttesterSlashing    `json:"attester_slashings"`
 	Attestations      []*Attestation         `json:"attestations"`
-	Deposits          []*Deposit             `json:"deposits"`
 	VoluntaryExits    []*SignedVoluntaryExit `json:"voluntary_exits"`
 }
 
@@ -242,12 +240,10 @@ type BeaconBlockAltair struct {
 // BeaconBlockBodyAltair a sub property of BeaconBlockAltair.
 type BeaconBlockBodyAltair struct {
 	RandaoReveal      hexutil.Bytes          `json:"randao_reveal"`
-	Eth1Data          *Eth1Data              `json:"eth1_data"`
 	Graffiti          hexutil.Bytes          `json:"graffiti"` /* Hash32 */
 	ProposerSlashings []*ProposerSlashing    `json:"proposer_slashings"`
 	AttesterSlashings []*AttesterSlashing    `json:"attester_slashings"`
 	Attestations      []*Attestation         `json:"attestations"`
-	Deposits          []*Deposit             `json:"deposits"`
 	VoluntaryExits    []*SignedVoluntaryExit `json:"voluntary_exits"`
 }
 

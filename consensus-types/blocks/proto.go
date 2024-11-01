@@ -353,23 +353,19 @@ func (b *BeaconBlockBody) Proto() (proto.Message, error) {
 	case version.Phase0:
 		return &eth.BeaconBlockBody{
 			RandaoReveal:      b.randaoReveal[:],
-			Eth1Data:          b.eth1Data,
 			Graffiti:          b.graffiti[:],
 			ProposerSlashings: b.proposerSlashings,
 			AttesterSlashings: b.attesterSlashings,
 			Attestations:      b.attestations,
-			Deposits:          b.deposits,
 			VoluntaryExits:    b.voluntaryExits,
 		}, nil
 	case version.Altair:
 		return &eth.BeaconBlockBodyAltair{
 			RandaoReveal:      b.randaoReveal[:],
-			Eth1Data:          b.eth1Data,
 			Graffiti:          b.graffiti[:],
 			ProposerSlashings: b.proposerSlashings,
 			AttesterSlashings: b.attesterSlashings,
 			Attestations:      b.attestations,
-			Deposits:          b.deposits,
 			VoluntaryExits:    b.voluntaryExits,
 		}, nil
 	case version.Bellatrix:
@@ -384,12 +380,10 @@ func (b *BeaconBlockBody) Proto() (proto.Message, error) {
 			}
 			return &eth.BlindedBeaconBlockBodyBellatrix{
 				RandaoReveal:           b.randaoReveal[:],
-				Eth1Data:               b.eth1Data,
 				Graffiti:               b.graffiti[:],
 				ProposerSlashings:      b.proposerSlashings,
 				AttesterSlashings:      b.attesterSlashings,
 				Attestations:           b.attestations,
-				Deposits:               b.deposits,
 				VoluntaryExits:         b.voluntaryExits,
 				ExecutionPayloadHeader: ph,
 			}, nil
@@ -404,12 +398,10 @@ func (b *BeaconBlockBody) Proto() (proto.Message, error) {
 		}
 		return &eth.BeaconBlockBodyBellatrix{
 			RandaoReveal:      b.randaoReveal[:],
-			Eth1Data:          b.eth1Data,
 			Graffiti:          b.graffiti[:],
 			ProposerSlashings: b.proposerSlashings,
 			AttesterSlashings: b.attesterSlashings,
 			Attestations:      b.attestations,
-			Deposits:          b.deposits,
 			VoluntaryExits:    b.voluntaryExits,
 			ExecutionPayload:  p,
 		}, nil
@@ -425,15 +417,12 @@ func (b *BeaconBlockBody) Proto() (proto.Message, error) {
 			}
 			return &eth.BlindedBeaconBlockBodyCapella{
 				RandaoReveal:           b.randaoReveal[:],
-				Eth1Data:               b.eth1Data,
 				Graffiti:               b.graffiti[:],
 				ProposerSlashings:      b.proposerSlashings,
 				AttesterSlashings:      b.attesterSlashings,
 				Attestations:           b.attestations,
-				Deposits:               b.deposits,
 				VoluntaryExits:         b.voluntaryExits,
 				ExecutionPayloadHeader: ph,
-				BlsToExecutionChanges:  b.blsToExecutionChanges,
 			}, nil
 		}
 		var p *enginev1.ExecutionPayloadCapella
@@ -445,16 +434,13 @@ func (b *BeaconBlockBody) Proto() (proto.Message, error) {
 			}
 		}
 		return &eth.BeaconBlockBodyCapella{
-			RandaoReveal:          b.randaoReveal[:],
-			Eth1Data:              b.eth1Data,
-			Graffiti:              b.graffiti[:],
-			ProposerSlashings:     b.proposerSlashings,
-			AttesterSlashings:     b.attesterSlashings,
-			Attestations:          b.attestations,
-			Deposits:              b.deposits,
-			VoluntaryExits:        b.voluntaryExits,
-			ExecutionPayload:      p,
-			BlsToExecutionChanges: b.blsToExecutionChanges,
+			RandaoReveal:      b.randaoReveal[:],
+			Graffiti:          b.graffiti[:],
+			ProposerSlashings: b.proposerSlashings,
+			AttesterSlashings: b.attesterSlashings,
+			Attestations:      b.attestations,
+			VoluntaryExits:    b.voluntaryExits,
+			ExecutionPayload:  p,
 		}, nil
 	case version.Deneb:
 		if b.IsBlinded() {
@@ -468,15 +454,12 @@ func (b *BeaconBlockBody) Proto() (proto.Message, error) {
 			}
 			return &eth.BlindedBeaconBlockBodyDeneb{
 				RandaoReveal:           b.randaoReveal[:],
-				Eth1Data:               b.eth1Data,
 				Graffiti:               b.graffiti[:],
 				ProposerSlashings:      b.proposerSlashings,
 				AttesterSlashings:      b.attesterSlashings,
 				Attestations:           b.attestations,
-				Deposits:               b.deposits,
 				VoluntaryExits:         b.voluntaryExits,
 				ExecutionPayloadHeader: ph,
-				BlsToExecutionChanges:  b.blsToExecutionChanges,
 				BlobKzgCommitments:     b.blobKzgCommitments,
 			}, nil
 		}
@@ -489,17 +472,14 @@ func (b *BeaconBlockBody) Proto() (proto.Message, error) {
 			}
 		}
 		return &eth.BeaconBlockBodyDeneb{
-			RandaoReveal:          b.randaoReveal[:],
-			Eth1Data:              b.eth1Data,
-			Graffiti:              b.graffiti[:],
-			ProposerSlashings:     b.proposerSlashings,
-			AttesterSlashings:     b.attesterSlashings,
-			Attestations:          b.attestations,
-			Deposits:              b.deposits,
-			VoluntaryExits:        b.voluntaryExits,
-			ExecutionPayload:      p,
-			BlsToExecutionChanges: b.blsToExecutionChanges,
-			BlobKzgCommitments:    b.blobKzgCommitments,
+			RandaoReveal:       b.randaoReveal[:],
+			Graffiti:           b.graffiti[:],
+			ProposerSlashings:  b.proposerSlashings,
+			AttesterSlashings:  b.attesterSlashings,
+			Attestations:       b.attestations,
+			VoluntaryExits:     b.voluntaryExits,
+			ExecutionPayload:   p,
+			BlobKzgCommitments: b.blobKzgCommitments,
 		}, nil
 	case version.Electra:
 		if b.IsBlinded() {
@@ -513,15 +493,12 @@ func (b *BeaconBlockBody) Proto() (proto.Message, error) {
 			}
 			return &eth.BlindedBeaconBlockBodyElectra{
 				RandaoReveal:           b.randaoReveal[:],
-				Eth1Data:               b.eth1Data,
 				Graffiti:               b.graffiti[:],
 				ProposerSlashings:      b.proposerSlashings,
 				AttesterSlashings:      b.attesterSlashingsElectra,
 				Attestations:           b.attestationsElectra,
-				Deposits:               b.deposits,
 				VoluntaryExits:         b.voluntaryExits,
 				ExecutionPayloadHeader: ph,
-				BlsToExecutionChanges:  b.blsToExecutionChanges,
 				BlobKzgCommitments:     b.blobKzgCommitments,
 				ExecutionRequests:      b.executionRequests,
 			}, nil
@@ -535,18 +512,15 @@ func (b *BeaconBlockBody) Proto() (proto.Message, error) {
 			}
 		}
 		return &eth.BeaconBlockBodyElectra{
-			RandaoReveal:          b.randaoReveal[:],
-			Eth1Data:              b.eth1Data,
-			Graffiti:              b.graffiti[:],
-			ProposerSlashings:     b.proposerSlashings,
-			AttesterSlashings:     b.attesterSlashingsElectra,
-			Attestations:          b.attestationsElectra,
-			Deposits:              b.deposits,
-			VoluntaryExits:        b.voluntaryExits,
-			ExecutionPayload:      p,
-			BlsToExecutionChanges: b.blsToExecutionChanges,
-			BlobKzgCommitments:    b.blobKzgCommitments,
-			ExecutionRequests:     b.executionRequests,
+			RandaoReveal:       b.randaoReveal[:],
+			Graffiti:           b.graffiti[:],
+			ProposerSlashings:  b.proposerSlashings,
+			AttesterSlashings:  b.attesterSlashingsElectra,
+			Attestations:       b.attestationsElectra,
+			VoluntaryExits:     b.voluntaryExits,
+			ExecutionPayload:   p,
+			BlobKzgCommitments: b.blobKzgCommitments,
+			ExecutionRequests:  b.executionRequests,
 		}, nil
 
 	default:
@@ -932,12 +906,10 @@ func initBlockBodyFromProtoPhase0(pb *eth.BeaconBlockBody) (*BeaconBlockBody, er
 	b := &BeaconBlockBody{
 		version:           version.Phase0,
 		randaoReveal:      bytesutil.ToBytes96(pb.RandaoReveal),
-		eth1Data:          pb.Eth1Data,
 		graffiti:          bytesutil.ToBytes32(pb.Graffiti),
 		proposerSlashings: pb.ProposerSlashings,
 		attesterSlashings: pb.AttesterSlashings,
 		attestations:      pb.Attestations,
-		deposits:          pb.Deposits,
 		voluntaryExits:    pb.VoluntaryExits,
 	}
 	return b, nil
@@ -951,12 +923,10 @@ func initBlockBodyFromProtoAltair(pb *eth.BeaconBlockBodyAltair) (*BeaconBlockBo
 	b := &BeaconBlockBody{
 		version:           version.Altair,
 		randaoReveal:      bytesutil.ToBytes96(pb.RandaoReveal),
-		eth1Data:          pb.Eth1Data,
 		graffiti:          bytesutil.ToBytes32(pb.Graffiti),
 		proposerSlashings: pb.ProposerSlashings,
 		attesterSlashings: pb.AttesterSlashings,
 		attestations:      pb.Attestations,
-		deposits:          pb.Deposits,
 		voluntaryExits:    pb.VoluntaryExits,
 	}
 	return b, nil
@@ -975,12 +945,10 @@ func initBlockBodyFromProtoBellatrix(pb *eth.BeaconBlockBodyBellatrix) (*BeaconB
 	b := &BeaconBlockBody{
 		version:           version.Bellatrix,
 		randaoReveal:      bytesutil.ToBytes96(pb.RandaoReveal),
-		eth1Data:          pb.Eth1Data,
 		graffiti:          bytesutil.ToBytes32(pb.Graffiti),
 		proposerSlashings: pb.ProposerSlashings,
 		attesterSlashings: pb.AttesterSlashings,
 		attestations:      pb.Attestations,
-		deposits:          pb.Deposits,
 		voluntaryExits:    pb.VoluntaryExits,
 		executionPayload:  p,
 	}
@@ -1000,12 +968,10 @@ func initBlindedBlockBodyFromProtoBellatrix(pb *eth.BlindedBeaconBlockBodyBellat
 	b := &BeaconBlockBody{
 		version:                version.Bellatrix,
 		randaoReveal:           bytesutil.ToBytes96(pb.RandaoReveal),
-		eth1Data:               pb.Eth1Data,
 		graffiti:               bytesutil.ToBytes32(pb.Graffiti),
 		proposerSlashings:      pb.ProposerSlashings,
 		attesterSlashings:      pb.AttesterSlashings,
 		attestations:           pb.Attestations,
-		deposits:               pb.Deposits,
 		voluntaryExits:         pb.VoluntaryExits,
 		executionPayloadHeader: ph,
 	}
@@ -1023,17 +989,14 @@ func initBlockBodyFromProtoCapella(pb *eth.BeaconBlockBodyCapella) (*BeaconBlock
 		return nil, err
 	}
 	b := &BeaconBlockBody{
-		version:               version.Capella,
-		randaoReveal:          bytesutil.ToBytes96(pb.RandaoReveal),
-		eth1Data:              pb.Eth1Data,
-		graffiti:              bytesutil.ToBytes32(pb.Graffiti),
-		proposerSlashings:     pb.ProposerSlashings,
-		attesterSlashings:     pb.AttesterSlashings,
-		attestations:          pb.Attestations,
-		deposits:              pb.Deposits,
-		voluntaryExits:        pb.VoluntaryExits,
-		executionPayload:      p,
-		blsToExecutionChanges: pb.BlsToExecutionChanges,
+		version:           version.Capella,
+		randaoReveal:      bytesutil.ToBytes96(pb.RandaoReveal),
+		graffiti:          bytesutil.ToBytes32(pb.Graffiti),
+		proposerSlashings: pb.ProposerSlashings,
+		attesterSlashings: pb.AttesterSlashings,
+		attestations:      pb.Attestations,
+		voluntaryExits:    pb.VoluntaryExits,
+		executionPayload:  p,
 	}
 	return b, nil
 }
@@ -1051,15 +1014,12 @@ func initBlindedBlockBodyFromProtoCapella(pb *eth.BlindedBeaconBlockBodyCapella)
 	b := &BeaconBlockBody{
 		version:                version.Capella,
 		randaoReveal:           bytesutil.ToBytes96(pb.RandaoReveal),
-		eth1Data:               pb.Eth1Data,
 		graffiti:               bytesutil.ToBytes32(pb.Graffiti),
 		proposerSlashings:      pb.ProposerSlashings,
 		attesterSlashings:      pb.AttesterSlashings,
 		attestations:           pb.Attestations,
-		deposits:               pb.Deposits,
 		voluntaryExits:         pb.VoluntaryExits,
 		executionPayloadHeader: ph,
-		blsToExecutionChanges:  pb.BlsToExecutionChanges,
 	}
 	return b, nil
 }
@@ -1075,18 +1035,15 @@ func initBlockBodyFromProtoDeneb(pb *eth.BeaconBlockBodyDeneb) (*BeaconBlockBody
 		return nil, err
 	}
 	b := &BeaconBlockBody{
-		version:               version.Deneb,
-		randaoReveal:          bytesutil.ToBytes96(pb.RandaoReveal),
-		eth1Data:              pb.Eth1Data,
-		graffiti:              bytesutil.ToBytes32(pb.Graffiti),
-		proposerSlashings:     pb.ProposerSlashings,
-		attesterSlashings:     pb.AttesterSlashings,
-		attestations:          pb.Attestations,
-		deposits:              pb.Deposits,
-		voluntaryExits:        pb.VoluntaryExits,
-		executionPayload:      p,
-		blsToExecutionChanges: pb.BlsToExecutionChanges,
-		blobKzgCommitments:    pb.BlobKzgCommitments,
+		version:            version.Deneb,
+		randaoReveal:       bytesutil.ToBytes96(pb.RandaoReveal),
+		graffiti:           bytesutil.ToBytes32(pb.Graffiti),
+		proposerSlashings:  pb.ProposerSlashings,
+		attesterSlashings:  pb.AttesterSlashings,
+		attestations:       pb.Attestations,
+		voluntaryExits:     pb.VoluntaryExits,
+		executionPayload:   p,
+		blobKzgCommitments: pb.BlobKzgCommitments,
 	}
 	return b, nil
 }
@@ -1104,15 +1061,12 @@ func initBlindedBlockBodyFromProtoDeneb(pb *eth.BlindedBeaconBlockBodyDeneb) (*B
 	b := &BeaconBlockBody{
 		version:                version.Deneb,
 		randaoReveal:           bytesutil.ToBytes96(pb.RandaoReveal),
-		eth1Data:               pb.Eth1Data,
 		graffiti:               bytesutil.ToBytes32(pb.Graffiti),
 		proposerSlashings:      pb.ProposerSlashings,
 		attesterSlashings:      pb.AttesterSlashings,
 		attestations:           pb.Attestations,
-		deposits:               pb.Deposits,
 		voluntaryExits:         pb.VoluntaryExits,
 		executionPayloadHeader: ph,
-		blsToExecutionChanges:  pb.BlsToExecutionChanges,
 		blobKzgCommitments:     pb.BlobKzgCommitments,
 	}
 	return b, nil
@@ -1135,15 +1089,12 @@ func initBlockBodyFromProtoElectra(pb *eth.BeaconBlockBodyElectra) (*BeaconBlock
 	b := &BeaconBlockBody{
 		version:                  version.Electra,
 		randaoReveal:             bytesutil.ToBytes96(pb.RandaoReveal),
-		eth1Data:                 pb.Eth1Data,
 		graffiti:                 bytesutil.ToBytes32(pb.Graffiti),
 		proposerSlashings:        pb.ProposerSlashings,
 		attesterSlashingsElectra: pb.AttesterSlashings,
 		attestationsElectra:      pb.Attestations,
-		deposits:                 pb.Deposits,
 		voluntaryExits:           pb.VoluntaryExits,
 		executionPayload:         p,
-		blsToExecutionChanges:    pb.BlsToExecutionChanges,
 		blobKzgCommitments:       pb.BlobKzgCommitments,
 		executionRequests:        er,
 	}
@@ -1167,15 +1118,12 @@ func initBlindedBlockBodyFromProtoElectra(pb *eth.BlindedBeaconBlockBodyElectra)
 	b := &BeaconBlockBody{
 		version:                  version.Electra,
 		randaoReveal:             bytesutil.ToBytes96(pb.RandaoReveal),
-		eth1Data:                 pb.Eth1Data,
 		graffiti:                 bytesutil.ToBytes32(pb.Graffiti),
 		proposerSlashings:        pb.ProposerSlashings,
 		attesterSlashingsElectra: pb.AttesterSlashings,
 		attestationsElectra:      pb.Attestations,
-		deposits:                 pb.Deposits,
 		voluntaryExits:           pb.VoluntaryExits,
 		executionPayloadHeader:   ph,
-		blsToExecutionChanges:    pb.BlsToExecutionChanges,
 		blobKzgCommitments:       pb.BlobKzgCommitments,
 		executionRequests:        er,
 	}

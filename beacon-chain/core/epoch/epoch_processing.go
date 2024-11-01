@@ -148,29 +148,6 @@ func ProcessRegistryUpdates(ctx context.Context, st state.BeaconState) (state.Be
 	return st, nil
 }
 
-// ProcessEth1DataReset processes updates to ETH1 data votes during epoch processing.
-//
-// Spec pseudocode definition:
-//
-//	def process_eth1_data_reset(state: BeaconState) -> None:
-//	  next_epoch = Epoch(get_current_epoch(state) + 1)
-//	  # Reset eth1 data votes
-//	  if next_epoch % EPOCHS_PER_ETH1_VOTING_PERIOD == 0:
-//	      state.eth1_data_votes = []
-func ProcessEth1DataReset(state state.BeaconState) (state.BeaconState, error) {
-	currentEpoch := time.CurrentEpoch(state)
-	nextEpoch := currentEpoch + 1
-
-	// Reset ETH1 data votes.
-	if nextEpoch%params.BeaconConfig().EpochsPerEth1VotingPeriod == 0 {
-		if err := state.SetEth1DataVotes([]*ethpb.Eth1Data{}); err != nil {
-			return nil, err
-		}
-	}
-
-	return state, nil
-}
-
 // ProcessEffectiveBalanceUpdates processes effective balance updates during epoch processing.
 //
 // Spec pseudocode definition:
@@ -315,12 +292,6 @@ func ProcessParticipationRecordUpdates(state state.BeaconState) (state.BeaconSta
 // ProcessFinalUpdates processes the final updates during epoch processing.
 func ProcessFinalUpdates(state state.BeaconState) (state.BeaconState, error) {
 	var err error
-
-	// Reset ETH1 data votes.
-	state, err = ProcessEth1DataReset(state)
-	if err != nil {
-		return nil, err
-	}
 
 	// Update effective balances with hysteresis.
 	state, err = ProcessEffectiveBalanceUpdates(state)

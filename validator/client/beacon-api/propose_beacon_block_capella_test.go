@@ -37,8 +37,6 @@ func TestProposeBeaconBlock_Capella(t *testing.T) {
 			Body: &structs.BeaconBlockBodyCapella{
 				Attestations:      jsonifyAttestations(capellaBlock.Capella.Block.Body.Attestations),
 				AttesterSlashings: jsonifyAttesterSlashings(capellaBlock.Capella.Block.Body.AttesterSlashings),
-				Deposits:          jsonifyDeposits(capellaBlock.Capella.Block.Body.Deposits),
-				Eth1Data:          jsonifyEth1Data(capellaBlock.Capella.Block.Body.Eth1Data),
 				Graffiti:          hexutil.Encode(capellaBlock.Capella.Block.Body.Graffiti),
 				ProposerSlashings: jsonifyProposerSlashings(capellaBlock.Capella.Block.Body.ProposerSlashings),
 				RandaoReveal:      hexutil.Encode(capellaBlock.Capella.Block.Body.RandaoReveal),
@@ -60,7 +58,6 @@ func TestProposeBeaconBlock_Capella(t *testing.T) {
 					Transactions:  jsonifyTransactions(capellaBlock.Capella.Block.Body.ExecutionPayload.Transactions),
 					Withdrawals:   jsonifyWithdrawals(capellaBlock.Capella.Block.Body.ExecutionPayload.Withdrawals),
 				},
-				BLSToExecutionChanges: jsonifyBlsToExecutionChanges(capellaBlock.Capella.Block.Body.BlsToExecutionChanges),
 			},
 		},
 	}

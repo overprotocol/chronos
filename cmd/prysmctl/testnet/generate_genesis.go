@@ -11,14 +11,11 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/ghodss/yaml"
 	"github.com/pkg/errors"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
 	"github.com/prysmaticlabs/prysm/v5/cmd/flags"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
-	"github.com/prysmaticlabs/prysm/v5/container/trie"
 	"github.com/prysmaticlabs/prysm/v5/io/file"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	"github.com/prysmaticlabs/prysm/v5/runtime/interop"
@@ -39,7 +36,6 @@ var (
 		OutputJSON         string
 		OutputYaml         string
 		ForkName           string
-		OverrideEth1Data   bool
 		ExecutionEndpoint  string
 		GethGenesisJsonIn  string
 		GethGenesisJsonOut string
@@ -104,12 +100,6 @@ var (
 				Name:        "genesis-time-delay",
 				Destination: &generateGenesisStateFlags.GenesisTimeDelay,
 				Usage:       "Delay genesis time by N seconds",
-			},
-			&cli.BoolFlag{
-				Name:        "override-eth1data",
-				Destination: &generateGenesisStateFlags.OverrideEth1Data,
-				Usage:       "Overrides Eth1Data with values from execution client. If unset, defaults to false",
-				Value:       false,
 			},
 			&cli.StringFlag{
 				Name:        "geth-genesis-json-in",
@@ -311,41 +301,6 @@ func generateGenesis(ctx context.Context) (state.BeaconState, error) {
 	genesisState, err := interop.NewPreminedGenesis(ctx, f.GenesisTime, nv, 0, v, gb, opts...)
 	if err != nil {
 		return nil, err
-	}
-
-	if f.OverrideEth1Data {
-		log.Print("Overriding Eth1Data with data from execution client")
-		conn, err := rpc.Dial(generateGenesisStateFlags.ExecutionEndpoint)
-		if err != nil {
-			return nil, errors.Wrapf(
-				err,
-				"could not dial %s please make sure you are running your execution client",
-				generateGenesisStateFlags.ExecutionEndpoint)
-		}
-		client := ethclient.NewClient(conn)
-		header, err := client.HeaderByNumber(ctx, big.NewInt(0))
-		if err != nil {
-			return nil, errors.Wrap(err, "could not get header by number")
-		}
-		t, err := trie.NewTrie(params.BeaconConfig().DepositContractTreeDepth)
-		if err != nil {
-			return nil, errors.Wrap(err, "could not create deposit tree")
-		}
-		depositRoot, err := t.HashTreeRoot()
-		if err != nil {
-			return nil, errors.Wrap(err, "could not get hash tree root")
-		}
-		e1d := &ethpb.Eth1Data{
-			DepositRoot:  depositRoot[:],
-			DepositCount: 0,
-			BlockHash:    header.Hash().Bytes(),
-		}
-		if err := genesisState.SetEth1Data(e1d); err != nil {
-			return nil, err
-		}
-		if err := genesisState.SetEth1DepositIndex(0); err != nil {
-			return nil, err
-		}
 	}
 
 	return genesisState, err

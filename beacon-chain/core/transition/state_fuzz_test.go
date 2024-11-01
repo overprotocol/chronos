@@ -45,7 +45,7 @@ func TestOptimizedGenesisBeaconState_1000(t *testing.T) {
 		fuzzer.Fuzz(&genesisTime)
 		fuzzer.Fuzz(eth1Data)
 		fuzzer.Fuzz(preState)
-		gs, err := OptimizedGenesisBeaconState(genesisTime, preState, eth1Data)
+		gs, err := OptimizedGenesisBeaconState(genesisTime, preState)
 		if err != nil {
 			if gs != nil {
 				t.Fatalf("Genesis state should be nil on err. found: %v on error: %v for inputs genesis time: %v "+

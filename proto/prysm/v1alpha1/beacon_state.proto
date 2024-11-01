@@ -29,11 +29,6 @@ message BeaconState {
   repeated bytes state_roots = 2003 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
   uint64 reward_adjustment_factor = 2005;
 
-  // Eth1 [3001-4000]
-  Eth1Data eth1_data = 3001;
-  repeated Eth1Data eth1_data_votes = 3002 [(ethereum.eth.ext.ssz_max) = "eth1_data_votes.size"];
-  uint64 eth1_deposit_index = 3003;
-
   // Registry [4001-5000]
   repeated Validator validators = 4001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
   repeated uint64 balances = 4002 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
@@ -68,11 +63,6 @@ message BeaconStateAltair {
   repeated bytes block_roots = 2002 [(ethereum.eth.ext.ssz_size) = "block_roots.size"];
   repeated bytes state_roots = 2003 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
   uint64 reward_adjustment_factor = 2005;
-
-  // Eth1 [3001-4000]
-  Eth1Data eth1_data = 3001;
-  repeated Eth1Data eth1_data_votes = 3002 [(ethereum.eth.ext.ssz_max) = "eth1_data_votes.size"];
-  uint64 eth1_deposit_index = 3003;
 
   // Registry [4001-5000]
   repeated Validator validators = 4001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
@@ -178,11 +168,6 @@ message BeaconStateBellatrix {
   repeated bytes state_roots = 2003 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
   uint64 reward_adjustment_factor = 2005;
 
-  // Eth1 [3001-4000]
-  Eth1Data eth1_data = 3001;
-  repeated Eth1Data eth1_data_votes = 3002 [(ethereum.eth.ext.ssz_max) = "eth1_data_votes.size"];
-  uint64 eth1_deposit_index = 3003;
-
   // Registry [4001-5000]
   repeated Validator validators = 4001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
   repeated uint64 balances = 4002 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
@@ -221,11 +206,6 @@ message BeaconStateCapella {
   repeated bytes block_roots = 2002 [(ethereum.eth.ext.ssz_size) = "block_roots.size"];
   repeated bytes state_roots = 2003 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
   uint64 reward_adjustment_factor = 2005;
-
-  // Eth1 [3001-4000]
-  Eth1Data eth1_data = 3001;
-  repeated Eth1Data eth1_data_votes = 3002 [(ethereum.eth.ext.ssz_max) = "eth1_data_votes.size"];
-  uint64 eth1_deposit_index = 3003;
 
   // Registry [4001-5000]
   repeated Validator validators = 4001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
@@ -271,11 +251,6 @@ message BeaconStateDeneb {
   repeated bytes state_roots = 2003 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
   uint64 reward_adjustment_factor = 2005;
 
-  // Eth1 [3001-4000]
-  Eth1Data eth1_data = 3001;
-  repeated Eth1Data eth1_data_votes = 3002 [(ethereum.eth.ext.ssz_max) = "eth1_data_votes.size"];
-  uint64 eth1_deposit_index = 3003;
-
   // Registry [4001-5000]
   repeated Validator validators = 4001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
   repeated uint64 balances = 4002 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
@@ -320,11 +295,6 @@ message BeaconStateElectra {
   repeated bytes state_roots = 2003 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
   uint64 reward_adjustment_factor = 2005;
 
-  // Eth1 [3001-4000]
-  Eth1Data eth1_data = 3001;
-  repeated Eth1Data eth1_data_votes = 3002 [(ethereum.eth.ext.ssz_max) = "eth1_data_votes.size"];
-  uint64 eth1_deposit_index = 3003;
-
   // Registry [4001-5000]
   repeated Validator validators = 4001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
   repeated uint64 balances = 4002 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
@@ -356,7 +326,6 @@ message BeaconStateElectra {
   repeated HistoricalSummary historical_summaries = 11003 [(ethereum.eth.ext.ssz_max) = "16777216"];
 
   // Fields introduced in EIP-7251 fork [12001-13000]
-  uint64 deposit_requests_start_index = 12001;
   uint64 deposit_balance_to_consume = 12002 [(ethereum.eth.ext.cast_type) = "github.com/prysmaticlabs/prysm/v5/consensus-types/primitives.Gwei"];
   uint64 exit_balance_to_consume = 12003 [(ethereum.eth.ext.cast_type) = "github.com/prysmaticlabs/prysm/v5/consensus-types/primitives.Gwei"];
   uint64 earliest_exit_epoch = 12004 [(ethereum.eth.ext.cast_type) = "github.com/prysmaticlabs/prysm/v5/consensus-types/primitives.Epoch"];
@@ -394,11 +363,6 @@ message BeaconStateOld {
   repeated bytes block_roots = 2002 [(ethereum.eth.ext.ssz_size) = "block_roots.size"];
   repeated bytes state_roots = 2003 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
 
-  // Eth1 [3001-4000]
-  Eth1Data eth1_data = 3001;
-  repeated Eth1Data eth1_data_votes = 3002 [(ethereum.eth.ext.ssz_max) = "eth1_data_votes.size"];
-  uint64 eth1_deposit_index = 3003;
-
   // Registry [4001-5000]
   repeated Validator validators = 4001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
   repeated uint64 balances = 4002 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
@@ -431,11 +395,6 @@ message BeaconStateOldAltair {
   BeaconBlockHeader latest_block_header = 2001;
   repeated bytes block_roots = 2002 [(ethereum.eth.ext.ssz_size) = "block_roots.size"];
   repeated bytes state_roots = 2003 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
-
-  // Eth1 [3001-4000]
-  Eth1Data eth1_data = 3001;
-  repeated Eth1Data eth1_data_votes = 3002 [(ethereum.eth.ext.ssz_max) = "eth1_data_votes.size"];
-  uint64 eth1_deposit_index = 3003;
 
   // Registry [4001-5000]
   repeated Validator validators = 4001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
@@ -470,11 +429,6 @@ message BeaconStateOldBellatrix {
   BeaconBlockHeader latest_block_header = 2001;
   repeated bytes block_roots = 2002 [(ethereum.eth.ext.ssz_size) = "block_roots.size"];
   repeated bytes state_roots = 2003 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
-
-  // Eth1 [3001-4000]
-  Eth1Data eth1_data = 3001;
-  repeated Eth1Data eth1_data_votes = 3002 [(ethereum.eth.ext.ssz_max) = "eth1_data_votes.size"];
-  uint64 eth1_deposit_index = 3003;
 
   // Registry [4001-5000]
   repeated Validator validators = 4001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
@@ -512,11 +466,6 @@ message BeaconStateOldCapella {
   BeaconBlockHeader latest_block_header = 2001;
   repeated bytes block_roots = 2002 [(ethereum.eth.ext.ssz_size) = "block_roots.size"];
   repeated bytes state_roots = 2003 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
-
-  // Eth1 [3001-4000]
-  Eth1Data eth1_data = 3001;
-  repeated Eth1Data eth1_data_votes = 3002 [(ethereum.eth.ext.ssz_max) = "eth1_data_votes.size"];
-  uint64 eth1_deposit_index = 3003;
 
   // Registry [4001-5000]
   repeated Validator validators = 4001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
@@ -560,11 +509,6 @@ message BeaconStateOldDeneb {
   repeated bytes block_roots = 2002 [(ethereum.eth.ext.ssz_size) = "block_roots.size"];
   repeated bytes state_roots = 2003 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
 
-  // Eth1 [3001-4000]
-  Eth1Data eth1_data = 3001;
-  repeated Eth1Data eth1_data_votes = 3002 [(ethereum.eth.ext.ssz_max) = "eth1_data_votes.size"];
-  uint64 eth1_deposit_index = 3003;
-
   // Registry [4001-5000]
   repeated Validator validators = 4001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
   repeated uint64 balances = 4002 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
@@ -606,11 +550,6 @@ message BeaconStateOldElectra {
   repeated bytes block_roots = 2002 [(ethereum.eth.ext.ssz_size) = "block_roots.size"];
   repeated bytes state_roots = 2003 [(ethereum.eth.ext.ssz_size) = "state_roots.size"];
 
-  // Eth1 [3001-4000]
-  Eth1Data eth1_data = 3001;
-  repeated Eth1Data eth1_data_votes = 3002 [(ethereum.eth.ext.ssz_max) = "eth1_data_votes.size"];
-  uint64 eth1_deposit_index = 3003;
-
   // Registry [4001-5000]
   repeated Validator validators = 4001 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
   repeated uint64 balances = 4002 [(ethereum.eth.ext.ssz_max) = "1099511627776"];
@@ -641,7 +580,6 @@ message BeaconStateOldElectra {
   repeated HistoricalSummary historical_summaries = 11003 [(ethereum.eth.ext.ssz_max) = "16777216"];
 
   // Fields introduced in EIP-7251 fork [12001-13000]
-  uint64 deposit_requests_start_index = 12001;
   uint64 deposit_balance_to_consume = 12002 [(ethereum.eth.ext.cast_type) = "github.com/prysmaticlabs/prysm/v5/consensus-types/primitives.Gwei"];
   uint64 exit_balance_to_consume = 12003 [(ethereum.eth.ext.cast_type) = "github.com/prysmaticlabs/prysm/v5/consensus-types/primitives.Gwei"];
   uint64 earliest_exit_epoch = 12004 [(ethereum.eth.ext.cast_type) = "github.com/prysmaticlabs/prysm/v5/consensus-types/primitives.Epoch"];

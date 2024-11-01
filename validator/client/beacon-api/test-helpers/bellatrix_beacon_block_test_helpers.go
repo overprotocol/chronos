@@ -15,12 +15,7 @@ func GenerateProtoBellatrixBeaconBlock() *ethpb.BeaconBlockBellatrix {
 		StateRoot:     FillByteSlice(32, 4),
 		Body: &ethpb.BeaconBlockBodyBellatrix{
 			RandaoReveal: FillByteSlice(96, 5),
-			Eth1Data: &ethpb.Eth1Data{
-				DepositRoot:  FillByteSlice(32, 6),
-				DepositCount: 7,
-				BlockHash:    FillByteSlice(32, 8),
-			},
-			Graffiti: FillByteSlice(32, 9),
+			Graffiti:     FillByteSlice(32, 9),
 			ProposerSlashings: []*ethpb.ProposerSlashing{
 				{
 					Header_1: &ethpb.SignedBeaconBlockHeader{
@@ -175,26 +170,6 @@ func GenerateProtoBellatrixBeaconBlock() *ethpb.BeaconBlockBellatrix {
 						},
 					},
 					Signature: FillByteSlice(96, 91),
-				},
-			},
-			Deposits: []*ethpb.Deposit{
-				{
-					Proof: FillByteArraySlice(33, FillByteSlice(32, 92)),
-					Data: &ethpb.Deposit_Data{
-						PublicKey:             FillByteSlice(48, 94),
-						WithdrawalCredentials: FillByteSlice(32, 95),
-						Amount:                96,
-						Signature:             FillByteSlice(96, 97),
-					},
-				},
-				{
-					Proof: FillByteArraySlice(33, FillByteSlice(32, 98)),
-					Data: &ethpb.Deposit_Data{
-						PublicKey:             FillByteSlice(48, 100),
-						WithdrawalCredentials: FillByteSlice(32, 101),
-						Amount:                102,
-						Signature:             FillByteSlice(96, 103),
-					},
 				},
 			},
 			VoluntaryExits: []*ethpb.SignedVoluntaryExit{
@@ -244,12 +219,7 @@ func GenerateProtoBlindedBellatrixBeaconBlock() *ethpb.BlindedBeaconBlockBellatr
 		StateRoot:     FillByteSlice(32, 4),
 		Body: &ethpb.BlindedBeaconBlockBodyBellatrix{
 			RandaoReveal: FillByteSlice(96, 5),
-			Eth1Data: &ethpb.Eth1Data{
-				DepositRoot:  FillByteSlice(32, 6),
-				DepositCount: 7,
-				BlockHash:    FillByteSlice(32, 8),
-			},
-			Graffiti: FillByteSlice(32, 9),
+			Graffiti:     FillByteSlice(32, 9),
 			ProposerSlashings: []*ethpb.ProposerSlashing{
 				{
 					Header_1: &ethpb.SignedBeaconBlockHeader{
@@ -406,26 +376,6 @@ func GenerateProtoBlindedBellatrixBeaconBlock() *ethpb.BlindedBeaconBlockBellatr
 					Signature: FillByteSlice(96, 91),
 				},
 			},
-			Deposits: []*ethpb.Deposit{
-				{
-					Proof: FillByteArraySlice(33, FillByteSlice(32, 92)),
-					Data: &ethpb.Deposit_Data{
-						PublicKey:             FillByteSlice(48, 94),
-						WithdrawalCredentials: FillByteSlice(32, 95),
-						Amount:                96,
-						Signature:             FillByteSlice(96, 97),
-					},
-				},
-				{
-					Proof: FillByteArraySlice(33, FillByteSlice(32, 98)),
-					Data: &ethpb.Deposit_Data{
-						PublicKey:             FillByteSlice(48, 100),
-						WithdrawalCredentials: FillByteSlice(32, 101),
-						Amount:                102,
-						Signature:             FillByteSlice(96, 103),
-					},
-				},
-			},
 			VoluntaryExits: []*ethpb.SignedVoluntaryExit{
 				{
 					Exit: &ethpb.VoluntaryExit{
@@ -470,12 +420,7 @@ func GenerateJsonBellatrixBeaconBlock() *structs.BeaconBlockBellatrix {
 		StateRoot:     FillEncodedByteSlice(32, 4),
 		Body: &structs.BeaconBlockBodyBellatrix{
 			RandaoReveal: FillEncodedByteSlice(96, 5),
-			Eth1Data: &structs.Eth1Data{
-				DepositRoot:  FillEncodedByteSlice(32, 6),
-				DepositCount: "7",
-				BlockHash:    FillEncodedByteSlice(32, 8),
-			},
-			Graffiti: FillEncodedByteSlice(32, 9),
+			Graffiti:     FillEncodedByteSlice(32, 9),
 			ProposerSlashings: []*structs.ProposerSlashing{
 				{
 					SignedHeader1: &structs.SignedBeaconBlockHeader{
@@ -630,26 +575,6 @@ func GenerateJsonBellatrixBeaconBlock() *structs.BeaconBlockBellatrix {
 						},
 					},
 					Signature: FillEncodedByteSlice(96, 91),
-				},
-			},
-			Deposits: []*structs.Deposit{
-				{
-					Proof: FillEncodedByteArraySlice(33, FillEncodedByteSlice(32, 92)),
-					Data: &structs.DepositData{
-						Pubkey:                FillEncodedByteSlice(48, 94),
-						WithdrawalCredentials: FillEncodedByteSlice(32, 95),
-						Amount:                "96",
-						Signature:             FillEncodedByteSlice(96, 97),
-					},
-				},
-				{
-					Proof: FillEncodedByteArraySlice(33, FillEncodedByteSlice(32, 98)),
-					Data: &structs.DepositData{
-						Pubkey:                FillEncodedByteSlice(48, 100),
-						WithdrawalCredentials: FillEncodedByteSlice(32, 101),
-						Amount:                "102",
-						Signature:             FillEncodedByteSlice(96, 103),
-					},
 				},
 			},
 			VoluntaryExits: []*structs.SignedVoluntaryExit{
@@ -699,12 +624,7 @@ func GenerateJsonBlindedBellatrixBeaconBlock() *structs.BlindedBeaconBlockBellat
 		StateRoot:     FillEncodedByteSlice(32, 4),
 		Body: &structs.BlindedBeaconBlockBodyBellatrix{
 			RandaoReveal: FillEncodedByteSlice(96, 5),
-			Eth1Data: &structs.Eth1Data{
-				DepositRoot:  FillEncodedByteSlice(32, 6),
-				DepositCount: "7",
-				BlockHash:    FillEncodedByteSlice(32, 8),
-			},
-			Graffiti: FillEncodedByteSlice(32, 9),
+			Graffiti:     FillEncodedByteSlice(32, 9),
 			ProposerSlashings: []*structs.ProposerSlashing{
 				{
 					SignedHeader1: &structs.SignedBeaconBlockHeader{
@@ -859,26 +779,6 @@ func GenerateJsonBlindedBellatrixBeaconBlock() *structs.BlindedBeaconBlockBellat
 						},
 					},
 					Signature: FillEncodedByteSlice(96, 91),
-				},
-			},
-			Deposits: []*structs.Deposit{
-				{
-					Proof: FillEncodedByteArraySlice(33, FillEncodedByteSlice(32, 92)),
-					Data: &structs.DepositData{
-						Pubkey:                FillEncodedByteSlice(48, 94),
-						WithdrawalCredentials: FillEncodedByteSlice(32, 95),
-						Amount:                "96",
-						Signature:             FillEncodedByteSlice(96, 97),
-					},
-				},
-				{
-					Proof: FillEncodedByteArraySlice(33, FillEncodedByteSlice(32, 98)),
-					Data: &structs.DepositData{
-						Pubkey:                FillEncodedByteSlice(48, 100),
-						WithdrawalCredentials: FillEncodedByteSlice(32, 101),
-						Amount:                "102",
-						Signature:             FillEncodedByteSlice(96, 103),
-					},
 				},
 			},
 			VoluntaryExits: []*structs.SignedVoluntaryExit{

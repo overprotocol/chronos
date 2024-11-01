@@ -26,19 +26,10 @@ import (
 func TestExecuteBellatrixStateTransitionNoVerify_FullProcess(t *testing.T) {
 	beaconState, privKeys := util.DeterministicGenesisStateBellatrix(t, 100)
 
-	eth1Data := &ethpb.Eth1Data{
-		DepositCount: 100,
-		DepositRoot:  bytesutil.PadTo([]byte{2}, 32),
-		BlockHash:    make([]byte, 32),
-	}
 	require.NoError(t, beaconState.SetSlot(params.BeaconConfig().SlotsPerEpoch-1))
-	e := beaconState.Eth1Data()
-	e.DepositCount = 100
-	require.NoError(t, beaconState.SetEth1Data(e))
 	bh := beaconState.LatestBlockHeader()
 	bh.Slot = beaconState.Slot()
 	require.NoError(t, beaconState.SetLatestBlockHeader(bh))
-	require.NoError(t, beaconState.SetEth1DataVotes([]*ethpb.Eth1Data{eth1Data}))
 
 	require.NoError(t, beaconState.SetSlot(beaconState.Slot()+1))
 	epoch := time.CurrentEpoch(beaconState)
@@ -57,7 +48,6 @@ func TestExecuteBellatrixStateTransitionNoVerify_FullProcess(t *testing.T) {
 	block.Block.Slot = beaconState.Slot() + 1
 	block.Block.ParentRoot = parentRoot[:]
 	block.Block.Body.RandaoReveal = randaoReveal
-	block.Block.Body.Eth1Data = eth1Data
 
 	syncBits := bitfield.NewBitvector512()
 	for i := range syncBits {
@@ -90,19 +80,10 @@ func TestExecuteBellatrixStateTransitionNoVerify_FullProcess(t *testing.T) {
 func TestExecuteBellatrixStateTransitionNoVerifySignature_CouldNotVerifyStateRoot(t *testing.T) {
 	beaconState, privKeys := util.DeterministicGenesisStateBellatrix(t, 100)
 
-	eth1Data := &ethpb.Eth1Data{
-		DepositCount: 100,
-		DepositRoot:  bytesutil.PadTo([]byte{2}, 32),
-		BlockHash:    make([]byte, 32),
-	}
 	require.NoError(t, beaconState.SetSlot(slots.PrevSlot(params.BeaconConfig().SlotsPerEpoch)))
-	e := beaconState.Eth1Data()
-	e.DepositCount = 100
-	require.NoError(t, beaconState.SetEth1Data(e))
 	bh := beaconState.LatestBlockHeader()
 	bh.Slot = beaconState.Slot()
 	require.NoError(t, beaconState.SetLatestBlockHeader(bh))
-	require.NoError(t, beaconState.SetEth1DataVotes([]*ethpb.Eth1Data{eth1Data}))
 
 	require.NoError(t, beaconState.SetSlot(beaconState.Slot()+1))
 	epoch := time.CurrentEpoch(beaconState)
@@ -121,7 +102,6 @@ func TestExecuteBellatrixStateTransitionNoVerifySignature_CouldNotVerifyStateRoo
 	block.Block.Slot = beaconState.Slot() + 1
 	block.Block.ParentRoot = parentRoot[:]
 	block.Block.Body.RandaoReveal = randaoReveal
-	block.Block.Body.Eth1Data = eth1Data
 
 	syncBits := bitfield.NewBitvector512()
 	for i := range syncBits {
@@ -182,12 +162,10 @@ func createFullBellatrixBlockWithOperations(t *testing.T) (state.BeaconState,
 			StateRoot:     altairBlk.Block.StateRoot,
 			Body: &ethpb.BeaconBlockBodyBellatrix{
 				RandaoReveal:      altairBlk.Block.Body.RandaoReveal,
-				Eth1Data:          altairBlk.Block.Body.Eth1Data,
 				Graffiti:          altairBlk.Block.Body.Graffiti,
 				ProposerSlashings: altairBlk.Block.Body.ProposerSlashings,
 				AttesterSlashings: altairBlk.Block.Body.AttesterSlashings,
 				Attestations:      altairBlk.Block.Body.Attestations,
-				Deposits:          altairBlk.Block.Body.Deposits,
 				VoluntaryExits:    altairBlk.Block.Body.VoluntaryExits,
 				ExecutionPayload: &enginev1.ExecutionPayload{
 					ParentHash:    make([]byte, fieldparams.RootLength),
@@ -220,12 +198,10 @@ func createFullCapellaBlockWithOperations(t *testing.T) (state.BeaconState,
 			StateRoot:     bellatrixBlk.Block.StateRoot,
 			Body: &ethpb.BeaconBlockBodyCapella{
 				RandaoReveal:      bellatrixBlk.Block.Body.RandaoReveal,
-				Eth1Data:          bellatrixBlk.Block.Body.Eth1Data,
 				Graffiti:          bellatrixBlk.Block.Body.Graffiti,
 				ProposerSlashings: bellatrixBlk.Block.Body.ProposerSlashings,
 				AttesterSlashings: bellatrixBlk.Block.Body.AttesterSlashings,
 				Attestations:      bellatrixBlk.Block.Body.Attestations,
-				Deposits:          bellatrixBlk.Block.Body.Deposits,
 				VoluntaryExits:    bellatrixBlk.Block.Body.VoluntaryExits,
 				ExecutionPayload: &enginev1.ExecutionPayloadCapella{
 					ParentHash:    make([]byte, fieldparams.RootLength),

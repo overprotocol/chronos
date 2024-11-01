@@ -53,25 +53,6 @@ func (c beaconApiBeaconBlockConverter) ConvertRESTPhase0BlockToProto(block *stru
 		return nil, errors.Wrapf(err, "failed to decode randao reveal `%s`", block.Body.RandaoReveal)
 	}
 
-	if block.Body.Eth1Data == nil {
-		return nil, errors.New("eth1 data is nil")
-	}
-
-	depositRoot, err := hexutil.Decode(block.Body.Eth1Data.DepositRoot)
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to decode deposit root `%s`", block.Body.Eth1Data.DepositRoot)
-	}
-
-	depositCount, err := strconv.ParseUint(block.Body.Eth1Data.DepositCount, 10, 64)
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to parse deposit count `%s`", block.Body.Eth1Data.DepositCount)
-	}
-
-	blockHash, err := hexutil.Decode(block.Body.Eth1Data.BlockHash)
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to decode block hash `%s`", block.Body.Eth1Data.BlockHash)
-	}
-
 	graffiti, err := hexutil.Decode(block.Body.Graffiti)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to decode graffiti `%s`", block.Body.Graffiti)
@@ -92,11 +73,6 @@ func (c beaconApiBeaconBlockConverter) ConvertRESTPhase0BlockToProto(block *stru
 		return nil, errors.Wrap(err, "failed to get attestations")
 	}
 
-	deposits, err := convertDepositsToProto(block.Body.Deposits)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get deposits")
-	}
-
 	voluntaryExits, err := convertVoluntaryExitsToProto(block.Body.VoluntaryExits)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get voluntary exits")
@@ -108,17 +84,11 @@ func (c beaconApiBeaconBlockConverter) ConvertRESTPhase0BlockToProto(block *stru
 		ParentRoot:    parentRoot,
 		StateRoot:     stateRoot,
 		Body: &ethpb.BeaconBlockBody{
-			RandaoReveal: randaoReveal,
-			Eth1Data: &ethpb.Eth1Data{
-				DepositRoot:  depositRoot,
-				DepositCount: depositCount,
-				BlockHash:    blockHash,
-			},
+			RandaoReveal:      randaoReveal,
 			Graffiti:          graffiti,
 			ProposerSlashings: proposerSlashings,
 			AttesterSlashings: attesterSlashings,
 			Attestations:      attestations,
-			Deposits:          deposits,
 			VoluntaryExits:    voluntaryExits,
 		},
 	}, nil
@@ -139,12 +109,10 @@ func (c beaconApiBeaconBlockConverter) ConvertRESTAltairBlockToProto(block *stru
 		StateRoot:     block.StateRoot,
 		Body: &structs.BeaconBlockBody{
 			RandaoReveal:      block.Body.RandaoReveal,
-			Eth1Data:          block.Body.Eth1Data,
 			Graffiti:          block.Body.Graffiti,
 			ProposerSlashings: block.Body.ProposerSlashings,
 			AttesterSlashings: block.Body.AttesterSlashings,
 			Attestations:      block.Body.Attestations,
-			Deposits:          block.Body.Deposits,
 			VoluntaryExits:    block.Body.VoluntaryExits,
 		},
 	})
@@ -159,12 +127,10 @@ func (c beaconApiBeaconBlockConverter) ConvertRESTAltairBlockToProto(block *stru
 		StateRoot:     phase0Block.StateRoot,
 		Body: &ethpb.BeaconBlockBodyAltair{
 			RandaoReveal:      phase0Block.Body.RandaoReveal,
-			Eth1Data:          phase0Block.Body.Eth1Data,
 			Graffiti:          phase0Block.Body.Graffiti,
 			ProposerSlashings: phase0Block.Body.ProposerSlashings,
 			AttesterSlashings: phase0Block.Body.AttesterSlashings,
 			Attestations:      phase0Block.Body.Attestations,
-			Deposits:          phase0Block.Body.Deposits,
 			VoluntaryExits:    phase0Block.Body.VoluntaryExits,
 		},
 	}, nil
@@ -185,12 +151,10 @@ func (c beaconApiBeaconBlockConverter) ConvertRESTBellatrixBlockToProto(block *s
 		StateRoot:     block.StateRoot,
 		Body: &structs.BeaconBlockBodyAltair{
 			RandaoReveal:      block.Body.RandaoReveal,
-			Eth1Data:          block.Body.Eth1Data,
 			Graffiti:          block.Body.Graffiti,
 			ProposerSlashings: block.Body.ProposerSlashings,
 			AttesterSlashings: block.Body.AttesterSlashings,
 			Attestations:      block.Body.Attestations,
-			Deposits:          block.Body.Deposits,
 			VoluntaryExits:    block.Body.VoluntaryExits,
 		},
 	})
@@ -279,12 +243,10 @@ func (c beaconApiBeaconBlockConverter) ConvertRESTBellatrixBlockToProto(block *s
 		StateRoot:     altairBlock.StateRoot,
 		Body: &ethpb.BeaconBlockBodyBellatrix{
 			RandaoReveal:      altairBlock.Body.RandaoReveal,
-			Eth1Data:          altairBlock.Body.Eth1Data,
 			Graffiti:          altairBlock.Body.Graffiti,
 			ProposerSlashings: altairBlock.Body.ProposerSlashings,
 			AttesterSlashings: altairBlock.Body.AttesterSlashings,
 			Attestations:      altairBlock.Body.Attestations,
-			Deposits:          altairBlock.Body.Deposits,
 			VoluntaryExits:    altairBlock.Body.VoluntaryExits,
 			ExecutionPayload: &enginev1.ExecutionPayload{
 				ParentHash:    parentHash,
@@ -325,12 +287,10 @@ func (c beaconApiBeaconBlockConverter) ConvertRESTCapellaBlockToProto(block *str
 		StateRoot:     block.StateRoot,
 		Body: &structs.BeaconBlockBodyBellatrix{
 			RandaoReveal:      block.Body.RandaoReveal,
-			Eth1Data:          block.Body.Eth1Data,
 			Graffiti:          block.Body.Graffiti,
 			ProposerSlashings: block.Body.ProposerSlashings,
 			AttesterSlashings: block.Body.AttesterSlashings,
 			Attestations:      block.Body.Attestations,
-			Deposits:          block.Body.Deposits,
 			VoluntaryExits:    block.Body.VoluntaryExits,
 			ExecutionPayload: &structs.ExecutionPayload{
 				ParentHash:    block.Body.ExecutionPayload.ParentHash,
@@ -359,11 +319,6 @@ func (c beaconApiBeaconBlockConverter) ConvertRESTCapellaBlockToProto(block *str
 		return nil, errors.Wrap(err, "failed to get withdrawals")
 	}
 
-	blsToExecutionChanges, err := convertBlsToExecutionChangesToProto(block.Body.BLSToExecutionChanges)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get bls to execution changes")
-	}
-
 	return &ethpb.BeaconBlockCapella{
 		Slot:          bellatrixBlock.Slot,
 		ProposerIndex: bellatrixBlock.ProposerIndex,
@@ -371,12 +326,10 @@ func (c beaconApiBeaconBlockConverter) ConvertRESTCapellaBlockToProto(block *str
 		StateRoot:     bellatrixBlock.StateRoot,
 		Body: &ethpb.BeaconBlockBodyCapella{
 			RandaoReveal:      bellatrixBlock.Body.RandaoReveal,
-			Eth1Data:          bellatrixBlock.Body.Eth1Data,
 			Graffiti:          bellatrixBlock.Body.Graffiti,
 			ProposerSlashings: bellatrixBlock.Body.ProposerSlashings,
 			AttesterSlashings: bellatrixBlock.Body.AttesterSlashings,
 			Attestations:      bellatrixBlock.Body.Attestations,
-			Deposits:          bellatrixBlock.Body.Deposits,
 			VoluntaryExits:    bellatrixBlock.Body.VoluntaryExits,
 			ExecutionPayload: &enginev1.ExecutionPayloadCapella{
 				ParentHash:    bellatrixBlock.Body.ExecutionPayload.ParentHash,
@@ -395,7 +348,6 @@ func (c beaconApiBeaconBlockConverter) ConvertRESTCapellaBlockToProto(block *str
 				Transactions:  bellatrixBlock.Body.ExecutionPayload.Transactions,
 				Withdrawals:   withdrawals,
 			},
-			BlsToExecutionChanges: blsToExecutionChanges,
 		},
 	}, nil
 }

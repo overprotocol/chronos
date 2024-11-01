@@ -204,9 +204,6 @@ func UpgradeToElectra(beaconState state.BeaconState) (state.BeaconState, error) 
 		BlockRoots:                  beaconState.BlockRoots(),
 		StateRoots:                  beaconState.StateRoots(),
 		RewardAdjustmentFactor:      beaconState.RewardAdjustmentFactor(),
-		Eth1Data:                    beaconState.Eth1Data(),
-		Eth1DataVotes:               beaconState.Eth1DataVotes(),
-		Eth1DepositIndex:            beaconState.Eth1DepositIndex(),
 		Validators:                  beaconState.Validators(),
 		Balances:                    beaconState.Balances(),
 		Reserves:                    beaconState.Reserves(),
@@ -241,7 +238,6 @@ func UpgradeToElectra(beaconState state.BeaconState) (state.BeaconState, error) 
 		NextWithdrawalValidatorIndex: vi,
 		HistoricalSummaries:          summaries,
 
-		DepositRequestsStartIndex: params.BeaconConfig().UnsetDepositRequestsStartIndex,
 		DepositBalanceToConsume:   0,
 		ExitBalanceToConsume:      helpers.ExitBalanceChurnLimit(primitives.Gwei(tab)),
 		EarliestExitEpoch:         earliestExitEpoch,

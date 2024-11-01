@@ -16,12 +16,7 @@ func GenerateProtoDenebBeaconBlockContents() *ethpb.BeaconBlockContentsDeneb {
 			StateRoot:     FillByteSlice(32, 4),
 			Body: &ethpb.BeaconBlockBodyDeneb{
 				RandaoReveal: FillByteSlice(96, 5),
-				Eth1Data: &ethpb.Eth1Data{
-					DepositRoot:  FillByteSlice(32, 6),
-					DepositCount: 7,
-					BlockHash:    FillByteSlice(32, 8),
-				},
-				Graffiti: FillByteSlice(32, 9),
+				Graffiti:     FillByteSlice(32, 9),
 				ProposerSlashings: []*ethpb.ProposerSlashing{
 					{
 						Header_1: &ethpb.SignedBeaconBlockHeader{
@@ -178,26 +173,6 @@ func GenerateProtoDenebBeaconBlockContents() *ethpb.BeaconBlockContentsDeneb {
 						Signature: FillByteSlice(96, 91),
 					},
 				},
-				Deposits: []*ethpb.Deposit{
-					{
-						Proof: FillByteArraySlice(33, FillByteSlice(32, 92)),
-						Data: &ethpb.Deposit_Data{
-							PublicKey:             FillByteSlice(48, 94),
-							WithdrawalCredentials: FillByteSlice(32, 95),
-							Amount:                96,
-							Signature:             FillByteSlice(96, 97),
-						},
-					},
-					{
-						Proof: FillByteArraySlice(33, FillByteSlice(32, 98)),
-						Data: &ethpb.Deposit_Data{
-							PublicKey:             FillByteSlice(48, 100),
-							WithdrawalCredentials: FillByteSlice(32, 101),
-							Amount:                102,
-							Signature:             FillByteSlice(96, 103),
-						},
-					},
-				},
 				VoluntaryExits: []*ethpb.SignedVoluntaryExit{
 					{
 						Exit: &ethpb.VoluntaryExit{
@@ -249,24 +224,6 @@ func GenerateProtoDenebBeaconBlockContents() *ethpb.BeaconBlockContentsDeneb {
 					BlobGasUsed:   135,
 					ExcessBlobGas: 136,
 				},
-				BlsToExecutionChanges: []*ethpb.SignedBLSToExecutionChange{
-					{
-						Message: &ethpb.BLSToExecutionChange{
-							ValidatorIndex:     137,
-							FromBlsPubkey:      FillByteSlice(48, 138),
-							ToExecutionAddress: FillByteSlice(20, 139),
-						},
-						Signature: FillByteSlice(96, 140),
-					},
-					{
-						Message: &ethpb.BLSToExecutionChange{
-							ValidatorIndex:     141,
-							FromBlsPubkey:      FillByteSlice(48, 142),
-							ToExecutionAddress: FillByteSlice(20, 143),
-						},
-						Signature: FillByteSlice(96, 144),
-					},
-				},
 				BlobKzgCommitments: [][]byte{FillByteSlice(48, 145), FillByteSlice(48, 146)},
 			},
 		},
@@ -283,12 +240,7 @@ func GenerateProtoBlindedDenebBeaconBlock() *ethpb.BlindedBeaconBlockDeneb {
 		StateRoot:     FillByteSlice(32, 4),
 		Body: &ethpb.BlindedBeaconBlockBodyDeneb{
 			RandaoReveal: FillByteSlice(96, 5),
-			Eth1Data: &ethpb.Eth1Data{
-				DepositRoot:  FillByteSlice(32, 6),
-				DepositCount: 7,
-				BlockHash:    FillByteSlice(32, 8),
-			},
-			Graffiti: FillByteSlice(32, 9),
+			Graffiti:     FillByteSlice(32, 9),
 			ProposerSlashings: []*ethpb.ProposerSlashing{
 				{
 					Header_1: &ethpb.SignedBeaconBlockHeader{
@@ -445,26 +397,6 @@ func GenerateProtoBlindedDenebBeaconBlock() *ethpb.BlindedBeaconBlockDeneb {
 					Signature: FillByteSlice(96, 91),
 				},
 			},
-			Deposits: []*ethpb.Deposit{
-				{
-					Proof: FillByteArraySlice(33, FillByteSlice(32, 92)),
-					Data: &ethpb.Deposit_Data{
-						PublicKey:             FillByteSlice(48, 94),
-						WithdrawalCredentials: FillByteSlice(32, 95),
-						Amount:                96,
-						Signature:             FillByteSlice(96, 97),
-					},
-				},
-				{
-					Proof: FillByteArraySlice(33, FillByteSlice(32, 98)),
-					Data: &ethpb.Deposit_Data{
-						PublicKey:             FillByteSlice(48, 100),
-						WithdrawalCredentials: FillByteSlice(32, 101),
-						Amount:                102,
-						Signature:             FillByteSlice(96, 103),
-					},
-				},
-			},
 			VoluntaryExits: []*ethpb.SignedVoluntaryExit{
 				{
 					Exit: &ethpb.VoluntaryExit{
@@ -500,24 +432,6 @@ func GenerateProtoBlindedDenebBeaconBlock() *ethpb.BlindedBeaconBlockDeneb {
 				BlobGasUsed:      127,
 				ExcessBlobGas:    128,
 			},
-			BlsToExecutionChanges: []*ethpb.SignedBLSToExecutionChange{
-				{
-					Message: &ethpb.BLSToExecutionChange{
-						ValidatorIndex:     129,
-						FromBlsPubkey:      FillByteSlice(48, 130),
-						ToExecutionAddress: FillByteSlice(20, 131),
-					},
-					Signature: FillByteSlice(96, 132),
-				},
-				{
-					Message: &ethpb.BLSToExecutionChange{
-						ValidatorIndex:     133,
-						FromBlsPubkey:      FillByteSlice(48, 134),
-						ToExecutionAddress: FillByteSlice(20, 135),
-					},
-					Signature: FillByteSlice(96, 136),
-				},
-			},
 			BlobKzgCommitments: [][]byte{FillByteSlice(48, 137), FillByteSlice(48, 138)},
 		},
 	}
@@ -532,12 +446,7 @@ func GenerateJsonDenebBeaconBlockContents() *structs.BeaconBlockContentsDeneb {
 			StateRoot:     FillEncodedByteSlice(32, 4),
 			Body: &structs.BeaconBlockBodyDeneb{
 				RandaoReveal: FillEncodedByteSlice(96, 5),
-				Eth1Data: &structs.Eth1Data{
-					DepositRoot:  FillEncodedByteSlice(32, 6),
-					DepositCount: "7",
-					BlockHash:    FillEncodedByteSlice(32, 8),
-				},
-				Graffiti: FillEncodedByteSlice(32, 9),
+				Graffiti:     FillEncodedByteSlice(32, 9),
 				ProposerSlashings: []*structs.ProposerSlashing{
 					{
 						SignedHeader1: &structs.SignedBeaconBlockHeader{
@@ -694,26 +603,6 @@ func GenerateJsonDenebBeaconBlockContents() *structs.BeaconBlockContentsDeneb {
 						Signature: FillEncodedByteSlice(96, 91),
 					},
 				},
-				Deposits: []*structs.Deposit{
-					{
-						Proof: FillEncodedByteArraySlice(33, FillEncodedByteSlice(32, 92)),
-						Data: &structs.DepositData{
-							Pubkey:                FillEncodedByteSlice(48, 94),
-							WithdrawalCredentials: FillEncodedByteSlice(32, 95),
-							Amount:                "96",
-							Signature:             FillEncodedByteSlice(96, 97),
-						},
-					},
-					{
-						Proof: FillEncodedByteArraySlice(33, FillEncodedByteSlice(32, 98)),
-						Data: &structs.DepositData{
-							Pubkey:                FillEncodedByteSlice(48, 100),
-							WithdrawalCredentials: FillEncodedByteSlice(32, 101),
-							Amount:                "102",
-							Signature:             FillEncodedByteSlice(96, 103),
-						},
-					},
-				},
 				VoluntaryExits: []*structs.SignedVoluntaryExit{
 					{
 						Message: &structs.VoluntaryExit{
@@ -765,24 +654,6 @@ func GenerateJsonDenebBeaconBlockContents() *structs.BeaconBlockContentsDeneb {
 					BlobGasUsed:   "135",
 					ExcessBlobGas: "136",
 				},
-				BLSToExecutionChanges: []*structs.SignedBLSToExecutionChange{
-					{
-						Message: &structs.BLSToExecutionChange{
-							ValidatorIndex:     "137",
-							FromBLSPubkey:      FillEncodedByteSlice(48, 138),
-							ToExecutionAddress: FillEncodedByteSlice(20, 139),
-						},
-						Signature: FillEncodedByteSlice(96, 140),
-					},
-					{
-						Message: &structs.BLSToExecutionChange{
-							ValidatorIndex:     "141",
-							FromBLSPubkey:      FillEncodedByteSlice(48, 142),
-							ToExecutionAddress: FillEncodedByteSlice(20, 143),
-						},
-						Signature: FillEncodedByteSlice(96, 144),
-					},
-				},
 				BlobKzgCommitments: []string{FillEncodedByteSlice(48, 145), FillEncodedByteSlice(48, 146)},
 			},
 		},
@@ -799,12 +670,7 @@ func GenerateJsonBlindedDenebBeaconBlock() *structs.BlindedBeaconBlockDeneb {
 		StateRoot:     FillEncodedByteSlice(32, 4),
 		Body: &structs.BlindedBeaconBlockBodyDeneb{
 			RandaoReveal: FillEncodedByteSlice(96, 5),
-			Eth1Data: &structs.Eth1Data{
-				DepositRoot:  FillEncodedByteSlice(32, 6),
-				DepositCount: "7",
-				BlockHash:    FillEncodedByteSlice(32, 8),
-			},
-			Graffiti: FillEncodedByteSlice(32, 9),
+			Graffiti:     FillEncodedByteSlice(32, 9),
 			ProposerSlashings: []*structs.ProposerSlashing{
 				{
 					SignedHeader1: &structs.SignedBeaconBlockHeader{
@@ -961,26 +827,6 @@ func GenerateJsonBlindedDenebBeaconBlock() *structs.BlindedBeaconBlockDeneb {
 					Signature: FillEncodedByteSlice(96, 91),
 				},
 			},
-			Deposits: []*structs.Deposit{
-				{
-					Proof: FillEncodedByteArraySlice(33, FillEncodedByteSlice(32, 92)),
-					Data: &structs.DepositData{
-						Pubkey:                FillEncodedByteSlice(48, 94),
-						WithdrawalCredentials: FillEncodedByteSlice(32, 95),
-						Amount:                "96",
-						Signature:             FillEncodedByteSlice(96, 97),
-					},
-				},
-				{
-					Proof: FillEncodedByteArraySlice(33, FillEncodedByteSlice(32, 98)),
-					Data: &structs.DepositData{
-						Pubkey:                FillEncodedByteSlice(48, 100),
-						WithdrawalCredentials: FillEncodedByteSlice(32, 101),
-						Amount:                "102",
-						Signature:             FillEncodedByteSlice(96, 103),
-					},
-				},
-			},
 			VoluntaryExits: []*structs.SignedVoluntaryExit{
 				{
 					Message: &structs.VoluntaryExit{
@@ -1015,24 +861,6 @@ func GenerateJsonBlindedDenebBeaconBlock() *structs.BlindedBeaconBlockDeneb {
 				WithdrawalsRoot:  FillEncodedByteSlice(32, 126),
 				BlobGasUsed:      "127",
 				ExcessBlobGas:    "128",
-			},
-			BLSToExecutionChanges: []*structs.SignedBLSToExecutionChange{
-				{
-					Message: &structs.BLSToExecutionChange{
-						ValidatorIndex:     "129",
-						FromBLSPubkey:      FillEncodedByteSlice(48, 130),
-						ToExecutionAddress: FillEncodedByteSlice(20, 131),
-					},
-					Signature: FillEncodedByteSlice(96, 132),
-				},
-				{
-					Message: &structs.BLSToExecutionChange{
-						ValidatorIndex:     "133",
-						FromBLSPubkey:      FillEncodedByteSlice(48, 134),
-						ToExecutionAddress: FillEncodedByteSlice(20, 135),
-					},
-					Signature: FillEncodedByteSlice(96, 136),
-				},
 			},
 			BlobKzgCommitments: []string{FillEncodedByteSlice(48, 137), FillEncodedByteSlice(48, 138)},
 		},

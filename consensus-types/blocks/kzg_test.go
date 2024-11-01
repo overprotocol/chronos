@@ -56,10 +56,6 @@ func Test_MerkleProofKZGCommitment(t *testing.T) {
 			Transactions:  make([][]byte, 0),
 			ExtraData:     make([]byte, 0),
 		},
-		Eth1Data: &ethpb.Eth1Data{
-			DepositRoot: make([]byte, fieldparams.RootLength),
-			BlockHash:   make([]byte, fieldparams.RootLength),
-		},
 		BlobKzgCommitments: kzgs,
 	}
 
@@ -170,10 +166,6 @@ func Benchmark_MerkleProofKZGCommitment(b *testing.B) {
 			Transactions:  make([][]byte, 0),
 			ExtraData:     make([]byte, 0),
 		},
-		Eth1Data: &ethpb.Eth1Data{
-			DepositRoot: make([]byte, fieldparams.RootLength),
-			BlockHash:   make([]byte, fieldparams.RootLength),
-		},
 		BlobKzgCommitments: kzgs,
 	}
 
@@ -210,10 +202,6 @@ func Test_VerifyKZGInclusionProof(t *testing.T) {
 			BlockHash:     make([]byte, fieldparams.RootLength),
 			Transactions:  make([][]byte, 0),
 			ExtraData:     make([]byte, 0),
-		},
-		Eth1Data: &ethpb.Eth1Data{
-			DepositRoot: make([]byte, fieldparams.RootLength),
-			BlockHash:   make([]byte, fieldparams.RootLength),
 		},
 		BlobKzgCommitments: kzgs,
 	}

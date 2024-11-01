@@ -2,13 +2,11 @@ package blocks
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/pkg/errors"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/signing"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
-	"github.com/prysmaticlabs/prysm/v5/container/trie"
 	"github.com/prysmaticlabs/prysm/v5/contracts/deposit"
 	"github.com/prysmaticlabs/prysm/v5/crypto/bls"
 	"github.com/prysmaticlabs/prysm/v5/encoding/bytesutil"
@@ -95,38 +93,6 @@ func IsValidDepositSignature(data *ethpb.Deposit_Data) (bool, error) {
 		return false, nil
 	}
 	return true, nil
-}
-
-// VerifyDeposit verifies the deposit data and signature given the beacon state and deposit information
-func VerifyDeposit(beaconState state.ReadOnlyBeaconState, deposit *ethpb.Deposit) error {
-	// Verify Merkle proof of deposit and deposit trie root.
-	if deposit == nil || deposit.Data == nil {
-		return errors.New("received nil deposit or nil deposit data")
-	}
-	eth1Data := beaconState.Eth1Data()
-	if eth1Data == nil {
-		return errors.New("received nil eth1data in the beacon state")
-	}
-
-	receiptRoot := eth1Data.DepositRoot
-	leaf, err := deposit.Data.HashTreeRoot()
-	if err != nil {
-		return errors.Wrap(err, "could not tree hash deposit data")
-	}
-	if ok := trie.VerifyMerkleProofWithDepth(
-		receiptRoot,
-		leaf[:],
-		beaconState.Eth1DepositIndex(),
-		deposit.Proof,
-		params.BeaconConfig().DepositContractTreeDepth,
-	); !ok {
-		return fmt.Errorf(
-			"deposit merkle branch of deposit root did not verify for root: %#x",
-			receiptRoot,
-		)
-	}
-
-	return nil
 }
 
 func verifyDepositDataSigningRoot(obj *ethpb.Deposit_Data, domain []byte) error {
