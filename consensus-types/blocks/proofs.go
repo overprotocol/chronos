@@ -32,17 +32,17 @@ func ComputeBlockBodyFieldRoots(ctx context.Context, blockBody *BeaconBlockBody)
 	var fieldRoots [][]byte
 	switch blockBody.version {
 	case version.Phase0:
-		fieldRoots = make([][]byte, 8)
+		fieldRoots = make([][]byte, 6)
 	case version.Altair:
-		fieldRoots = make([][]byte, 8)
+		fieldRoots = make([][]byte, 6)
 	case version.Bellatrix:
-		fieldRoots = make([][]byte, 9)
+		fieldRoots = make([][]byte, 7)
 	case version.Capella:
-		fieldRoots = make([][]byte, 10)
+		fieldRoots = make([][]byte, 7)
 	case version.Deneb:
-		fieldRoots = make([][]byte, 11)
+		fieldRoots = make([][]byte, 8)
 	case version.Electra:
-		fieldRoots = make([][]byte, 12)
+		fieldRoots = make([][]byte, 9)
 	default:
 		return nil, fmt.Errorf("unknown block body version %s", version.String(blockBody.version))
 	}
@@ -59,17 +59,9 @@ func ComputeBlockBodyFieldRoots(ctx context.Context, blockBody *BeaconBlockBody)
 	}
 	copy(fieldRoots[0], root[:])
 
-	// eth1_data
-	eth1 := blockBody.Eth1Data()
-	root, err = eth1.HashTreeRoot()
-	if err != nil {
-		return nil, err
-	}
-	copy(fieldRoots[1], root[:])
-
 	// graffiti
 	root = blockBody.Graffiti()
-	copy(fieldRoots[2], root[:])
+	copy(fieldRoots[1], root[:])
 
 	// Proposer slashings
 	ps := blockBody.ProposerSlashings()
@@ -77,7 +69,7 @@ func ComputeBlockBodyFieldRoots(ctx context.Context, blockBody *BeaconBlockBody)
 	if err != nil {
 		return nil, err
 	}
-	copy(fieldRoots[3], root[:])
+	copy(fieldRoots[2], root[:])
 
 	// Attester slashings
 	as := blockBody.AttesterSlashings()
@@ -90,7 +82,7 @@ func ComputeBlockBodyFieldRoots(ctx context.Context, blockBody *BeaconBlockBody)
 	if err != nil {
 		return nil, err
 	}
-	copy(fieldRoots[4], root[:])
+	copy(fieldRoots[3], root[:])
 
 	// Attestations
 	att := blockBody.Attestations()
@@ -102,15 +94,7 @@ func ComputeBlockBodyFieldRoots(ctx context.Context, blockBody *BeaconBlockBody)
 	if err != nil {
 		return nil, err
 	}
-	copy(fieldRoots[5], root[:])
-
-	// Deposits
-	dep := blockBody.Deposits()
-	root, err = ssz.MerkleizeListSSZ(dep, params.BeaconConfig().MaxDeposits)
-	if err != nil {
-		return nil, err
-	}
-	copy(fieldRoots[6], root[:])
+	copy(fieldRoots[4], root[:])
 
 	// Voluntary Exits
 	ve := blockBody.VoluntaryExits()
@@ -118,7 +102,7 @@ func ComputeBlockBodyFieldRoots(ctx context.Context, blockBody *BeaconBlockBody)
 	if err != nil {
 		return nil, err
 	}
-	copy(fieldRoots[7], root[:])
+	copy(fieldRoots[5], root[:])
 
 	if blockBody.version >= version.Bellatrix {
 		// Execution Payload
@@ -130,7 +114,7 @@ func ComputeBlockBodyFieldRoots(ctx context.Context, blockBody *BeaconBlockBody)
 		if err != nil {
 			return nil, err
 		}
-		copy(fieldRoots[8], root[:])
+		copy(fieldRoots[6], root[:])
 	}
 
 	if blockBody.version >= version.Capella {
@@ -143,7 +127,7 @@ func ComputeBlockBodyFieldRoots(ctx context.Context, blockBody *BeaconBlockBody)
 		if err != nil {
 			return nil, err
 		}
-		copy(fieldRoots[9], root[:])
+		copy(fieldRoots[7], root[:])
 	}
 
 	if blockBody.version >= version.Deneb {
@@ -163,7 +147,7 @@ func ComputeBlockBodyFieldRoots(ctx context.Context, blockBody *BeaconBlockBody)
 		length := make([]byte, 32)
 		binary.LittleEndian.PutUint64(length[:8], uint64(len(roots)))
 		root = ssz.MixInLength(commitmentsRoot, length)
-		copy(fieldRoots[10], root[:])
+		copy(fieldRoots[8], root[:])
 	}
 
 	if blockBody.version >= version.Electra {
@@ -176,7 +160,7 @@ func ComputeBlockBodyFieldRoots(ctx context.Context, blockBody *BeaconBlockBody)
 		if err != nil {
 			return nil, err
 		}
-		copy(fieldRoots[11], root[:])
+		copy(fieldRoots[9], root[:])
 	}
 	return fieldRoots, nil
 }

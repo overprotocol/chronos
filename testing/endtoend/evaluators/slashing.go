@@ -252,17 +252,11 @@ func generateSignedBeaconBlock(
 		StateRoot:     bytesutil.PadTo([]byte(stateRoot), hashLen),
 		ProposerIndex: proposerIndex,
 		Body: &eth.BeaconBlockBody{
-			Eth1Data: &eth.Eth1Data{
-				BlockHash:    bytesutil.PadTo([]byte("bad block hash"), hashLen),
-				DepositRoot:  bytesutil.PadTo([]byte("bad deposit root"), hashLen),
-				DepositCount: 1,
-			},
 			RandaoReveal:      bytesutil.PadTo([]byte("bad randao"), fieldparams.BLSSignatureLength),
 			Graffiti:          bytesutil.PadTo([]byte("teehee"), hashLen),
 			ProposerSlashings: []*eth.ProposerSlashing{},
 			AttesterSlashings: []*eth.AttesterSlashing{},
 			Attestations:      []*eth.Attestation{},
-			Deposits:          []*eth.Deposit{},
 			VoluntaryExits:    []*eth.SignedVoluntaryExit{},
 		},
 	}

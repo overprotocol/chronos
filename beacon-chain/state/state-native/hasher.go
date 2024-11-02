@@ -90,26 +90,6 @@ func ComputeFieldRootsWithHasher(ctx context.Context, state *BeaconState) ([][]b
 	rewardAdjustmentFactorRoot := ssz.Uint64Root(state.rewardAdjustmentFactor)
 	fieldRoots[types.RewardAdjustmentFactor.RealPosition()] = rewardAdjustmentFactorRoot[:]
 
-	// Eth1Data data structure root.
-	eth1HashTreeRoot, err := stateutil.Eth1Root(state.eth1Data)
-	if err != nil {
-		return nil, errors.Wrap(err, "could not compute eth1data merkleization")
-	}
-	fieldRoots[types.Eth1Data.RealPosition()] = eth1HashTreeRoot[:]
-
-	// Eth1DataVotes slice root.
-	eth1VotesRoot, err := stateutil.Eth1DataVotesRoot(state.eth1DataVotes)
-	if err != nil {
-		return nil, errors.Wrap(err, "could not compute eth1data votes merkleization")
-	}
-	fieldRoots[types.Eth1DataVotes.RealPosition()] = eth1VotesRoot[:]
-
-	// Eth1DepositIndex root.
-	eth1DepositIndexBuf := make([]byte, 8)
-	binary.LittleEndian.PutUint64(eth1DepositIndexBuf, state.eth1DepositIndex)
-	eth1DepositBuf := bytesutil.ToBytes32(eth1DepositIndexBuf)
-	fieldRoots[types.Eth1DepositIndex.RealPosition()] = eth1DepositBuf[:]
-
 	// Validators slice root.
 	validatorsRoot, err := stateutil.ValidatorRegistryRoot(state.validatorsVal())
 	if err != nil {
@@ -248,10 +228,6 @@ func ComputeFieldRootsWithHasher(ctx context.Context, state *BeaconState) ([][]b
 	}
 
 	if state.version >= version.Electra {
-		// DepositRequestsStartIndex root.
-		drsiRoot := ssz.Uint64Root(state.depositRequestsStartIndex)
-		fieldRoots[types.DepositRequestsStartIndex.RealPosition()] = drsiRoot[:]
-
 		// DepositBalanceToConsume root.
 		dbtcRoot := ssz.Uint64Root(uint64(state.depositBalanceToConsume))
 		fieldRoots[types.DepositBalanceToConsume.RealPosition()] = dbtcRoot[:]

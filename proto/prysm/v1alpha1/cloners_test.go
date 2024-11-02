@@ -422,12 +422,10 @@ func genBeaconBlock() *v1alpha1.BeaconBlock {
 func genBeaconBlockBody() *v1alpha1.BeaconBlockBody {
 	return &v1alpha1.BeaconBlockBody{
 		RandaoReveal:      bytes(32),
-		Eth1Data:          genEth1Data(),
 		Graffiti:          bytes(32),
 		ProposerSlashings: genProposerSlashings(5),
 		AttesterSlashings: genAttesterSlashings(5),
 		Attestations:      genAttestations(5),
-		Deposits:          genDeposits(5),
 		VoluntaryExits:    genSignedVoluntaryExits(5),
 	}
 }
@@ -549,12 +547,10 @@ func genValidator() *v1alpha1.Validator {
 func genBeaconBlockBodyAltair() *v1alpha1.BeaconBlockBodyAltair {
 	return &v1alpha1.BeaconBlockBodyAltair{
 		RandaoReveal:      bytes(32),
-		Eth1Data:          genEth1Data(),
 		Graffiti:          bytes(32),
 		ProposerSlashings: genProposerSlashings(5),
 		AttesterSlashings: genAttesterSlashings(5),
 		Attestations:      genAttestations(10),
-		Deposits:          genDeposits(5),
 		VoluntaryExits:    genSignedVoluntaryExits(12),
 	}
 }
@@ -579,12 +575,10 @@ func genSignedBeaconBlockAltair() *v1alpha1.SignedBeaconBlockAltair {
 func genBeaconBlockBodyBellatrix() *v1alpha1.BeaconBlockBodyBellatrix {
 	return &v1alpha1.BeaconBlockBodyBellatrix{
 		RandaoReveal:      bytes(32),
-		Eth1Data:          genEth1Data(),
 		Graffiti:          bytes(32),
 		ProposerSlashings: genProposerSlashings(5),
 		AttesterSlashings: genAttesterSlashings(5),
 		Attestations:      genAttestations(10),
-		Deposits:          genDeposits(5),
 		VoluntaryExits:    genSignedVoluntaryExits(12),
 		ExecutionPayload:  genPayload(),
 	}
@@ -609,16 +603,13 @@ func genSignedBeaconBlockBellatrix() *v1alpha1.SignedBeaconBlockBellatrix {
 
 func genBeaconBlockBodyCapella() *v1alpha1.BeaconBlockBodyCapella {
 	return &v1alpha1.BeaconBlockBodyCapella{
-		RandaoReveal:          bytes(96),
-		Eth1Data:              genEth1Data(),
-		Graffiti:              bytes(32),
-		ProposerSlashings:     genProposerSlashings(5),
-		AttesterSlashings:     genAttesterSlashings(5),
-		Attestations:          genAttestations(10),
-		Deposits:              genDeposits(5),
-		VoluntaryExits:        genSignedVoluntaryExits(12),
-		ExecutionPayload:      genPayloadCapella(),
-		BlsToExecutionChanges: genBLSToExecutionChanges(10),
+		RandaoReveal:      bytes(96),
+		Graffiti:          bytes(32),
+		ProposerSlashings: genProposerSlashings(5),
+		AttesterSlashings: genAttesterSlashings(5),
+		Attestations:      genAttestations(10),
+		VoluntaryExits:    genSignedVoluntaryExits(12),
+		ExecutionPayload:  genPayloadCapella(),
 	}
 }
 
@@ -642,15 +633,12 @@ func genSignedBeaconBlockCapella() *v1alpha1.SignedBeaconBlockCapella {
 func genBlindedBeaconBlockBodyCapella() *v1alpha1.BlindedBeaconBlockBodyCapella {
 	return &v1alpha1.BlindedBeaconBlockBodyCapella{
 		RandaoReveal:           bytes(96),
-		Eth1Data:               genEth1Data(),
 		Graffiti:               bytes(32),
 		ProposerSlashings:      genProposerSlashings(5),
 		AttesterSlashings:      genAttesterSlashings(5),
 		Attestations:           genAttestations(10),
-		Deposits:               genDeposits(5),
 		VoluntaryExits:         genSignedVoluntaryExits(12),
 		ExecutionPayloadHeader: genPayloadHeaderCapella(),
-		BlsToExecutionChanges:  genBLSToExecutionChanges(10),
 	}
 }
 
@@ -673,17 +661,14 @@ func genSignedBlindedBeaconBlockCapella() *v1alpha1.SignedBlindedBeaconBlockCape
 
 func genBeaconBlockBodyDeneb() *v1alpha1.BeaconBlockBodyDeneb {
 	return &v1alpha1.BeaconBlockBodyDeneb{
-		RandaoReveal:          bytes(96),
-		Eth1Data:              genEth1Data(),
-		Graffiti:              bytes(32),
-		ProposerSlashings:     genProposerSlashings(5),
-		AttesterSlashings:     genAttesterSlashings(5),
-		Attestations:          genAttestations(10),
-		Deposits:              genDeposits(5),
-		VoluntaryExits:        genSignedVoluntaryExits(12),
-		ExecutionPayload:      genPayloadDeneb(),
-		BlsToExecutionChanges: genBLSToExecutionChanges(10),
-		BlobKzgCommitments:    getKZGCommitments(4),
+		RandaoReveal:       bytes(96),
+		Graffiti:           bytes(32),
+		ProposerSlashings:  genProposerSlashings(5),
+		AttesterSlashings:  genAttesterSlashings(5),
+		Attestations:       genAttestations(10),
+		VoluntaryExits:     genSignedVoluntaryExits(12),
+		ExecutionPayload:   genPayloadDeneb(),
+		BlobKzgCommitments: getKZGCommitments(4),
 	}
 }
 
@@ -707,15 +692,12 @@ func genSignedBeaconBlockDeneb() *v1alpha1.SignedBeaconBlockDeneb {
 func genBlindedBeaconBlockBodyDeneb() *v1alpha1.BlindedBeaconBlockBodyDeneb {
 	return &v1alpha1.BlindedBeaconBlockBodyDeneb{
 		RandaoReveal:           bytes(96),
-		Eth1Data:               genEth1Data(),
 		Graffiti:               bytes(32),
 		ProposerSlashings:      genProposerSlashings(5),
 		AttesterSlashings:      genAttesterSlashings(5),
 		Attestations:           genAttestations(10),
-		Deposits:               genDeposits(5),
 		VoluntaryExits:         genSignedVoluntaryExits(12),
 		ExecutionPayloadHeader: genPayloadHeaderDeneb(),
-		BlsToExecutionChanges:  genBLSToExecutionChanges(10),
 		BlobKzgCommitments:     getKZGCommitments(4),
 	}
 }
@@ -993,15 +975,12 @@ func genBlindedBeaconBlockElectra() *v1alpha1.BlindedBeaconBlockElectra {
 func genBlindedBeaconBlockBodyElectra() *v1alpha1.BlindedBeaconBlockBodyElectra {
 	return &v1alpha1.BlindedBeaconBlockBodyElectra{
 		RandaoReveal:           bytes(96),
-		Eth1Data:               genEth1Data(),
 		Graffiti:               bytes(32),
 		ProposerSlashings:      genProposerSlashings(5),
 		AttesterSlashings:      genAttesterSlashingsElectra(5),
 		Attestations:           genAttestationsElectra(10),
-		Deposits:               genDeposits(5),
 		VoluntaryExits:         genSignedVoluntaryExits(12),
 		ExecutionPayloadHeader: genPayloadHeaderElectra(),
-		BlsToExecutionChanges:  genBLSToExecutionChanges(10),
 		BlobKzgCommitments:     getKZGCommitments(4),
 		ExecutionRequests:      genExecutionRequests(),
 	}
@@ -1026,18 +1005,15 @@ func genBeaconBlockElectra() *v1alpha1.BeaconBlockElectra {
 
 func genBeaconBlockBodyElectra() *v1alpha1.BeaconBlockBodyElectra {
 	return &v1alpha1.BeaconBlockBodyElectra{
-		RandaoReveal:          bytes(96),
-		Eth1Data:              genEth1Data(),
-		Graffiti:              bytes(32),
-		ProposerSlashings:     genProposerSlashings(5),
-		AttesterSlashings:     genAttesterSlashingsElectra(5),
-		Attestations:          genAttestationsElectra(10),
-		Deposits:              genDeposits(5),
-		VoluntaryExits:        genSignedVoluntaryExits(12),
-		ExecutionPayload:      genPayloadElectra(),
-		BlsToExecutionChanges: genBLSToExecutionChanges(10),
-		BlobKzgCommitments:    getKZGCommitments(4),
-		ExecutionRequests:     genExecutionRequests(),
+		RandaoReveal:       bytes(96),
+		Graffiti:           bytes(32),
+		ProposerSlashings:  genProposerSlashings(5),
+		AttesterSlashings:  genAttesterSlashingsElectra(5),
+		Attestations:       genAttestationsElectra(10),
+		VoluntaryExits:     genSignedVoluntaryExits(12),
+		ExecutionPayload:   genPayloadElectra(),
+		BlobKzgCommitments: getKZGCommitments(4),
+		ExecutionRequests:  genExecutionRequests(),
 	}
 }
 

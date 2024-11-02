@@ -72,7 +72,6 @@ type HeadFetcher interface {
 	HeadStateReadOnly(ctx context.Context) (state.ReadOnlyBeaconState, error)
 	HeadValidatorsIndices(ctx context.Context, epoch primitives.Epoch) ([]primitives.ValidatorIndex, error)
 	HeadGenesisValidatorsRoot() [32]byte
-	HeadETH1Data() *ethpb.Eth1Data
 	HeadPublicKeyToValidatorIndex(pubKey [fieldparams.BLSPubkeyLength]byte) (primitives.ValidatorIndex, bool)
 	HeadValidatorIndexToPublicKey(ctx context.Context, index primitives.ValidatorIndex) ([fieldparams.BLSPubkeyLength]byte, error)
 	ChainHeads() ([][32]byte, []primitives.Slot)
@@ -252,17 +251,6 @@ func (s *Service) HeadGenesisValidatorsRoot() [32]byte {
 	}
 
 	return s.headGenesisValidatorsRoot()
-}
-
-// HeadETH1Data returns the eth1data of the current head state.
-func (s *Service) HeadETH1Data() *ethpb.Eth1Data {
-	s.headLock.RLock()
-	defer s.headLock.RUnlock()
-
-	if !s.hasHeadState() {
-		return &ethpb.Eth1Data{}
-	}
-	return s.head.state.Eth1Data()
 }
 
 // GenesisTime returns the genesis time of beacon chain.

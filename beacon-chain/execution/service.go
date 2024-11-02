@@ -32,7 +32,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/container/trie"
 	contracts "github.com/prysmaticlabs/prysm/v5/contracts/deposit"
-	"github.com/prysmaticlabs/prysm/v5/encoding/bytesutil"
 	"github.com/prysmaticlabs/prysm/v5/monitoring/clientstats"
 	"github.com/prysmaticlabs/prysm/v5/network"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
@@ -324,61 +323,6 @@ func (s *Service) followedBlockHeight(ctx context.Context) (uint64, error) {
 }
 
 func (s *Service) initDepositCaches(ctx context.Context, ctrs []*ethpb.DepositContainer) error {
-	if len(ctrs) == 0 {
-		return nil
-	}
-	s.cfg.depositCache.InsertDepositContainers(ctx, ctrs)
-	if !s.chainStartData.Chainstarted {
-		// Do not add to pending cache if no genesis state exists.
-		validDepositsCount.Add(float64(s.preGenesisState.Eth1DepositIndex()))
-		return nil
-	}
-	genesisState, err := s.cfg.beaconDB.GenesisState(ctx)
-	if err != nil {
-		return err
-	}
-	// Default to all post-genesis deposits in
-	// the event we cannot find a finalized state.
-	currIndex := genesisState.Eth1DepositIndex()
-	chkPt, err := s.cfg.beaconDB.FinalizedCheckpoint(ctx)
-	if err != nil {
-		return err
-	}
-	rt := bytesutil.ToBytes32(chkPt.Root)
-	if rt != [32]byte{} {
-		fState := s.cfg.finalizedStateAtStartup
-		if fState == nil || fState.IsNil() {
-			return errors.Errorf("finalized state with root %#x is nil", rt)
-		}
-		// Set deposit index to the one in the current archived state.
-		currIndex = fState.Eth1DepositIndex()
-
-		// When a node pauses for some time and starts again, the deposits to finalize
-		// accumulates. We finalize them here before we are ready to receive a block.
-		// Otherwise, the first few blocks will be slower to compute as we will
-		// hold the lock and be busy finalizing the deposits.
-		// The deposit index in the state is always the index of the next deposit
-		// to be included (rather than the last one to be processed). This was most likely
-		// done as the state cannot represent signed integers.
-		actualIndex := int64(currIndex) - 1 // lint:ignore uintcast -- deposit index will not exceed int64 in your lifetime.
-		if err = s.cfg.depositCache.InsertFinalizedDeposits(ctx, actualIndex, common.Hash(fState.Eth1Data().BlockHash),
-			0 /* Setting a zero value as we have no access to block height */); err != nil {
-			return err
-		}
-
-		// Deposit proofs are only used during state transition and can be safely removed to save space.
-		if err = s.cfg.depositCache.PruneProofs(ctx, actualIndex); err != nil {
-			return errors.Wrap(err, "could not prune deposit proofs")
-		}
-	}
-	validDepositsCount.Add(float64(currIndex))
-	// Only add pending deposits if the container slice length
-	// is more than the current index in state.
-	if uint64(len(ctrs)) > currIndex {
-		for _, c := range ctrs[currIndex:] {
-			s.cfg.depositCache.InsertPendingDeposit(ctx, c.Deposit, c.Eth1BlockHeight, c.Index, bytesutil.ToBytes32(c.DepositRoot))
-		}
-	}
 	return nil
 }
 
@@ -571,7 +515,6 @@ func (s *Service) initPOWService() {
 func (s *Service) run(done <-chan struct{}) {
 	s.runError = nil
 
-	s.initPOWService()
 	// Do not keep storing the finalized state as it is
 	// no longer of use.
 	s.removeStartupState()
@@ -820,7 +763,6 @@ func (s *Service) validPowchainData(ctx context.Context) (*ethpb.ETH1ChainData, 
 			Chainstarted:       true,
 			GenesisTime:        genState.GenesisTime(),
 			GenesisBlock:       0,
-			Eth1Data:           genState.Eth1Data(),
 			ChainstartDeposits: make([]*ethpb.Deposit, 0),
 		}
 		eth1Data = &ethpb.ETH1ChainData{

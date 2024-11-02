@@ -24,19 +24,10 @@ import (
 func TestExecuteAltairStateTransitionNoVerify_FullProcess(t *testing.T) {
 	beaconState, privKeys := util.DeterministicGenesisStateAltair(t, 100)
 
-	eth1Data := &ethpb.Eth1Data{
-		DepositCount: 100,
-		DepositRoot:  bytesutil.PadTo([]byte{2}, 32),
-		BlockHash:    make([]byte, 32),
-	}
 	require.NoError(t, beaconState.SetSlot(params.BeaconConfig().SlotsPerEpoch-1))
-	e := beaconState.Eth1Data()
-	e.DepositCount = 100
-	require.NoError(t, beaconState.SetEth1Data(e))
 	bh := beaconState.LatestBlockHeader()
 	bh.Slot = beaconState.Slot()
 	require.NoError(t, beaconState.SetLatestBlockHeader(bh))
-	require.NoError(t, beaconState.SetEth1DataVotes([]*ethpb.Eth1Data{eth1Data}))
 
 	require.NoError(t, beaconState.SetSlot(beaconState.Slot()+1))
 	epoch := time.CurrentEpoch(beaconState)
@@ -55,7 +46,6 @@ func TestExecuteAltairStateTransitionNoVerify_FullProcess(t *testing.T) {
 	block.Block.Slot = beaconState.Slot() + 1
 	block.Block.ParentRoot = parentRoot[:]
 	block.Block.Body.RandaoReveal = randaoReveal
-	block.Block.Body.Eth1Data = eth1Data
 
 	syncBits := bitfield.NewBitvector512()
 	for i := range syncBits {
@@ -88,19 +78,10 @@ func TestExecuteAltairStateTransitionNoVerify_FullProcess(t *testing.T) {
 func TestExecuteAltairStateTransitionNoVerifySignature_CouldNotVerifyStateRoot(t *testing.T) {
 	beaconState, privKeys := util.DeterministicGenesisStateAltair(t, 100)
 
-	eth1Data := &ethpb.Eth1Data{
-		DepositCount: 100,
-		DepositRoot:  bytesutil.PadTo([]byte{2}, 32),
-		BlockHash:    make([]byte, 32),
-	}
 	require.NoError(t, beaconState.SetSlot(params.BeaconConfig().SlotsPerEpoch-1))
-	e := beaconState.Eth1Data()
-	e.DepositCount = 100
-	require.NoError(t, beaconState.SetEth1Data(e))
 	bh := beaconState.LatestBlockHeader()
 	bh.Slot = beaconState.Slot()
 	require.NoError(t, beaconState.SetLatestBlockHeader(bh))
-	require.NoError(t, beaconState.SetEth1DataVotes([]*ethpb.Eth1Data{eth1Data}))
 
 	require.NoError(t, beaconState.SetSlot(beaconState.Slot()+1))
 	epoch := time.CurrentEpoch(beaconState)
@@ -119,7 +100,6 @@ func TestExecuteAltairStateTransitionNoVerifySignature_CouldNotVerifyStateRoot(t
 	block.Block.Slot = beaconState.Slot() + 1
 	block.Block.ParentRoot = parentRoot[:]
 	block.Block.Body.RandaoReveal = randaoReveal
-	block.Block.Body.Eth1Data = eth1Data
 
 	syncBits := bitfield.NewBitvector512()
 	for i := range syncBits {

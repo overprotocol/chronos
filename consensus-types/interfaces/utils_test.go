@@ -20,17 +20,11 @@ func TestBeaconBlockHeaderFromBlock(t *testing.T) {
 		ParentRoot:    bytesutil.PadTo([]byte("parent root"), hashLen),
 		StateRoot:     bytesutil.PadTo([]byte("state root"), hashLen),
 		Body: &eth.BeaconBlockBody{
-			Eth1Data: &eth.Eth1Data{
-				BlockHash:    bytesutil.PadTo([]byte("block hash"), hashLen),
-				DepositRoot:  bytesutil.PadTo([]byte("deposit root"), hashLen),
-				DepositCount: 1,
-			},
 			RandaoReveal:      bytesutil.PadTo([]byte("randao"), fieldparams.BLSSignatureLength),
 			Graffiti:          bytesutil.PadTo([]byte("teehee"), hashLen),
 			ProposerSlashings: []*eth.ProposerSlashing{},
 			AttesterSlashings: []*eth.AttesterSlashing{},
 			Attestations:      []*eth.Attestation{},
-			Deposits:          []*eth.Deposit{},
 			VoluntaryExits:    []*eth.SignedVoluntaryExit{},
 		},
 	}
@@ -57,17 +51,11 @@ func TestBeaconBlockHeaderFromBlockInterface(t *testing.T) {
 		ParentRoot:    bytesutil.PadTo([]byte("parent root"), hashLen),
 		StateRoot:     bytesutil.PadTo([]byte("state root"), hashLen),
 		Body: &eth.BeaconBlockBody{
-			Eth1Data: &eth.Eth1Data{
-				BlockHash:    bytesutil.PadTo([]byte("block hash"), hashLen),
-				DepositRoot:  bytesutil.PadTo([]byte("deposit root"), hashLen),
-				DepositCount: 1,
-			},
 			RandaoReveal:      bytesutil.PadTo([]byte("randao"), fieldparams.BLSSignatureLength),
 			Graffiti:          bytesutil.PadTo([]byte("teehee"), hashLen),
 			ProposerSlashings: []*eth.ProposerSlashing{},
 			AttesterSlashings: []*eth.AttesterSlashing{},
 			Attestations:      []*eth.Attestation{},
-			Deposits:          []*eth.Deposit{},
 			VoluntaryExits:    []*eth.SignedVoluntaryExit{},
 		},
 	}
@@ -108,17 +96,11 @@ func TestSignedBeaconBlockHeaderFromBlock(t *testing.T) {
 		ParentRoot:    bytesutil.PadTo([]byte("parent root"), hashLen),
 		StateRoot:     bytesutil.PadTo([]byte("state root"), hashLen),
 		Body: &eth.BeaconBlockBody{
-			Eth1Data: &eth.Eth1Data{
-				BlockHash:    bytesutil.PadTo([]byte("block hash"), hashLen),
-				DepositRoot:  bytesutil.PadTo([]byte("deposit root"), hashLen),
-				DepositCount: 1,
-			},
 			RandaoReveal:      bytesutil.PadTo([]byte("randao"), fieldparams.BLSSignatureLength),
 			Graffiti:          bytesutil.PadTo([]byte("teehee"), hashLen),
 			ProposerSlashings: []*eth.ProposerSlashing{},
 			AttesterSlashings: []*eth.AttesterSlashing{},
 			Attestations:      []*eth.Attestation{},
-			Deposits:          []*eth.Deposit{},
 			VoluntaryExits:    []*eth.SignedVoluntaryExit{},
 		},
 	},
@@ -149,17 +131,11 @@ func TestSignedBeaconBlockHeaderFromBlockInterface(t *testing.T) {
 		ParentRoot:    bytesutil.PadTo([]byte("parent root"), hashLen),
 		StateRoot:     bytesutil.PadTo([]byte("state root"), hashLen),
 		Body: &eth.BeaconBlockBody{
-			Eth1Data: &eth.Eth1Data{
-				BlockHash:    bytesutil.PadTo([]byte("block hash"), hashLen),
-				DepositRoot:  bytesutil.PadTo([]byte("deposit root"), hashLen),
-				DepositCount: 1,
-			},
 			RandaoReveal:      bytesutil.PadTo([]byte("randao"), fieldparams.BLSSignatureLength),
 			Graffiti:          bytesutil.PadTo([]byte("teehee"), hashLen),
 			ProposerSlashings: []*eth.ProposerSlashing{},
 			AttesterSlashings: []*eth.AttesterSlashing{},
 			Attestations:      []*eth.Attestation{},
-			Deposits:          []*eth.Deposit{},
 			VoluntaryExits:    []*eth.SignedVoluntaryExit{},
 		},
 	},

@@ -30,9 +30,6 @@ type BeaconState struct {
 	stateRootsMultiValue                *MultiValueStateRoots
 	historicalSummaries                 []*ethpb.HistoricalSummary
 	rewardAdjustmentFactor              uint64
-	eth1Data                            *ethpb.Eth1Data
-	eth1DataVotes                       []*ethpb.Eth1Data
-	eth1DepositIndex                    uint64
 	validators                          []*ethpb.Validator
 	validatorsMultiValue                *MultiValueValidators
 	balances                            []uint64
@@ -57,7 +54,6 @@ type BeaconState struct {
 	nextWithdrawalValidatorIndex        primitives.ValidatorIndex
 
 	// Electra fields
-	depositRequestsStartIndex uint64
 	depositBalanceToConsume   primitives.Gwei
 	exitBalanceToConsume      primitives.Gwei
 	earliestExitEpoch         primitives.Epoch
@@ -86,9 +82,6 @@ type beaconStateMarshalable struct {
 	StateRoots                          customtypes.StateRoots                  `json:"state_roots" yaml:"state_roots"`
 	HistoricalSummaries                 []*ethpb.HistoricalSummary              `json:"historical_summaries" yaml:"historical_summaries"`
 	RewardAdjustmentFactor              uint64                                  `json:"reward_adjustment_factor" yaml:"reward_adjustment_factor"`
-	Eth1Data                            *ethpb.Eth1Data                         `json:"eth_1_data" yaml:"eth_1_data"`
-	Eth1DataVotes                       []*ethpb.Eth1Data                       `json:"eth_1_data_votes" yaml:"eth_1_data_votes"`
-	Eth1DepositIndex                    uint64                                  `json:"eth_1_deposit_index" yaml:"eth_1_deposit_index"`
 	Validators                          []*ethpb.Validator                      `json:"validators" yaml:"validators"`
 	Balances                            []uint64                                `json:"balances" yaml:"balances"`
 	Reserves                            uint64                                  `json:"reserves" yaml:"reserves"`
@@ -107,7 +100,6 @@ type beaconStateMarshalable struct {
 	LatestExecutionPayloadHeaderDeneb   *enginev1.ExecutionPayloadHeaderDeneb   `json:"latest_execution_payload_header_deneb" yaml:"latest_execution_payload_header_deneb"`
 	NextWithdrawalIndex                 uint64                                  `json:"next_withdrawal_index" yaml:"next_withdrawal_index"`
 	NextWithdrawalValidatorIndex        primitives.ValidatorIndex               `json:"next_withdrawal_validator_index" yaml:"next_withdrawal_validator_index"`
-	DepositRequestsStartIndex           uint64                                  `json:"deposit_requests_start_index" yaml:"deposit_requests_start_index"`
 	DepositBalanceToConsume             primitives.Gwei                         `json:"deposit_balance_to_consume" yaml:"deposit_balance_to_consume"`
 	ExitBalanceToConsume                primitives.Gwei                         `json:"exit_balance_to_consume" yaml:"exit_balance_to_consume"`
 	EarliestExitEpoch                   primitives.Epoch                        `json:"earliest_exit_epoch" yaml:"earliest_exit_epoch"`
@@ -150,9 +142,6 @@ func (b *BeaconState) MarshalJSON() ([]byte, error) {
 		StateRoots:                          sRoots,
 		HistoricalSummaries:                 b.historicalSummaries,
 		RewardAdjustmentFactor:              b.rewardAdjustmentFactor,
-		Eth1Data:                            b.eth1Data,
-		Eth1DataVotes:                       b.eth1DataVotes,
-		Eth1DepositIndex:                    b.eth1DepositIndex,
 		Validators:                          vals,
 		Balances:                            balances,
 		Reserves:                            b.reserves,
@@ -171,7 +160,6 @@ func (b *BeaconState) MarshalJSON() ([]byte, error) {
 		LatestExecutionPayloadHeaderDeneb:   b.latestExecutionPayloadHeaderDeneb,
 		NextWithdrawalIndex:                 b.nextWithdrawalIndex,
 		NextWithdrawalValidatorIndex:        b.nextWithdrawalValidatorIndex,
-		DepositRequestsStartIndex:           b.depositRequestsStartIndex,
 		DepositBalanceToConsume:             b.depositBalanceToConsume,
 		ExitBalanceToConsume:                b.exitBalanceToConsume,
 		EarliestExitEpoch:                   b.earliestExitEpoch,

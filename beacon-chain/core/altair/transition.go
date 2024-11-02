@@ -71,11 +71,6 @@ func ProcessEpoch(ctx context.Context, state state.BeaconState) error {
 		return errors.Wrap(err, "could not update reserve and reward factor")
 	}
 
-	// Modified in Altair and Bellatrix.
-	state, err = e.ProcessEth1DataReset(state)
-	if err != nil {
-		return err
-	}
 	state, err = e.ProcessEffectiveBalanceUpdates(state)
 	if err != nil {
 		return err

@@ -487,10 +487,6 @@ func hydrateBeaconBlockBody() *eth.BeaconBlockBody {
 	return &eth.BeaconBlockBody{
 		RandaoReveal: make([]byte, fieldparams.BLSSignatureLength),
 		Graffiti:     make([]byte, fieldparams.RootLength),
-		Eth1Data: &eth.Eth1Data{
-			DepositRoot: make([]byte, fieldparams.RootLength),
-			BlockHash:   make([]byte, fieldparams.RootLength),
-		},
 	}
 }
 
@@ -498,10 +494,6 @@ func hydrateBeaconBlockBodyAltair() *eth.BeaconBlockBodyAltair {
 	return &eth.BeaconBlockBodyAltair{
 		RandaoReveal: make([]byte, fieldparams.BLSSignatureLength),
 		Graffiti:     make([]byte, fieldparams.RootLength),
-		Eth1Data: &eth.Eth1Data{
-			DepositRoot: make([]byte, fieldparams.RootLength),
-			BlockHash:   make([]byte, fieldparams.RootLength),
-		},
 	}
 }
 
@@ -509,10 +501,6 @@ func hydrateBeaconBlockBodyBellatrix() *eth.BeaconBlockBodyBellatrix {
 	return &eth.BeaconBlockBodyBellatrix{
 		RandaoReveal: make([]byte, fieldparams.BLSSignatureLength),
 		Graffiti:     make([]byte, fieldparams.RootLength),
-		Eth1Data: &eth.Eth1Data{
-			DepositRoot: make([]byte, fieldparams.RootLength),
-			BlockHash:   make([]byte, fieldparams.RootLength),
-		},
 		ExecutionPayload: &pb.ExecutionPayload{
 			ParentHash:    make([]byte, fieldparams.RootLength),
 			FeeRecipient:  make([]byte, 20),
@@ -532,10 +520,6 @@ func hydrateBeaconBlockBodyCapella() *eth.BeaconBlockBodyCapella {
 	return &eth.BeaconBlockBodyCapella{
 		RandaoReveal: make([]byte, fieldparams.BLSSignatureLength),
 		Graffiti:     make([]byte, fieldparams.RootLength),
-		Eth1Data: &eth.Eth1Data{
-			DepositRoot: make([]byte, fieldparams.RootLength),
-			BlockHash:   make([]byte, fieldparams.RootLength),
-		},
 		ExecutionPayload: &pb.ExecutionPayloadCapella{
 			ParentHash:    make([]byte, fieldparams.RootLength),
 			FeeRecipient:  make([]byte, 20),
@@ -556,10 +540,6 @@ func hydrateBeaconBlockBodyDeneb() *eth.BeaconBlockBodyDeneb {
 	return &eth.BeaconBlockBodyDeneb{
 		RandaoReveal: make([]byte, fieldparams.BLSSignatureLength),
 		Graffiti:     make([]byte, fieldparams.RootLength),
-		Eth1Data: &eth.Eth1Data{
-			DepositRoot: make([]byte, fieldparams.RootLength),
-			BlockHash:   make([]byte, fieldparams.RootLength),
-		},
 		ExecutionPayload: &pb.ExecutionPayloadDeneb{
 			ParentHash:    make([]byte, fieldparams.RootLength),
 			FeeRecipient:  make([]byte, 20),
@@ -580,10 +560,6 @@ func hydrateBeaconBlockBodyElectra() *eth.BeaconBlockBodyElectra {
 	return &eth.BeaconBlockBodyElectra{
 		RandaoReveal: make([]byte, fieldparams.BLSSignatureLength),
 		Graffiti:     make([]byte, fieldparams.RootLength),
-		Eth1Data: &eth.Eth1Data{
-			DepositRoot: make([]byte, fieldparams.RootLength),
-			BlockHash:   make([]byte, fieldparams.RootLength),
-		},
 		ExecutionPayload: &pb.ExecutionPayloadElectra{
 			ParentHash:    make([]byte, fieldparams.RootLength),
 			FeeRecipient:  make([]byte, 20),

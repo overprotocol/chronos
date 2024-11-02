@@ -39,12 +39,10 @@ type BeaconBlock struct {
 
 type BeaconBlockBody struct {
 	RandaoReveal      string                 `json:"randao_reveal"`
-	Eth1Data          *Eth1Data              `json:"eth1_data"`
 	Graffiti          string                 `json:"graffiti"`
 	ProposerSlashings []*ProposerSlashing    `json:"proposer_slashings"`
 	AttesterSlashings []*AttesterSlashing    `json:"attester_slashings"`
 	Attestations      []*Attestation         `json:"attestations"`
-	Deposits          []*Deposit             `json:"deposits"`
 	VoluntaryExits    []*SignedVoluntaryExit `json:"voluntary_exits"`
 }
 
@@ -73,12 +71,10 @@ type BeaconBlockAltair struct {
 
 type BeaconBlockBodyAltair struct {
 	RandaoReveal      string                 `json:"randao_reveal"`
-	Eth1Data          *Eth1Data              `json:"eth1_data"`
 	Graffiti          string                 `json:"graffiti"`
 	ProposerSlashings []*ProposerSlashing    `json:"proposer_slashings"`
 	AttesterSlashings []*AttesterSlashing    `json:"attester_slashings"`
 	Attestations      []*Attestation         `json:"attestations"`
-	Deposits          []*Deposit             `json:"deposits"`
 	VoluntaryExits    []*SignedVoluntaryExit `json:"voluntary_exits"`
 }
 
@@ -107,12 +103,10 @@ type BeaconBlockBellatrix struct {
 
 type BeaconBlockBodyBellatrix struct {
 	RandaoReveal      string                 `json:"randao_reveal"`
-	Eth1Data          *Eth1Data              `json:"eth1_data"`
 	Graffiti          string                 `json:"graffiti"`
 	ProposerSlashings []*ProposerSlashing    `json:"proposer_slashings"`
 	AttesterSlashings []*AttesterSlashing    `json:"attester_slashings"`
 	Attestations      []*Attestation         `json:"attestations"`
-	Deposits          []*Deposit             `json:"deposits"`
 	VoluntaryExits    []*SignedVoluntaryExit `json:"voluntary_exits"`
 	ExecutionPayload  *ExecutionPayload      `json:"execution_payload"`
 }
@@ -142,12 +136,10 @@ type BlindedBeaconBlockBellatrix struct {
 
 type BlindedBeaconBlockBodyBellatrix struct {
 	RandaoReveal           string                  `json:"randao_reveal"`
-	Eth1Data               *Eth1Data               `json:"eth1_data"`
 	Graffiti               string                  `json:"graffiti"`
 	ProposerSlashings      []*ProposerSlashing     `json:"proposer_slashings"`
 	AttesterSlashings      []*AttesterSlashing     `json:"attester_slashings"`
 	Attestations           []*Attestation          `json:"attestations"`
-	Deposits               []*Deposit              `json:"deposits"`
 	VoluntaryExits         []*SignedVoluntaryExit  `json:"voluntary_exits"`
 	ExecutionPayloadHeader *ExecutionPayloadHeader `json:"execution_payload_header"`
 }
@@ -176,16 +168,13 @@ type BeaconBlockCapella struct {
 }
 
 type BeaconBlockBodyCapella struct {
-	RandaoReveal          string                        `json:"randao_reveal"`
-	Eth1Data              *Eth1Data                     `json:"eth1_data"`
-	Graffiti              string                        `json:"graffiti"`
-	ProposerSlashings     []*ProposerSlashing           `json:"proposer_slashings"`
-	AttesterSlashings     []*AttesterSlashing           `json:"attester_slashings"`
-	Attestations          []*Attestation                `json:"attestations"`
-	Deposits              []*Deposit                    `json:"deposits"`
-	VoluntaryExits        []*SignedVoluntaryExit        `json:"voluntary_exits"`
-	ExecutionPayload      *ExecutionPayloadCapella      `json:"execution_payload"`
-	BLSToExecutionChanges []*SignedBLSToExecutionChange `json:"bls_to_execution_changes"`
+	RandaoReveal      string                   `json:"randao_reveal"`
+	Graffiti          string                   `json:"graffiti"`
+	ProposerSlashings []*ProposerSlashing      `json:"proposer_slashings"`
+	AttesterSlashings []*AttesterSlashing      `json:"attester_slashings"`
+	Attestations      []*Attestation           `json:"attestations"`
+	VoluntaryExits    []*SignedVoluntaryExit   `json:"voluntary_exits"`
+	ExecutionPayload  *ExecutionPayloadCapella `json:"execution_payload"`
 }
 
 type SignedBlindedBeaconBlockCapella struct {
@@ -213,15 +202,12 @@ type BlindedBeaconBlockCapella struct {
 
 type BlindedBeaconBlockBodyCapella struct {
 	RandaoReveal           string                         `json:"randao_reveal"`
-	Eth1Data               *Eth1Data                      `json:"eth1_data"`
 	Graffiti               string                         `json:"graffiti"`
 	ProposerSlashings      []*ProposerSlashing            `json:"proposer_slashings"`
 	AttesterSlashings      []*AttesterSlashing            `json:"attester_slashings"`
 	Attestations           []*Attestation                 `json:"attestations"`
-	Deposits               []*Deposit                     `json:"deposits"`
 	VoluntaryExits         []*SignedVoluntaryExit         `json:"voluntary_exits"`
 	ExecutionPayloadHeader *ExecutionPayloadHeaderCapella `json:"execution_payload_header"`
-	BLSToExecutionChanges  []*SignedBLSToExecutionChange  `json:"bls_to_execution_changes"`
 }
 
 type SignedBeaconBlockContentsDeneb struct {
@@ -260,17 +246,14 @@ type BeaconBlockDeneb struct {
 }
 
 type BeaconBlockBodyDeneb struct {
-	RandaoReveal          string                        `json:"randao_reveal"`
-	Eth1Data              *Eth1Data                     `json:"eth1_data"`
-	Graffiti              string                        `json:"graffiti"`
-	ProposerSlashings     []*ProposerSlashing           `json:"proposer_slashings"`
-	AttesterSlashings     []*AttesterSlashing           `json:"attester_slashings"`
-	Attestations          []*Attestation                `json:"attestations"`
-	Deposits              []*Deposit                    `json:"deposits"`
-	VoluntaryExits        []*SignedVoluntaryExit        `json:"voluntary_exits"`
-	ExecutionPayload      *ExecutionPayloadDeneb        `json:"execution_payload"`
-	BLSToExecutionChanges []*SignedBLSToExecutionChange `json:"bls_to_execution_changes"`
-	BlobKzgCommitments    []string                      `json:"blob_kzg_commitments"`
+	RandaoReveal       string                 `json:"randao_reveal"`
+	Graffiti           string                 `json:"graffiti"`
+	ProposerSlashings  []*ProposerSlashing    `json:"proposer_slashings"`
+	AttesterSlashings  []*AttesterSlashing    `json:"attester_slashings"`
+	Attestations       []*Attestation         `json:"attestations"`
+	VoluntaryExits     []*SignedVoluntaryExit `json:"voluntary_exits"`
+	ExecutionPayload   *ExecutionPayloadDeneb `json:"execution_payload"`
+	BlobKzgCommitments []string               `json:"blob_kzg_commitments"`
 }
 
 type BlindedBeaconBlockDeneb struct {
@@ -297,17 +280,14 @@ func (s *SignedBlindedBeaconBlockDeneb) SigString() string {
 }
 
 type BlindedBeaconBlockBodyDeneb struct {
-	RandaoReveal           string                        `json:"randao_reveal"`
-	Eth1Data               *Eth1Data                     `json:"eth1_data"`
-	Graffiti               string                        `json:"graffiti"`
-	ProposerSlashings      []*ProposerSlashing           `json:"proposer_slashings"`
-	AttesterSlashings      []*AttesterSlashing           `json:"attester_slashings"`
-	Attestations           []*Attestation                `json:"attestations"`
-	Deposits               []*Deposit                    `json:"deposits"`
-	VoluntaryExits         []*SignedVoluntaryExit        `json:"voluntary_exits"`
-	ExecutionPayloadHeader *ExecutionPayloadHeaderDeneb  `json:"execution_payload_header"`
-	BLSToExecutionChanges  []*SignedBLSToExecutionChange `json:"bls_to_execution_changes"`
-	BlobKzgCommitments     []string                      `json:"blob_kzg_commitments"`
+	RandaoReveal           string                       `json:"randao_reveal"`
+	Graffiti               string                       `json:"graffiti"`
+	ProposerSlashings      []*ProposerSlashing          `json:"proposer_slashings"`
+	AttesterSlashings      []*AttesterSlashing          `json:"attester_slashings"`
+	Attestations           []*Attestation               `json:"attestations"`
+	VoluntaryExits         []*SignedVoluntaryExit       `json:"voluntary_exits"`
+	ExecutionPayloadHeader *ExecutionPayloadHeaderDeneb `json:"execution_payload_header"`
+	BlobKzgCommitments     []string                     `json:"blob_kzg_commitments"`
 }
 
 type SignedBeaconBlockContentsElectra struct {
@@ -346,18 +326,15 @@ type BeaconBlockElectra struct {
 }
 
 type BeaconBlockBodyElectra struct {
-	RandaoReveal          string                        `json:"randao_reveal"`
-	Eth1Data              *Eth1Data                     `json:"eth1_data"`
-	Graffiti              string                        `json:"graffiti"`
-	ProposerSlashings     []*ProposerSlashing           `json:"proposer_slashings"`
-	AttesterSlashings     []*AttesterSlashingElectra    `json:"attester_slashings"`
-	Attestations          []*AttestationElectra         `json:"attestations"`
-	Deposits              []*Deposit                    `json:"deposits"`
-	VoluntaryExits        []*SignedVoluntaryExit        `json:"voluntary_exits"`
-	ExecutionPayload      *ExecutionPayloadElectra      `json:"execution_payload"`
-	BLSToExecutionChanges []*SignedBLSToExecutionChange `json:"bls_to_execution_changes"`
-	BlobKzgCommitments    []string                      `json:"blob_kzg_commitments"`
-	ExecutionRequests     *ExecutionRequests            `json:"execution_requests"`
+	RandaoReveal       string                     `json:"randao_reveal"`
+	Graffiti           string                     `json:"graffiti"`
+	ProposerSlashings  []*ProposerSlashing        `json:"proposer_slashings"`
+	AttesterSlashings  []*AttesterSlashingElectra `json:"attester_slashings"`
+	Attestations       []*AttestationElectra      `json:"attestations"`
+	VoluntaryExits     []*SignedVoluntaryExit     `json:"voluntary_exits"`
+	ExecutionPayload   *ExecutionPayloadElectra   `json:"execution_payload"`
+	BlobKzgCommitments []string                   `json:"blob_kzg_commitments"`
+	ExecutionRequests  *ExecutionRequests         `json:"execution_requests"`
 }
 
 type BlindedBeaconBlockElectra struct {
@@ -385,15 +362,12 @@ func (s *SignedBlindedBeaconBlockElectra) SigString() string {
 
 type BlindedBeaconBlockBodyElectra struct {
 	RandaoReveal           string                         `json:"randao_reveal"`
-	Eth1Data               *Eth1Data                      `json:"eth1_data"`
 	Graffiti               string                         `json:"graffiti"`
 	ProposerSlashings      []*ProposerSlashing            `json:"proposer_slashings"`
 	AttesterSlashings      []*AttesterSlashingElectra     `json:"attester_slashings"`
 	Attestations           []*AttestationElectra          `json:"attestations"`
-	Deposits               []*Deposit                     `json:"deposits"`
 	VoluntaryExits         []*SignedVoluntaryExit         `json:"voluntary_exits"`
 	ExecutionPayloadHeader *ExecutionPayloadHeaderElectra `json:"execution_payload_header"`
-	BLSToExecutionChanges  []*SignedBLSToExecutionChange  `json:"bls_to_execution_changes"`
 	BlobKzgCommitments     []string                       `json:"blob_kzg_commitments"`
 	ExecutionRequests      *ExecutionRequests             `json:"execution_requests"`
 }

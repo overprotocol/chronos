@@ -33,15 +33,6 @@ func TestGetBeaconBlockConverter_Phase0Error(t *testing.T) {
 			},
 		},
 		{
-			name:                 "nil eth1 data",
-			expectedErrorMessage: "eth1 data is nil",
-			generateData: func() *structs.BeaconBlock {
-				beaconBlock := testhelpers.GenerateJsonPhase0BeaconBlock()
-				beaconBlock.Body.Eth1Data = nil
-				return beaconBlock
-			},
-		},
-		{
 			name:                 "bad slot",
 			expectedErrorMessage: "failed to parse slot `foo`",
 			generateData: func() *structs.BeaconBlock {
@@ -87,33 +78,6 @@ func TestGetBeaconBlockConverter_Phase0Error(t *testing.T) {
 			},
 		},
 		{
-			name:                 "bad deposit root",
-			expectedErrorMessage: "failed to decode deposit root `bar`",
-			generateData: func() *structs.BeaconBlock {
-				beaconBlock := testhelpers.GenerateJsonPhase0BeaconBlock()
-				beaconBlock.Body.Eth1Data.DepositRoot = "bar"
-				return beaconBlock
-			},
-		},
-		{
-			name:                 "bad deposit count",
-			expectedErrorMessage: "failed to parse deposit count `foo`",
-			generateData: func() *structs.BeaconBlock {
-				beaconBlock := testhelpers.GenerateJsonPhase0BeaconBlock()
-				beaconBlock.Body.Eth1Data.DepositCount = "foo"
-				return beaconBlock
-			},
-		},
-		{
-			name:                 "bad block hash",
-			expectedErrorMessage: "failed to decode block hash `bar`",
-			generateData: func() *structs.BeaconBlock {
-				beaconBlock := testhelpers.GenerateJsonPhase0BeaconBlock()
-				beaconBlock.Body.Eth1Data.BlockHash = "bar"
-				return beaconBlock
-			},
-		},
-		{
 			name:                 "bad graffiti",
 			expectedErrorMessage: "failed to decode graffiti `foo`",
 			generateData: func() *structs.BeaconBlock {
@@ -146,15 +110,6 @@ func TestGetBeaconBlockConverter_Phase0Error(t *testing.T) {
 			generateData: func() *structs.BeaconBlock {
 				beaconBlock := testhelpers.GenerateJsonPhase0BeaconBlock()
 				beaconBlock.Body.Attestations[0] = nil
-				return beaconBlock
-			},
-		},
-		{
-			name:                 "bad deposits",
-			expectedErrorMessage: "failed to get deposits",
-			generateData: func() *structs.BeaconBlock {
-				beaconBlock := testhelpers.GenerateJsonPhase0BeaconBlock()
-				beaconBlock.Body.Deposits[0] = nil
 				return beaconBlock
 			},
 		},
@@ -203,15 +158,6 @@ func TestGetBeaconBlockConverter_AltairError(t *testing.T) {
 				return beaconBlock
 			},
 		},
-		{
-			name:                 "bad phase0 fields",
-			expectedErrorMessage: "failed to get the phase0 fields of the altair block",
-			generateData: func() *structs.BeaconBlockAltair {
-				beaconBlock := testhelpers.GenerateJsonAltairBeaconBlock()
-				beaconBlock.Body.Eth1Data = nil
-				return beaconBlock
-			},
-		},
 	}
 
 	for _, testCase := range testCases {
@@ -254,15 +200,6 @@ func TestGetBeaconBlockConverter_BellatrixError(t *testing.T) {
 			generateData: func() *structs.BeaconBlockBellatrix {
 				beaconBlock := testhelpers.GenerateJsonBellatrixBeaconBlock()
 				beaconBlock.Body.ExecutionPayload = nil
-				return beaconBlock
-			},
-		},
-		{
-			name:                 "bad altair fields",
-			expectedErrorMessage: "failed to get the altair fields of the bellatrix block",
-			generateData: func() *structs.BeaconBlockBellatrix {
-				beaconBlock := testhelpers.GenerateJsonBellatrixBeaconBlock()
-				beaconBlock.Body.Eth1Data = nil
 				return beaconBlock
 			},
 		},
@@ -438,29 +375,11 @@ func TestGetBeaconBlockConverter_CapellaError(t *testing.T) {
 			},
 		},
 		{
-			name:                 "bad bellatrix fields",
-			expectedErrorMessage: "failed to get the bellatrix fields of the capella block",
-			generateData: func() *structs.BeaconBlockCapella {
-				beaconBlock := testhelpers.GenerateJsonCapellaBeaconBlock()
-				beaconBlock.Body.Eth1Data = nil
-				return beaconBlock
-			},
-		},
-		{
 			name:                 "bad withdrawals",
 			expectedErrorMessage: "failed to get withdrawals",
 			generateData: func() *structs.BeaconBlockCapella {
 				beaconBlock := testhelpers.GenerateJsonCapellaBeaconBlock()
 				beaconBlock.Body.ExecutionPayload.Withdrawals[0] = nil
-				return beaconBlock
-			},
-		},
-		{
-			name:                 "bad bls execution changes",
-			expectedErrorMessage: "failed to get bls to execution changes",
-			generateData: func() *structs.BeaconBlockCapella {
-				beaconBlock := testhelpers.GenerateJsonCapellaBeaconBlock()
-				beaconBlock.Body.BLSToExecutionChanges[0] = nil
 				return beaconBlock
 			},
 		},

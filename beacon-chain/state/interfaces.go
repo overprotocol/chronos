@@ -38,7 +38,6 @@ type ReadOnlyBeaconState interface {
 	ReadOnlyBlockRoots
 	ReadOnlyStateRoots
 	ReadOnlyRandaoMixes
-	ReadOnlyEth1Data
 	ReadOnlyExits
 	ReadOnlyValidators
 	ReadOnlyBalances
@@ -71,7 +70,6 @@ type WriteOnlyBeaconState interface {
 	WriteOnlyBlockRoots
 	WriteOnlyStateRoots
 	WriteOnlyRandaoMixes
-	WriteOnlyEth1Data
 	WriteOnlyValidators
 	WriteOnlyBalances
 	WriteOnlyCheckpoint
@@ -80,6 +78,7 @@ type WriteOnlyBeaconState interface {
 	WriteOnlyInactivity
 	WriteOnlyWithdrawals
 	WriteOnlyDeposits
+	WriteOnlyEth1Data
 	SetGenesisTime(val uint64) error
 	SetGenesisValidatorsRoot(val []byte) error
 	SetSlot(val primitives.Slot) error
@@ -202,7 +201,6 @@ type ReadOnlyInactivity interface {
 
 type ReadOnlyDeposits interface {
 	DepositBalanceToConsume() (primitives.Gwei, error)
-	DepositRequestsStartIndex() (uint64, error)
 	PendingDeposits() ([]*ethpb.PendingDeposit, error)
 }
 
@@ -220,10 +218,6 @@ type WriteOnlyStateRoots interface {
 
 // WriteOnlyEth1Data defines a struct which only has write access to eth1 data methods.
 type WriteOnlyEth1Data interface {
-	SetEth1Data(val *ethpb.Eth1Data) error
-	SetEth1DataVotes(val []*ethpb.Eth1Data) error
-	AppendEth1DataVotes(val *ethpb.Eth1Data) error
-	SetEth1DepositIndex(val uint64) error
 	ExitEpochAndUpdateChurn(exitBalance primitives.Gwei) (primitives.Epoch, error)
 }
 
@@ -290,7 +284,6 @@ type WriteOnlyWithdrawals interface {
 
 type WriteOnlyDeposits interface {
 	AppendPendingDeposit(pd *ethpb.PendingDeposit) error
-	SetDepositRequestsStartIndex(index uint64) error
 	SetPendingDeposits(val []*ethpb.PendingDeposit) error
 	SetDepositBalanceToConsume(primitives.Gwei) error
 }

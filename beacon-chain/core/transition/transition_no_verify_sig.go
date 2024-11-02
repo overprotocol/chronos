@@ -345,12 +345,6 @@ func ProcessBlockForStateRoot(
 		return nil, errors.Wrap(err, "could not verify and process randao")
 	}
 
-	state, err = b.ProcessEth1DataInBlock(ctx, state, signed.Block().Body().Eth1Data())
-	if err != nil {
-		tracing.AnnotateError(span, err)
-		return nil, errors.Wrap(err, "could not process eth1 data")
-	}
-
 	state, err = ProcessOperationsNoVerifyAttsSigs(ctx, state, signed.Block())
 	if err != nil {
 		tracing.AnnotateError(span, err)

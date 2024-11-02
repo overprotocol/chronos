@@ -36,8 +36,6 @@ func TestProposeBeaconBlock_Altair(t *testing.T) {
 			Body: &structs.BeaconBlockBodyAltair{
 				Attestations:      jsonifyAttestations(altairBlock.Altair.Block.Body.Attestations),
 				AttesterSlashings: jsonifyAttesterSlashings(altairBlock.Altair.Block.Body.AttesterSlashings),
-				Deposits:          jsonifyDeposits(altairBlock.Altair.Block.Body.Deposits),
-				Eth1Data:          jsonifyEth1Data(altairBlock.Altair.Block.Body.Eth1Data),
 				Graffiti:          hexutil.Encode(altairBlock.Altair.Block.Body.Graffiti),
 				ProposerSlashings: jsonifyProposerSlashings(altairBlock.Altair.Block.Body.ProposerSlashings),
 				RandaoReveal:      hexutil.Encode(altairBlock.Altair.Block.Body.RandaoReveal),

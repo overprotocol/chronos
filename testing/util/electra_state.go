@@ -66,7 +66,7 @@ func genesisBeaconStateElectra(ctx context.Context, deposits []*ethpb.Deposit, g
 		return nil, errors.Wrap(err, "could not process validator deposits")
 	}
 
-	return buildGenesisBeaconStateElectra(genesisTime, st, st.Eth1Data())
+	return buildGenesisBeaconStateElectra(genesisTime, st)
 }
 
 // emptyGenesisStateDeneb returns an empty genesis state in Electra format.
@@ -88,11 +88,6 @@ func emptyGenesisStateElectra() (state.BeaconState, error) {
 		CurrentEpochParticipation:  []byte{},
 		PreviousEpochParticipation: []byte{},
 
-		// Eth1 data.
-		Eth1Data:         &ethpb.Eth1Data{},
-		Eth1DataVotes:    []*ethpb.Eth1Data{},
-		Eth1DepositIndex: 0,
-
 		LatestExecutionPayloadHeader: &enginev1.ExecutionPayloadHeaderElectra{},
 
 		DepositBalanceToConsume: primitives.Gwei(0),
@@ -101,15 +96,11 @@ func emptyGenesisStateElectra() (state.BeaconState, error) {
 	return state_native.InitializeFromProtoElectra(st)
 }
 
-func buildGenesisBeaconStateElectra(genesisTime uint64, preState state.BeaconState, eth1Data *ethpb.Eth1Data) (state.BeaconState, error) {
-	if eth1Data == nil {
-		return nil, errors.New("no eth1data provided for genesis state")
-	}
-
+func buildGenesisBeaconStateElectra(genesisTime uint64, preState state.BeaconState) (state.BeaconState, error) {
 	randaoMixes := make([][]byte, params.BeaconConfig().EpochsPerHistoricalVector)
 	for i := 0; i < len(randaoMixes); i++ {
 		h := make([]byte, 32)
-		copy(h, eth1Data.BlockHash)
+		copy(h, []byte{0x01})
 		randaoMixes[i] = h
 	}
 
@@ -191,13 +182,7 @@ func buildGenesisBeaconStateElectra(genesisTime uint64, preState state.BeaconSta
 		BlockRoots: blockRoots,
 		StateRoots: stateRoots,
 
-		// Eth1 data.
-		Eth1Data:         eth1Data,
-		Eth1DataVotes:    []*ethpb.Eth1Data{},
-		Eth1DepositIndex: preState.Eth1DepositIndex(),
-
 		// Electra Data
-		DepositRequestsStartIndex: params.BeaconConfig().UnsetDepositRequestsStartIndex,
 		ExitBalanceToConsume:      helpers.ExitBalanceChurnLimit(primitives.Gwei(tab)),
 		PendingDeposits:           make([]*ethpb.PendingDeposit, 0),
 		PendingPartialWithdrawals: make([]*ethpb.PendingPartialWithdrawal, 0),
@@ -205,11 +190,7 @@ func buildGenesisBeaconStateElectra(genesisTime uint64, preState state.BeaconSta
 
 	bodyRoot, err := (&ethpb.BeaconBlockBodyElectra{
 		RandaoReveal: make([]byte, 96),
-		Eth1Data: &ethpb.Eth1Data{
-			DepositRoot: make([]byte, 32),
-			BlockHash:   make([]byte, 32),
-		},
-		Graffiti: make([]byte, 32),
+		Graffiti:     make([]byte, 32),
 		ExecutionPayload: &enginev1.ExecutionPayloadElectra{
 			ParentHash:    make([]byte, 32),
 			FeeRecipient:  make([]byte, 20),

@@ -479,35 +479,27 @@ func validatorsVoteWithTheMajority(ec *e2etypes.EvaluationContext, conns ...*grp
 		case *ethpb.BeaconBlockContainer_Phase0Block:
 			b := blk.GetPhase0Block().Block
 			slot = b.Slot
-			vote = b.Body.Eth1Data.BlockHash
 		case *ethpb.BeaconBlockContainer_AltairBlock:
 			b := blk.GetAltairBlock().Block
 			slot = b.Slot
-			vote = b.Body.Eth1Data.BlockHash
 		case *ethpb.BeaconBlockContainer_BellatrixBlock:
 			b := blk.GetBellatrixBlock().Block
 			slot = b.Slot
-			vote = b.Body.Eth1Data.BlockHash
 		case *ethpb.BeaconBlockContainer_BlindedBellatrixBlock:
 			b := blk.GetBlindedBellatrixBlock().Block
 			slot = b.Slot
-			vote = b.Body.Eth1Data.BlockHash
 		case *ethpb.BeaconBlockContainer_CapellaBlock:
 			b := blk.GetCapellaBlock().Block
 			slot = b.Slot
-			vote = b.Body.Eth1Data.BlockHash
 		case *ethpb.BeaconBlockContainer_BlindedCapellaBlock:
 			b := blk.GetBlindedCapellaBlock().Block
 			slot = b.Slot
-			vote = b.Body.Eth1Data.BlockHash
 		case *ethpb.BeaconBlockContainer_DenebBlock:
 			b := blk.GetDenebBlock().Block
 			slot = b.Slot
-			vote = b.Body.Eth1Data.BlockHash
 		case *ethpb.BeaconBlockContainer_BlindedDenebBlock:
 			b := blk.GetBlindedDenebBlock().Message
 			slot = b.Slot
-			vote = b.Body.Eth1Data.BlockHash
 		default:
 			return errors.New("block neither phase0,altair or bellatrix")
 		}

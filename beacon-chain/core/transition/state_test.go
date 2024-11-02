@@ -84,9 +84,6 @@ func TestGenesisBeaconState_OK(t *testing.T) {
 	assert.DeepEqual(t, zeroHash, newState.StateRoots()[0], "StateRoots was not correctly initialized")
 	assert.DeepEqual(t, zeroHash, newState.BlockRoots()[0], "BlockRoots was not correctly initialized")
 
-	// Deposit root checks.
-	assert.DeepEqual(t, eth1Data.DepositRoot, newState.Eth1Data().DepositRoot, "Eth1Data DepositRoot was not correctly initialized")
-	assert.DeepSSZEqual(t, []*ethpb.Eth1Data{}, newState.Eth1DataVotes(), "Eth1DataVotes was not correctly initialized")
 }
 
 func TestGenesisState_HashEquality(t *testing.T) {

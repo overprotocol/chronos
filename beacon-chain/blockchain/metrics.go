@@ -316,8 +316,6 @@ func reportEpochMetrics(ctx context.Context, postState, headState state.BeaconSt
 	// Last finalized slot
 	beaconFinalizedEpoch.Set(float64(postState.FinalizedCheckpointEpoch()))
 	beaconFinalizedRoot.Set(float64(bytesutil.ToLowInt64(postState.FinalizedCheckpoint().Root)))
-	currentEth1DataDepositCount.Set(float64(postState.Eth1Data().DepositCount))
-	processedDepositsCount.Set(float64(postState.Eth1DepositIndex() + 1))
 
 	var b *precompute.Balance
 	var v []*precompute.Validator

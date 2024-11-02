@@ -7,11 +7,9 @@ import (
 	coreBlock "github.com/prysmaticlabs/prysm/v5/beacon-chain/core/blocks"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/transition"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/transition/stateutils"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/blocks"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
-	"github.com/prysmaticlabs/prysm/v5/encoding/bytesutil"
 	ethpbv1 "github.com/prysmaticlabs/prysm/v5/proto/eth/v1"
 	ethpbv2 "github.com/prysmaticlabs/prysm/v5/proto/eth/v2"
 	ethpbalpha "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
@@ -137,36 +135,6 @@ func TestGenerateFullBlock_ValidAttestations(t *testing.T) {
 	require.NoError(t, err)
 	if len(atts) != 4 {
 		t.Fatal("expected 4 attestations to be saved to the beacon state")
-	}
-}
-
-func TestGenerateFullBlock_ValidDeposits(t *testing.T) {
-	beaconState, privs := DeterministicGenesisState(t, 256)
-	deposits, _, err := DeterministicDepositsAndKeys(257)
-	require.NoError(t, err)
-	eth1Data, err := DeterministicEth1Data(len(deposits))
-	require.NoError(t, err)
-	require.NoError(t, beaconState.SetEth1Data(eth1Data))
-	conf := &BlockGenConfig{
-		NumDeposits: 1,
-	}
-	block, err := GenerateFullBlock(beaconState, privs, conf, beaconState.Slot())
-	require.NoError(t, err)
-	wsb, err := blocks.NewSignedBeaconBlock(block)
-	require.NoError(t, err)
-	beaconState, err = transition.ExecuteStateTransition(context.Background(), beaconState, wsb)
-	require.NoError(t, err)
-
-	depositedPubkey := block.Block.Body.Deposits[0].Data.PublicKey
-	valIndexMap := stateutils.ValidatorIndexMap(beaconState.Validators())
-	index := valIndexMap[bytesutil.ToBytes48(depositedPubkey)]
-	val, err := beaconState.ValidatorAtIndexReadOnly(index)
-	require.NoError(t, err)
-	if val.EffectiveBalance() != params.BeaconConfig().MaxEffectiveBalance {
-		t.Fatalf(
-			"expected validator balance to be max effective balance, received %d",
-			val.EffectiveBalance(),
-		)
 	}
 }
 

@@ -2,7 +2,6 @@ package electra_test
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/electra"
@@ -83,7 +82,7 @@ func TestProcessPendingDeposits(t *testing.T) {
 				// set the pending deposits to the maximum churn limit
 				st := stateWithPendingDeposits(t, 8_000, 2, depositAmount)
 				vals := st.Validators()
-				vals[1].ExitEpoch = 0
+				vals[1].WithdrawableEpoch = 0
 				require.NoError(t, st.SetValidators(vals))
 				return st
 			}(),
@@ -205,6 +204,7 @@ func TestProcessPendingDeposits(t *testing.T) {
 				v, err := st.ValidatorAtIndex(0)
 				require.NoError(t, err)
 				v.ExitEpoch = 10
+				v.WithdrawableEpoch = 20
 				require.NoError(t, st.UpdateValidatorAtIndex(0, v))
 				return st
 			}(),
@@ -234,6 +234,7 @@ func TestProcessPendingDeposits(t *testing.T) {
 				v, err := st.ValidatorAtIndex(0)
 				require.NoError(t, err)
 				v.ExitEpoch = 2
+				v.WithdrawableEpoch = 8
 				require.NoError(t, st.UpdateValidatorAtIndex(0, v))
 				require.NoError(t, st.UpdateBalancesAtIndex(0, 800_000))
 				return st
@@ -255,7 +256,6 @@ func TestProcessPendingDeposits(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			params.BeaconConfig().MinValidatorWithdrawabilityDelay = 6
 			var tab uint64
 			var err error
 			if tt.state != nil {
@@ -269,42 +269,6 @@ func TestProcessPendingDeposits(t *testing.T) {
 			require.Equal(t, tt.wantErr, err != nil, "wantErr=%v, got err=%s", tt.wantErr, err)
 			if tt.check != nil {
 				tt.check(t, tt.state)
-			}
-		})
-	}
-}
-
-func BenchmarkProcessPendingDeposits(b *testing.B) {
-	params.BeaconConfig().MaxPendingDepositsPerEpoch = 16
-	benchmarks := []struct {
-		name  string
-		state state.BeaconState
-	}{
-		{
-			name: "Benchmark with 100 validators",
-			state: func() state.BeaconState {
-				numDeposits := uint64(1000)
-				balETH := (params.BeaconConfig().MinActivationBalance * numDeposits) / 1_000_000_000
-				return stateWithPendingDeposits(b, balETH, numDeposits, 8_000_000)
-			}(),
-		},
-	}
-
-	for _, bm := range benchmarks {
-		b.Run(bm.name, func(b *testing.B) {
-			var tab uint64
-			var err error
-
-			if bm.state != nil {
-				tab, err = helpers.TotalActiveBalance(bm.state)
-				require.NoError(b, err)
-			}
-
-			b.ResetTimer()
-
-			for i := 0; i < b.N; i++ {
-				err = electra.ProcessPendingDeposits(context.TODO(), bm.state, primitives.Gwei(tab))
-				require.NoError(b, err)
 			}
 		})
 	}
@@ -384,125 +348,6 @@ func TestProcessDepositRequests(t *testing.T) {
 	require.Equal(t, uint64(1000), pbd[0].Amount)
 }
 
-func BenchmarkProcessDepositRequests(b *testing.B) {
-	numRequestsList := []uint64{100, 200, 500, 1000, 2000, 5000}
-	for _, numRequests := range numRequestsList {
-		b.Run(fmt.Sprintf("Benchmark with %d deposit requests", numRequests), func(b *testing.B) {
-			state := stateWithActiveBalanceETH(b, uint64((params.BeaconConfig().MinActivationBalance*numRequests)/1_000_000_000))
-			requests := make([]*enginev1.DepositRequest, numRequests)
-			for i := 0; i < int(numRequests); i++ {
-				sk, err := bls.RandKey()
-				require.NoError(b, err)
-				withdrawalCred := make([]byte, 32)
-				withdrawalCred[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
-				depositMessage := &eth.DepositMessage{
-					PublicKey:             sk.PublicKey().Marshal(),
-					Amount:                1_000,
-					WithdrawalCredentials: withdrawalCred,
-				}
-				domain, err := signing.ComputeDomain(params.BeaconConfig().DomainDeposit, nil, nil)
-				require.NoError(b, err)
-				sr, err := signing.ComputeSigningRoot(depositMessage, domain)
-				require.NoError(b, err)
-				sig := sk.Sign(sr[:])
-				requests[i] = &enginev1.DepositRequest{
-					Pubkey:                depositMessage.PublicKey,
-					Index:                 uint64(i),
-					WithdrawalCredentials: depositMessage.WithdrawalCredentials,
-					Amount:                depositMessage.Amount,
-					Signature:             sig.Marshal(),
-				}
-			}
-
-			b.ResetTimer()
-			for i := 0; i < b.N; i++ {
-				_, err := electra.ProcessDepositRequests(context.TODO(), state, requests)
-				require.NoError(b, err)
-			}
-		})
-	}
-}
-
-func TestProcessDeposit_Electra_Simple(t *testing.T) {
-	deps, _, err := util.DeterministicDepositsAndKeysSameValidator(3)
-	require.NoError(t, err)
-	eth1Data, err := util.DeterministicEth1Data(len(deps))
-	require.NoError(t, err)
-	registry := []*eth.Validator{
-		{
-			PublicKey:             []byte{1},
-			WithdrawalCredentials: []byte{1, 2, 3},
-		},
-	}
-	balances := []uint64{0}
-	st, err := state_native.InitializeFromProtoElectra(&eth.BeaconStateElectra{
-		Validators: registry,
-		Balances:   balances,
-		Eth1Data:   eth1Data,
-		Fork: &eth.Fork{
-			PreviousVersion: params.BeaconConfig().ElectraForkVersion,
-			CurrentVersion:  params.BeaconConfig().ElectraForkVersion,
-		},
-	})
-	require.NoError(t, err)
-	pdSt, err := electra.ProcessDeposits(context.Background(), st, deps)
-	require.NoError(t, err)
-	pbd, err := pdSt.PendingDeposits()
-	require.NoError(t, err)
-	require.Equal(t, params.BeaconConfig().MinActivationBalance, pbd[2].Amount)
-	require.Equal(t, 3, len(pbd))
-}
-
-func TestProcessDeposit_SkipsInvalidDeposit(t *testing.T) {
-	// Same test settings as in TestProcessDeposit_AddsNewValidatorDeposit, except that we use an invalid signature
-	dep, _, err := util.DeterministicDepositsAndKeys(1)
-	require.NoError(t, err)
-	dep[0].Data.Signature = make([]byte, 96)
-	dt, _, err := util.DepositTrieFromDeposits(dep)
-	require.NoError(t, err)
-	root, err := dt.HashTreeRoot()
-	require.NoError(t, err)
-	eth1Data := &eth.Eth1Data{
-		DepositRoot:  root[:],
-		DepositCount: 1,
-	}
-	registry := []*eth.Validator{
-		{
-			PublicKey:             []byte{1},
-			WithdrawalCredentials: []byte{1, 2, 3},
-		},
-	}
-	balances := []uint64{0}
-	beaconState, err := state_native.InitializeFromProtoElectra(&eth.BeaconStateElectra{
-		Validators: registry,
-		Balances:   balances,
-		Eth1Data:   eth1Data,
-		Fork: &eth.Fork{
-			PreviousVersion: params.BeaconConfig().GenesisForkVersion,
-			CurrentVersion:  params.BeaconConfig().GenesisForkVersion,
-		},
-	})
-	require.NoError(t, err)
-	newState, err := electra.ProcessDeposit(beaconState, dep[0], false)
-	require.NoError(t, err, "Expected invalid block deposit to be ignored without error")
-
-	if newState.Eth1DepositIndex() != 1 {
-		t.Errorf(
-			"Expected Eth1DepositIndex to be increased by 1 after processing an invalid deposit, received change: %v",
-			newState.Eth1DepositIndex(),
-		)
-	}
-	if len(newState.Validators()) != 1 {
-		t.Errorf("Expected validator list to have length 1, received: %v", len(newState.Validators()))
-	}
-	if len(newState.Balances()) != 1 {
-		t.Errorf("Expected validator balances list to have length 1, received: %v", len(newState.Balances()))
-	}
-	if newState.Balances()[0] != 0 {
-		t.Errorf("Expected validator balance at index 0 to stay 0, received: %v", newState.Balances()[0])
-	}
-}
-
 func TestApplyDeposit_TopUps_WithBadSignature(t *testing.T) {
 	st, _ := util.DeterministicGenesisStateElectra(t, 3)
 	sk, err := bls.RandKey()
@@ -529,7 +374,7 @@ func TestApplyDeposit_TopUps_WithBadSignature(t *testing.T) {
 }
 
 // stateWithActiveBalanceETH generates a mock beacon state given a balance in eth
-func stateWithActiveBalanceETH(t testing.TB, balETH uint64) state.BeaconState {
+func stateWithActiveBalanceETH(t *testing.T, balETH uint64) state.BeaconState {
 	gwei := balETH * 1_000_000_000
 	balPerVal := params.BeaconConfig().MinActivationBalance
 	numVals := gwei / balPerVal
@@ -545,6 +390,7 @@ func stateWithActiveBalanceETH(t testing.TB, balETH uint64) state.BeaconState {
 			ExitEpoch:             params.BeaconConfig().FarFutureEpoch,
 			EffectiveBalance:      balPerVal,
 			WithdrawalCredentials: wc,
+			WithdrawableEpoch:     params.BeaconConfig().FarFutureEpoch,
 		}
 		bals[i] = balPerVal
 	}
@@ -566,7 +412,7 @@ func stateWithActiveBalanceETH(t testing.TB, balETH uint64) state.BeaconState {
 }
 
 // stateWithPendingDeposits with pending deposits and existing ethbalance
-func stateWithPendingDeposits(t testing.TB, balETH uint64, numDeposits, amount uint64) state.BeaconState {
+func stateWithPendingDeposits(t *testing.T, balETH uint64, numDeposits, amount uint64) state.BeaconState {
 	st := stateWithActiveBalanceETH(t, balETH)
 	deps := make([]*eth.PendingDeposit, numDeposits)
 	validators := st.Validators()

@@ -20,80 +20,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// ProcessDeposits is one of the operations performed on each processed
-// beacon block to verify queued validators from the Ethereum 1.0 Deposit Contract
-// into the beacon chain.
-//
-// Spec pseudocode definition:
-//
-//	For each deposit in block.body.deposits:
-//	  process_deposit(state, deposit)
-func ProcessDeposits(
-	ctx context.Context,
-	beaconState state.BeaconState,
-	deposits []*ethpb.Deposit,
-) (state.BeaconState, error) {
-	ctx, span := trace.StartSpan(ctx, "electra.ProcessDeposits")
-	defer span.End()
-	// Attempt to verify all deposit signatures at once, if this fails then fall back to processing
-	// individual deposits with signature verification enabled.
-	allSignaturesVerified, err := blocks.BatchVerifyDepositsSignatures(ctx, deposits)
-	if err != nil {
-		return nil, errors.Wrap(err, "could not verify deposit signatures in batch")
-	}
-
-	for _, d := range deposits {
-		if d == nil || d.Data == nil {
-			return nil, errors.New("got a nil deposit in block")
-		}
-		beaconState, err = ProcessDeposit(beaconState, d, allSignaturesVerified)
-		if err != nil {
-			return nil, errors.Wrapf(err, "could not process deposit from %#x", bytesutil.Trunc(d.Data.PublicKey))
-		}
-	}
-	return beaconState, nil
-}
-
-// ProcessDeposit takes in a deposit object and inserts it
-// into the registry as a new validator or balance change.
-// Returns the resulting state, a boolean to indicate whether or not the deposit
-// resulted in a new validator entry into the beacon state, and any error.
-//
-// Spec pseudocode definition:
-// def process_deposit(state: BeaconState, deposit: Deposit) -> None:
-//
-//	# Verify the Merkle branch
-//	assert is_valid_merkle_branch(
-//		leaf=hash_tree_root(deposit.data),
-//		branch=deposit.proof,
-//		depth=DEPOSIT_CONTRACT_TREE_DEPTH + 1,  # Add 1 for the List length mix-in
-//		index=state.eth1_deposit_index,
-//		root=state.eth1_data.deposit_root,
-//	)
-//
-//	 # Deposits must be processed in order
-//	 state.eth1_deposit_index += 1
-//
-//	 apply_deposit(
-//	  state=state,
-//	  pubkey=deposit.data.pubkey,
-//	  withdrawal_credentials=deposit.data.withdrawal_credentials,
-//	  amount=deposit.data.amount,
-//	  signature=deposit.data.signature,
-//	 )
-func ProcessDeposit(beaconState state.BeaconState, deposit *ethpb.Deposit, allSignaturesVerified bool) (state.BeaconState, error) {
-	if err := blocks.VerifyDeposit(beaconState, deposit); err != nil {
-		if deposit == nil || deposit.Data == nil {
-			return nil, err
-		}
-		return nil, errors.Wrapf(err, "could not verify deposit from %#x", bytesutil.Trunc(deposit.Data.PublicKey))
-	}
-	if err := beaconState.SetEth1DepositIndex(beaconState.Eth1DepositIndex() + 1); err != nil {
-		return nil, err
-	}
-	return ApplyDeposit(beaconState, deposit.Data, allSignaturesVerified)
-}
-
 // ApplyDeposit adds the incoming deposit as a pending deposit on the state
 //
 // Spec pseudocode definition:
@@ -549,18 +475,6 @@ func ProcessDepositRequests(ctx context.Context, beaconState state.BeaconState, 
 //	    slot=state.slot,
 //	))
 func processDepositRequest(beaconState state.BeaconState, request *enginev1.DepositRequest) (state.BeaconState, error) {
-	requestsStartIndex, err := beaconState.DepositRequestsStartIndex()
-	if err != nil {
-		return nil, errors.Wrap(err, "could not get deposit requests start index")
-	}
-	if requestsStartIndex == params.BeaconConfig().UnsetDepositRequestsStartIndex {
-		if request == nil {
-			return nil, errors.New("nil deposit request")
-		}
-		if err := beaconState.SetDepositRequestsStartIndex(request.Index); err != nil {
-			return nil, errors.Wrap(err, "could not set deposit requests start index")
-		}
-	}
 	if err := beaconState.AppendPendingDeposit(&ethpb.PendingDeposit{
 		PublicKey:             bytesutil.SafeCopyBytes(request.Pubkey),
 		Amount:                request.Amount,

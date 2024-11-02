@@ -38,8 +38,6 @@ func TestProposeBeaconBlock_BlindedBellatrix(t *testing.T) {
 			Body: &structs.BlindedBeaconBlockBodyBellatrix{
 				Attestations:      jsonifyAttestations(blindedBellatrixBlock.BlindedBellatrix.Block.Body.Attestations),
 				AttesterSlashings: jsonifyAttesterSlashings(blindedBellatrixBlock.BlindedBellatrix.Block.Body.AttesterSlashings),
-				Deposits:          jsonifyDeposits(blindedBellatrixBlock.BlindedBellatrix.Block.Body.Deposits),
-				Eth1Data:          jsonifyEth1Data(blindedBellatrixBlock.BlindedBellatrix.Block.Body.Eth1Data),
 				Graffiti:          hexutil.Encode(blindedBellatrixBlock.BlindedBellatrix.Block.Body.Graffiti),
 				ProposerSlashings: jsonifyProposerSlashings(blindedBellatrixBlock.BlindedBellatrix.Block.Body.ProposerSlashings),
 				RandaoReveal:      hexutil.Encode(blindedBellatrixBlock.BlindedBellatrix.Block.Body.RandaoReveal),
@@ -101,12 +99,7 @@ func generateSignedBlindedBellatrixBlock() *ethpb.GenericSignedBeaconBlock_Blind
 				StateRoot:     testhelpers.FillByteSlice(32, 4),
 				Body: &ethpb.BlindedBeaconBlockBodyBellatrix{
 					RandaoReveal: testhelpers.FillByteSlice(96, 5),
-					Eth1Data: &ethpb.Eth1Data{
-						DepositRoot:  testhelpers.FillByteSlice(32, 6),
-						DepositCount: 7,
-						BlockHash:    testhelpers.FillByteSlice(32, 8),
-					},
-					Graffiti: testhelpers.FillByteSlice(32, 9),
+					Graffiti:     testhelpers.FillByteSlice(32, 9),
 					ProposerSlashings: []*ethpb.ProposerSlashing{
 						{
 							Header_1: &ethpb.SignedBeaconBlockHeader{
@@ -261,26 +254,6 @@ func generateSignedBlindedBellatrixBlock() *ethpb.GenericSignedBeaconBlock_Blind
 								},
 							},
 							Signature: testhelpers.FillByteSlice(96, 91),
-						},
-					},
-					Deposits: []*ethpb.Deposit{
-						{
-							Proof: testhelpers.FillByteArraySlice(33, testhelpers.FillByteSlice(32, 92)),
-							Data: &ethpb.Deposit_Data{
-								PublicKey:             testhelpers.FillByteSlice(48, 94),
-								WithdrawalCredentials: testhelpers.FillByteSlice(32, 95),
-								Amount:                96,
-								Signature:             testhelpers.FillByteSlice(96, 97),
-							},
-						},
-						{
-							Proof: testhelpers.FillByteArraySlice(33, testhelpers.FillByteSlice(32, 98)),
-							Data: &ethpb.Deposit_Data{
-								PublicKey:             testhelpers.FillByteSlice(48, 100),
-								WithdrawalCredentials: testhelpers.FillByteSlice(32, 101),
-								Amount:                102,
-								Signature:             testhelpers.FillByteSlice(96, 103),
-							},
 						},
 					},
 					VoluntaryExits: []*ethpb.SignedVoluntaryExit{
