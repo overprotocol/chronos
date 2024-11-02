@@ -15,12 +15,7 @@ func GenerateProtoCapellaBeaconBlock() *ethpb.BeaconBlockCapella {
 		StateRoot:     FillByteSlice(32, 4),
 		Body: &ethpb.BeaconBlockBodyCapella{
 			RandaoReveal: FillByteSlice(96, 5),
-			Eth1Data: &ethpb.Eth1Data{
-				DepositRoot:  FillByteSlice(32, 6),
-				DepositCount: 7,
-				BlockHash:    FillByteSlice(32, 8),
-			},
-			Graffiti: FillByteSlice(32, 9),
+			Graffiti:     FillByteSlice(32, 9),
 			ProposerSlashings: []*ethpb.ProposerSlashing{
 				{
 					Header_1: &ethpb.SignedBeaconBlockHeader{
@@ -175,26 +170,6 @@ func GenerateProtoCapellaBeaconBlock() *ethpb.BeaconBlockCapella {
 						},
 					},
 					Signature: FillByteSlice(96, 91),
-				},
-			},
-			Deposits: []*ethpb.Deposit{
-				{
-					Proof: FillByteArraySlice(33, FillByteSlice(32, 92)),
-					Data: &ethpb.Deposit_Data{
-						PublicKey:             FillByteSlice(48, 94),
-						WithdrawalCredentials: FillByteSlice(32, 95),
-						Amount:                96,
-						Signature:             FillByteSlice(96, 97),
-					},
-				},
-				{
-					Proof: FillByteArraySlice(33, FillByteSlice(32, 98)),
-					Data: &ethpb.Deposit_Data{
-						PublicKey:             FillByteSlice(48, 100),
-						WithdrawalCredentials: FillByteSlice(32, 101),
-						Amount:                102,
-						Signature:             FillByteSlice(96, 103),
-					},
 				},
 			},
 			VoluntaryExits: []*ethpb.SignedVoluntaryExit{
@@ -246,24 +221,6 @@ func GenerateProtoCapellaBeaconBlock() *ethpb.BeaconBlockCapella {
 					},
 				},
 			},
-			BlsToExecutionChanges: []*ethpb.SignedBLSToExecutionChange{
-				{
-					Message: &ethpb.BLSToExecutionChange{
-						ValidatorIndex:     135,
-						FromBlsPubkey:      FillByteSlice(48, 136),
-						ToExecutionAddress: FillByteSlice(20, 137),
-					},
-					Signature: FillByteSlice(96, 138),
-				},
-				{
-					Message: &ethpb.BLSToExecutionChange{
-						ValidatorIndex:     139,
-						FromBlsPubkey:      FillByteSlice(48, 140),
-						ToExecutionAddress: FillByteSlice(20, 141),
-					},
-					Signature: FillByteSlice(96, 142),
-				},
-			},
 		},
 	}
 }
@@ -276,12 +233,7 @@ func GenerateProtoBlindedCapellaBeaconBlock() *ethpb.BlindedBeaconBlockCapella {
 		StateRoot:     FillByteSlice(32, 4),
 		Body: &ethpb.BlindedBeaconBlockBodyCapella{
 			RandaoReveal: FillByteSlice(96, 5),
-			Eth1Data: &ethpb.Eth1Data{
-				DepositRoot:  FillByteSlice(32, 6),
-				DepositCount: 7,
-				BlockHash:    FillByteSlice(32, 8),
-			},
-			Graffiti: FillByteSlice(32, 9),
+			Graffiti:     FillByteSlice(32, 9),
 			ProposerSlashings: []*ethpb.ProposerSlashing{
 				{
 					Header_1: &ethpb.SignedBeaconBlockHeader{
@@ -438,26 +390,6 @@ func GenerateProtoBlindedCapellaBeaconBlock() *ethpb.BlindedBeaconBlockCapella {
 					Signature: FillByteSlice(96, 91),
 				},
 			},
-			Deposits: []*ethpb.Deposit{
-				{
-					Proof: FillByteArraySlice(33, FillByteSlice(32, 92)),
-					Data: &ethpb.Deposit_Data{
-						PublicKey:             FillByteSlice(48, 94),
-						WithdrawalCredentials: FillByteSlice(32, 95),
-						Amount:                96,
-						Signature:             FillByteSlice(96, 97),
-					},
-				},
-				{
-					Proof: FillByteArraySlice(33, FillByteSlice(32, 98)),
-					Data: &ethpb.Deposit_Data{
-						PublicKey:             FillByteSlice(48, 100),
-						WithdrawalCredentials: FillByteSlice(32, 101),
-						Amount:                102,
-						Signature:             FillByteSlice(96, 103),
-					},
-				},
-			},
 			VoluntaryExits: []*ethpb.SignedVoluntaryExit{
 				{
 					Exit: &ethpb.VoluntaryExit{
@@ -491,24 +423,6 @@ func GenerateProtoBlindedCapellaBeaconBlock() *ethpb.BlindedBeaconBlockCapella {
 				TransactionsRoot: FillByteSlice(32, 125),
 				WithdrawalsRoot:  FillByteSlice(32, 126),
 			},
-			BlsToExecutionChanges: []*ethpb.SignedBLSToExecutionChange{
-				{
-					Message: &ethpb.BLSToExecutionChange{
-						ValidatorIndex:     135,
-						FromBlsPubkey:      FillByteSlice(48, 136),
-						ToExecutionAddress: FillByteSlice(20, 137),
-					},
-					Signature: FillByteSlice(96, 138),
-				},
-				{
-					Message: &ethpb.BLSToExecutionChange{
-						ValidatorIndex:     139,
-						FromBlsPubkey:      FillByteSlice(48, 140),
-						ToExecutionAddress: FillByteSlice(20, 141),
-					},
-					Signature: FillByteSlice(96, 142),
-				},
-			},
 		},
 	}
 }
@@ -521,12 +435,7 @@ func GenerateJsonCapellaBeaconBlock() *structs.BeaconBlockCapella {
 		StateRoot:     FillEncodedByteSlice(32, 4),
 		Body: &structs.BeaconBlockBodyCapella{
 			RandaoReveal: FillEncodedByteSlice(96, 5),
-			Eth1Data: &structs.Eth1Data{
-				DepositRoot:  FillEncodedByteSlice(32, 6),
-				DepositCount: "7",
-				BlockHash:    FillEncodedByteSlice(32, 8),
-			},
-			Graffiti: FillEncodedByteSlice(32, 9),
+			Graffiti:     FillEncodedByteSlice(32, 9),
 			ProposerSlashings: []*structs.ProposerSlashing{
 				{
 					SignedHeader1: &structs.SignedBeaconBlockHeader{
@@ -681,26 +590,6 @@ func GenerateJsonCapellaBeaconBlock() *structs.BeaconBlockCapella {
 						},
 					},
 					Signature: FillEncodedByteSlice(96, 91),
-				},
-			},
-			Deposits: []*structs.Deposit{
-				{
-					Proof: FillEncodedByteArraySlice(33, FillEncodedByteSlice(32, 92)),
-					Data: &structs.DepositData{
-						Pubkey:                FillEncodedByteSlice(48, 94),
-						WithdrawalCredentials: FillEncodedByteSlice(32, 95),
-						Amount:                "96",
-						Signature:             FillEncodedByteSlice(96, 97),
-					},
-				},
-				{
-					Proof: FillEncodedByteArraySlice(33, FillEncodedByteSlice(32, 98)),
-					Data: &structs.DepositData{
-						Pubkey:                FillEncodedByteSlice(48, 100),
-						WithdrawalCredentials: FillEncodedByteSlice(32, 101),
-						Amount:                "102",
-						Signature:             FillEncodedByteSlice(96, 103),
-					},
 				},
 			},
 			VoluntaryExits: []*structs.SignedVoluntaryExit{
@@ -752,24 +641,6 @@ func GenerateJsonCapellaBeaconBlock() *structs.BeaconBlockCapella {
 					},
 				},
 			},
-			BLSToExecutionChanges: []*structs.SignedBLSToExecutionChange{
-				{
-					Message: &structs.BLSToExecutionChange{
-						ValidatorIndex:     "135",
-						FromBLSPubkey:      FillEncodedByteSlice(48, 136),
-						ToExecutionAddress: FillEncodedByteSlice(20, 137),
-					},
-					Signature: FillEncodedByteSlice(96, 138),
-				},
-				{
-					Message: &structs.BLSToExecutionChange{
-						ValidatorIndex:     "139",
-						FromBLSPubkey:      FillEncodedByteSlice(48, 140),
-						ToExecutionAddress: FillEncodedByteSlice(20, 141),
-					},
-					Signature: FillEncodedByteSlice(96, 142),
-				},
-			},
 		},
 	}
 }
@@ -782,12 +653,7 @@ func GenerateJsonBlindedCapellaBeaconBlock() *structs.BlindedBeaconBlockCapella 
 		StateRoot:     FillEncodedByteSlice(32, 4),
 		Body: &structs.BlindedBeaconBlockBodyCapella{
 			RandaoReveal: FillEncodedByteSlice(96, 5),
-			Eth1Data: &structs.Eth1Data{
-				DepositRoot:  FillEncodedByteSlice(32, 6),
-				DepositCount: "7",
-				BlockHash:    FillEncodedByteSlice(32, 8),
-			},
-			Graffiti: FillEncodedByteSlice(32, 9),
+			Graffiti:     FillEncodedByteSlice(32, 9),
 			ProposerSlashings: []*structs.ProposerSlashing{
 				{
 					SignedHeader1: &structs.SignedBeaconBlockHeader{
@@ -944,26 +810,6 @@ func GenerateJsonBlindedCapellaBeaconBlock() *structs.BlindedBeaconBlockCapella 
 					Signature: FillEncodedByteSlice(96, 91),
 				},
 			},
-			Deposits: []*structs.Deposit{
-				{
-					Proof: FillEncodedByteArraySlice(33, FillEncodedByteSlice(32, 92)),
-					Data: &structs.DepositData{
-						Pubkey:                FillEncodedByteSlice(48, 94),
-						WithdrawalCredentials: FillEncodedByteSlice(32, 95),
-						Amount:                "96",
-						Signature:             FillEncodedByteSlice(96, 97),
-					},
-				},
-				{
-					Proof: FillEncodedByteArraySlice(33, FillEncodedByteSlice(32, 98)),
-					Data: &structs.DepositData{
-						Pubkey:                FillEncodedByteSlice(48, 100),
-						WithdrawalCredentials: FillEncodedByteSlice(32, 101),
-						Amount:                "102",
-						Signature:             FillEncodedByteSlice(96, 103),
-					},
-				},
-			},
 			VoluntaryExits: []*structs.SignedVoluntaryExit{
 				{
 					Message: &structs.VoluntaryExit{
@@ -996,24 +842,6 @@ func GenerateJsonBlindedCapellaBeaconBlock() *structs.BlindedBeaconBlockCapella 
 				BlockHash:        FillEncodedByteSlice(32, 124),
 				TransactionsRoot: FillEncodedByteSlice(32, 125),
 				WithdrawalsRoot:  FillEncodedByteSlice(32, 126),
-			},
-			BLSToExecutionChanges: []*structs.SignedBLSToExecutionChange{
-				{
-					Message: &structs.BLSToExecutionChange{
-						ValidatorIndex:     "135",
-						FromBLSPubkey:      FillEncodedByteSlice(48, 136),
-						ToExecutionAddress: FillEncodedByteSlice(20, 137),
-					},
-					Signature: FillEncodedByteSlice(96, 138),
-				},
-				{
-					Message: &structs.BLSToExecutionChange{
-						ValidatorIndex:     "139",
-						FromBLSPubkey:      FillEncodedByteSlice(48, 140),
-						ToExecutionAddress: FillEncodedByteSlice(20, 141),
-					},
-					Signature: FillEncodedByteSlice(96, 142),
-				},
 			},
 		},
 	}

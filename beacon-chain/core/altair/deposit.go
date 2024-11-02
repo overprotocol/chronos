@@ -82,15 +82,6 @@ func ProcessDeposits(
 //	  signature=deposit.data.signature,
 //	 )
 func ProcessDeposit(beaconState state.BeaconState, deposit *ethpb.Deposit, allSignaturesVerified bool) (state.BeaconState, error) {
-	if err := blocks.VerifyDeposit(beaconState, deposit); err != nil {
-		if deposit == nil || deposit.Data == nil {
-			return nil, err
-		}
-		return nil, errors.Wrapf(err, "could not verify deposit from %#x", bytesutil.Trunc(deposit.Data.PublicKey))
-	}
-	if err := beaconState.SetEth1DepositIndex(beaconState.Eth1DepositIndex() + 1); err != nil {
-		return nil, err
-	}
 
 	return ApplyDeposit(beaconState, deposit.Data, allSignaturesVerified)
 }

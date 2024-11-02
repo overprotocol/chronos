@@ -24,10 +24,6 @@ func DepositContractAddress() (string, error) {
 }
 
 func (s *Service) processDeposit(ctx context.Context, eth1Data *ethpb.Eth1Data, deposit *ethpb.Deposit) error {
-	var err error
-	if err := s.preGenesisState.SetEth1Data(eth1Data); err != nil {
-		return err
-	}
 	// preGenesisState is always a genesis state ( phase 0 ) and so state version does not need to be checked here for post electra deposit processing
 	beaconState, err := altair.ProcessPreGenesisDeposits(ctx, s.preGenesisState, []*ethpb.Deposit{deposit})
 	if err != nil {

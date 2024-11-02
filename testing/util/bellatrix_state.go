@@ -51,7 +51,7 @@ func genesisBeaconStateBellatrix(ctx context.Context, deposits []*ethpb.Deposit,
 		return nil, errors.Wrap(err, "could not process validator deposits")
 	}
 
-	return buildGenesisBeaconStateBellatrix(genesisTime, st, st.Eth1Data())
+	return buildGenesisBeaconStateBellatrix(genesisTime, st)
 }
 
 // emptyGenesisStateBellatrix returns an empty genesis state in Bellatrix format.
@@ -75,25 +75,16 @@ func emptyGenesisStateBellatrix() (state.BeaconState, error) {
 		CurrentEpochParticipation:  []byte{},
 		PreviousEpochParticipation: []byte{},
 
-		// Eth1 data.
-		Eth1Data:         &ethpb.Eth1Data{},
-		Eth1DataVotes:    []*ethpb.Eth1Data{},
-		Eth1DepositIndex: 0,
-
 		LatestExecutionPayloadHeader: &enginev1.ExecutionPayloadHeader{},
 	}
 	return state_native.InitializeFromProtoBellatrix(st)
 }
 
-func buildGenesisBeaconStateBellatrix(genesisTime uint64, preState state.BeaconState, eth1Data *ethpb.Eth1Data) (state.BeaconState, error) {
-	if eth1Data == nil {
-		return nil, errors.New("no eth1data provided for genesis state")
-	}
-
+func buildGenesisBeaconStateBellatrix(genesisTime uint64, preState state.BeaconState) (state.BeaconState, error) {
 	randaoMixes := make([][]byte, params.BeaconConfig().EpochsPerHistoricalVector)
 	for i := 0; i < len(randaoMixes); i++ {
 		h := make([]byte, 32)
-		copy(h, eth1Data.BlockHash)
+		copy(h, []byte{0x01})
 		randaoMixes[i] = h
 	}
 
@@ -178,20 +169,11 @@ func buildGenesisBeaconStateBellatrix(genesisTime uint64, preState state.BeaconS
 
 		BlockRoots: blockRoots,
 		StateRoots: stateRoots,
-
-		// Eth1 data.
-		Eth1Data:         eth1Data,
-		Eth1DataVotes:    []*ethpb.Eth1Data{},
-		Eth1DepositIndex: preState.Eth1DepositIndex(),
 	}
 
 	bodyRoot, err := (&ethpb.BeaconBlockBodyBellatrix{
 		RandaoReveal: make([]byte, 96),
-		Eth1Data: &ethpb.Eth1Data{
-			DepositRoot: make([]byte, 32),
-			BlockHash:   make([]byte, 32),
-		},
-		Graffiti: make([]byte, 32),
+		Graffiti:     make([]byte, 32),
 		ExecutionPayload: &enginev1.ExecutionPayload{
 			ParentHash:    make([]byte, 32),
 			FeeRecipient:  make([]byte, 20),

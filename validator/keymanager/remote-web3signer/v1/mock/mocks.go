@@ -86,12 +86,7 @@ func GetMockSignRequest(t string) *validatorpb.SignRequest {
 					StateRoot:     make([]byte, fieldparams.RootLength),
 					Body: &eth.BeaconBlockBody{
 						RandaoReveal: make([]byte, 32),
-						Eth1Data: &eth.Eth1Data{
-							DepositRoot:  make([]byte, fieldparams.RootLength),
-							DepositCount: 0,
-							BlockHash:    make([]byte, 32),
-						},
-						Graffiti: make([]byte, 32),
+						Graffiti:     make([]byte, 32),
 						ProposerSlashings: []*eth.ProposerSlashing{
 							{
 								Header_1: &eth.SignedBeaconBlockHeader{
@@ -159,17 +154,6 @@ func GetMockSignRequest(t string) *validatorpb.SignRequest {
 									},
 								},
 								Signature: make([]byte, 96),
-							},
-						},
-						Deposits: []*eth.Deposit{
-							{
-								Proof: [][]byte{[]byte("A")},
-								Data: &eth.Deposit_Data{
-									PublicKey:             make([]byte, fieldparams.BLSPubkeyLength),
-									WithdrawalCredentials: make([]byte, 32),
-									Amount:                0,
-									Signature:             make([]byte, fieldparams.BLSSignatureLength),
-								},
 							},
 						},
 						VoluntaryExits: []*eth.SignedVoluntaryExit{
@@ -199,12 +183,7 @@ func GetMockSignRequest(t string) *validatorpb.SignRequest {
 					StateRoot:     make([]byte, fieldparams.RootLength),
 					Body: &eth.BeaconBlockBodyAltair{
 						RandaoReveal: make([]byte, 32),
-						Eth1Data: &eth.Eth1Data{
-							DepositRoot:  make([]byte, fieldparams.RootLength),
-							DepositCount: 0,
-							BlockHash:    make([]byte, 32),
-						},
-						Graffiti: make([]byte, 32),
+						Graffiti:     make([]byte, 32),
 						ProposerSlashings: []*eth.ProposerSlashing{
 							{
 								Header_1: &eth.SignedBeaconBlockHeader{
@@ -272,17 +251,6 @@ func GetMockSignRequest(t string) *validatorpb.SignRequest {
 									},
 								},
 								Signature: make([]byte, 96),
-							},
-						},
-						Deposits: []*eth.Deposit{
-							{
-								Proof: [][]byte{[]byte("A")},
-								Data: &eth.Deposit_Data{
-									PublicKey:             make([]byte, fieldparams.BLSPubkeyLength),
-									WithdrawalCredentials: make([]byte, 32),
-									Amount:                0,
-									Signature:             make([]byte, fieldparams.BLSSignatureLength),
-								},
 							},
 						},
 						VoluntaryExits: []*eth.SignedVoluntaryExit{
@@ -582,12 +550,7 @@ func BeaconBlockAltair() *v1.BeaconBlockAltair {
 		StateRoot:     make([]byte, fieldparams.RootLength),
 		Body: &v1.BeaconBlockBodyAltair{
 			RandaoReveal: make([]byte, 32),
-			Eth1Data: &v1.Eth1Data{
-				DepositRoot:  make([]byte, fieldparams.RootLength),
-				DepositCount: "0",
-				BlockHash:    make([]byte, 32),
-			},
-			Graffiti: make([]byte, 32),
+			Graffiti:     make([]byte, 32),
 			ProposerSlashings: []*v1.ProposerSlashing{
 				{
 					Signedheader1: &v1.SignedBeaconBlockHeader{
@@ -621,17 +584,6 @@ func BeaconBlockAltair() *v1.BeaconBlockAltair {
 			Attestations: []*v1.Attestation{
 				Attestation(),
 			},
-			Deposits: []*v1.Deposit{
-				{
-					Proof: []string{"0x41"},
-					Data: &v1.DepositData{
-						PublicKey:             make([]byte, fieldparams.BLSPubkeyLength),
-						WithdrawalCredentials: make([]byte, 32),
-						Amount:                "0",
-						Signature:             make([]byte, fieldparams.BLSSignatureLength),
-					},
-				},
-			},
 			VoluntaryExits: []*v1.SignedVoluntaryExit{
 				{
 					Message: &v1.VoluntaryExit{
@@ -648,12 +600,7 @@ func BeaconBlockAltair() *v1.BeaconBlockAltair {
 func BeaconBlockBody() *v1.BeaconBlockBody {
 	return &v1.BeaconBlockBody{
 		RandaoReveal: make([]byte, 32),
-		Eth1Data: &v1.Eth1Data{
-			DepositRoot:  make([]byte, fieldparams.RootLength),
-			DepositCount: "0",
-			BlockHash:    make([]byte, 32),
-		},
-		Graffiti: make([]byte, 32),
+		Graffiti:     make([]byte, 32),
 		ProposerSlashings: []*v1.ProposerSlashing{
 			{
 				Signedheader1: &v1.SignedBeaconBlockHeader{
@@ -686,17 +633,6 @@ func BeaconBlockBody() *v1.BeaconBlockBody {
 		},
 		Attestations: []*v1.Attestation{
 			Attestation(),
-		},
-		Deposits: []*v1.Deposit{
-			{
-				Proof: []string{"0x41"},
-				Data: &v1.DepositData{
-					PublicKey:             make([]byte, fieldparams.BLSPubkeyLength),
-					WithdrawalCredentials: make([]byte, 32),
-					Amount:                "0",
-					Signature:             make([]byte, fieldparams.BLSSignatureLength),
-				},
-			},
 		},
 		VoluntaryExits: []*v1.SignedVoluntaryExit{
 			{

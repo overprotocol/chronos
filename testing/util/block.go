@@ -67,15 +67,10 @@ func NewBeaconBlock() *ethpb.SignedBeaconBlock {
 			ParentRoot: make([]byte, fieldparams.RootLength),
 			StateRoot:  make([]byte, fieldparams.RootLength),
 			Body: &ethpb.BeaconBlockBody{
-				RandaoReveal: make([]byte, fieldparams.BLSSignatureLength),
-				Eth1Data: &ethpb.Eth1Data{
-					DepositRoot: make([]byte, fieldparams.RootLength),
-					BlockHash:   make([]byte, fieldparams.RootLength),
-				},
+				RandaoReveal:      make([]byte, fieldparams.BLSSignatureLength),
 				Graffiti:          make([]byte, fieldparams.RootLength),
 				Attestations:      []*ethpb.Attestation{},
 				AttesterSlashings: []*ethpb.AttesterSlashing{},
-				Deposits:          []*ethpb.Deposit{},
 				ProposerSlashings: []*ethpb.ProposerSlashing{},
 				VoluntaryExits:    []*ethpb.SignedVoluntaryExit{},
 			},
@@ -147,16 +142,6 @@ func GenerateFullBlock(
 		}
 	}
 
-	numToGen = conf.NumDeposits
-	var newDeposits []*ethpb.Deposit
-	eth1Data := bState.Eth1Data()
-	if numToGen > 0 {
-		newDeposits, eth1Data, err = generateDepositsAndEth1Data(bState, numToGen)
-		if err != nil {
-			return nil, errors.Wrapf(err, "failed generating %d deposits:", numToGen)
-		}
-	}
-
 	numToGen = conf.NumVoluntaryExits
 	var exits []*ethpb.SignedVoluntaryExit
 	if numToGen > 0 {
@@ -201,13 +186,11 @@ func GenerateFullBlock(
 		ParentRoot:    parentRoot[:],
 		ProposerIndex: idx,
 		Body: &ethpb.BeaconBlockBody{
-			Eth1Data:          eth1Data,
 			RandaoReveal:      reveal,
 			ProposerSlashings: pSlashings,
 			AttesterSlashings: aSlashings,
 			Attestations:      atts,
 			VoluntaryExits:    exits,
-			Deposits:          newDeposits,
 			Graffiti:          make([]byte, fieldparams.RootLength),
 		},
 	}
@@ -414,26 +397,6 @@ func generateAttesterSlashings(
 	return attesterSlashings, nil
 }
 
-func generateDepositsAndEth1Data(
-	bState state.BeaconState,
-	numDeposits uint64,
-) (
-	[]*ethpb.Deposit,
-	*ethpb.Eth1Data,
-	error,
-) {
-	previousDepsLen := bState.Eth1DepositIndex()
-	currentDeposits, _, err := DeterministicDepositsAndKeys(previousDepsLen + numDeposits)
-	if err != nil {
-		return nil, nil, errors.Wrap(err, "could not get deposits")
-	}
-	eth1Data, err := DeterministicEth1Data(len(currentDeposits))
-	if err != nil {
-		return nil, nil, errors.Wrap(err, "could not get eth1data")
-	}
-	return currentDeposits[previousDepsLen:], eth1Data, nil
-}
-
 func GenerateVoluntaryExits(bState state.BeaconState, k bls.SecretKey, idx primitives.ValidatorIndex) (*ethpb.SignedVoluntaryExit, error) {
 	currentEpoch := time.CurrentEpoch(bState)
 	exit := &ethpb.SignedVoluntaryExit{
@@ -559,12 +522,6 @@ func HydrateBeaconBlockBody(b *ethpb.BeaconBlockBody) *ethpb.BeaconBlockBody {
 	if b.Graffiti == nil {
 		b.Graffiti = make([]byte, fieldparams.RootLength)
 	}
-	if b.Eth1Data == nil {
-		b.Eth1Data = &ethpb.Eth1Data{
-			DepositRoot: make([]byte, fieldparams.RootLength),
-			BlockHash:   make([]byte, fieldparams.RootLength),
-		}
-	}
 	return b
 }
 
@@ -605,12 +562,6 @@ func HydrateV1BeaconBlockBody(b *v1.BeaconBlockBody) *v1.BeaconBlockBody {
 	}
 	if b.Graffiti == nil {
 		b.Graffiti = make([]byte, fieldparams.RootLength)
-	}
-	if b.Eth1Data == nil {
-		b.Eth1Data = &v1.Eth1Data{
-			DepositRoot: make([]byte, fieldparams.RootLength),
-			BlockHash:   make([]byte, fieldparams.RootLength),
-		}
 	}
 	return b
 }
@@ -653,12 +604,6 @@ func HydrateV2AltairBeaconBlockBody(b *v2.BeaconBlockBodyAltair) *v2.BeaconBlock
 	if b.Graffiti == nil {
 		b.Graffiti = make([]byte, fieldparams.RootLength)
 	}
-	if b.Eth1Data == nil {
-		b.Eth1Data = &v1.Eth1Data{
-			DepositRoot: make([]byte, fieldparams.RootLength),
-			BlockHash:   make([]byte, fieldparams.RootLength),
-		}
-	}
 	return b
 }
 
@@ -699,12 +644,6 @@ func HydrateV2BellatrixBeaconBlockBody(b *v2.BeaconBlockBodyBellatrix) *v2.Beaco
 	}
 	if b.Graffiti == nil {
 		b.Graffiti = make([]byte, fieldparams.RootLength)
-	}
-	if b.Eth1Data == nil {
-		b.Eth1Data = &v1.Eth1Data{
-			DepositRoot: make([]byte, fieldparams.RootLength),
-			BlockHash:   make([]byte, fieldparams.RootLength),
-		}
 	}
 	if b.ExecutionPayload == nil {
 		b.ExecutionPayload = &enginev1.ExecutionPayload{
@@ -761,12 +700,6 @@ func HydrateBeaconBlockBodyAltair(b *ethpb.BeaconBlockBodyAltair) *ethpb.BeaconB
 	if b.Graffiti == nil {
 		b.Graffiti = make([]byte, fieldparams.RootLength)
 	}
-	if b.Eth1Data == nil {
-		b.Eth1Data = &ethpb.Eth1Data{
-			DepositRoot: make([]byte, fieldparams.RootLength),
-			BlockHash:   make([]byte, fieldparams.RootLength),
-		}
-	}
 	return b
 }
 
@@ -807,12 +740,6 @@ func HydrateBeaconBlockBodyBellatrix(b *ethpb.BeaconBlockBodyBellatrix) *ethpb.B
 	}
 	if b.Graffiti == nil {
 		b.Graffiti = make([]byte, fieldparams.RootLength)
-	}
-	if b.Eth1Data == nil {
-		b.Eth1Data = &ethpb.Eth1Data{
-			DepositRoot: make([]byte, fieldparams.RootLength),
-			BlockHash:   make([]byte, fieldparams.RootLength),
-		}
 	}
 	if b.ExecutionPayload == nil {
 		b.ExecutionPayload = &enginev1.ExecutionPayload{
@@ -869,12 +796,6 @@ func HydrateBlindedBeaconBlockBodyBellatrix(b *ethpb.BlindedBeaconBlockBodyBella
 	if b.Graffiti == nil {
 		b.Graffiti = make([]byte, 32)
 	}
-	if b.Eth1Data == nil {
-		b.Eth1Data = &ethpb.Eth1Data{
-			DepositRoot: make([]byte, fieldparams.RootLength),
-			BlockHash:   make([]byte, 32),
-		}
-	}
 	if b.ExecutionPayloadHeader == nil {
 		b.ExecutionPayloadHeader = &enginev1.ExecutionPayloadHeader{
 			ParentHash:       make([]byte, 32),
@@ -930,12 +851,6 @@ func HydrateV2BlindedBeaconBlockBodyBellatrix(b *v2.BlindedBeaconBlockBodyBellat
 	if b.Graffiti == nil {
 		b.Graffiti = make([]byte, 32)
 	}
-	if b.Eth1Data == nil {
-		b.Eth1Data = &v1.Eth1Data{
-			DepositRoot: make([]byte, fieldparams.RootLength),
-			BlockHash:   make([]byte, 32),
-		}
-	}
 	if b.ExecutionPayloadHeader == nil {
 		b.ExecutionPayloadHeader = &enginev1.ExecutionPayloadHeader{
 			ParentHash:       make([]byte, 32),
@@ -990,12 +905,6 @@ func HydrateBeaconBlockBodyCapella(b *ethpb.BeaconBlockBodyCapella) *ethpb.Beaco
 	}
 	if b.Graffiti == nil {
 		b.Graffiti = make([]byte, fieldparams.RootLength)
-	}
-	if b.Eth1Data == nil {
-		b.Eth1Data = &ethpb.Eth1Data{
-			DepositRoot: make([]byte, fieldparams.RootLength),
-			BlockHash:   make([]byte, fieldparams.RootLength),
-		}
 	}
 	if b.ExecutionPayload == nil {
 		b.ExecutionPayload = &enginev1.ExecutionPayloadCapella{
@@ -1053,12 +962,6 @@ func HydrateBlindedBeaconBlockBodyCapella(b *ethpb.BlindedBeaconBlockBodyCapella
 	if b.Graffiti == nil {
 		b.Graffiti = make([]byte, 32)
 	}
-	if b.Eth1Data == nil {
-		b.Eth1Data = &ethpb.Eth1Data{
-			DepositRoot: make([]byte, fieldparams.RootLength),
-			BlockHash:   make([]byte, 32),
-		}
-	}
 	if b.ExecutionPayloadHeader == nil {
 		b.ExecutionPayloadHeader = &enginev1.ExecutionPayloadHeaderCapella{
 			ParentHash:       make([]byte, 32),
@@ -1114,12 +1017,6 @@ func HydrateV2BlindedBeaconBlockBodyCapella(b *v2.BlindedBeaconBlockBodyCapella)
 	}
 	if b.Graffiti == nil {
 		b.Graffiti = make([]byte, 32)
-	}
-	if b.Eth1Data == nil {
-		b.Eth1Data = &v1.Eth1Data{
-			DepositRoot: make([]byte, fieldparams.RootLength),
-			BlockHash:   make([]byte, 32),
-		}
 	}
 	if b.ExecutionPayloadHeader == nil {
 		b.ExecutionPayloadHeader = &enginev1.ExecutionPayloadHeaderCapella{
@@ -1256,12 +1153,6 @@ func HydrateBeaconBlockBodyDeneb(b *ethpb.BeaconBlockBodyDeneb) *ethpb.BeaconBlo
 	if b.Graffiti == nil {
 		b.Graffiti = make([]byte, fieldparams.RootLength)
 	}
-	if b.Eth1Data == nil {
-		b.Eth1Data = &ethpb.Eth1Data{
-			DepositRoot: make([]byte, fieldparams.RootLength),
-			BlockHash:   make([]byte, fieldparams.RootLength),
-		}
-	}
 	if b.ExecutionPayload == nil {
 		b.ExecutionPayload = &enginev1.ExecutionPayloadDeneb{
 			ParentHash:    make([]byte, fieldparams.RootLength),
@@ -1291,12 +1182,6 @@ func HydrateBeaconBlockBodyElectra(b *ethpb.BeaconBlockBodyElectra) *ethpb.Beaco
 	}
 	if b.Graffiti == nil {
 		b.Graffiti = make([]byte, fieldparams.RootLength)
-	}
-	if b.Eth1Data == nil {
-		b.Eth1Data = &ethpb.Eth1Data{
-			DepositRoot: make([]byte, fieldparams.RootLength),
-			BlockHash:   make([]byte, fieldparams.RootLength),
-		}
 	}
 	if b.ExecutionPayload == nil {
 		b.ExecutionPayload = &enginev1.ExecutionPayloadElectra{
@@ -1343,12 +1228,6 @@ func HydrateV2BeaconBlockBodyDeneb(b *v2.BeaconBlockBodyDeneb) *v2.BeaconBlockBo
 	}
 	if b.Graffiti == nil {
 		b.Graffiti = make([]byte, fieldparams.RootLength)
-	}
-	if b.Eth1Data == nil {
-		b.Eth1Data = &v1.Eth1Data{
-			DepositRoot: make([]byte, fieldparams.RootLength),
-			BlockHash:   make([]byte, fieldparams.RootLength),
-		}
 	}
 	if b.ExecutionPayload == nil {
 		b.ExecutionPayload = &enginev1.ExecutionPayloadDeneb{
@@ -1458,12 +1337,6 @@ func HydrateBlindedBeaconBlockBodyDeneb(b *ethpb.BlindedBeaconBlockBodyDeneb) *e
 	if b.Graffiti == nil {
 		b.Graffiti = make([]byte, 32)
 	}
-	if b.Eth1Data == nil {
-		b.Eth1Data = &ethpb.Eth1Data{
-			DepositRoot: make([]byte, fieldparams.RootLength),
-			BlockHash:   make([]byte, 32),
-		}
-	}
 	if b.ExecutionPayloadHeader == nil {
 		b.ExecutionPayloadHeader = &enginev1.ExecutionPayloadHeaderDeneb{
 			ParentHash:       make([]byte, 32),
@@ -1493,12 +1366,6 @@ func HydrateBlindedBeaconBlockBodyElectra(b *ethpb.BlindedBeaconBlockBodyElectra
 	}
 	if b.Graffiti == nil {
 		b.Graffiti = make([]byte, 32)
-	}
-	if b.Eth1Data == nil {
-		b.Eth1Data = &ethpb.Eth1Data{
-			DepositRoot: make([]byte, fieldparams.RootLength),
-			BlockHash:   make([]byte, 32),
-		}
 	}
 	if b.ExecutionPayloadHeader == nil {
 		b.ExecutionPayloadHeader = &enginev1.ExecutionPayloadHeaderElectra{
@@ -1530,12 +1397,6 @@ func HydrateV2BlindedBeaconBlockBodyDeneb(b *v2.BlindedBeaconBlockBodyDeneb) *v2
 	}
 	if b.Graffiti == nil {
 		b.Graffiti = make([]byte, 32)
-	}
-	if b.Eth1Data == nil {
-		b.Eth1Data = &v1.Eth1Data{
-			DepositRoot: make([]byte, fieldparams.RootLength),
-			BlockHash:   make([]byte, 32),
-		}
 	}
 	if b.ExecutionPayloadHeader == nil {
 		b.ExecutionPayloadHeader = &enginev1.ExecutionPayloadHeaderDeneb{

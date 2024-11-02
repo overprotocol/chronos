@@ -234,12 +234,7 @@ func TestMapBeaconBlockAltair(t *testing.T) {
 					StateRoot:     make([]byte, fieldparams.RootLength),
 					Body: &ethpb.BeaconBlockBodyAltair{
 						RandaoReveal: make([]byte, 32),
-						Eth1Data: &ethpb.Eth1Data{
-							DepositRoot:  make([]byte, fieldparams.RootLength),
-							DepositCount: 0,
-							BlockHash:    make([]byte, 32),
-						},
-						Graffiti: make([]byte, 32),
+						Graffiti:     make([]byte, 32),
 						ProposerSlashings: []*ethpb.ProposerSlashing{
 							{
 								Header_1: &ethpb.SignedBeaconBlockHeader{
@@ -309,17 +304,6 @@ func TestMapBeaconBlockAltair(t *testing.T) {
 								Signature: make([]byte, 96),
 							},
 						},
-						Deposits: []*ethpb.Deposit{
-							{
-								Proof: [][]byte{[]byte("A")},
-								Data: &ethpb.Deposit_Data{
-									PublicKey:             make([]byte, fieldparams.BLSPubkeyLength),
-									WithdrawalCredentials: make([]byte, 32),
-									Amount:                0,
-									Signature:             make([]byte, fieldparams.BLSSignatureLength),
-								},
-							},
-						},
 						VoluntaryExits: []*ethpb.SignedVoluntaryExit{
 							{
 								Exit: &ethpb.VoluntaryExit{
@@ -362,12 +346,7 @@ func TestMapBeaconBlockBody(t *testing.T) {
 			args: args{
 				body: &ethpb.BeaconBlockBody{
 					RandaoReveal: make([]byte, 32),
-					Eth1Data: &ethpb.Eth1Data{
-						DepositRoot:  make([]byte, fieldparams.RootLength),
-						DepositCount: 0,
-						BlockHash:    make([]byte, 32),
-					},
-					Graffiti: make([]byte, 32),
+					Graffiti:     make([]byte, 32),
 					ProposerSlashings: []*ethpb.ProposerSlashing{
 						{
 							Header_1: &ethpb.SignedBeaconBlockHeader{
@@ -435,17 +414,6 @@ func TestMapBeaconBlockBody(t *testing.T) {
 								},
 							},
 							Signature: make([]byte, 96),
-						},
-					},
-					Deposits: []*ethpb.Deposit{
-						{
-							Proof: [][]byte{[]byte("A")},
-							Data: &ethpb.Deposit_Data{
-								PublicKey:             make([]byte, fieldparams.BLSPubkeyLength),
-								WithdrawalCredentials: make([]byte, 32),
-								Amount:                0,
-								Signature:             make([]byte, fieldparams.BLSSignatureLength),
-							},
 						},
 					},
 					VoluntaryExits: []*ethpb.SignedVoluntaryExit{

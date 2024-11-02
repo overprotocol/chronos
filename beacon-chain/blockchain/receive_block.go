@@ -271,14 +271,8 @@ func (s *Service) reportPostBlockProcessing(
 }
 
 func (s *Service) executePostFinalizationTasks(ctx context.Context, finalizedState state.BeaconState) {
-	finalized := s.cfg.ForkChoiceStore.FinalizedCheckpoint()
 	go func() {
 		s.sendNewFinalizedEvent(ctx, finalizedState)
-	}()
-	depCtx, cancel := context.WithTimeout(context.Background(), depositDeadline)
-	go func() {
-		s.insertFinalizedDeposits(depCtx, finalized.Root)
-		cancel()
 	}()
 }
 

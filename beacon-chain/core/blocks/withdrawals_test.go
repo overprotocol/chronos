@@ -1195,9 +1195,7 @@ func TestProcessBLSToExecutionChanges(t *testing.T) {
 		signedChanges[i] = signed
 	}
 
-	body := &ethpb.BeaconBlockBodyCapella{
-		BlsToExecutionChanges: signedChanges,
-	}
+	body := &ethpb.BeaconBlockBodyCapella{}
 	bpb := &ethpb.BeaconBlockCapella{
 		Body: body,
 	}

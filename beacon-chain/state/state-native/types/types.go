@@ -127,54 +127,46 @@ func (f FieldIndex) RealPosition() int {
 		return 6
 	case RewardAdjustmentFactor:
 		return 7
-	case Eth1Data:
-		return 8
-	case Eth1DataVotes:
-		return 9
-	case Eth1DepositIndex:
-		return 10
 	case Validators:
-		return 11
+		return 8
 	case Balances:
-		return 12
+		return 9
 	case Reserves:
-		return 13
+		return 10
 	case RandaoMixes:
-		return 14
+		return 11
 	case PreviousEpochAttestations, PreviousEpochParticipationBits:
-		return 15
+		return 12
 	case CurrentEpochAttestations, CurrentEpochParticipationBits:
-		return 16
+		return 13
 	case JustificationBits:
-		return 17
+		return 14
 	case PreviousJustifiedCheckpoint:
-		return 18
+		return 15
 	case CurrentJustifiedCheckpoint:
-		return 19
+		return 16
 	case FinalizedCheckpoint:
-		return 20
+		return 17
 	case InactivityScores:
-		return 21
+		return 18
 	case LatestExecutionPayloadHeader, LatestExecutionPayloadHeaderCapella, LatestExecutionPayloadHeaderDeneb:
-		return 22
+		return 19
 	case NextWithdrawalIndex:
-		return 23
+		return 20
 	case NextWithdrawalValidatorIndex:
-		return 24
+		return 21
 	case HistoricalSummaries:
-		return 25
-	case DepositRequestsStartIndex:
-		return 26
+		return 22
 	case DepositBalanceToConsume:
-		return 27
+		return 23
 	case ExitBalanceToConsume:
-		return 28
+		return 24
 	case EarliestExitEpoch:
-		return 29
+		return 25
 	case PendingDeposits:
-		return 30
+		return 26
 	case PendingPartialWithdrawals:
-		return 31
+		return 27
 	default:
 		return -1
 	}

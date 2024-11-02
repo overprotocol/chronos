@@ -47,7 +47,6 @@ func TestAppendBeyondIndicesLimit(t *testing.T) {
 		CurrentEpochAttestations:  []*ethpb.PendingAttestation{{Data: &ethpb.AttestationData{Slot: 456}}},
 		PreviousEpochAttestations: []*ethpb.PendingAttestation{{Data: &ethpb.AttestationData{Slot: 123}}},
 		Validators:                []*ethpb.Validator{},
-		Eth1Data:                  &ethpb.Eth1Data{},
 		BlockRoots:                mockblockRoots,
 		StateRoots:                mockstateRoots,
 		RandaoMixes:               mockrandaoMixes,

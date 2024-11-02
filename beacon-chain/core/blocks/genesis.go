@@ -25,11 +25,7 @@ func NewGenesisBlock(stateRoot []byte) *ethpb.SignedBeaconBlock {
 			StateRoot:  bytesutil.PadTo(stateRoot, 32),
 			Body: &ethpb.BeaconBlockBody{
 				RandaoReveal: make([]byte, fieldparams.BLSSignatureLength),
-				Eth1Data: &ethpb.Eth1Data{
-					DepositRoot: make([]byte, 32),
-					BlockHash:   make([]byte, 32),
-				},
-				Graffiti: make([]byte, 32),
+				Graffiti:     make([]byte, 32),
 			},
 		},
 		Signature: params.BeaconConfig().EmptySignature[:],
@@ -53,11 +49,7 @@ func NewGenesisBlockForState(ctx context.Context, st state.BeaconState) (interfa
 				StateRoot:  root[:],
 				Body: &ethpb.BeaconBlockBody{
 					RandaoReveal: make([]byte, fieldparams.BLSSignatureLength),
-					Eth1Data: &ethpb.Eth1Data{
-						DepositRoot: make([]byte, 32),
-						BlockHash:   make([]byte, 32),
-					},
-					Graffiti: make([]byte, 32),
+					Graffiti:     make([]byte, 32),
 				},
 			},
 			Signature: params.BeaconConfig().EmptySignature[:],
@@ -69,11 +61,7 @@ func NewGenesisBlockForState(ctx context.Context, st state.BeaconState) (interfa
 				StateRoot:  root[:],
 				Body: &ethpb.BeaconBlockBodyAltair{
 					RandaoReveal: make([]byte, fieldparams.BLSSignatureLength),
-					Eth1Data: &ethpb.Eth1Data{
-						DepositRoot: make([]byte, 32),
-						BlockHash:   make([]byte, 32),
-					},
-					Graffiti: make([]byte, 32),
+					Graffiti:     make([]byte, 32),
 				},
 			},
 			Signature: params.BeaconConfig().EmptySignature[:],
@@ -85,11 +73,7 @@ func NewGenesisBlockForState(ctx context.Context, st state.BeaconState) (interfa
 				StateRoot:  root[:],
 				Body: &ethpb.BeaconBlockBodyBellatrix{
 					RandaoReveal: make([]byte, 96),
-					Eth1Data: &ethpb.Eth1Data{
-						DepositRoot: make([]byte, 32),
-						BlockHash:   make([]byte, 32),
-					},
-					Graffiti: make([]byte, 32),
+					Graffiti:     make([]byte, 32),
 					ExecutionPayload: &enginev1.ExecutionPayload{
 						ParentHash:    make([]byte, 32),
 						FeeRecipient:  make([]byte, 20),
@@ -113,11 +97,7 @@ func NewGenesisBlockForState(ctx context.Context, st state.BeaconState) (interfa
 				StateRoot:  root[:],
 				Body: &ethpb.BeaconBlockBodyCapella{
 					RandaoReveal: make([]byte, 96),
-					Eth1Data: &ethpb.Eth1Data{
-						DepositRoot: make([]byte, 32),
-						BlockHash:   make([]byte, 32),
-					},
-					Graffiti: make([]byte, 32),
+					Graffiti:     make([]byte, 32),
 					ExecutionPayload: &enginev1.ExecutionPayloadCapella{
 						ParentHash:    make([]byte, 32),
 						FeeRecipient:  make([]byte, 20),
@@ -142,11 +122,7 @@ func NewGenesisBlockForState(ctx context.Context, st state.BeaconState) (interfa
 				StateRoot:  root[:],
 				Body: &ethpb.BeaconBlockBodyDeneb{
 					RandaoReveal: make([]byte, 96),
-					Eth1Data: &ethpb.Eth1Data{
-						DepositRoot: make([]byte, 32),
-						BlockHash:   make([]byte, 32),
-					},
-					Graffiti: make([]byte, 32),
+					Graffiti:     make([]byte, 32),
 					ExecutionPayload: &enginev1.ExecutionPayloadDeneb{
 						ParentHash:    make([]byte, 32),
 						FeeRecipient:  make([]byte, 20),
@@ -160,8 +136,7 @@ func NewGenesisBlockForState(ctx context.Context, st state.BeaconState) (interfa
 						Transactions:  make([][]byte, 0),
 						Withdrawals:   make([]*enginev1.Withdrawal, 0),
 					},
-					BlsToExecutionChanges: make([]*ethpb.SignedBLSToExecutionChange, 0),
-					BlobKzgCommitments:    make([][]byte, 0),
+					BlobKzgCommitments: make([][]byte, 0),
 				},
 			},
 			Signature: params.BeaconConfig().EmptySignature[:],
@@ -173,11 +148,7 @@ func NewGenesisBlockForState(ctx context.Context, st state.BeaconState) (interfa
 				StateRoot:  root[:],
 				Body: &ethpb.BeaconBlockBodyElectra{
 					RandaoReveal: make([]byte, 96),
-					Eth1Data: &ethpb.Eth1Data{
-						DepositRoot: make([]byte, 32),
-						BlockHash:   make([]byte, 32),
-					},
-					Graffiti: make([]byte, 32),
+					Graffiti:     make([]byte, 32),
 					ExecutionPayload: &enginev1.ExecutionPayloadElectra{
 						ParentHash:    make([]byte, 32),
 						FeeRecipient:  make([]byte, 20),
@@ -191,8 +162,7 @@ func NewGenesisBlockForState(ctx context.Context, st state.BeaconState) (interfa
 						Transactions:  make([][]byte, 0),
 						Withdrawals:   make([]*enginev1.Withdrawal, 0),
 					},
-					BlsToExecutionChanges: make([]*ethpb.SignedBLSToExecutionChange, 0),
-					BlobKzgCommitments:    make([][]byte, 0),
+					BlobKzgCommitments: make([][]byte, 0),
 					ExecutionRequests: &enginev1.ExecutionRequests{
 						Withdrawals: make([]*enginev1.WithdrawalRequest, 0),
 						Deposits:    make([]*enginev1.DepositRequest, 0),

@@ -95,9 +95,6 @@ func main() {
 		newSt.LatestBlockHeader = st.LatestBlockHeader
 		newSt.BlockRoots = st.BlockRoots
 		newSt.StateRoots = st.StateRoots
-		newSt.Eth1Data = st.Eth1Data
-		newSt.Eth1DataVotes = st.Eth1DataVotes
-		newSt.Eth1DepositIndex = st.Eth1DepositIndex
 		newSt.Validators = st.Validators
 		newSt.Balances = st.Balances
 		newSt.RandaoMixes = st.RandaoMixes
@@ -133,9 +130,6 @@ func main() {
 		newSt.LatestBlockHeader = st.LatestBlockHeader
 		newSt.BlockRoots = st.BlockRoots
 		newSt.StateRoots = st.StateRoots
-		newSt.Eth1Data = st.Eth1Data
-		newSt.Eth1DataVotes = st.Eth1DataVotes
-		newSt.Eth1DepositIndex = st.Eth1DepositIndex
 		newSt.Validators = st.Validators
 		newSt.Balances = st.Balances
 		newSt.RandaoMixes = st.RandaoMixes
@@ -169,9 +163,6 @@ func main() {
 		newSt.LatestBlockHeader = st.LatestBlockHeader
 		newSt.BlockRoots = st.BlockRoots
 		newSt.StateRoots = st.StateRoots
-		newSt.Eth1Data = st.Eth1Data
-		newSt.Eth1DataVotes = st.Eth1DataVotes
-		newSt.Eth1DepositIndex = st.Eth1DepositIndex
 		newSt.Validators = st.Validators
 		newSt.Balances = st.Balances
 		newSt.RandaoMixes = st.RandaoMixes
@@ -205,9 +196,6 @@ func main() {
 		newSt.LatestBlockHeader = st.LatestBlockHeader
 		newSt.BlockRoots = st.BlockRoots
 		newSt.StateRoots = st.StateRoots
-		newSt.Eth1Data = st.Eth1Data
-		newSt.Eth1DataVotes = st.Eth1DataVotes
-		newSt.Eth1DepositIndex = st.Eth1DepositIndex
 		newSt.Validators = st.Validators
 		newSt.Balances = st.Balances
 		newSt.RandaoMixes = st.RandaoMixes
@@ -242,9 +230,6 @@ func main() {
 		newSt.LatestBlockHeader = st.LatestBlockHeader
 		newSt.BlockRoots = st.BlockRoots
 		newSt.StateRoots = st.StateRoots
-		newSt.Eth1Data = st.Eth1Data
-		newSt.Eth1DataVotes = st.Eth1DataVotes
-		newSt.Eth1DepositIndex = st.Eth1DepositIndex
 		newSt.Validators = st.Validators
 		newSt.Balances = st.Balances
 		newSt.RandaoMixes = st.RandaoMixes
@@ -278,9 +263,6 @@ func main() {
 		newSt.LatestBlockHeader = st.LatestBlockHeader
 		newSt.BlockRoots = st.BlockRoots
 		newSt.StateRoots = st.StateRoots
-		newSt.Eth1Data = st.Eth1Data
-		newSt.Eth1DataVotes = st.Eth1DataVotes
-		newSt.Eth1DepositIndex = st.Eth1DepositIndex
 		newSt.Validators = st.Validators
 		newSt.Balances = st.Balances
 		newSt.RandaoMixes = st.RandaoMixes

@@ -17,7 +17,6 @@ package ethereum.eth.v1alpha1;
 
 import "proto/eth/ext/options.proto";
 import "proto/prysm/v1alpha1/attestation.proto";
-import "proto/prysm/v1alpha1/withdrawals.proto";
 import "proto/engine/v1/execution_engine.proto";
 import "proto/engine/v1/electra.proto";
 
@@ -159,30 +158,24 @@ message BeaconBlockBody {
     // The validators RANDAO reveal 96 byte value.
     bytes randao_reveal = 1 [(ethereum.eth.ext.ssz_size) = "96"];
 
-    // A reference to the Ethereum 1.x chain.
-    Eth1Data eth1_data = 2;
-
     // 32 byte field of arbitrary data. This field may contain any data and
     // is not used for anything other than a fun message.
-    bytes graffiti = 3 [(ethereum.eth.ext.ssz_size) = "32"];
+    bytes graffiti = 2 [(ethereum.eth.ext.ssz_size) = "32"];
 
     // Block operations
     // Refer to spec constants at https://github.com/ethereum/consensus-specs/blob/dev/specs/phase0/beacon-chain.md#max-operations-per-block
 
     // At most MAX_PROPOSER_SLASHINGS.
-    repeated ProposerSlashing proposer_slashings = 4 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated ProposerSlashing proposer_slashings = 3 [(ethereum.eth.ext.ssz_max) = "16"];
 
     // At most MAX_ATTESTER_SLASHINGS.
-    repeated AttesterSlashing attester_slashings = 5 [(ethereum.eth.ext.ssz_max) = "2"];
+    repeated AttesterSlashing attester_slashings = 4 [(ethereum.eth.ext.ssz_max) = "2"];
 
     // At most MAX_ATTESTATIONS.
-    repeated Attestation attestations = 6 [(ethereum.eth.ext.ssz_max) = "128"];
-
-    // At most MAX_DEPOSITS.
-    repeated Deposit deposits = 7 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated Attestation attestations = 5 [(ethereum.eth.ext.ssz_max) = "128"];
 
     // At most MAX_VOLUNTARY_EXITS.
-    repeated SignedVoluntaryExit voluntary_exits = 8 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated SignedVoluntaryExit voluntary_exits = 6 [(ethereum.eth.ext.ssz_max) = "16"];
 }
 
 
@@ -191,30 +184,24 @@ message BeaconBlockBodyAltair {
     // The validators RANDAO reveal 96 byte value.
     bytes randao_reveal = 1 [(ethereum.eth.ext.ssz_size) = "96"];
 
-    // A reference to the Ethereum 1.x chain.
-    Eth1Data eth1_data = 2;
-
     // 32 byte field of arbitrary data. This field may contain any data and
     // is not used for anything other than a fun message.
-    bytes graffiti = 3 [(ethereum.eth.ext.ssz_size) = "32"];
+    bytes graffiti = 2 [(ethereum.eth.ext.ssz_size) = "32"];
 
     // Block operations
     // Refer to spec constants at https://github.com/ethereum/consensus-specs/blob/dev/specs/phase0/beacon-chain.md#max-operations-per-block
 
     // At most MAX_PROPOSER_SLASHINGS.
-    repeated ProposerSlashing proposer_slashings = 4 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated ProposerSlashing proposer_slashings = 3 [(ethereum.eth.ext.ssz_max) = "16"];
 
     // At most MAX_ATTESTER_SLASHINGS.
-    repeated AttesterSlashing attester_slashings = 5 [(ethereum.eth.ext.ssz_max) = "2"];
+    repeated AttesterSlashing attester_slashings = 4 [(ethereum.eth.ext.ssz_max) = "2"];
 
     // At most MAX_ATTESTATIONS.
-    repeated Attestation attestations = 6 [(ethereum.eth.ext.ssz_max) = "128"];
-
-    // At most MAX_DEPOSITS.
-    repeated Deposit deposits = 7 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated Attestation attestations = 5 [(ethereum.eth.ext.ssz_max) = "128"];
 
     // At most MAX_VOLUNTARY_EXITS.
-    repeated SignedVoluntaryExit voluntary_exits = 8 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated SignedVoluntaryExit voluntary_exits = 6 [(ethereum.eth.ext.ssz_max) = "16"];
 }
 
 // Proposer slashings are proofs that a slashable offense has been committed by
@@ -379,33 +366,27 @@ message BeaconBlockBodyBellatrix {
     // The validators RANDAO reveal 96 byte value.
     bytes randao_reveal = 1 [(ethereum.eth.ext.ssz_size) = "96"];
 
-    // A reference to the Ethereum 1.x chain.
-    Eth1Data eth1_data = 2;
-
     // 32 byte field of arbitrary data. This field may contain any data and
     // is not used for anything other than a fun message.
-    bytes graffiti = 3 [(ethereum.eth.ext.ssz_size) = "32"];
+    bytes graffiti = 2 [(ethereum.eth.ext.ssz_size) = "32"];
 
     // Block operations
     // Refer to spec constants at https://github.com/ethereum/consensus-specs/blob/dev/specs/phase0/beacon-chain.md#max-operations-per-block
 
     // At most MAX_PROPOSER_SLASHINGS.
-    repeated ProposerSlashing proposer_slashings = 4 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated ProposerSlashing proposer_slashings = 3 [(ethereum.eth.ext.ssz_max) = "16"];
 
     // At most MAX_ATTESTER_SLASHINGS.
-    repeated AttesterSlashing attester_slashings = 5 [(ethereum.eth.ext.ssz_max) = "2"];
+    repeated AttesterSlashing attester_slashings = 4 [(ethereum.eth.ext.ssz_max) = "2"];
 
     // At most MAX_ATTESTATIONS.
-    repeated Attestation attestations = 6 [(ethereum.eth.ext.ssz_max) = "128"];
-
-    // At most MAX_DEPOSITS.
-    repeated Deposit deposits = 7 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated Attestation attestations = 5 [(ethereum.eth.ext.ssz_max) = "128"];
 
     // At most MAX_VOLUNTARY_EXITS.
-    repeated SignedVoluntaryExit voluntary_exits = 8 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated SignedVoluntaryExit voluntary_exits = 6 [(ethereum.eth.ext.ssz_max) = "16"];
 
     // Execution payload from the execution chain. New in Bellatrix network upgrade.
-    ethereum.engine.v1.ExecutionPayload execution_payload = 9;
+    ethereum.engine.v1.ExecutionPayload execution_payload = 7;
 }
 
 message SignedBlindedBeaconBlockBellatrix {
@@ -437,30 +418,24 @@ message BlindedBeaconBlockBodyBellatrix {
     // The validators RANDAO reveal 96 byte value.
     bytes randao_reveal = 1 [(ethereum.eth.ext.ssz_size) = "96"];
 
-    // A reference to the Ethereum 1.x chain.
-    Eth1Data eth1_data = 2;
-
     // 32 byte field of arbitrary data. This field may contain any data and
     // is not used for anything other than a fun message.
-    bytes graffiti = 3 [(ethereum.eth.ext.ssz_size) = "32"];
+    bytes graffiti = 2 [(ethereum.eth.ext.ssz_size) = "32"];
 
     // At most MAX_PROPOSER_SLASHINGS.
-    repeated ProposerSlashing proposer_slashings = 4 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated ProposerSlashing proposer_slashings = 3 [(ethereum.eth.ext.ssz_max) = "16"];
 
     // At most MAX_ATTESTER_SLASHINGS.
-    repeated AttesterSlashing attester_slashings = 5 [(ethereum.eth.ext.ssz_max) = "2"];
+    repeated AttesterSlashing attester_slashings = 4 [(ethereum.eth.ext.ssz_max) = "2"];
 
     // At most MAX_ATTESTATIONS.
-    repeated Attestation attestations = 6 [(ethereum.eth.ext.ssz_max) = "128"];
-
-    // At most MAX_DEPOSITS.
-    repeated Deposit deposits = 7 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated Attestation attestations = 5 [(ethereum.eth.ext.ssz_max) = "128"];
 
     // At most MAX_VOLUNTARY_EXITS.
-    repeated SignedVoluntaryExit voluntary_exits = 8 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated SignedVoluntaryExit voluntary_exits = 6 [(ethereum.eth.ext.ssz_max) = "16"];
 
     // Execution payload header from the execution chain. New in Bellatrix network upgrade to accommodate MEV interaction.
-    ethereum.engine.v1.ExecutionPayloadHeader execution_payload_header = 9;
+    ethereum.engine.v1.ExecutionPayloadHeader execution_payload_header = 7;
 }
 
 message SignedBeaconBlockContentsDeneb {
@@ -504,38 +479,29 @@ message BeaconBlockBodyDeneb {
     // The validators RANDAO reveal 96 byte value.
     bytes randao_reveal = 1 [(ethereum.eth.ext.ssz_size) = "96"];
 
-    // A reference to the Ethereum 1.x chain.
-    Eth1Data eth1_data = 2;
-
     // 32 byte field of arbitrary data. This field may contain any data and
     // is not used for anything other than a fun message.
-    bytes graffiti = 3 [(ethereum.eth.ext.ssz_size) = "32"];
+    bytes graffiti = 2 [(ethereum.eth.ext.ssz_size) = "32"];
 
     // Block operations
     // Refer to spec constants at https://github.com/ethereum/consensus-specs/blob/dev/specs/core/0_beacon-chain.md#max-operations-per-block
 
     // At most MAX_PROPOSER_SLASHINGS.
-    repeated ProposerSlashing proposer_slashings = 4 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated ProposerSlashing proposer_slashings = 3 [(ethereum.eth.ext.ssz_max) = "16"];
 
     // At most MAX_ATTESTER_SLASHINGS.
-    repeated AttesterSlashing attester_slashings = 5 [(ethereum.eth.ext.ssz_max) = "2"];
+    repeated AttesterSlashing attester_slashings = 4 [(ethereum.eth.ext.ssz_max) = "2"];
 
     // At most MAX_ATTESTATIONS.
-    repeated Attestation attestations = 6 [(ethereum.eth.ext.ssz_max) = "128"];
-
-    // At most MAX_DEPOSITS.
-    repeated Deposit deposits = 7 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated Attestation attestations = 5 [(ethereum.eth.ext.ssz_max) = "128"];
 
     // At most MAX_VOLUNTARY_EXITS.
-    repeated SignedVoluntaryExit voluntary_exits = 8 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated SignedVoluntaryExit voluntary_exits = 6 [(ethereum.eth.ext.ssz_max) = "16"];
 
     // Execution payload from the execution chain. New in Bellatrix network upgrade.
-    ethereum.engine.v1.ExecutionPayloadDeneb execution_payload = 9;
+    ethereum.engine.v1.ExecutionPayloadDeneb execution_payload = 7;
 
-    // At most MAX_BLS_TO_EXECUTION_CHANGES. New in Capella network upgrade.
-    repeated SignedBLSToExecutionChange bls_to_execution_changes = 10 [(ethereum.eth.ext.ssz_max) = "16"];
-
-    repeated bytes blob_kzg_commitments = 11 [(ethereum.eth.ext.ssz_size) = "?,48", (ethereum.eth.ext.ssz_max)  = "max_blob_commitments.size"];
+    repeated bytes blob_kzg_commitments = 8 [(ethereum.eth.ext.ssz_size) = "?,48", (ethereum.eth.ext.ssz_max)  = "max_blob_commitments.size"];
 }
 
 message SignedBeaconBlockCapella {
@@ -567,36 +533,27 @@ message BeaconBlockBodyCapella {
     // The validators RANDAO reveal 96 byte value.
     bytes randao_reveal = 1 [(ethereum.eth.ext.ssz_size) = "96"];
 
-    // A reference to the Ethereum 1.x chain.
-    Eth1Data eth1_data = 2;
-
     // 32 byte field of arbitrary data. This field may contain any data and
     // is not used for anything other than a fun message.
-    bytes graffiti = 3 [(ethereum.eth.ext.ssz_size) = "32"];
+    bytes graffiti = 2 [(ethereum.eth.ext.ssz_size) = "32"];
 
     // Block operations
     // Refer to spec constants at https://github.com/ethereum/consensus-specs/blob/dev/specs/phase0/beacon-chain.md#max-operations-per-block
 
     // At most MAX_PROPOSER_SLASHINGS.
-    repeated ProposerSlashing proposer_slashings = 4 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated ProposerSlashing proposer_slashings = 3 [(ethereum.eth.ext.ssz_max) = "16"];
 
     // At most MAX_ATTESTER_SLASHINGS.
-    repeated AttesterSlashing attester_slashings = 5 [(ethereum.eth.ext.ssz_max) = "2"];
+    repeated AttesterSlashing attester_slashings = 4 [(ethereum.eth.ext.ssz_max) = "2"];
 
     // At most MAX_ATTESTATIONS.
-    repeated Attestation attestations = 6 [(ethereum.eth.ext.ssz_max) = "128"];
-
-    // At most MAX_DEPOSITS.
-    repeated Deposit deposits = 7 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated Attestation attestations = 5 [(ethereum.eth.ext.ssz_max) = "128"];
 
     // At most MAX_VOLUNTARY_EXITS.
-    repeated SignedVoluntaryExit voluntary_exits = 8 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated SignedVoluntaryExit voluntary_exits = 6 [(ethereum.eth.ext.ssz_max) = "16"];
 
     // Execution payload from the execution chain. New in Bellatrix network upgrade.
-    ethereum.engine.v1.ExecutionPayloadCapella execution_payload = 9;
-
-    // At most MAX_BLS_TO_EXECUTION_CHANGES. New in Capella network upgrade.
-    repeated SignedBLSToExecutionChange bls_to_execution_changes = 10 [(ethereum.eth.ext.ssz_max) = "16"];
+    ethereum.engine.v1.ExecutionPayloadCapella execution_payload = 7;
 }
 
 message SignedBlindedBeaconBlockCapella {
@@ -628,33 +585,24 @@ message BlindedBeaconBlockBodyCapella {
     // The validators RANDAO reveal 96 byte value.
     bytes randao_reveal = 1 [(ethereum.eth.ext.ssz_size) = "96"];
 
-    // A reference to the Ethereum 1.x chain.
-    Eth1Data eth1_data = 2;
-
     // 32 byte field of arbitrary data. This field may contain any data and
     // is not used for anything other than a fun message.
-    bytes graffiti = 3 [(ethereum.eth.ext.ssz_size) = "32"];
+    bytes graffiti = 2 [(ethereum.eth.ext.ssz_size) = "32"];
 
     // At most MAX_PROPOSER_SLASHINGS.
-    repeated ProposerSlashing proposer_slashings = 4 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated ProposerSlashing proposer_slashings = 3 [(ethereum.eth.ext.ssz_max) = "16"];
 
     // At most MAX_ATTESTER_SLASHINGS.
-    repeated AttesterSlashing attester_slashings = 5 [(ethereum.eth.ext.ssz_max) = "2"];
+    repeated AttesterSlashing attester_slashings = 4 [(ethereum.eth.ext.ssz_max) = "2"];
 
     // At most MAX_ATTESTATIONS.
-    repeated Attestation attestations = 6 [(ethereum.eth.ext.ssz_max) = "128"];
-
-    // At most MAX_DEPOSITS.
-    repeated Deposit deposits = 7 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated Attestation attestations = 5 [(ethereum.eth.ext.ssz_max) = "128"];
 
     // At most MAX_VOLUNTARY_EXITS.
-    repeated SignedVoluntaryExit voluntary_exits = 8 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated SignedVoluntaryExit voluntary_exits = 6 [(ethereum.eth.ext.ssz_max) = "16"];
 
     // Execution payload header from the execution chain. New in Bellatrix network upgrade to accommodate MEV interaction.
-    ethereum.engine.v1.ExecutionPayloadHeaderCapella execution_payload_header = 9;
-
-    // At most MAX_BLS_TO_EXECUTION_CHANGES. New in Capella network upgrade.
-    repeated SignedBLSToExecutionChange bls_to_execution_changes = 10 [(ethereum.eth.ext.ssz_max) = "16"];
+    ethereum.engine.v1.ExecutionPayloadHeaderCapella execution_payload_header = 7;
 }
 
 message SignedBlindedBeaconBlockDeneb {
@@ -686,35 +634,26 @@ message BlindedBeaconBlockBodyDeneb {
     // The validators RANDAO reveal 96 byte value.
     bytes randao_reveal = 1 [(ethereum.eth.ext.ssz_size) = "96"];
 
-    // A reference to the Ethereum 1.x chain.
-    Eth1Data eth1_data = 2;
-
     // 32 byte field of arbitrary data. This field may contain any data and
     // is not used for anything other than a fun message.
-    bytes graffiti = 3 [(ethereum.eth.ext.ssz_size) = "32"];
+    bytes graffiti = 2 [(ethereum.eth.ext.ssz_size) = "32"];
 
     // At most MAX_PROPOSER_SLASHINGS.
-    repeated ProposerSlashing proposer_slashings = 4 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated ProposerSlashing proposer_slashings = 3 [(ethereum.eth.ext.ssz_max) = "16"];
 
     // At most MAX_ATTESTER_SLASHINGS.
-    repeated AttesterSlashing attester_slashings = 5 [(ethereum.eth.ext.ssz_max) = "2"];
+    repeated AttesterSlashing attester_slashings = 4 [(ethereum.eth.ext.ssz_max) = "2"];
 
     // At most MAX_ATTESTATIONS.
-    repeated Attestation attestations = 6 [(ethereum.eth.ext.ssz_max) = "128"];
-
-    // At most MAX_DEPOSITS.
-    repeated Deposit deposits = 7 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated Attestation attestations = 5 [(ethereum.eth.ext.ssz_max) = "128"];
 
     // At most MAX_VOLUNTARY_EXITS.
-    repeated SignedVoluntaryExit voluntary_exits = 8 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated SignedVoluntaryExit voluntary_exits = 6 [(ethereum.eth.ext.ssz_max) = "16"];
 
     // Execution payload header from the execution chain. New in Bellatrix network upgrade to accommodate MEV interaction.
-    ethereum.engine.v1.ExecutionPayloadHeaderDeneb execution_payload_header = 9;
+    ethereum.engine.v1.ExecutionPayloadHeaderDeneb execution_payload_header = 7;
 
-    // At most MAX_BLS_TO_EXECUTION_CHANGES. New in Capella network upgrade.
-    repeated SignedBLSToExecutionChange bls_to_execution_changes = 10 [(ethereum.eth.ext.ssz_max) = "16"];
-
-    repeated bytes blob_kzg_commitments = 11 [(ethereum.eth.ext.ssz_size) = "?,48", (ethereum.eth.ext.ssz_max)  = "max_blob_commitments.size"];
+    repeated bytes blob_kzg_commitments = 8 [(ethereum.eth.ext.ssz_size) = "?,48", (ethereum.eth.ext.ssz_max)  = "max_blob_commitments.size"];
 }
 
 message SignedBeaconBlockContentsElectra {
@@ -758,40 +697,31 @@ message BeaconBlockBodyElectra {
     // The validators RANDAO reveal 96 byte value.
     bytes randao_reveal = 1 [(ethereum.eth.ext.ssz_size) = "96"];
 
-    // A reference to the Ethereum 1.x chain.
-    Eth1Data eth1_data = 2;
-
     // 32 byte field of arbitrary data. This field may contain any data and
     // is not used for anything other than a fun message.
-    bytes graffiti = 3 [(ethereum.eth.ext.ssz_size) = "32"];
+    bytes graffiti = 2 [(ethereum.eth.ext.ssz_size) = "32"];
 
     // Block operations
     // Refer to spec constants at https://github.com/ethereum/consensus-specs/blob/dev/specs/core/0_beacon-chain.md#max-operations-per-block
 
     // At most MAX_PROPOSER_SLASHINGS.
-    repeated ProposerSlashing proposer_slashings = 4 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated ProposerSlashing proposer_slashings = 3 [(ethereum.eth.ext.ssz_max) = "16"];
 
     // At most MAX_ATTESTER_SLASHINGS_ELECTRA.
-    repeated AttesterSlashingElectra attester_slashings = 5 [(ethereum.eth.ext.ssz_max) = "1"];
+    repeated AttesterSlashingElectra attester_slashings = 4 [(ethereum.eth.ext.ssz_max) = "1"];
 
     // At most MAX_ATTESTATIONS_ELECTRA.
-    repeated AttestationElectra attestations = 6 [(ethereum.eth.ext.ssz_max) = "8"];
-
-    // At most MAX_DEPOSITS.
-    repeated Deposit deposits = 7 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated AttestationElectra attestations = 5 [(ethereum.eth.ext.ssz_max) = "8"];
 
     // At most MAX_VOLUNTARY_EXITS.
-    repeated SignedVoluntaryExit voluntary_exits = 8 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated SignedVoluntaryExit voluntary_exits = 6 [(ethereum.eth.ext.ssz_max) = "16"];
 
     // Execution payload from the execution chain. New in Bellatrix network upgrade.
-    ethereum.engine.v1.ExecutionPayloadDeneb execution_payload = 9;
+    ethereum.engine.v1.ExecutionPayloadDeneb execution_payload = 7;
 
-    // At most MAX_BLS_TO_EXECUTION_CHANGES. New in Capella network upgrade.
-    repeated SignedBLSToExecutionChange bls_to_execution_changes = 10 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated bytes blob_kzg_commitments = 8 [(ethereum.eth.ext.ssz_size) = "?,48", (ethereum.eth.ext.ssz_max)  = "max_blob_commitments.size"];
 
-    repeated bytes blob_kzg_commitments = 11 [(ethereum.eth.ext.ssz_size) = "?,48", (ethereum.eth.ext.ssz_max)  = "max_blob_commitments.size"];
-
-    ethereum.engine.v1.ExecutionRequests execution_requests = 12;
+    ethereum.engine.v1.ExecutionRequests execution_requests = 9;
 }
 
 message SignedBlindedBeaconBlockElectra {
@@ -823,37 +753,28 @@ message BlindedBeaconBlockBodyElectra {
     // The validators RANDAO reveal 96 byte value.
     bytes randao_reveal = 1 [(ethereum.eth.ext.ssz_size) = "96"];
 
-    // A reference to the Ethereum 1.x chain.
-    Eth1Data eth1_data = 2;
-
     // 32 byte field of arbitrary data. This field may contain any data and
     // is not used for anything other than a fun message.
-    bytes graffiti = 3 [(ethereum.eth.ext.ssz_size) = "32"];
+    bytes graffiti = 2 [(ethereum.eth.ext.ssz_size) = "32"];
 
     // At most MAX_PROPOSER_SLASHINGS.
-    repeated ProposerSlashing proposer_slashings = 4 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated ProposerSlashing proposer_slashings = 3 [(ethereum.eth.ext.ssz_max) = "16"];
 
     // At most MAX_ATTESTER_SLASHINGS_ELECTRA.
-    repeated AttesterSlashingElectra attester_slashings = 5 [(ethereum.eth.ext.ssz_max) = "1"];
+    repeated AttesterSlashingElectra attester_slashings = 4 [(ethereum.eth.ext.ssz_max) = "1"];
 
     // At most MAX_ATTESTATIONS_ELECTRA.
-    repeated AttestationElectra attestations = 6 [(ethereum.eth.ext.ssz_max) = "8"];
-
-    // At most MAX_DEPOSITS.
-    repeated Deposit deposits = 7 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated AttestationElectra attestations = 5 [(ethereum.eth.ext.ssz_max) = "8"];
 
     // At most MAX_VOLUNTARY_EXITS.
-    repeated SignedVoluntaryExit voluntary_exits = 8 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated SignedVoluntaryExit voluntary_exits = 6 [(ethereum.eth.ext.ssz_max) = "16"];
 
     // Execution payload header from the execution chain. New in Bellatrix network upgrade to accommodate MEV interaction.
-    ethereum.engine.v1.ExecutionPayloadHeaderDeneb execution_payload_header = 9;
+    ethereum.engine.v1.ExecutionPayloadHeaderDeneb execution_payload_header = 7;
 
-    // At most MAX_BLS_TO_EXECUTION_CHANGES. New in Capella network upgrade.
-    repeated SignedBLSToExecutionChange bls_to_execution_changes = 10 [(ethereum.eth.ext.ssz_max) = "16"];
+    repeated bytes blob_kzg_commitments = 8 [(ethereum.eth.ext.ssz_size) = "?,48", (ethereum.eth.ext.ssz_max)  = "max_blob_commitments.size"];
 
-    repeated bytes blob_kzg_commitments = 11 [(ethereum.eth.ext.ssz_size) = "?,48", (ethereum.eth.ext.ssz_max)  = "max_blob_commitments.size"];
-
-    ethereum.engine.v1.ExecutionRequests execution_requests = 12;
+    ethereum.engine.v1.ExecutionRequests execution_requests = 9;
 }
 
 message ValidatorRegistrationV1 {

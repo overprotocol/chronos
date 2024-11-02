@@ -343,12 +343,10 @@ func BuildSignedBeaconBlockFromExecutionPayload(blk interfaces.ReadOnlySignedBea
 				StateRoot:     stateRoot[:],
 				Body: &eth.BeaconBlockBodyBellatrix{
 					RandaoReveal:      randaoReveal[:],
-					Eth1Data:          b.Body().Eth1Data(),
 					Graffiti:          graffiti[:],
 					ProposerSlashings: b.Body().ProposerSlashings(),
 					AttesterSlashings: attSlashings,
 					Attestations:      atts,
-					Deposits:          b.Body().Deposits(),
 					VoluntaryExits:    b.Body().VoluntaryExits(),
 					ExecutionPayload:  p,
 				},
@@ -359,10 +357,6 @@ func BuildSignedBeaconBlockFromExecutionPayload(blk interfaces.ReadOnlySignedBea
 		p, ok := payload.(*enginev1.ExecutionPayloadCapella)
 		if !ok {
 			return nil, errors.New("payload not of Capella type")
-		}
-		blsToExecutionChanges, err := b.Body().BLSToExecutionChanges()
-		if err != nil {
-			return nil, err
 		}
 		var atts []*eth.Attestation
 		if b.Body().Attestations() != nil {
@@ -393,16 +387,13 @@ func BuildSignedBeaconBlockFromExecutionPayload(blk interfaces.ReadOnlySignedBea
 				ParentRoot:    parentRoot[:],
 				StateRoot:     stateRoot[:],
 				Body: &eth.BeaconBlockBodyCapella{
-					RandaoReveal:          randaoReveal[:],
-					Eth1Data:              b.Body().Eth1Data(),
-					Graffiti:              graffiti[:],
-					ProposerSlashings:     b.Body().ProposerSlashings(),
-					AttesterSlashings:     attSlashings,
-					Attestations:          atts,
-					Deposits:              b.Body().Deposits(),
-					VoluntaryExits:        b.Body().VoluntaryExits(),
-					ExecutionPayload:      p,
-					BlsToExecutionChanges: blsToExecutionChanges,
+					RandaoReveal:      randaoReveal[:],
+					Graffiti:          graffiti[:],
+					ProposerSlashings: b.Body().ProposerSlashings(),
+					AttesterSlashings: attSlashings,
+					Attestations:      atts,
+					VoluntaryExits:    b.Body().VoluntaryExits(),
+					ExecutionPayload:  p,
 				},
 			},
 			Signature: sig[:],
@@ -411,10 +402,6 @@ func BuildSignedBeaconBlockFromExecutionPayload(blk interfaces.ReadOnlySignedBea
 		p, ok := payload.(*enginev1.ExecutionPayloadDeneb)
 		if !ok {
 			return nil, errors.New("payload not of Deneb type")
-		}
-		blsToExecutionChanges, err := b.Body().BLSToExecutionChanges()
-		if err != nil {
-			return nil, err
 		}
 		commitments, err := b.Body().BlobKzgCommitments()
 		if err != nil {
@@ -449,17 +436,14 @@ func BuildSignedBeaconBlockFromExecutionPayload(blk interfaces.ReadOnlySignedBea
 				ParentRoot:    parentRoot[:],
 				StateRoot:     stateRoot[:],
 				Body: &eth.BeaconBlockBodyDeneb{
-					RandaoReveal:          randaoReveal[:],
-					Eth1Data:              b.Body().Eth1Data(),
-					Graffiti:              graffiti[:],
-					ProposerSlashings:     b.Body().ProposerSlashings(),
-					AttesterSlashings:     attSlashings,
-					Attestations:          atts,
-					Deposits:              b.Body().Deposits(),
-					VoluntaryExits:        b.Body().VoluntaryExits(),
-					ExecutionPayload:      p,
-					BlsToExecutionChanges: blsToExecutionChanges,
-					BlobKzgCommitments:    commitments,
+					RandaoReveal:       randaoReveal[:],
+					Graffiti:           graffiti[:],
+					ProposerSlashings:  b.Body().ProposerSlashings(),
+					AttesterSlashings:  attSlashings,
+					Attestations:       atts,
+					VoluntaryExits:     b.Body().VoluntaryExits(),
+					ExecutionPayload:   p,
+					BlobKzgCommitments: commitments,
 				},
 			},
 			Signature: sig[:],
@@ -468,10 +452,6 @@ func BuildSignedBeaconBlockFromExecutionPayload(blk interfaces.ReadOnlySignedBea
 		p, ok := payload.(*enginev1.ExecutionPayloadElectra)
 		if !ok {
 			return nil, errors.New("payload not of Electra type")
-		}
-		blsToExecutionChanges, err := b.Body().BLSToExecutionChanges()
-		if err != nil {
-			return nil, err
 		}
 		commitments, err := b.Body().BlobKzgCommitments()
 		if err != nil {
@@ -512,18 +492,15 @@ func BuildSignedBeaconBlockFromExecutionPayload(blk interfaces.ReadOnlySignedBea
 				ParentRoot:    parentRoot[:],
 				StateRoot:     stateRoot[:],
 				Body: &eth.BeaconBlockBodyElectra{
-					RandaoReveal:          randaoReveal[:],
-					Eth1Data:              b.Body().Eth1Data(),
-					Graffiti:              graffiti[:],
-					ProposerSlashings:     b.Body().ProposerSlashings(),
-					AttesterSlashings:     attSlashings,
-					Attestations:          atts,
-					Deposits:              b.Body().Deposits(),
-					VoluntaryExits:        b.Body().VoluntaryExits(),
-					ExecutionPayload:      p,
-					BlsToExecutionChanges: blsToExecutionChanges,
-					BlobKzgCommitments:    commitments,
-					ExecutionRequests:     er,
+					RandaoReveal:       randaoReveal[:],
+					Graffiti:           graffiti[:],
+					ProposerSlashings:  b.Body().ProposerSlashings(),
+					AttesterSlashings:  attSlashings,
+					Attestations:       atts,
+					VoluntaryExits:     b.Body().VoluntaryExits(),
+					ExecutionPayload:   p,
+					BlobKzgCommitments: commitments,
+					ExecutionRequests:  er,
 				},
 			},
 			Signature: sig[:],

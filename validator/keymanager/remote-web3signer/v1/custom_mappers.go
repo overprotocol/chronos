@@ -101,21 +101,12 @@ func MapBeaconBlockBody(body *ethpb.BeaconBlockBody) (*BeaconBlockBody, error) {
 	if body == nil {
 		return nil, fmt.Errorf("beacon block body is nil")
 	}
-	if body.Eth1Data == nil {
-		return nil, fmt.Errorf("eth1 data in Beacon Block Body is nil")
-	}
 	block := &BeaconBlockBody{
-		RandaoReveal: body.RandaoReveal,
-		Eth1Data: &Eth1Data{
-			DepositRoot:  body.Eth1Data.DepositRoot,
-			DepositCount: fmt.Sprint(body.Eth1Data.DepositCount),
-			BlockHash:    body.Eth1Data.BlockHash,
-		},
+		RandaoReveal:      body.RandaoReveal,
 		Graffiti:          body.Graffiti,
 		ProposerSlashings: make([]*ProposerSlashing, len(body.ProposerSlashings)),
 		AttesterSlashings: make([]*AttesterSlashing, len(body.AttesterSlashings)),
 		Attestations:      make([]*Attestation, len(body.Attestations)),
-		Deposits:          make([]*Deposit, len(body.Deposits)),
 		VoluntaryExits:    make([]*SignedVoluntaryExit, len(body.VoluntaryExits)),
 	}
 	for i, slashing := range body.ProposerSlashings {
@@ -138,13 +129,6 @@ func MapBeaconBlockBody(body *ethpb.BeaconBlockBody) (*BeaconBlockBody, error) {
 			return nil, fmt.Errorf("could not map attestation at index %v: %w", i, err)
 		}
 		block.Attestations[i] = attestation
-	}
-	for i, Deposit := range body.Deposits {
-		deposit, err := MapDeposit(Deposit)
-		if err != nil {
-			return nil, fmt.Errorf("could not map deposit at index %v: %w", i, err)
-		}
-		block.Deposits[i] = deposit
 	}
 	for i, signedVoluntaryExit := range body.VoluntaryExits {
 		signedVoluntaryExit, err := MapSignedVoluntaryExit(signedVoluntaryExit)
@@ -296,17 +280,11 @@ func MapBeaconBlockBodyAltair(body *ethpb.BeaconBlockBodyAltair) (*BeaconBlockBo
 	}
 
 	block := &BeaconBlockBodyAltair{
-		RandaoReveal: body.RandaoReveal,
-		Eth1Data: &Eth1Data{
-			DepositRoot:  body.Eth1Data.DepositRoot,
-			DepositCount: fmt.Sprint(body.Eth1Data.DepositCount),
-			BlockHash:    body.Eth1Data.BlockHash,
-		},
+		RandaoReveal:      body.RandaoReveal,
 		Graffiti:          body.Graffiti,
 		ProposerSlashings: make([]*ProposerSlashing, len(body.ProposerSlashings)),
 		AttesterSlashings: make([]*AttesterSlashing, len(body.AttesterSlashings)),
 		Attestations:      make([]*Attestation, len(body.Attestations)),
-		Deposits:          make([]*Deposit, len(body.Deposits)),
 		VoluntaryExits:    make([]*SignedVoluntaryExit, len(body.VoluntaryExits)),
 	}
 	for i, slashing := range body.ProposerSlashings {
@@ -329,13 +307,6 @@ func MapBeaconBlockBodyAltair(body *ethpb.BeaconBlockBodyAltair) (*BeaconBlockBo
 			return nil, fmt.Errorf("could not map attestation at index %v: %w", i, err)
 		}
 		block.Attestations[i] = attestation
-	}
-	for i, deposit := range body.Deposits {
-		deposit, err := MapDeposit(deposit)
-		if err != nil {
-			return nil, fmt.Errorf("could not map deposit at index %v: %w", i, err)
-		}
-		block.Deposits[i] = deposit
 	}
 	for i, exit := range body.VoluntaryExits {
 		exit, err := MapSignedVoluntaryExit(exit)

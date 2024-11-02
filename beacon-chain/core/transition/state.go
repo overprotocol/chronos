@@ -11,7 +11,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state/stateutil"
 	fieldparams "github.com/prysmaticlabs/prysm/v5/config/fieldparams"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
-	"github.com/prysmaticlabs/prysm/v5/container/trie"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 )
 
@@ -74,7 +73,7 @@ func GenesisBeaconState(ctx context.Context, deposits []*ethpb.Deposit, genesisT
 		return nil, errors.Wrap(err, "could not process validator deposits")
 	}
 
-	return OptimizedGenesisBeaconState(genesisTime, st, st.Eth1Data())
+	return OptimizedGenesisBeaconState(genesisTime, st)
 }
 
 // PreminedGenesisBeaconState works almost exactly like GenesisBeaconState, except that it assumes that genesis deposits
@@ -97,34 +96,16 @@ func PreminedGenesisBeaconState(ctx context.Context, deposits []*ethpb.Deposit, 
 		return nil, errors.Wrap(err, "could not process validator deposits")
 	}
 
-	t, err := trie.NewTrie(params.BeaconConfig().DepositContractTreeDepth)
-	if err != nil {
-		return nil, err
-	}
-	dr, err := t.HashTreeRoot()
-	if err != nil {
-		return nil, err
-	}
-	if err := st.SetEth1Data(&ethpb.Eth1Data{DepositRoot: dr[:], BlockHash: eth1Data.BlockHash}); err != nil {
-		return nil, err
-	}
-	if err := st.SetEth1DepositIndex(0); err != nil {
-		return nil, err
-	}
-	return OptimizedGenesisBeaconState(genesisTime, st, st.Eth1Data())
+	return OptimizedGenesisBeaconState(genesisTime, st)
 }
 
 // OptimizedGenesisBeaconState is used to create a state that has already processed deposits. This is to efficiently
 // create a mainnet state at chainstart.
-func OptimizedGenesisBeaconState(genesisTime uint64, preState state.BeaconState, eth1Data *ethpb.Eth1Data) (state.BeaconState, error) {
-	if eth1Data == nil {
-		return nil, errors.New("no eth1data provided for genesis state")
-	}
-
+func OptimizedGenesisBeaconState(genesisTime uint64, preState state.BeaconState) (state.BeaconState, error) {
 	randaoMixes := make([][]byte, params.BeaconConfig().EpochsPerHistoricalVector)
 	for i := 0; i < len(randaoMixes); i++ {
 		h := make([]byte, 32)
-		copy(h, eth1Data.BlockHash)
+		copy(h, []byte{0x01})
 		randaoMixes[i] = h
 	}
 
@@ -190,20 +171,11 @@ func OptimizedGenesisBeaconState(genesisTime uint64, preState state.BeaconState,
 		StateRoots:                stateRoots,
 		CurrentEpochAttestations:  []*ethpb.PendingAttestation{},
 		PreviousEpochAttestations: []*ethpb.PendingAttestation{},
-
-		// Eth1 data.
-		Eth1Data:         eth1Data,
-		Eth1DataVotes:    []*ethpb.Eth1Data{},
-		Eth1DepositIndex: preState.Eth1DepositIndex(),
 	}
 
 	bodyRoot, err := (&ethpb.BeaconBlockBody{
 		RandaoReveal: make([]byte, 96),
-		Eth1Data: &ethpb.Eth1Data{
-			DepositRoot: make([]byte, 32),
-			BlockHash:   make([]byte, 32),
-		},
-		Graffiti: make([]byte, 32),
+		Graffiti:     make([]byte, 32),
 	}).HashTreeRoot()
 	if err != nil {
 		return nil, errors.Wrap(err, "could not hash tree root empty block body")
@@ -252,11 +224,6 @@ func EmptyGenesisState() (state.BeaconState, error) {
 		RewardAdjustmentFactor:    0,
 		CurrentEpochAttestations:  []*ethpb.PendingAttestation{},
 		PreviousEpochAttestations: []*ethpb.PendingAttestation{},
-
-		// Eth1 data.
-		Eth1Data:         &ethpb.Eth1Data{},
-		Eth1DataVotes:    []*ethpb.Eth1Data{},
-		Eth1DepositIndex: 0,
 	}
 	return state_native.InitializeFromProtoPhase0(st)
 }

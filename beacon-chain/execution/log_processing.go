@@ -347,13 +347,10 @@ func (s *Service) processPastLogs(ctx context.Context) error {
 	// block is in a different epoch from the checkpoint's epoch.
 	// This only happens in skipped slots, so pruning it is not an issue.
 	if isNil || slots.ToEpoch(fState.Slot()) != c.Epoch {
-		fState, err = s.cfg.stateGen.StateByRoot(ctx, fRoot)
+		_, err = s.cfg.stateGen.StateByRoot(ctx, fRoot)
 		if err != nil {
 			return err
 		}
-	}
-	if fState != nil && !fState.IsNil() && fState.Eth1DepositIndex() > 0 {
-		s.cfg.depositCache.PrunePendingDeposits(ctx, int64(fState.Eth1DepositIndex())) // lint:ignore uintcast -- deposit index should not exceed int64 in your lifetime.
 	}
 	return nil
 }

@@ -467,7 +467,7 @@ func (s *Service) initializeBeaconChain(
 	s.genesisTime = genesisTime
 	unixTime := uint64(genesisTime.Unix())
 
-	genesisState, err := transition.OptimizedGenesisBeaconState(unixTime, preGenesisState, eth1data)
+	genesisState, err := transition.OptimizedGenesisBeaconState(unixTime, preGenesisState)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not initialize genesis state")
 	}

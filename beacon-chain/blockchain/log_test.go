@@ -47,8 +47,7 @@ func Test_logStateTransitionData(t *testing.T) {
 			b: func() interfaces.ReadOnlyBeaconBlock {
 				wb, err := blocks.NewBeaconBlock(
 					&ethpb.BeaconBlock{Body: &ethpb.BeaconBlockBody{
-						Attestations: []*ethpb.Attestation{{}},
-						Deposits:     []*ethpb.Deposit{{}}}})
+						Attestations: []*ethpb.Attestation{{}}}})
 				require.NoError(t, err)
 				return wb
 			},
@@ -85,7 +84,6 @@ func Test_logStateTransitionData(t *testing.T) {
 			b: func() interfaces.ReadOnlyBeaconBlock {
 				wb, err := blocks.NewBeaconBlock(&ethpb.BeaconBlock{Body: &ethpb.BeaconBlockBody{
 					Attestations:      []*ethpb.Attestation{{}},
-					Deposits:          []*ethpb.Deposit{{}},
 					AttesterSlashings: []*ethpb.AttesterSlashing{{}},
 					ProposerSlashings: []*ethpb.ProposerSlashing{{}},
 					VoluntaryExits:    []*ethpb.SignedVoluntaryExit{{}}}})
