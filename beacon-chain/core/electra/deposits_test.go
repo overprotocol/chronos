@@ -10,7 +10,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
 	state_native "github.com/prysmaticlabs/prysm/v5/beacon-chain/state/state-native"
 	stateTesting "github.com/prysmaticlabs/prysm/v5/beacon-chain/state/testing"
-	fieldparams "github.com/prysmaticlabs/prysm/v5/config/fieldparams"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
 	"github.com/prysmaticlabs/prysm/v5/crypto/bls"
@@ -346,31 +345,6 @@ func TestProcessDepositRequests(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 1, len(pbd))
 	require.Equal(t, uint64(1000), pbd[0].Amount)
-}
-
-func TestApplyDeposit_TopUps_WithBadSignature(t *testing.T) {
-	st, _ := util.DeterministicGenesisStateElectra(t, 3)
-	sk, err := bls.RandKey()
-	require.NoError(t, err)
-	withdrawalCred := make([]byte, 32)
-	withdrawalCred[0] = params.BeaconConfig().CompoundingWithdrawalPrefixByte
-	topUpAmount := uint64(1234)
-	depositData := &eth.Deposit_Data{
-		PublicKey:             sk.PublicKey().Marshal(),
-		Amount:                topUpAmount,
-		WithdrawalCredentials: withdrawalCred,
-		Signature:             make([]byte, fieldparams.BLSSignatureLength),
-	}
-	vals := st.Validators()
-	vals[0].PublicKey = sk.PublicKey().Marshal()
-	vals[0].WithdrawalCredentials[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
-	require.NoError(t, st.SetValidators(vals))
-	adSt, err := electra.ApplyDeposit(st, depositData, false)
-	require.NoError(t, err)
-	pbd, err := adSt.PendingDeposits()
-	require.NoError(t, err)
-	require.Equal(t, 1, len(pbd))
-	require.Equal(t, topUpAmount, pbd[0].Amount)
 }
 
 // stateWithActiveBalanceETH generates a mock beacon state given a balance in eth

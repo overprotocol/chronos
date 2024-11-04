@@ -20,72 +20,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// ApplyDeposit adds the incoming deposit as a pending deposit on the state
-//
-// Spec pseudocode definition:
-// def apply_deposit(state: BeaconState,
-//
-//	              pubkey: BLSPubkey,
-//	              withdrawal_credentials: Bytes32,
-//	              amount: uint64,
-//	              signature: BLSSignature) -> None:
-//	validator_pubkeys = [v.pubkey for v in state.validators]
-//	if pubkey not in validator_pubkeys:
-//	    # Verify the deposit signature (proof of possession) which is not checked by the deposit contract
-//	    if is_valid_deposit_signature(pubkey, withdrawal_credentials, amount, signature):
-//	        add_validator_to_registry(state, pubkey, withdrawal_credentials, Gwei(0))  # [Modified in Electra:EIP7251]
-//	        # [New in Electra:EIP7251]
-//	        state.pending_deposits.append(PendingDeposit(
-//	            pubkey=pubkey,
-//	            withdrawal_credentials=withdrawal_credentials,
-//	            amount=amount,
-//	            signature=signature,
-//	            slot=GENESIS_SLOT,  # Use GENESIS_SLOT to distinguish from a pending deposit request
-//	        ))
-//	else:
-//	    # Increase balance by deposit amount
-//	    # [Modified in Electra:EIP7251]
-//	    state.pending_deposits.append(PendingDeposit(
-//	        pubkey=pubkey,
-//	        withdrawal_credentials=withdrawal_credentials,
-//	        amount=amount,
-//	        signature=signature,
-//	        slot=GENESIS_SLOT  # Use GENESIS_SLOT to distinguish from a pending deposit request
-//	    ))
-func ApplyDeposit(beaconState state.BeaconState, data *ethpb.Deposit_Data, allSignaturesVerified bool) (state.BeaconState, error) {
-	pubKey := data.PublicKey
-	amount := data.Amount
-	withdrawalCredentials := data.WithdrawalCredentials
-	signature := data.Signature
-	_, ok := beaconState.ValidatorIndexByPubkey(bytesutil.ToBytes48(pubKey))
-	if !ok {
-		if !allSignaturesVerified {
-			valid, err := IsValidDepositSignature(data)
-			if err != nil {
-				return nil, errors.Wrap(err, "could not verify deposit signature")
-			}
-			if !valid {
-				return beaconState, nil
-			}
-		}
-
-		if err := AddValidatorToRegistry(beaconState, pubKey, withdrawalCredentials, 0); err != nil { // # [Modified in Electra:EIP7251]
-			return nil, errors.Wrap(err, "could not add validator to registry")
-		}
-	}
-	// no validation on top-ups (phase0 feature). no validation before state change
-	if err := beaconState.AppendPendingDeposit(&ethpb.PendingDeposit{
-		PublicKey:             pubKey,
-		WithdrawalCredentials: withdrawalCredentials,
-		Amount:                amount,
-		Signature:             signature,
-		Slot:                  params.BeaconConfig().GenesisSlot,
-	}); err != nil {
-		return nil, err
-	}
-	return beaconState, nil
-}
-
 // IsValidDepositSignature returns whether deposit_data is valid
 // def is_valid_deposit_signature(pubkey: BLSPubkey, withdrawal_credentials: Bytes32, amount: uint64, signature: BLSSignature) -> bool:
 //
@@ -120,59 +54,61 @@ func verifyDepositDataSigningRoot(obj *ethpb.Deposit_Data, domain []byte) error 
 // Spec definition:
 //
 // def process_pending_deposits(state: BeaconState) -> None:
+//     next_epoch = Epoch(get_current_epoch(state) + 1)
+//     available_for_processing = state.deposit_balance_to_consume + get_activation_balance_churn_limit(state)
+//     processed_amount = 0
+//     next_deposit_index = 0
+//     deposits_to_postpone = []
+//     is_churn_limit_reached = False
+//     finalized_slot = compute_start_slot_at_epoch(state.finalized_checkpoint.epoch)
+
+//     for deposit in state.pending_deposits:
+//         # Check if deposit has been finalized, otherwise, stop processing.
+//         if deposit.slot > finalized_slot:
+//             break
+
+//         # Check if number of processed deposits has not reached the limit, otherwise, stop processing.
+//         if next_deposit_index >= MAX_PENDING_DEPOSITS_PER_EPOCH:
+//             break
+
+//         # Read validator state
+//         is_validator_exited = False
+//         is_validator_withdrawn = False
+//         validator_pubkeys = [v.pubkey for v in state.validators]
+//         if deposit.pubkey in validator_pubkeys:
+//             validator = state.validators[ValidatorIndex(validator_pubkeys.index(deposit.pubkey))]
+//             is_validator_exited = validator.exit_epoch < FAR_FUTURE_EPOCH
+//             is_validator_withdrawn = get_withdrawable_epoch(validator) < next_epoch
+
+//         if is_validator_withdrawn:
+//             # Deposited balance will never become active. Increase balance but do not consume churn
+//             apply_pending_deposit(state, deposit)
+//         elif is_validator_exited:
+//             # Validator is exiting, postpone the deposit until after withdrawable epoch
+//             deposits_to_postpone.append(deposit)
+//         else:
+//             # Check if deposit fits in the churn, otherwise, do no more deposit processing in this epoch.
+//             is_churn_limit_reached = processed_amount + deposit.amount > available_for_processing
+//             if is_churn_limit_reached:
+//                 break
+
+//             # Consume churn and apply deposit.
+//             processed_amount += deposit.amount
+//             apply_pending_deposit(state, deposit)
+
+//         # Regardless of how the deposit was handled, we move on in the queue.
+//         next_deposit_index += 1
+
+//     state.pending_deposits = state.pending_deposits[next_deposit_index:] + deposits_to_postpone
+
+// # Accumulate churn only if the churn limit has been hit.
+// if is_churn_limit_reached:
 //
-//	next_epoch = Epoch(get_current_epoch(state) + 1)
-//	available_for_processing = state.deposit_balance_to_consume + get_activation_exit_churn_limit(state)
-//	processed_amount = 0
-//	next_deposit_index = 0
-//	deposits_to_postpone = []
-//	is_churn_limit_reached = False
-//	finalized_slot = compute_start_slot_at_epoch(state.finalized_checkpoint.epoch)
+//	state.deposit_balance_to_consume = available_for_processing - processed_amount
 //
-//	for deposit in state.pending_deposits:
-//	    # Check if deposit has been finalized, otherwise, stop processing.
-//	    if deposit.slot > finalized_slot:
-//	        break
+// else:
 //
-//	    # Check if number of processed deposits has not reached the limit, otherwise, stop processing.
-//	    if next_deposit_index >= MAX_PENDING_DEPOSITS_PER_EPOCH:
-//	        break
-//
-//	    # Read validator state
-//	    is_validator_exited = False
-//	    is_validator_withdrawn = False
-//	    validator_pubkeys = [v.pubkey for v in state.validators]
-//	    if deposit.pubkey in validator_pubkeys:
-//	        validator = state.validators[ValidatorIndex(validator_pubkeys.index(deposit.pubkey))]
-//	        is_validator_exited = validator.exit_epoch < FAR_FUTURE_EPOCH
-//	        is_validator_withdrawn = validator.withdrawable_epoch < next_epoch
-//
-//	    if is_validator_withdrawn:
-//	        # Deposited balance will never become active. Increase balance but do not consume churn
-//	        apply_pending_deposit(state, deposit)
-//	    elif is_validator_exited:
-//	        # Validator is exiting, postpone the deposit until after withdrawable epoch
-//	        deposits_to_postpone.append(deposit)
-//	    else:
-//	        # Check if deposit fits in the churn, otherwise, do no more deposit processing in this epoch.
-//	        is_churn_limit_reached = processed_amount + deposit.amount > available_for_processing
-//	        if is_churn_limit_reached:
-//	            break
-//
-//	        # Consume churn and apply deposit.
-//	        processed_amount += deposit.amount
-//	        apply_pending_deposit(state, deposit)
-//
-//	    # Regardless of how the deposit was handled, we move on in the queue.
-//	    next_deposit_index += 1
-//
-//	state.pending_deposits = state.pending_deposits[next_deposit_index:] + deposits_to_postpone
-//
-//	# Accumulate churn only if the churn limit has been hit.
-//	if is_churn_limit_reached:
-//	    state.deposit_balance_to_consume = available_for_processing - processed_amount
-//	else:
-//	    state.deposit_balance_to_consume = Gwei(0)
+//	state.deposit_balance_to_consume = Gwei(0)
 func ProcessPendingDeposits(ctx context.Context, st state.BeaconState, activeBalance primitives.Gwei) error {
 	_, span := trace.StartSpan(ctx, "electra.ProcessPendingDeposits")
 	defer span.End()
@@ -463,18 +399,16 @@ func ProcessDepositRequests(ctx context.Context, beaconState state.BeaconState, 
 // processDepositRequest processes the specific deposit receipt
 // def process_deposit_request(state: BeaconState, deposit_request: DepositRequest) -> None:
 //
-//	# Set deposit request start index
-//	if state.deposit_requests_start_index == UNSET_DEPOSIT_REQUESTS_START_INDEX:
-//	    state.deposit_requests_start_index = deposit_request.index
-//
 //	# Create pending deposit
-//	state.pending_deposits.append(PendingDeposit(
-//	    pubkey=deposit_request.pubkey,
-//	    withdrawal_credentials=deposit_request.withdrawal_credentials,
-//	    amount=deposit_request.amount,
-//	    signature=deposit_request.signature,
-//	    slot=state.slot,
-//	))
+//	state.pending_deposits.append(
+//	    PendingDeposit(
+//	        pubkey=deposit_request.pubkey,
+//	        withdrawal_credentials=deposit_request.withdrawal_credentials,
+//	        amount=deposit_request.amount,
+//	        signature=deposit_request.signature,
+//	        slot=state.slot,
+//	    )
+//	)
 func processDepositRequest(beaconState state.BeaconState, request *enginev1.DepositRequest) (state.BeaconState, error) {
 	if err := beaconState.AppendPendingDeposit(&ethpb.PendingDeposit{
 		PublicKey:             bytesutil.SafeCopyBytes(request.Pubkey),
