@@ -55,7 +55,6 @@ type ReadOnlyBeaconBlock interface {
 type ReadOnlyBeaconBlockBody interface {
 	Version() int
 	RandaoReveal() [field_params.BLSSignatureLength]byte
-	Eth1Data() *ethpb.Eth1Data
 	Graffiti() [field_params.RootLength]byte
 	ProposerSlashings() []*ethpb.ProposerSlashing
 	AttesterSlashings() []ethpb.AttSlashing
@@ -80,7 +79,6 @@ type SignedBeaconBlock interface {
 	SetAttesterSlashings([]ethpb.AttSlashing) error
 	SetProposerSlashings([]*ethpb.ProposerSlashing)
 	SetGraffiti([]byte)
-	SetEth1Data(*ethpb.Eth1Data)
 	SetRandaoReveal([]byte)
 	SetStateRoot([]byte)
 	SetParentRoot([]byte)

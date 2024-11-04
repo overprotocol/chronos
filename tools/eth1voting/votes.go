@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/prysmaticlabs/prysm/v5/consensus-types/interfaces"
-	"github.com/prysmaticlabs/prysm/v5/encoding/bytesutil"
 	v1alpha1 "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 )
 
@@ -28,23 +26,6 @@ func newVotes() *votes {
 		votes:      make(map[[32]byte]*v1alpha1.Eth1Data),
 		voteCounts: make(map[[32]byte]uint),
 	}
-}
-
-func (v *votes) Insert(blk interfaces.ReadOnlyBeaconBlock) {
-	v.l.Lock()
-	defer v.l.Unlock()
-
-	e1d := blk.Body().Eth1Data()
-	htr, err := e1d.HashTreeRoot()
-	if err != nil {
-		panic(err)
-	}
-	v.hashes[bytesutil.ToBytes32(e1d.BlockHash)]++
-	v.roots[bytesutil.ToBytes32(e1d.DepositRoot)]++
-	v.counts[e1d.DepositCount]++
-	v.votes[htr] = e1d
-	v.voteCounts[htr]++
-	v.total++
 }
 
 func (v *votes) Report() string {
