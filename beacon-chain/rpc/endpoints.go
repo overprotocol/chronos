@@ -425,7 +425,6 @@ func (s *Service) beaconEndpoints(
 		V1Alpha1ValidatorServer:       validatorServer,
 		SyncChecker:                   s.cfg.SyncService,
 		ExecutionPayloadReconstructor: s.cfg.ExecutionPayloadReconstructor,
-		BLSChangesPool:                s.cfg.BLSChangesPool,
 		FinalizationFetcher:           s.cfg.FinalizationFetcher,
 		ForkchoiceFetcher:             s.cfg.ForkchoiceFetcher,
 		CoreService:                   coreService,
@@ -590,25 +589,6 @@ func (s *Service) beaconEndpoints(
 				middleware.AcceptHeaderHandler([]string{api.JsonMediaType}),
 			},
 			handler: server.SubmitVoluntaryExit,
-			methods: []string{http.MethodPost},
-		},
-		{
-			template: "/eth/v1/beacon/pool/bls_to_execution_changes",
-			name:     namespace + ".ListBLSToExecutionChanges",
-			middleware: []middleware.Middleware{
-				middleware.AcceptHeaderHandler([]string{api.JsonMediaType}),
-			},
-			handler: server.ListBLSToExecutionChanges,
-			methods: []string{http.MethodGet},
-		},
-		{
-			template: "/eth/v1/beacon/pool/bls_to_execution_changes",
-			name:     namespace + ".SubmitBLSToExecutionChanges",
-			middleware: []middleware.Middleware{
-				middleware.ContentTypeHandler([]string{api.JsonMediaType}),
-				middleware.AcceptHeaderHandler([]string{api.JsonMediaType}),
-			},
-			handler: server.SubmitBLSToExecutionChanges,
 			methods: []string{http.MethodPost},
 		},
 		{

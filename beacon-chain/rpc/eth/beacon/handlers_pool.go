@@ -266,80 +266,6 @@ func (s *Server) SubmitVoluntaryExit(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// SubmitBLSToExecutionChanges submits said object to the node's pool
-// if it passes validation the node must broadcast it to the network.
-func (s *Server) SubmitBLSToExecutionChanges(w http.ResponseWriter, r *http.Request) {
-	ctx, span := trace.StartSpan(r.Context(), "beacon.SubmitBLSToExecutionChanges")
-	defer span.End()
-	st, err := s.ChainInfoFetcher.HeadStateReadOnly(ctx)
-	if err != nil {
-		httputil.HandleError(w, fmt.Sprintf("Could not get head state: %v", err), http.StatusInternalServerError)
-		return
-	}
-	var failures []*server.IndexedVerificationFailure
-	var toBroadcast []*eth.SignedBLSToExecutionChange
-
-	var req []*structs.SignedBLSToExecutionChange
-	err = json.NewDecoder(r.Body).Decode(&req)
-	switch {
-	case errors.Is(err, io.EOF):
-		httputil.HandleError(w, "No data submitted", http.StatusBadRequest)
-		return
-	case err != nil:
-		httputil.HandleError(w, "Could not decode request body: "+err.Error(), http.StatusBadRequest)
-		return
-	}
-	if len(req) == 0 {
-		httputil.HandleError(w, "No data submitted", http.StatusBadRequest)
-		return
-	}
-
-	for i, change := range req {
-		sbls, err := change.ToConsensus()
-		if err != nil {
-			failures = append(failures, &server.IndexedVerificationFailure{
-				Index:   i,
-				Message: "Unable to decode SignedBLSToExecutionChange: " + err.Error(),
-			})
-			continue
-		}
-		_, err = blocks.ValidateBLSToExecutionChange(st, sbls)
-		if err != nil {
-			failures = append(failures, &server.IndexedVerificationFailure{
-				Index:   i,
-				Message: "Could not validate SignedBLSToExecutionChange: " + err.Error(),
-			})
-			continue
-		}
-		if err := blocks.VerifyBLSChangeSignature(st, sbls); err != nil {
-			failures = append(failures, &server.IndexedVerificationFailure{
-				Index:   i,
-				Message: "Could not validate signature: " + err.Error(),
-			})
-			continue
-		}
-		s.OperationNotifier.OperationFeed().Send(&feed.Event{
-			Type: operation.BLSToExecutionChangeReceived,
-			Data: &operation.BLSToExecutionChangeReceivedData{
-				Change: sbls,
-			},
-		})
-		s.BLSChangesPool.InsertBLSToExecChange(sbls)
-		if st.Version() >= version.Capella {
-			toBroadcast = append(toBroadcast, sbls)
-		}
-	}
-	go s.broadcastBLSChanges(ctx, toBroadcast)
-	if len(failures) > 0 {
-		failuresErr := &server.IndexedVerificationFailureError{
-			Code:     http.StatusBadRequest,
-			Message:  "One or more BLSToExecutionChange failed validation",
-			Failures: failures,
-		}
-		httputil.WriteError(w, failuresErr)
-	}
-}
-
 // broadcastBLSBatch broadcasts the first `broadcastBLSChangesRateLimit` messages from the slice pointed to by ptr.
 // It validates the messages again because they could have been invalidated by being included in blocks since the last validation.
 // It removes the messages from the slice and modifies it in place.
@@ -386,22 +312,6 @@ func (s *Server) broadcastBLSChanges(ctx context.Context, changes []*eth.SignedB
 			}
 		}
 	}
-}
-
-// ListBLSToExecutionChanges retrieves BLS to execution changes known by the node but not necessarily incorporated into any block
-func (s *Server) ListBLSToExecutionChanges(w http.ResponseWriter, r *http.Request) {
-	_, span := trace.StartSpan(r.Context(), "beacon.ListBLSToExecutionChanges")
-	defer span.End()
-
-	sourceChanges, err := s.BLSChangesPool.PendingBLSToExecChanges()
-	if err != nil {
-		httputil.HandleError(w, fmt.Sprintf("Could not get BLS to execution changes: %v", err), http.StatusInternalServerError)
-		return
-	}
-
-	httputil.WriteJson(w, &structs.BLSToExecutionChangesPoolResponse{
-		Data: structs.SignedBLSChangesFromConsensus(sourceChanges),
-	})
 }
 
 // GetAttesterSlashings retrieves attester slashings known by the node but

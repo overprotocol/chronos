@@ -11,10 +11,9 @@ import (
 )
 
 var (
-	ProcessBLSToExecutionChanges = blocks.ProcessBLSToExecutionChanges
-	ProcessVoluntaryExits        = blocks.ProcessVoluntaryExits
-	ProcessAttesterSlashings     = blocks.ProcessAttesterSlashings
-	ProcessProposerSlashings     = blocks.ProcessProposerSlashings
+	ProcessVoluntaryExits    = blocks.ProcessVoluntaryExits
+	ProcessAttesterSlashings = blocks.ProcessAttesterSlashings
+	ProcessProposerSlashings = blocks.ProcessProposerSlashings
 )
 
 // ProcessOperations

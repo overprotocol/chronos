@@ -10,7 +10,6 @@ import (
 	mock "github.com/prysmaticlabs/prysm/v5/beacon-chain/blockchain/testing"
 	testDB "github.com/prysmaticlabs/prysm/v5/beacon-chain/db/testing"
 	forkchoicetypes "github.com/prysmaticlabs/prysm/v5/beacon-chain/forkchoice/types"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/blstoexec"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/blocks"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
@@ -412,7 +411,6 @@ func TestSaveOrphanedAtts_CanFilter(t *testing.T) {
 	ctx := context.Background()
 	beaconDB := testDB.SetupDB(t)
 	service := setupBeaconChain(t, beaconDB)
-	service.cfg.BLSToExecPool = blstoexec.NewPool()
 	service.genesisTime = time.Now().Add(time.Duration(-1*int64(params.BeaconConfig().SlotsPerEpoch+2)*int64(params.BeaconConfig().SecondsPerSlot)) * time.Second)
 
 	// Chain setup
@@ -461,9 +459,7 @@ func TestSaveOrphanedAtts_CanFilter(t *testing.T) {
 
 	require.NoError(t, service.saveOrphanedOperations(ctx, r2, r4))
 	require.Equal(t, 1, service.cfg.AttPool.AggregatedAttestationCount())
-	pending, err := service.cfg.BLSToExecPool.PendingBLSToExecChanges()
 	require.NoError(t, err)
-	require.Equal(t, 15, len(pending))
 }
 
 func TestSaveOrphanedAtts_DoublyLinkedTrie(t *testing.T) {
