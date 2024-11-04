@@ -462,18 +462,16 @@ func ProcessDepositRequests(ctx context.Context, beaconState state.BeaconState, 
 // processDepositRequest processes the specific deposit receipt
 // def process_deposit_request(state: BeaconState, deposit_request: DepositRequest) -> None:
 //
-//	# Set deposit request start index
-//	if state.deposit_requests_start_index == UNSET_DEPOSIT_REQUESTS_START_INDEX:
-//	    state.deposit_requests_start_index = deposit_request.index
-//
 //	# Create pending deposit
-//	state.pending_deposits.append(PendingDeposit(
-//	    pubkey=deposit_request.pubkey,
-//	    withdrawal_credentials=deposit_request.withdrawal_credentials,
-//	    amount=deposit_request.amount,
-//	    signature=deposit_request.signature,
-//	    slot=state.slot,
-//	))
+//	state.pending_deposits.append(
+//	    PendingDeposit(
+//	        pubkey=deposit_request.pubkey,
+//	        withdrawal_credentials=deposit_request.withdrawal_credentials,
+//	        amount=deposit_request.amount,
+//	        signature=deposit_request.signature,
+//	        slot=state.slot,
+//	    )
+//	)
 func processDepositRequest(beaconState state.BeaconState, request *enginev1.DepositRequest) (state.BeaconState, error) {
 	if err := beaconState.AppendPendingDeposit(&ethpb.PendingDeposit{
 		PublicKey:             bytesutil.SafeCopyBytes(request.Pubkey),
