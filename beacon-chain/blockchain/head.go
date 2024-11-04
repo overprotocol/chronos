@@ -20,7 +20,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/math"
 	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing/trace"
 	ethpbv1 "github.com/prysmaticlabs/prysm/v5/proto/eth/v1"
-	"github.com/prysmaticlabs/prysm/v5/runtime/version"
 	"github.com/prysmaticlabs/prysm/v5/time/slots"
 	"github.com/sirupsen/logrus"
 )
@@ -427,15 +426,6 @@ func (s *Service) saveOrphanedOperations(ctx context.Context, orphanedRoot [32]b
 		}
 		for _, v := range orphanedBlk.Block().Body().VoluntaryExits() {
 			s.cfg.ExitPool.InsertVoluntaryExit(v)
-		}
-		if orphanedBlk.Version() >= version.Capella {
-			changes, err := orphanedBlk.Block().Body().BLSToExecutionChanges()
-			if err != nil {
-				return errors.Wrap(err, "could not get BLSToExecutionChanges")
-			}
-			for _, c := range changes {
-				s.cfg.BLSToExecPool.InsertBLSToExecChange(c)
-			}
 		}
 		parentRoot := orphanedBlk.Block().ParentRoot()
 		orphanedRoot = bytesutil.ToBytes32(parentRoot[:])

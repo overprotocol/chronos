@@ -38,7 +38,6 @@ import (
 	closehandler "github.com/prysmaticlabs/prysm/v5/beacon-chain/node/close-handler"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/node/registration"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/attestations"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/blstoexec"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/slashings"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/voluntaryexits"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/p2p"
@@ -97,7 +96,6 @@ type BeaconNode struct {
 	attestationPool         attestations.Pool
 	exitPool                voluntaryexits.PoolManager
 	slashingsPool           slashings.PoolManager
-	blsToExecPool           blstoexec.PoolManager
 	depositCache            cache.DepositCache
 	trackedValidatorsCache  *cache.TrackedValidatorsCache
 	payloadIDCache          *cache.PayloadIDCache
@@ -147,7 +145,6 @@ func New(cliCtx *cli.Context, cancel context.CancelFunc, opts ...Option) (*Beaco
 		attestationPool:         attestations.NewPool(),
 		exitPool:                voluntaryexits.NewPool(),
 		slashingsPool:           slashings.NewPool(),
-		blsToExecPool:           blstoexec.NewPool(),
 		trackedValidatorsCache:  cache.NewTrackedValidatorsCache(),
 		payloadIDCache:          cache.NewPayloadIDCache(),
 		slasherBlockHeadersFeed: new(event.Feed),
@@ -763,7 +760,6 @@ func (b *BeaconNode) registerBlockchainService(fc forkchoice.ForkChoicer, gs *st
 		blockchain.WithAttestationPool(b.attestationPool),
 		blockchain.WithExitPool(b.exitPool),
 		blockchain.WithSlashingPool(b.slashingsPool),
-		blockchain.WithBLSToExecPool(b.blsToExecPool),
 		blockchain.WithP2PBroadcaster(b.fetchP2P()),
 		blockchain.WithStateNotifier(b),
 		blockchain.WithAttestationService(attService),
@@ -846,7 +842,6 @@ func (b *BeaconNode) registerSyncService(initialSyncComplete chan struct{}, bFil
 		regularsync.WithAttestationPool(b.attestationPool),
 		regularsync.WithExitPool(b.exitPool),
 		regularsync.WithSlashingPool(b.slashingsPool),
-		regularsync.WithBlsToExecPool(b.blsToExecPool),
 		regularsync.WithStateGen(b.stateGen),
 		regularsync.WithSlasherAttestationsFeed(b.slasherAttestationsFeed),
 		regularsync.WithSlasherBlockHeadersFeed(b.slasherBlockHeadersFeed),
@@ -1000,7 +995,6 @@ func (b *BeaconNode) registerRPCService(router *http.ServeMux) error {
 		AttestationsPool:              b.attestationPool,
 		ExitPool:                      b.exitPool,
 		SlashingsPool:                 b.slashingsPool,
-		BLSChangesPool:                b.blsToExecPool,
 		ExecutionChainService:         web3Service,
 		ExecutionChainInfoFetcher:     web3Service,
 		ChainStartFetcher:             chainStartFetcher,

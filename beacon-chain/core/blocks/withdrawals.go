@@ -22,33 +22,6 @@ import (
 
 const executionToBLSPadding = 12
 
-// ProcessBLSToExecutionChanges processes a list of BLS Changes and validates them. However,
-// the method doesn't immediately verify the signatures in the changes and prefers to extract
-// a signature set from them at the end of the transition and then verify them via the
-// signature set.
-func ProcessBLSToExecutionChanges(
-	st state.BeaconState,
-	b interfaces.ReadOnlyBeaconBlock) (state.BeaconState, error) {
-	if b.Version() < version.Capella {
-		return st, nil
-	}
-	changes, err := b.Body().BLSToExecutionChanges()
-	if err != nil {
-		return nil, errors.Wrap(err, "could not get BLSToExecutionChanges")
-	}
-	// Return early if no changes
-	if len(changes) == 0 {
-		return st, nil
-	}
-	for _, change := range changes {
-		st, err = processBLSToExecutionChange(st, change)
-		if err != nil {
-			return nil, errors.Wrap(err, "could not process BLSToExecutionChange")
-		}
-	}
-	return st, nil
-}
-
 // processBLSToExecutionChange validates a SignedBLSToExecution message and
 // changes the validator's withdrawal address accordingly.
 //
