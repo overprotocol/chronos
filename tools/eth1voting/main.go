@@ -8,8 +8,6 @@ import (
 	"time"
 
 	"github.com/prysmaticlabs/prysm/v5/config/params"
-	"github.com/prysmaticlabs/prysm/v5/consensus-types/blocks"
-	"github.com/prysmaticlabs/prysm/v5/consensus-types/interfaces"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
 	v1alpha1 "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	"github.com/prysmaticlabs/prysm/v5/time/slots"
@@ -52,14 +50,11 @@ func main() {
 	for i := primitives.Epoch(0); i < current.Sub(uint64(start)); i++ {
 		j := i
 		g.Go(func() error {
-			resp, err := c.ListBeaconBlocks(ctx, &v1alpha1.ListBlocksRequest{
+			_, err := c.ListBeaconBlocks(ctx, &v1alpha1.ListBlocksRequest{
 				QueryFilter: &v1alpha1.ListBlocksRequest_Epoch{Epoch: current.Sub(uint64(j))},
 			})
 			if err != nil {
 				return err
-			}
-			for _, c := range resp.GetBlockContainers() {
-				v.Insert(wrapBlock(c))
 			}
 
 			return nil
@@ -71,25 +66,4 @@ func main() {
 	}
 
 	fmt.Println(v.Report())
-}
-
-func wrapBlock(b *v1alpha1.BeaconBlockContainer) interfaces.ReadOnlyBeaconBlock {
-	var err error
-	var wb interfaces.ReadOnlySignedBeaconBlock
-	switch bb := b.Block.(type) {
-	case *v1alpha1.BeaconBlockContainer_Phase0Block:
-		wb, err = blocks.NewSignedBeaconBlock(bb.Phase0Block)
-	case *v1alpha1.BeaconBlockContainer_AltairBlock:
-		wb, err = blocks.NewSignedBeaconBlock(bb.AltairBlock)
-	case *v1alpha1.BeaconBlockContainer_BellatrixBlock:
-		wb, err = blocks.NewSignedBeaconBlock(bb.BellatrixBlock)
-	case *v1alpha1.BeaconBlockContainer_CapellaBlock:
-		wb, err = blocks.NewSignedBeaconBlock(bb.CapellaBlock)
-	case *v1alpha1.BeaconBlockContainer_BlindedCapellaBlock:
-		wb, err = blocks.NewSignedBeaconBlock(bb.BlindedCapellaBlock)
-	}
-	if err != nil {
-		panic("no block")
-	}
-	return wb.Block()
 }

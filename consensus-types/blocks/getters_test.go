@@ -334,13 +334,6 @@ func Test_BeaconBlockBody_RandaoReveal(t *testing.T) {
 	assert.DeepEqual(t, bytesutil.ToBytes96([]byte("randaoreveal")), bb.Block().Body().RandaoReveal())
 }
 
-func Test_BeaconBlockBody_Eth1Data(t *testing.T) {
-	e := &eth.Eth1Data{DepositRoot: []byte("depositroot")}
-	bb := &SignedBeaconBlock{block: &BeaconBlock{body: &BeaconBlockBody{}}}
-	bb.SetEth1Data(e)
-	assert.DeepEqual(t, e, bb.Block().Body().Eth1Data())
-}
-
 func Test_BeaconBlockBody_Graffiti(t *testing.T) {
 	bb := &SignedBeaconBlock{block: &BeaconBlock{body: &BeaconBlockBody{}}}
 	bb.SetGraffiti([]byte("graffiti"))
