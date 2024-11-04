@@ -53,12 +53,6 @@ func (b *SignedBeaconBlock) SetGraffiti(g []byte) {
 	copy(b.block.body.graffiti[:], g)
 }
 
-// SetEth1Data sets the eth1 data in the block.
-// This function is not thread safe, it is only used during block creation.
-func (b *SignedBeaconBlock) SetEth1Data(e *eth.Eth1Data) {
-	b.block.body.eth1Data = e
-}
-
 // SetProposerSlashings sets the proposer slashings in the block.
 // This function is not thread safe, it is only used during block creation.
 func (b *SignedBeaconBlock) SetProposerSlashings(p []*eth.ProposerSlashing) {
@@ -119,12 +113,6 @@ func (b *SignedBeaconBlock) SetAttestations(atts []eth.Att) error {
 	return nil
 }
 
-// SetDeposits sets the deposits in the block.
-// This function is not thread safe, it is only used during block creation.
-func (b *SignedBeaconBlock) SetDeposits(d []*eth.Deposit) {
-	b.block.body.deposits = d
-}
-
 // SetVoluntaryExits sets the voluntary exits in the block.
 // This function is not thread safe, it is only used during block creation.
 func (b *SignedBeaconBlock) SetVoluntaryExits(v []*eth.SignedVoluntaryExit) {
@@ -142,16 +130,6 @@ func (b *SignedBeaconBlock) SetExecution(e interfaces.ExecutionData) error {
 		return nil
 	}
 	b.block.body.executionPayload = e
-	return nil
-}
-
-// SetBLSToExecutionChanges sets the BLS to execution changes in the block.
-// This function is not thread safe, it is only used during block creation.
-func (b *SignedBeaconBlock) SetBLSToExecutionChanges(blsToExecutionChanges []*eth.SignedBLSToExecutionChange) error {
-	if b.version < version.Capella {
-		return consensus_types.ErrNotSupported("BLSToExecutionChanges", b.version)
-	}
-	b.block.body.blsToExecutionChanges = blsToExecutionChanges
 	return nil
 }
 

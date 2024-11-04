@@ -173,7 +173,6 @@ func (v *validator) ProposeBlock(ctx context.Context, slot primitives.Slot, pubK
 
 	span.SetAttributes(
 		trace.StringAttribute("blockRoot", fmt.Sprintf("%#x", blkResp.BlockRoot)),
-		trace.Int64Attribute("numDeposits", int64(len(blk.Block().Body().Deposits()))),
 		trace.Int64Attribute("numAttestations", int64(len(blk.Block().Body().Attestations()))),
 	)
 
@@ -230,7 +229,6 @@ func logProposedBlock(log *logrus.Entry, blk interfaces.SignedBeaconBlock, blkRo
 		"slot":             blk.Block().Slot(),
 		"blockRoot":        br,
 		"attestationCount": len(blk.Block().Body().Attestations()),
-		"depositCount":     len(blk.Block().Body().Deposits()),
 		"graffiti":         string(graffiti[:]),
 		"fork":             version.String(blk.Block().Version()),
 	}).Info("Submitted new block")

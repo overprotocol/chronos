@@ -41,13 +41,6 @@ var depositActivationStartEpoch = depositsInBlockStart + 2 + params.E2ETestConfi
 var depositEndEpoch = depositActivationStartEpoch + primitives.Epoch(math.Ceil(float64(depositValCount)/float64(params.E2ETestConfig().MinPerEpochChurnLimit)))
 var exitSubmissionEpoch = primitives.Epoch(7)
 
-// ProcessesDepositsInBlocks ensures the expected amount of deposits are accepted into blocks.
-var ProcessesDepositsInBlocks = e2etypes.Evaluator{
-	Name:       "processes_deposits_in_blocks_epoch_%d",
-	Policy:     policies.OnEpoch(depositsInBlockStart), // We expect all deposits to enter in one epoch.
-	Evaluation: processesDepositsInBlocks,
-}
-
 // VerifyBlockGraffiti ensures the block graffiti is one of the random list.
 var VerifyBlockGraffiti = e2etypes.Evaluator{
 	Name:       "verify_graffiti_in_blocks_epoch_%d",
@@ -125,47 +118,6 @@ type mismatch struct {
 
 func (m mismatch) String() string {
 	return fmt.Sprintf("(%#x:%d:%d)", m.k, m.e, m.o)
-}
-
-func processesDepositsInBlocks(ec *e2etypes.EvaluationContext, conns ...*grpc.ClientConn) error {
-	expected := ec.Balances(e2etypes.PostGenesisDepositBatch)
-	conn := conns[0]
-	client := ethpb.NewBeaconChainClient(conn)
-	chainHead, err := client.GetChainHead(context.Background(), &emptypb.Empty{})
-	if err != nil {
-		return errors.Wrap(err, "failed to get chain head")
-	}
-
-	req := &ethpb.ListBlocksRequest{QueryFilter: &ethpb.ListBlocksRequest_Epoch{Epoch: chainHead.HeadEpoch - 1}}
-	blks, err := client.ListBeaconBlocks(context.Background(), req)
-	if err != nil {
-		return errors.Wrap(err, "failed to get blocks from beacon-chain")
-	}
-	observed := make(map[[48]byte]uint64)
-	for _, blk := range blks.BlockContainers {
-		sb, err := blocks.BeaconBlockContainerToSignedBeaconBlock(blk)
-		if err != nil {
-			return errors.Wrap(err, "failed to convert api response type to SignedBeaconBlock interface")
-		}
-		b := sb.Block()
-		deposits := b.Body().Deposits()
-		for _, d := range deposits {
-			k := bytesutil.ToBytes48(d.Data.PublicKey)
-			v := observed[k]
-			observed[k] = v + d.Data.Amount
-		}
-	}
-	var mismatches []string
-	for k, ev := range expected {
-		ov := observed[k]
-		if ev != ov {
-			mismatches = append(mismatches, mismatch{k: k, e: ev, o: ov}.String())
-		}
-	}
-	if len(mismatches) != 0 {
-		return fmt.Errorf("not all expected deposits observed on chain, len(expected)=%d, len(observed)=%d, mismatches=%d; details(key:expected:observed): %s", len(expected), len(observed), len(mismatches), strings.Join(mismatches, ","))
-	}
-	return nil
 }
 
 func verifyGraffitiInBlocks(_ *e2etypes.EvaluationContext, conns ...*grpc.ClientConn) error {

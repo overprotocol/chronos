@@ -92,11 +92,7 @@ func Test_SignedBeaconBlock_Header(t *testing.T) {
 	bb := &BeaconBlockBody{
 		version:      version.Phase0,
 		randaoReveal: [96]byte{},
-		eth1Data: &eth.Eth1Data{
-			DepositRoot: make([]byte, 32),
-			BlockHash:   make([]byte, 32),
-		},
-		graffiti: [32]byte{},
+		graffiti:     [32]byte{},
 	}
 	sb := &SignedBeaconBlock{
 		version: version.Phase0,
@@ -372,13 +368,6 @@ func Test_BeaconBlockBody_ElectraAttestations(t *testing.T) {
 	a := bb.Block().Body().Attestations()
 	require.Equal(t, 1, len(a))
 	require.DeepEqual(t, a[0].GetSignature(), []byte("electra"))
-}
-
-func Test_BeaconBlockBody_Deposits(t *testing.T) {
-	d := make([]*eth.Deposit, 0)
-	bb := &SignedBeaconBlock{block: &BeaconBlock{body: &BeaconBlockBody{}}}
-	bb.SetDeposits(d)
-	assert.DeepSSZEqual(t, d, bb.Block().Body().Deposits())
 }
 
 func Test_BeaconBlockBody_VoluntaryExits(t *testing.T) {

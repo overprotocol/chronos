@@ -364,9 +364,6 @@ func altairOperations(
 	if err != nil {
 		return nil, errors.Wrap(err, "could not process altair attestation")
 	}
-	if _, err := altair.ProcessDeposits(ctx, st, beaconBlock.Body().Deposits()); err != nil {
-		return nil, errors.Wrap(err, "could not process altair deposit")
-	}
 	return b.ProcessVoluntaryExits(ctx, st, beaconBlock.Body().VoluntaryExits())
 }
 
@@ -386,9 +383,6 @@ func phase0Operations(
 	st, err = b.ProcessAttestationsNoVerifySignature(ctx, st, beaconBlock)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not process block attestations")
-	}
-	if _, err := altair.ProcessDeposits(ctx, st, beaconBlock.Body().Deposits()); err != nil {
-		return nil, errors.Wrap(err, "could not process deposits")
 	}
 	return b.ProcessVoluntaryExits(ctx, st, beaconBlock.Body().VoluntaryExits())
 }

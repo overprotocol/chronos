@@ -117,19 +117,6 @@ func ComputeBlockBodyFieldRoots(ctx context.Context, blockBody *BeaconBlockBody)
 		copy(fieldRoots[6], root[:])
 	}
 
-	if blockBody.version >= version.Capella {
-		// BLS Changes
-		bls, err := blockBody.BLSToExecutionChanges()
-		if err != nil {
-			return nil, err
-		}
-		root, err = ssz.MerkleizeListSSZ(bls, params.BeaconConfig().MaxBlsToExecutionChanges)
-		if err != nil {
-			return nil, err
-		}
-		copy(fieldRoots[7], root[:])
-	}
-
 	if blockBody.version >= version.Deneb {
 		// KZG commitments
 		roots := make([][32]byte, len(blockBody.blobKzgCommitments))
@@ -147,7 +134,7 @@ func ComputeBlockBodyFieldRoots(ctx context.Context, blockBody *BeaconBlockBody)
 		length := make([]byte, 32)
 		binary.LittleEndian.PutUint64(length[:8], uint64(len(roots)))
 		root = ssz.MixInLength(commitmentsRoot, length)
-		copy(fieldRoots[8], root[:])
+		copy(fieldRoots[7], root[:])
 	}
 
 	if blockBody.version >= version.Electra {
@@ -160,7 +147,7 @@ func ComputeBlockBodyFieldRoots(ctx context.Context, blockBody *BeaconBlockBody)
 		if err != nil {
 			return nil, err
 		}
-		copy(fieldRoots[9], root[:])
+		copy(fieldRoots[8], root[:])
 	}
 	return fieldRoots, nil
 }
