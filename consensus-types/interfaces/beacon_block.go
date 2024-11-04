@@ -59,7 +59,6 @@ type ReadOnlyBeaconBlockBody interface {
 	ProposerSlashings() []*ethpb.ProposerSlashing
 	AttesterSlashings() []ethpb.AttSlashing
 	Attestations() []ethpb.Att
-	Deposits() []*ethpb.Deposit
 	VoluntaryExits() []*ethpb.SignedVoluntaryExit
 	IsNil() bool
 	HashTreeRoot() ([field_params.RootLength]byte, error)
@@ -74,7 +73,6 @@ type SignedBeaconBlock interface {
 	SetExecution(ExecutionData) error
 	SetBlobKzgCommitments(c [][]byte) error
 	SetVoluntaryExits([]*ethpb.SignedVoluntaryExit)
-	SetDeposits([]*ethpb.Deposit)
 	SetAttestations([]ethpb.Att) error
 	SetAttesterSlashings([]ethpb.AttSlashing) error
 	SetProposerSlashings([]*ethpb.ProposerSlashing)

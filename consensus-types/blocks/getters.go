@@ -987,11 +987,6 @@ func (b *BeaconBlockBody) RandaoReveal() [field_params.BLSSignatureLength]byte {
 	return b.randaoReveal
 }
 
-// Eth1Data returns the eth1 data in the block.
-func (b *BeaconBlockBody) Eth1Data() *eth.Eth1Data {
-	return b.eth1Data
-}
-
 // Graffiti returns the graffiti in the block.
 func (b *BeaconBlockBody) Graffiti() [field_params.RootLength]byte {
 	return b.graffiti
@@ -1048,11 +1043,6 @@ func (b *BeaconBlockBody) Attestations() []eth.Att {
 	return atts
 }
 
-// Deposits returns the stored deposits in the block.
-func (b *BeaconBlockBody) Deposits() []*eth.Deposit {
-	return b.deposits
-}
-
 // VoluntaryExits returns the voluntary exits in the block.
 func (b *BeaconBlockBody) VoluntaryExits() []*eth.SignedVoluntaryExit {
 	return b.voluntaryExits
@@ -1069,13 +1059,6 @@ func (b *BeaconBlockBody) Execution() (interfaces.ExecutionData, error) {
 		}
 		return b.executionPayload, nil
 	}
-}
-
-func (b *BeaconBlockBody) BLSToExecutionChanges() ([]*eth.SignedBLSToExecutionChange, error) {
-	if b.version < version.Capella {
-		return nil, consensus_types.ErrNotSupported("BLSToExecutionChanges", b.version)
-	}
-	return b.blsToExecutionChanges, nil
 }
 
 // BlobKzgCommitments returns the blob kzg commitments in the block.

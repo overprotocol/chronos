@@ -48,7 +48,6 @@ func e2eMinimal(t *testing.T, cfg *params.BeaconChainConfig, cfgo ...types.E2ECo
 		ev.ValidatorsHaveExited,
 		ev.SubmitWithdrawal,
 		ev.ValidatorsHaveWithdrawn,
-		ev.ProcessesDepositsInBlocks,
 		ev.ActivatesDepositedValidators,
 		ev.DepositedValidatorsAreActive,
 		ev.ValidatorsVoteWithTheMajority,

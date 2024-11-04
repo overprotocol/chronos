@@ -41,18 +41,15 @@ var (
 type BeaconBlockBody struct {
 	version                  int
 	randaoReveal             [field_params.BLSSignatureLength]byte
-	eth1Data                 *eth.Eth1Data
 	graffiti                 [field_params.RootLength]byte
 	proposerSlashings        []*eth.ProposerSlashing
 	attesterSlashings        []*eth.AttesterSlashing
 	attesterSlashingsElectra []*eth.AttesterSlashingElectra
 	attestations             []*eth.Attestation
 	attestationsElectra      []*eth.AttestationElectra
-	deposits                 []*eth.Deposit
 	voluntaryExits           []*eth.SignedVoluntaryExit
 	executionPayload         interfaces.ExecutionData
 	executionPayloadHeader   interfaces.ExecutionData
-	blsToExecutionChanges    []*eth.SignedBLSToExecutionChange
 	blobKzgCommitments       [][]byte
 	executionRequests        *enginev1.ExecutionRequests
 }
