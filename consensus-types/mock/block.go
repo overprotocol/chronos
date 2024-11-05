@@ -213,19 +213,11 @@ func (BeaconBlockBody) Execution() (interfaces.ExecutionData, error) {
 	panic("implement me")
 }
 
-func (BeaconBlockBody) BLSToExecutionChanges() ([]*eth.SignedBLSToExecutionChange, error) {
-	panic("implement me")
-}
-
 func (b *BeaconBlock) SetStateRoot(root []byte) {
 	panic("implement me")
 }
 
 func (b *BeaconBlockBody) SetRandaoReveal([]byte) {
-	panic("implement me")
-}
-
-func (b *BeaconBlockBody) SetEth1Data(*eth.Eth1Data) {
 	panic("implement me")
 }
 
@@ -254,10 +246,6 @@ func (b *BeaconBlockBody) SetVoluntaryExits([]*eth.SignedVoluntaryExit) {
 }
 
 func (b *BeaconBlockBody) SetExecution(interfaces.ExecutionData) error {
-	panic("implement me")
-}
-
-func (b *BeaconBlockBody) SetBLSToExecutionChanges([]*eth.SignedBLSToExecutionChange) error {
 	panic("implement me")
 }
 

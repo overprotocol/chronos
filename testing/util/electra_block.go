@@ -197,14 +197,6 @@ func GenerateFullBlockElectra(
 		return nil, errors.Wrap(err, "could not compute beacon proposer index")
 	}
 
-	changes := make([]*ethpb.SignedBLSToExecutionChange, conf.NumBLSChanges)
-	for i := uint64(0); i < conf.NumBLSChanges; i++ {
-		changes[i], err = GenerateBLSToExecutionChange(bState, privs[i+1], primitives.ValidatorIndex(i))
-		if err != nil {
-			return nil, err
-		}
-	}
-
 	block := &ethpb.BeaconBlockElectra{
 		Slot:          slot,
 		ParentRoot:    parentRoot[:],

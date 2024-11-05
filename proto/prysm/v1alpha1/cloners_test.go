@@ -896,25 +896,6 @@ func genWithdrawal() *enginev1.Withdrawal {
 	}
 }
 
-func genBLSToExecutionChanges(num int) []*v1alpha1.SignedBLSToExecutionChange {
-	changes := make([]*v1alpha1.SignedBLSToExecutionChange, num)
-	for i := 0; i < num; i++ {
-		changes[i] = genBLSToExecutionChange()
-	}
-	return changes
-}
-
-func genBLSToExecutionChange() *v1alpha1.SignedBLSToExecutionChange {
-	return &v1alpha1.SignedBLSToExecutionChange{
-		Message: &v1alpha1.BLSToExecutionChange{
-			ValidatorIndex:     123456,
-			FromBlsPubkey:      bytes(48),
-			ToExecutionAddress: bytes(20),
-		},
-		Signature: bytes(96),
-	}
-}
-
 func genAttestationElectra() *v1alpha1.AttestationElectra {
 	return &v1alpha1.AttestationElectra{
 		AggregationBits: bytes(32),

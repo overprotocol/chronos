@@ -26,7 +26,6 @@ type fields struct {
 	execPayloadHeaderCapella *enginev1.ExecutionPayloadHeaderCapella
 	execPayloadDeneb         *enginev1.ExecutionPayloadDeneb
 	execPayloadHeaderDeneb   *enginev1.ExecutionPayloadHeaderDeneb
-	blsToExecutionChanges    []*eth.SignedBLSToExecutionChange
 	kzgCommitments           [][]byte
 }
 
@@ -1187,18 +1186,12 @@ func bodyPbBlindedDeneb() *eth.BlindedBeaconBlockBodyDeneb {
 func bodyPhase0() *BeaconBlockBody {
 	f := getFields()
 	return &BeaconBlockBody{
-		version:      version.Phase0,
-		randaoReveal: f.sig,
-		eth1Data: &eth.Eth1Data{
-			DepositRoot:  f.root[:],
-			DepositCount: 128,
-			BlockHash:    f.root[:],
-		},
+		version:           version.Phase0,
+		randaoReveal:      f.sig,
 		graffiti:          f.root,
 		proposerSlashings: f.proposerSlashings,
 		attesterSlashings: f.attesterSlashings,
 		attestations:      f.atts,
-		deposits:          f.deposits,
 		voluntaryExits:    f.voluntaryExits,
 	}
 }
@@ -1206,18 +1199,12 @@ func bodyPhase0() *BeaconBlockBody {
 func bodyAltair() *BeaconBlockBody {
 	f := getFields()
 	return &BeaconBlockBody{
-		version:      version.Altair,
-		randaoReveal: f.sig,
-		eth1Data: &eth.Eth1Data{
-			DepositRoot:  f.root[:],
-			DepositCount: 128,
-			BlockHash:    f.root[:],
-		},
+		version:           version.Altair,
+		randaoReveal:      f.sig,
 		graffiti:          f.root,
 		proposerSlashings: f.proposerSlashings,
 		attesterSlashings: f.attesterSlashings,
 		attestations:      f.atts,
-		deposits:          f.deposits,
 		voluntaryExits:    f.voluntaryExits,
 	}
 }
@@ -1227,18 +1214,12 @@ func bodyBellatrix(t *testing.T) *BeaconBlockBody {
 	p, err := WrappedExecutionPayload(f.execPayload)
 	require.NoError(t, err)
 	return &BeaconBlockBody{
-		version:      version.Bellatrix,
-		randaoReveal: f.sig,
-		eth1Data: &eth.Eth1Data{
-			DepositRoot:  f.root[:],
-			DepositCount: 128,
-			BlockHash:    f.root[:],
-		},
+		version:           version.Bellatrix,
+		randaoReveal:      f.sig,
 		graffiti:          f.root,
 		proposerSlashings: f.proposerSlashings,
 		attesterSlashings: f.attesterSlashings,
 		attestations:      f.atts,
-		deposits:          f.deposits,
 		voluntaryExits:    f.voluntaryExits,
 		executionPayload:  p,
 	}
@@ -1249,18 +1230,12 @@ func bodyBlindedBellatrix(t *testing.T) *BeaconBlockBody {
 	ph, err := WrappedExecutionPayloadHeader(f.execPayloadHeader)
 	require.NoError(t, err)
 	return &BeaconBlockBody{
-		version:      version.Bellatrix,
-		randaoReveal: f.sig,
-		eth1Data: &eth.Eth1Data{
-			DepositRoot:  f.root[:],
-			DepositCount: 128,
-			BlockHash:    f.root[:],
-		},
+		version:                version.Bellatrix,
+		randaoReveal:           f.sig,
 		graffiti:               f.root,
 		proposerSlashings:      f.proposerSlashings,
 		attesterSlashings:      f.attesterSlashings,
 		attestations:           f.atts,
-		deposits:               f.deposits,
 		voluntaryExits:         f.voluntaryExits,
 		executionPayloadHeader: ph,
 	}
@@ -1271,21 +1246,14 @@ func bodyCapella(t *testing.T) *BeaconBlockBody {
 	p, err := WrappedExecutionPayloadCapella(f.execPayloadCapella)
 	require.NoError(t, err)
 	return &BeaconBlockBody{
-		version:      version.Capella,
-		randaoReveal: f.sig,
-		eth1Data: &eth.Eth1Data{
-			DepositRoot:  f.root[:],
-			DepositCount: 128,
-			BlockHash:    f.root[:],
-		},
-		graffiti:              f.root,
-		proposerSlashings:     f.proposerSlashings,
-		attesterSlashings:     f.attesterSlashings,
-		attestations:          f.atts,
-		deposits:              f.deposits,
-		voluntaryExits:        f.voluntaryExits,
-		executionPayload:      p,
-		blsToExecutionChanges: f.blsToExecutionChanges,
+		version:           version.Capella,
+		randaoReveal:      f.sig,
+		graffiti:          f.root,
+		proposerSlashings: f.proposerSlashings,
+		attesterSlashings: f.attesterSlashings,
+		attestations:      f.atts,
+		voluntaryExits:    f.voluntaryExits,
+		executionPayload:  p,
 	}
 }
 
@@ -1294,21 +1262,14 @@ func bodyBlindedCapella(t *testing.T) *BeaconBlockBody {
 	ph, err := WrappedExecutionPayloadHeaderCapella(f.execPayloadHeaderCapella)
 	require.NoError(t, err)
 	return &BeaconBlockBody{
-		version:      version.Capella,
-		randaoReveal: f.sig,
-		eth1Data: &eth.Eth1Data{
-			DepositRoot:  f.root[:],
-			DepositCount: 128,
-			BlockHash:    f.root[:],
-		},
+		version:                version.Capella,
+		randaoReveal:           f.sig,
 		graffiti:               f.root,
 		proposerSlashings:      f.proposerSlashings,
 		attesterSlashings:      f.attesterSlashings,
 		attestations:           f.atts,
-		deposits:               f.deposits,
 		voluntaryExits:         f.voluntaryExits,
 		executionPayloadHeader: ph,
-		blsToExecutionChanges:  f.blsToExecutionChanges,
 	}
 }
 
@@ -1317,22 +1278,15 @@ func bodyDeneb(t *testing.T) *BeaconBlockBody {
 	p, err := WrappedExecutionPayloadDeneb(f.execPayloadDeneb)
 	require.NoError(t, err)
 	return &BeaconBlockBody{
-		version:      version.Deneb,
-		randaoReveal: f.sig,
-		eth1Data: &eth.Eth1Data{
-			DepositRoot:  f.root[:],
-			DepositCount: 128,
-			BlockHash:    f.root[:],
-		},
-		graffiti:              f.root,
-		proposerSlashings:     f.proposerSlashings,
-		attesterSlashings:     f.attesterSlashings,
-		attestations:          f.atts,
-		deposits:              f.deposits,
-		voluntaryExits:        f.voluntaryExits,
-		executionPayload:      p,
-		blsToExecutionChanges: f.blsToExecutionChanges,
-		blobKzgCommitments:    f.kzgCommitments,
+		version:            version.Deneb,
+		randaoReveal:       f.sig,
+		graffiti:           f.root,
+		proposerSlashings:  f.proposerSlashings,
+		attesterSlashings:  f.attesterSlashings,
+		attestations:       f.atts,
+		voluntaryExits:     f.voluntaryExits,
+		executionPayload:   p,
+		blobKzgCommitments: f.kzgCommitments,
 	}
 }
 
@@ -1341,21 +1295,14 @@ func bodyBlindedDeneb(t *testing.T) *BeaconBlockBody {
 	ph, err := WrappedExecutionPayloadHeaderDeneb(f.execPayloadHeaderDeneb)
 	require.NoError(t, err)
 	return &BeaconBlockBody{
-		version:      version.Deneb,
-		randaoReveal: f.sig,
-		eth1Data: &eth.Eth1Data{
-			DepositRoot:  f.root[:],
-			DepositCount: 128,
-			BlockHash:    f.root[:],
-		},
+		version:                version.Deneb,
+		randaoReveal:           f.sig,
 		graffiti:               f.root,
 		proposerSlashings:      f.proposerSlashings,
 		attesterSlashings:      f.attesterSlashings,
 		attestations:           f.atts,
-		deposits:               f.deposits,
 		voluntaryExits:         f.voluntaryExits,
 		executionPayloadHeader: ph,
-		blsToExecutionChanges:  f.blsToExecutionChanges,
 		blobKzgCommitments:     f.kzgCommitments,
 	}
 }
@@ -1549,14 +1496,6 @@ func getFields() fields {
 		TransactionsRoot: root[:],
 		WithdrawalsRoot:  root[:],
 	}
-	blsToExecutionChanges := []*eth.SignedBLSToExecutionChange{{
-		Message: &eth.BLSToExecutionChange{
-			ValidatorIndex:     128,
-			FromBlsPubkey:      b48,
-			ToExecutionAddress: b20,
-		},
-		Signature: sig[:],
-	}}
 
 	execPayloadDeneb := &enginev1.ExecutionPayloadDeneb{
 		ParentHash:    root[:],
@@ -1628,7 +1567,6 @@ func getFields() fields {
 		execPayloadHeaderCapella: execPayloadHeaderCapella,
 		execPayloadDeneb:         execPayloadDeneb,
 		execPayloadHeaderDeneb:   execPayloadHeaderDeneb,
-		blsToExecutionChanges:    blsToExecutionChanges,
 		kzgCommitments:           kzgCommitments,
 	}
 }

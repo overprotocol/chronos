@@ -35,9 +35,6 @@ const (
 	// voluntaryExitWeight specifies the scoring weight that we apply to
 	// our voluntary exit topic.
 	voluntaryExitWeight = 0.05
-	// blsToExecutionChangeWeight specifies the scoring weight that we apply to
-	// our bls to execution topic.
-	blsToExecutionChangeWeight = 0.05
 
 	// maxInMeshScore describes the max score a peer can attain from being in the mesh.
 	maxInMeshScore = 10
@@ -109,8 +106,6 @@ func (s *Service) topicScoreParams(topic string) (*pubsub.TopicScoreParams, erro
 		return defaultProposerSlashingTopicParams(), nil
 	case strings.Contains(topic, GossipAttesterSlashingMessage):
 		return defaultAttesterSlashingTopicParams(), nil
-	case strings.Contains(topic, GossipBlsToExecutionChangeMessage):
-		return defaultBlsToExecutionChangeTopicParams(), nil
 	case strings.Contains(topic, GossipBlobSidecarMessage):
 		// TODO(Deneb): Using the default block scoring. But this should be updated.
 		return defaultBlockTopicParams(), nil
@@ -366,28 +361,6 @@ func defaultVoluntaryExitTopicParams() *pubsub.TopicScoreParams {
 	}
 }
 
-func defaultBlsToExecutionChangeTopicParams() *pubsub.TopicScoreParams {
-	return &pubsub.TopicScoreParams{
-		TopicWeight:                     blsToExecutionChangeWeight,
-		TimeInMeshWeight:                maxInMeshScore / inMeshCap(),
-		TimeInMeshQuantum:               inMeshTime(),
-		TimeInMeshCap:                   inMeshCap(),
-		FirstMessageDeliveriesWeight:    2,
-		FirstMessageDeliveriesDecay:     scoreDecay(oneHundredEpochs),
-		FirstMessageDeliveriesCap:       5,
-		MeshMessageDeliveriesWeight:     0,
-		MeshMessageDeliveriesDecay:      0,
-		MeshMessageDeliveriesCap:        0,
-		MeshMessageDeliveriesThreshold:  0,
-		MeshMessageDeliveriesWindow:     0,
-		MeshMessageDeliveriesActivation: 0,
-		MeshFailurePenaltyWeight:        0,
-		MeshFailurePenaltyDecay:         0,
-		InvalidMessageDeliveriesWeight:  -2000,
-		InvalidMessageDeliveriesDecay:   scoreDecay(invalidDecayPeriod),
-	}
-}
-
 func oneSlotDuration() time.Duration {
 	return time.Duration(params.BeaconConfig().SecondsPerSlot) * time.Second
 }
@@ -446,7 +419,7 @@ func scoreByWeight(weight, threshold float64) float64 {
 func maxScore() float64 {
 	totalWeight := beaconBlockWeight + aggregateWeight +
 		attestationTotalWeight + attesterSlashingWeight +
-		proposerSlashingWeight + voluntaryExitWeight + blsToExecutionChangeWeight
+		proposerSlashingWeight + voluntaryExitWeight
 	return (maxInMeshScore + maxFirstDeliveryScore) * totalWeight
 }
 

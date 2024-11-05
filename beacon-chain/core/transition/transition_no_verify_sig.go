@@ -230,7 +230,6 @@ func ProcessBlockNoVerifyAnySig(
 //	    for_ops(body.attestations, process_attestation)  # [Modified in Electra:EIP7549]
 //	    for_ops(body.deposits, process_deposit)  # [Modified in Electra:EIP7251]
 //	    for_ops(body.voluntary_exits, process_voluntary_exit)  # [Modified in Electra:EIP7251]
-//	    for_ops(body.bls_to_execution_changes, process_bls_to_execution_change)
 //	    # [New in Electra:EIP7002:EIP7251]
 //	    for_ops(body.execution_payload.withdrawal_requests, process_execution_layer_withdrawal_request)
 //	    for_ops(body.execution_payload.deposit_requests, process_deposit_requests)  # [New in Electra:EIP6110]
