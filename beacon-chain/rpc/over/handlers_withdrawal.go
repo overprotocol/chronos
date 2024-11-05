@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/pkg/errors"
 	"github.com/prysmaticlabs/prysm/v5/api/server/structs"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
 	fieldparams "github.com/prysmaticlabs/prysm/v5/config/fieldparams"
@@ -81,7 +82,10 @@ func (s *Server) GetWithdrawalEstimation(w http.ResponseWriter, r *http.Request)
 
 	// Return early if there is no pending partial withdrawal
 	if len(ppws) == 0 {
-		httputil.WriteError(w, handleWrapError(err, "could not find pending partial withdrawals for requested validator", http.StatusNotFound))
+		httputil.WriteError(w, &httputil.DefaultJsonError{
+			Message: errors.New("could not find pending partial withdrawals for requested validator").Error(),
+			Code:    http.StatusNotFound,
+		})
 		return
 	}
 
@@ -128,7 +132,10 @@ func (s *Server) GetWithdrawalEstimation(w http.ResponseWriter, r *http.Request)
 	}
 
 	if len(estimatedPendingPartialWithdrawals) == 0 {
-		httputil.WriteError(w, handleWrapError(err, "could not find pending partial withdrawals for requested validator", http.StatusNotFound))
+		httputil.WriteError(w, &httputil.DefaultJsonError{
+			Message: errors.New("could not find pending partial withdrawals for requested validator").Error(),
+			Code:    http.StatusNotFound,
+		})
 		return
 	}
 

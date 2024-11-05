@@ -11,6 +11,8 @@ import (
 	chainMock "github.com/prysmaticlabs/prysm/v5/beacon-chain/blockchain/testing"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/rpc/testutil"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
+	"github.com/prysmaticlabs/prysm/v5/config/params"
+	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	"github.com/prysmaticlabs/prysm/v5/testing/assert"
 	"github.com/prysmaticlabs/prysm/v5/testing/require"
 	"github.com/prysmaticlabs/prysm/v5/testing/util"
@@ -54,6 +56,31 @@ func TestGetWithdrawalEstimation(t *testing.T) {
 			}(),
 			code:    http.StatusBadRequest,
 			wantErr: "Invalid validator index",
+		},
+		{
+			name:        "[error] pending partial withdrawals has zero length",
+			validatorId: "0",
+			state: func() state.BeaconState {
+				st, _ := util.DeterministicGenesisStateElectra(t, 10)
+				return st
+			}(),
+			code:    http.StatusNotFound,
+			wantErr: "could not find pending partial withdrawals for requested validator",
+		},
+		{
+			name:        "[error] no pending partial withdrawals for corresponding validator",
+			validatorId: "0",
+			state: func() state.BeaconState {
+				st, _ := util.DeterministicGenesisStateElectra(t, 10)
+				require.NoError(t, st.AppendPendingPartialWithdrawal(&ethpb.PendingPartialWithdrawal{
+					Index:             1,
+					Amount:            100,
+					WithdrawableEpoch: params.BeaconConfig().MinValidatorWithdrawabilityDelay,
+				}))
+				return st
+			}(),
+			code:    http.StatusNotFound,
+			wantErr: "could not find pending partial withdrawals for requested validator",
 		},
 	}
 
