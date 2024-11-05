@@ -7,10 +7,7 @@ import (
 	"math"
 	"strings"
 
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/pkg/errors"
-	"github.com/prysmaticlabs/prysm/v5/api/client/beacon"
-	"github.com/prysmaticlabs/prysm/v5/api/server/structs"
 	corehelpers "github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/signing"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
@@ -74,16 +71,6 @@ var ValidatorsHaveExited = e2etypes.Evaluator{
 	Name:       "voluntary_has_exited_%d",
 	Policy:     policies.OnEpoch(8),
 	Evaluation: validatorsHaveExited,
-}
-
-// SubmitWithdrawal sends a withdrawal from a previously exited validator.
-var SubmitWithdrawal = e2etypes.Evaluator{
-	Name: "submit_withdrawal_epoch_%d",
-	Policy: func(currentEpoch primitives.Epoch) bool {
-		fEpoch := params.BeaconConfig().CapellaForkEpoch
-		return policies.BetweenEpochs(fEpoch-2, fEpoch+1)(currentEpoch)
-	},
-	Evaluation: submitWithdrawal,
 }
 
 // ValidatorsHaveWithdrawn checks the beacon state for the withdrawn validator and ensures it has been withdrawn.
@@ -492,90 +479,6 @@ func validatorsVoteWithTheMajority(ec *e2etypes.EvaluationContext, conns ...*grp
 		}
 	}
 	return nil
-}
-
-func submitWithdrawal(ec *e2etypes.EvaluationContext, conns ...*grpc.ClientConn) error {
-	conn := conns[0]
-	beaconClient := ethpb.NewBeaconChainClient(conn)
-	debugClient := ethpb.NewDebugClient(conn)
-
-	ctx := context.Background()
-	chainHead, err := beaconClient.GetChainHead(ctx, &emptypb.Empty{})
-	if err != nil {
-		return errors.Wrap(err, "could not get chain head")
-	}
-	stObj, err := debugClient.GetBeaconState(ctx, &ethpb.BeaconStateRequest{QueryFilter: &ethpb.BeaconStateRequest_Slot{Slot: chainHead.HeadSlot}})
-	if err != nil {
-		return errors.Wrap(err, "could not get state object")
-	}
-	versionedMarshaler, err := detect.FromState(stObj.Encoded)
-	if err != nil {
-		return errors.Wrap(err, "could not get state marshaler")
-	}
-	st, err := versionedMarshaler.UnmarshalBeaconState(stObj.Encoded)
-	if err != nil {
-		return errors.Wrap(err, "could not get state")
-	}
-	exitedIndices := make([]primitives.ValidatorIndex, 0)
-
-	for key := range ec.ExitedVals {
-		valIdx, ok := st.ValidatorIndexByPubkey(key)
-		if !ok {
-			return errors.Errorf("pubkey %#x does not exist in our state", key)
-		}
-		exitedIndices = append(exitedIndices, valIdx)
-	}
-
-	_, privKeys, err := util.DeterministicDepositsAndKeys(params.BeaconConfig().MinGenesisActiveValidatorCount)
-	if err != nil {
-		return err
-	}
-	changes := make([]*structs.SignedBLSToExecutionChange, 0)
-	// Only send half the number of changes each time, to allow us to test
-	// at the fork boundary.
-	wantedChanges := numOfExits / 2
-	for _, idx := range exitedIndices {
-		// Exit sending more change messages.
-		if len(changes) >= wantedChanges {
-			break
-		}
-		val, err := st.ValidatorAtIndex(idx)
-		if err != nil {
-			return err
-		}
-		if val.WithdrawalCredentials[0] == params.BeaconConfig().ETH1AddressWithdrawalPrefixByte {
-			continue
-		}
-		if !bytes.Equal(val.PublicKey, privKeys[idx].PublicKey().Marshal()) {
-			return errors.Errorf("pubkey is not equal, wanted %#x but received %#x", val.PublicKey, privKeys[idx].PublicKey().Marshal())
-		}
-		message := &ethpb.BLSToExecutionChange{
-			ValidatorIndex:     idx,
-			FromBlsPubkey:      privKeys[idx].PublicKey().Marshal(),
-			ToExecutionAddress: bytesutil.ToBytes(uint64(idx), 20),
-		}
-		domain, err := signing.ComputeDomain(params.BeaconConfig().DomainBLSToExecutionChange, params.BeaconConfig().GenesisForkVersion, st.GenesisValidatorsRoot())
-		if err != nil {
-			return err
-		}
-		sigRoot, err := signing.ComputeSigningRoot(message, domain)
-		if err != nil {
-			return err
-		}
-		signature := privKeys[idx].Sign(sigRoot[:]).Marshal()
-
-		changes = append(changes, &structs.SignedBLSToExecutionChange{
-			Message:   structs.BLSChangeFromConsensus(message),
-			Signature: hexutil.Encode(signature),
-		})
-	}
-
-	beaconAPIClient, err := beacon.NewClient(fmt.Sprintf("http://localhost:%d/eth/v1", e2e.TestParams.Ports.PrysmBeaconNodeHTTPPort)) // only uses the first node so no updates to port
-	if err != nil {
-		return err
-	}
-
-	return beaconAPIClient.SubmitChangeBLStoExecution(ctx, changes)
 }
 
 func validatorsAreWithdrawn(ec *e2etypes.EvaluationContext, conns ...*grpc.ClientConn) error {

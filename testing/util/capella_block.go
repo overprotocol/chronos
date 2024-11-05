@@ -6,7 +6,6 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/signing"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/time"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/transition"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
@@ -162,14 +161,6 @@ func GenerateFullBlockCapella(
 		return nil, errors.Wrap(err, "could not compute beacon proposer index")
 	}
 
-	changes := make([]*ethpb.SignedBLSToExecutionChange, conf.NumBLSChanges)
-	for i := uint64(0); i < conf.NumBLSChanges; i++ {
-		changes[i], err = GenerateBLSToExecutionChange(bState, privs[i+1], primitives.ValidatorIndex(i))
-		if err != nil {
-			return nil, err
-		}
-	}
-
 	block := &ethpb.BeaconBlockCapella{
 		Slot:          slot,
 		ParentRoot:    parentRoot[:],
@@ -192,29 +183,4 @@ func GenerateFullBlockCapella(
 	}
 
 	return &ethpb.SignedBeaconBlockCapella{Block: block, Signature: signature.Marshal()}, nil
-}
-
-// GenerateBLSToExecutionChange generates a valid bls to exec change for validator `val` and its private key `priv` with the given beacon state `st`.
-func GenerateBLSToExecutionChange(st state.BeaconState, priv bls.SecretKey, val primitives.ValidatorIndex) (*ethpb.SignedBLSToExecutionChange, error) {
-	cred := indexToHash(uint64(val))
-	pubkey := priv.PublicKey().Marshal()
-	message := &ethpb.BLSToExecutionChange{
-		ToExecutionAddress: cred[12:],
-		ValidatorIndex:     val,
-		FromBlsPubkey:      pubkey,
-	}
-	c := params.BeaconConfig()
-	domain, err := signing.ComputeDomain(c.DomainBLSToExecutionChange, c.GenesisForkVersion, st.GenesisValidatorsRoot())
-	if err != nil {
-		return nil, err
-	}
-	sr, err := signing.ComputeSigningRoot(message, domain)
-	if err != nil {
-		return nil, err
-	}
-	signature := priv.Sign(sr[:]).Marshal()
-	return &ethpb.SignedBLSToExecutionChange{
-		Message:   message,
-		Signature: signature,
-	}, nil
 }

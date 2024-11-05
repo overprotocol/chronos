@@ -542,29 +542,6 @@ func (exit *VoluntaryExit) Copy() *VoluntaryExit {
 }
 
 // Copy --
-func (change *SignedBLSToExecutionChange) Copy() *SignedBLSToExecutionChange {
-	if change == nil {
-		return nil
-	}
-	return &SignedBLSToExecutionChange{
-		Message:   change.Message.Copy(),
-		Signature: bytesutil.SafeCopyBytes(change.Signature),
-	}
-}
-
-// Copy --
-func (change *BLSToExecutionChange) Copy() *BLSToExecutionChange {
-	if change == nil {
-		return nil
-	}
-	return &BLSToExecutionChange{
-		ValidatorIndex:     change.ValidatorIndex,
-		FromBlsPubkey:      bytesutil.SafeCopyBytes(change.FromBlsPubkey),
-		ToExecutionAddress: bytesutil.SafeCopyBytes(change.ToExecutionAddress),
-	}
-}
-
-// Copy --
 func (summary *HistoricalSummary) Copy() *HistoricalSummary {
 	if summary == nil {
 		return nil

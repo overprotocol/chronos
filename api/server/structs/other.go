@@ -119,17 +119,6 @@ type Fork struct {
 	Epoch           string `json:"epoch"`
 }
 
-type SignedBLSToExecutionChange struct {
-	Message   *BLSToExecutionChange `json:"message"`
-	Signature string                `json:"signature"`
-}
-
-type BLSToExecutionChange struct {
-	ValidatorIndex     string `json:"validator_index"`
-	FromBLSPubkey      string `json:"from_bls_pubkey"`
-	ToExecutionAddress string `json:"to_execution_address"`
-}
-
 // SyncDetails contains information about node sync status.
 type SyncDetails struct {
 	HeadSlot     string `json:"head_slot"`

@@ -42,8 +42,6 @@ const (
 	AggregatorSignature = "aggregator signature"
 	// AttestationSignature represents aggregated attestation signature
 	AttestationSignature = "attestation signature"
-	// BlsChangeSignature represents signature to BLSToExecutionChange
-	BlsChangeSignature = "blschange signature"
 )
 
 // ComputeDomainAndSign computes the domain and signing root and sign it using the passed in private key.

@@ -40,5 +40,4 @@ const (
 	MaxAttestationsElectra           = 8             // Maximum number of attestations in a block.
 	MaxDeposits                      = 16            // Maximum number of deposits in a block.
 	MaxVoluntaryExits                = 16            // Maximum number of voluntary exits in a block.
-	MaxBlsToExecutionChanges         = 16            // Maximum number of bls to execution changes in a block.
 )

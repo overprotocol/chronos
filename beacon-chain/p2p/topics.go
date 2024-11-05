@@ -20,8 +20,6 @@ const (
 	GossipAttesterSlashingMessage = "attester_slashing"
 	// GossipAggregateAndProofMessage is the name for the attestation aggregate and proof message type.
 	GossipAggregateAndProofMessage = "beacon_aggregate_and_proof"
-	// GossipBlsToExecutionChangeMessage is the name for the bls to execution change message type.
-	GossipBlsToExecutionChangeMessage = "bls_to_execution_change"
 	// GossipBlobSidecarMessage is the name for the blob sidecar message type.
 	GossipBlobSidecarMessage = "blob_sidecar"
 	// Topic Formats
@@ -38,8 +36,6 @@ const (
 	AttesterSlashingSubnetTopicFormat = GossipProtocolAndDigest + GossipAttesterSlashingMessage
 	// AggregateAndProofSubnetTopicFormat is the topic format for the aggregate and proof subnet.
 	AggregateAndProofSubnetTopicFormat = GossipProtocolAndDigest + GossipAggregateAndProofMessage
-	// BlsToExecutionChangeSubnetTopicFormat is the topic format for the bls to execution change subnet.
-	BlsToExecutionChangeSubnetTopicFormat = GossipProtocolAndDigest + GossipBlsToExecutionChangeMessage
 	// BlobSubnetTopicFormat is the topic format for the blob subnet.
 	BlobSubnetTopicFormat = GossipProtocolAndDigest + GossipBlobSidecarMessage + "_%d"
 )

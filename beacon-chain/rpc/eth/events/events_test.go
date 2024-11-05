@@ -98,7 +98,6 @@ func operationEventsFixtures(t *testing.T) (*topicRequest, []*feed.Event) {
 	topics, err := newTopicRequest([]string{
 		AttestationTopic,
 		VoluntaryExitTopic,
-		BLSToExecutionChangeTopic,
 		BlobSidecarTopic,
 		AttesterSlashingTopic,
 		ProposerSlashingTopic,
@@ -132,19 +131,6 @@ func operationEventsFixtures(t *testing.T) (*topicRequest, []*feed.Event) {
 					Exit: &eth.VoluntaryExit{
 						Epoch:          0,
 						ValidatorIndex: 0,
-					},
-					Signature: make([]byte, 96),
-				},
-			},
-		},
-		{
-			Type: operation.BLSToExecutionChangeReceived,
-			Data: &operation.BLSToExecutionChangeReceivedData{
-				Change: &eth.SignedBLSToExecutionChange{
-					Message: &eth.BLSToExecutionChange{
-						ValidatorIndex:     0,
-						FromBlsPubkey:      make([]byte, 48),
-						ToExecutionAddress: make([]byte, 20),
 					},
 					Signature: make([]byte, 96),
 				},
