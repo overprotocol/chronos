@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -39,7 +38,7 @@ func TestGetDepositEstimation(t *testing.T) {
 		wantErr  string
 	}{
 		{
-			name:   "initial deposit",
+			name:   "[initial] initial deposit",
 			pubkey: pubkey,
 			state: func() state.BeaconState {
 				st, _ := util.DeterministicGenesisStateElectra(t, 1000)
@@ -69,7 +68,7 @@ func TestGetDepositEstimation(t *testing.T) {
 			},
 		},
 		{
-			name:   "initial deposit was processed, validator is waiting for activation",
+			name:   "[initial] initial deposit was processed, validator's activation epoch is in the future",
 			pubkey: pubkey,
 			state: func() state.BeaconState {
 				st, _ := util.DeterministicGenesisStateElectra(t, 1000)
@@ -81,7 +80,6 @@ func TestGetDepositEstimation(t *testing.T) {
 				}))
 				st, err = transition.ProcessSlots(context.Background(), st, 14*params.BeaconConfig().SlotsPerEpoch)
 				require.NoError(t, err)
-				fmt.Println()
 				return st
 			}(),
 			code: http.StatusOK,
@@ -94,6 +92,47 @@ func TestGetDepositEstimation(t *testing.T) {
 					Slashed:                    false,
 					ActivationEligibilityEpoch: 14,
 					ActivationEpoch:            params.BeaconConfig().FarFutureEpoch,
+					ExitEpoch:                  params.BeaconConfig().FarFutureEpoch,
+					WithdrawableEpoch:          params.BeaconConfig().FarFutureEpoch,
+					PrincipalBalance:           params.BeaconConfig().MinActivationBalance,
+				}),
+				PendingDeposits:         []*structs.PendingDepositEstimationContainer{},
+				ExpectedActivationEpoch: 21,
+			},
+		},
+		{
+			name:   "[initial] initial deposit was processed, validator's activation epoch is set",
+			pubkey: pubkey,
+			state: func() state.BeaconState {
+				st, _ := util.DeterministicGenesisStateElectra(t, 1000)
+				require.NoError(t, st.SetSlot(384)) // current epoch = 12
+				require.NoError(t, st.AppendPendingDeposit(pd))
+				require.NoError(t, st.SetFinalizedCheckpoint(&ethpb.Checkpoint{
+					Epoch: 12,
+					Root:  []byte("finalized"),
+				}))
+				st, err = transition.ProcessSlots(context.Background(), st, 14*params.BeaconConfig().SlotsPerEpoch)
+				require.NoError(t, err)
+				st, err = transition.ProcessSlots(context.Background(), st, 16*params.BeaconConfig().SlotsPerEpoch)
+				require.NoError(t, err)
+				require.NoError(t, st.SetFinalizedCheckpoint(&ethpb.Checkpoint{
+					Epoch: 14,
+					Root:  []byte("finalized"),
+				}))
+				st, err = transition.ProcessSlots(context.Background(), st, 17*params.BeaconConfig().SlotsPerEpoch)
+				require.NoError(t, err)
+				return st
+			}(),
+			code: http.StatusOK,
+			wantData: &structs.DepositEstimationContainer{
+				Pubkey: pubkey,
+				Validator: structs.ValidatorFromConsensus(&ethpb.Validator{
+					PublicKey:                  pubkeyBytes,
+					WithdrawalCredentials:      make([]byte, 32),
+					EffectiveBalance:           params.BeaconConfig().MinActivationBalance,
+					Slashed:                    false,
+					ActivationEligibilityEpoch: 14,
+					ActivationEpoch:            21,
 					ExitEpoch:                  params.BeaconConfig().FarFutureEpoch,
 					WithdrawableEpoch:          params.BeaconConfig().FarFutureEpoch,
 					PrincipalBalance:           params.BeaconConfig().MinActivationBalance,
