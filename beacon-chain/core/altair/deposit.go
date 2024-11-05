@@ -190,7 +190,6 @@ func AddValidatorToRegistry(beaconState state.BeaconState, pubKey []byte, withdr
 //	    activation_eligibility_epoch=FAR_FUTURE_EPOCH,
 //	    activation_epoch=FAR_FUTURE_EPOCH,
 //	    exit_epoch=FAR_FUTURE_EPOCH,
-//	    withdrawable_epoch=FAR_FUTURE_EPOCH,
 //	    effective_balance=effective_balance,
 //	    principal_balance=amount,
 //	)
@@ -206,7 +205,6 @@ func GetValidatorFromDeposit(pubKey []byte, withdrawalCredentials []byte, amount
 		ActivationEligibilityEpoch: params.BeaconConfig().FarFutureEpoch,
 		ActivationEpoch:            params.BeaconConfig().FarFutureEpoch,
 		ExitEpoch:                  params.BeaconConfig().FarFutureEpoch,
-		WithdrawableEpoch:          params.BeaconConfig().FarFutureEpoch,
 		EffectiveBalance:           effectiveBalance,
 		PrincipalBalance:           amount,
 	}

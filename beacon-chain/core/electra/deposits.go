@@ -219,7 +219,7 @@ func verifyDepositDataSigningRoot(obj *ethpb.Deposit_Data, domain []byte) error 
 //	    if deposit.pubkey in validator_pubkeys:
 //	        validator = state.validators[ValidatorIndex(validator_pubkeys.index(deposit.pubkey))]
 //	        is_validator_exited = validator.exit_epoch < FAR_FUTURE_EPOCH
-//	        is_validator_withdrawn = validator.withdrawable_epoch < next_epoch
+//	        is_validator_withdrawn = get_withdrawable_epoch(validator) < next_epoch
 //
 //	    if is_validator_withdrawn:
 //	        # Deposited balance will never become active. Increase balance but do not consume churn
@@ -299,7 +299,8 @@ func ProcessPendingDeposits(ctx context.Context, st state.BeaconState, activeBal
 				return errors.Wrap(err, "could not get validator")
 			}
 			isValidatorExited = val.ExitEpoch() < params.BeaconConfig().FarFutureEpoch
-			isValidatorWithdrawn = val.WithdrawableEpoch() < nextEpoch
+			withdrawalEpoch := helpers.GetWithdrawableEpoch(val.ExitEpoch(), val.Slashed())
+			isValidatorWithdrawn = withdrawalEpoch < nextEpoch
 		}
 
 		if isValidatorWithdrawn {
@@ -487,7 +488,6 @@ func AddValidatorToRegistry(beaconState state.BeaconState, pubKey []byte, withdr
 //	    activation_eligibility_epoch=FAR_FUTURE_EPOCH,
 //	    activation_epoch=FAR_FUTURE_EPOCH,
 //	    exit_epoch=FAR_FUTURE_EPOCH,
-//	    withdrawable_epoch=FAR_FUTURE_EPOCH,
 //	    effective_balance=Gwei(0),
 //	    principal_balance=Gwei(0),
 //	)
@@ -505,7 +505,6 @@ func GetValidatorFromDeposit(pubKey []byte, withdrawalCredentials []byte, amount
 		ActivationEligibilityEpoch: params.BeaconConfig().FarFutureEpoch,
 		ActivationEpoch:            params.BeaconConfig().FarFutureEpoch,
 		ExitEpoch:                  params.BeaconConfig().FarFutureEpoch,
-		WithdrawableEpoch:          params.BeaconConfig().FarFutureEpoch,
 		EffectiveBalance:           0,
 		PrincipalBalance:           0,
 	}

@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"github.com/pkg/errors"
+	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
@@ -53,14 +54,15 @@ func ValidatorSubStatus(val state.ReadOnlyValidator, epoch primitives.Epoch) (va
 	}
 
 	// Exited.
-	if val.ExitEpoch() <= epoch && epoch < val.WithdrawableEpoch() {
+	withdrawalEpoch := helpers.GetWithdrawableEpoch(val.ExitEpoch(), val.Slashed())
+	if val.ExitEpoch() <= epoch && epoch < withdrawalEpoch {
 		if val.Slashed() {
 			return validator.ExitedSlashed, nil
 		}
 		return validator.ExitedUnslashed, nil
 	}
 
-	if val.WithdrawableEpoch() <= epoch {
+	if withdrawalEpoch <= epoch {
 		if val.EffectiveBalance() != 0 {
 			return validator.WithdrawalPossible, nil
 		} else {

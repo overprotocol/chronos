@@ -16,7 +16,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/math"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	"github.com/prysmaticlabs/prysm/v5/runtime/version"
-	"github.com/prysmaticlabs/prysm/v5/time/slots"
 )
 
 // ErrValidatorAlreadyExited is an error raised when trying to process an exit of
@@ -63,7 +62,6 @@ func MaxExitEpochAndChurn(s state.BeaconState) (maxExitEpoch primitives.Epoch, c
 //
 //	    # Set validator exit epoch and withdrawable epoch
 //	    validator.exit_epoch = exit_queue_epoch
-//	    validator.withdrawable_epoch = Epoch(validator.exit_epoch + MIN_VALIDATOR_WITHDRAWABILITY_DELAY)
 func InitiateValidatorExit(ctx context.Context, s state.BeaconState, idx primitives.ValidatorIndex, exitQueueEpoch primitives.Epoch, churn uint64) (state.BeaconState, primitives.Epoch, error) {
 	validator, err := s.ValidatorAtIndex(idx)
 	if err != nil {
@@ -109,10 +107,6 @@ func InitiateValidatorExit(ctx context.Context, s state.BeaconState, idx primiti
 		}
 	}
 	validator.ExitEpoch = exitQueueEpoch
-	validator.WithdrawableEpoch, err = exitQueueEpoch.SafeAddEpoch(params.BeaconConfig().MinValidatorWithdrawabilityDelay)
-	if err != nil {
-		return nil, 0, err
-	}
 	if err := s.UpdateValidatorAtIndex(idx, validator); err != nil {
 		return nil, 0, err
 	}
@@ -136,7 +130,6 @@ func InitiateValidatorExit(ctx context.Context, s state.BeaconState, idx primiti
 //	  initiate_validator_exit(state, slashed_index)
 //	  validator = state.validators[slashed_index]
 //	  validator.slashed = True
-//	  validator.withdrawable_epoch = max(validator.withdrawable_epoch, Epoch(epoch + MIN_SLASHING_WITHDRAWABLE_DELAY))
 //	  slashing_penalty = validator.effective_balance // MIN_SLASHING_PENALTY_QUOTIENT_EIP7251  # [Modified in EIP7251]
 //	  decrease_balance(state, slashed_index, slashing_penalty)
 //
@@ -158,14 +151,12 @@ func SlashValidator(
 	if err != nil && !errors.Is(err, ErrValidatorAlreadyExited) {
 		return nil, errors.Wrapf(err, "could not initiate validator %d exit", slashedIdx)
 	}
-	currentEpoch := slots.ToEpoch(s.Slot())
+	//currentEpoch := slots.ToEpoch(s.Slot())
 	validator, err := s.ValidatorAtIndex(slashedIdx)
 	if err != nil {
 		return nil, err
 	}
 	validator.Slashed = true
-	maxWithdrawableEpoch := primitives.MaxEpoch(validator.WithdrawableEpoch, currentEpoch+params.BeaconConfig().MinSlashingWithdrawableDelay)
-	validator.WithdrawableEpoch = maxWithdrawableEpoch
 
 	if err := s.UpdateValidatorAtIndex(slashedIdx, validator); err != nil {
 		return nil, err
@@ -223,8 +214,9 @@ func SlashedValidatorIndices(epoch primitives.Epoch, validators []*ethpb.Validat
 	slashed := make([]primitives.ValidatorIndex, 0)
 	for i := 0; i < len(validators); i++ {
 		val := validators[i]
-		maxWithdrawableEpoch := primitives.MaxEpoch(val.WithdrawableEpoch, epoch+params.BeaconConfig().MinSlashingWithdrawableDelay)
-		if val.WithdrawableEpoch == maxWithdrawableEpoch && val.Slashed {
+		//maxWithdrawableEpoch := primitives.MaxEpoch(val.WithdrawableEpoch, epoch+params.BeaconConfig().MinSlashingWithdrawableDelay)
+		//if val.WithdrawableEpoch == maxWithdrawableEpoch && val.Slashed {
+		if val.ExitEpoch >= epoch && val.Slashed {
 			slashed = append(slashed, primitives.ValidatorIndex(i))
 		}
 	}

@@ -178,7 +178,7 @@ func ProposersDelta(state state.ReadOnlyBeaconState, pBal *Balance, vp []*Valida
 // EligibleForRewards for validator.
 //
 // Spec code:
-// if is_active_validator(v, previous_epoch) or (v.slashed and previous_epoch + 1 < v.withdrawable_epoch)
+// if is_active_validator(v, previous_epoch) or (v.slashed and previous_epoch + 1 < get_withdrawable_epoch(v))
 func EligibleForRewards(v *Validator) bool {
 	return v.IsActivePrevEpoch || (v.IsSlashed && !v.IsWithdrawableCurrentEpoch)
 }

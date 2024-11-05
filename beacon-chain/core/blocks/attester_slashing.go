@@ -74,7 +74,8 @@ func ProcessAttesterSlashing(
 		if err != nil {
 			return nil, err
 		}
-		if helpers.IsSlashableValidator(val.ActivationEpoch(), val.WithdrawableEpoch(), val.Slashed(), currentEpoch) {
+		withdrawalEpoch := helpers.GetWithdrawableEpoch(val.ExitEpoch(), val.Slashed())
+		if helpers.IsSlashableValidator(val.ActivationEpoch(), withdrawalEpoch, val.Slashed(), currentEpoch) {
 			beaconState, err = slashFunc(ctx, beaconState, primitives.ValidatorIndex(validatorIndex))
 			if err != nil {
 				return nil, errors.Wrapf(err, "could not slash validator index %d",

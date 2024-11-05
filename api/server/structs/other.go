@@ -8,7 +8,6 @@ type Validator struct {
 	ActivationEligibilityEpoch string `json:"activation_eligibility_epoch"`
 	ActivationEpoch            string `json:"activation_epoch"`
 	ExitEpoch                  string `json:"exit_epoch"`
-	WithdrawableEpoch          string `json:"withdrawable_epoch"`
 	PrincipalBalance           string `json:"principal_balance"`
 }
 
