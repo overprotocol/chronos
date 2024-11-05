@@ -48,6 +48,16 @@ func TestGetDepositEstimation(t *testing.T) {
 		wantErr  string
 	}{
 		{
+			name:   "[error] pre-electra is not supported",
+			pubkey: pubkey0,
+			state: func() state.BeaconState {
+				st, _ := util.DeterministicGenesisStateDeneb(t, 10)
+				return st
+			}(),
+			code:    http.StatusBadRequest,
+			wantErr: "Deposit estimation is not supported for pre-Electra.",
+		},
+		{
 			name:   "[initial] initial deposit",
 			pubkey: pubkey0,
 			state: func() state.BeaconState {
@@ -249,6 +259,169 @@ func TestGetDepositEstimation(t *testing.T) {
 				}
 			}(),
 		},
+		{
+			name:   "[top-up] multiple top-up deposits",
+			pubkey: pubkey1,
+			state: func() state.BeaconState {
+				st, _ := util.DeterministicGenesisStateElectra(t, 10)
+
+				pd := &ethpb.PendingDeposit{
+					PublicKey:             sk1.PublicKey().Marshal(),
+					WithdrawalCredentials: make([]byte, 32),
+					Amount:                1_000_000_000, // 1 OVER
+					Slot:                  primitives.Slot(321),
+				}
+				pd, err = signedPendingDeposit(sk1, pd)
+				require.NoError(t, err)
+
+				// Append the same deposit twice
+				require.NoError(t, st.AppendPendingDeposit(pd))
+				require.NoError(t, st.AppendPendingDeposit(pd))
+
+				require.NoError(t, st.SetSlot(384)) // current epoch = 12
+				require.NoError(t, st.SetFinalizedCheckpoint(&ethpb.Checkpoint{
+					Epoch: 12,
+					Root:  []byte("finalized"),
+				}))
+				return st
+			}(),
+			code: http.StatusOK,
+			wantData: &structs.DepositEstimationContainer{
+				Pubkey:    pubkey1,
+				Validator: structs.ValidatorFromConsensus(val0),
+				PendingDeposits: []*structs.PendingDepositEstimationContainer{
+					{
+						Type: "top-up",
+						Data: &structs.PendingDepositEstimation{
+							Amount:        1_000_000_000,
+							Slot:          321,
+							ExpectedEpoch: 12,
+						},
+					},
+					{
+						Type: "top-up",
+						Data: &structs.PendingDepositEstimation{
+							Amount:        1_000_000_000,
+							Slot:          321,
+							ExpectedEpoch: 12,
+						},
+					},
+				},
+			},
+		},
+		{
+			name:   "[top-up] deposits exceeds churn limit",
+			pubkey: pubkey1,
+			state: func() state.BeaconState {
+				st, _ := util.DeterministicGenesisStateElectra(t, 10)
+
+				pd := &ethpb.PendingDeposit{
+					PublicKey:             sk1.PublicKey().Marshal(),
+					WithdrawalCredentials: make([]byte, 32),
+					Amount:                4096_000_000_000, // 4096 OVER = activation balance churn limit
+					Slot:                  primitives.Slot(321),
+				}
+				pd, err = signedPendingDeposit(sk1, pd)
+				require.NoError(t, err)
+
+				// Append the same deposit twice
+				require.NoError(t, st.AppendPendingDeposit(pd))
+				require.NoError(t, st.AppendPendingDeposit(pd))
+
+				require.NoError(t, st.SetSlot(384)) // current epoch = 12
+				require.NoError(t, st.SetFinalizedCheckpoint(&ethpb.Checkpoint{
+					Epoch: 12,
+					Root:  []byte("finalized"),
+				}))
+				return st
+			}(),
+			code: http.StatusOK,
+			wantData: &structs.DepositEstimationContainer{
+				Pubkey:    pubkey1,
+				Validator: structs.ValidatorFromConsensus(val0),
+				PendingDeposits: []*structs.PendingDepositEstimationContainer{
+					{
+						Type: "top-up",
+						Data: &structs.PendingDepositEstimation{
+							Amount:        4096_000_000_000,
+							Slot:          321,
+							ExpectedEpoch: 12,
+						},
+					},
+					{
+						Type: "top-up",
+						Data: &structs.PendingDepositEstimation{
+							Amount:        4096_000_000_000,
+							Slot:          321,
+							ExpectedEpoch: 13, // churn limit is exceeded for epoch 12, so the expected epoch is 13
+						},
+					},
+				},
+			},
+		},
+		{
+			name:   "[initial + top-up] top-up deposit after initial deposit",
+			pubkey: pubkey0,
+			state: func() state.BeaconState {
+				st, _ := util.DeterministicGenesisStateElectra(t, 10)
+
+				// initial deposit
+				pd := &ethpb.PendingDeposit{
+					PublicKey:             sk0.PublicKey().Marshal(),
+					WithdrawalCredentials: make([]byte, 32),
+					Amount:                params.BeaconConfig().MinActivationBalance,
+					Slot:                  primitives.Slot(321),
+				}
+				pd, err = signedPendingDeposit(sk0, pd)
+				require.NoError(t, err)
+
+				require.NoError(t, st.AppendPendingDeposit(pd))
+
+				// top-up deposit
+				pd = &ethpb.PendingDeposit{
+					PublicKey:             sk0.PublicKey().Marshal(),
+					WithdrawalCredentials: make([]byte, 32),
+					Amount:                1_000_000_000, // 1 OVER
+					Slot:                  primitives.Slot(322),
+				}
+				pd, err = signedPendingDeposit(sk0, pd)
+				require.NoError(t, err)
+
+				require.NoError(t, st.AppendPendingDeposit(pd))
+
+				require.NoError(t, st.SetSlot(384)) // current epoch = 12
+				require.NoError(t, st.SetFinalizedCheckpoint(&ethpb.Checkpoint{
+					Epoch: 10,
+					Root:  []byte("finalized"),
+				}))
+
+				return st
+			}(),
+			code: http.StatusOK,
+			wantData: &structs.DepositEstimationContainer{
+				Pubkey:    pubkey0,
+				Validator: nil,
+				PendingDeposits: []*structs.PendingDepositEstimationContainer{
+					{
+						Type: "initial",
+						Data: &structs.PendingDepositEstimation{
+							Amount:                  params.BeaconConfig().MinActivationBalance,
+							Slot:                    321,
+							ExpectedEpoch:           13,
+							ExpectedActivationEpoch: 21,
+						},
+					},
+					{
+						Type: "top-up",
+						Data: &structs.PendingDepositEstimation{
+							Amount:        1_000_000_000,
+							Slot:          322,
+							ExpectedEpoch: 13,
+						},
+					},
+				},
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -272,7 +445,7 @@ func TestGetDepositEstimation(t *testing.T) {
 		s.GetDepositEstimation(writer, request)
 		assert.Equal(t, tt.code, writer.Code)
 		if tt.wantErr != "" {
-			require.StringContains(t, writer.Body.String(), tt.wantErr)
+			require.StringContains(t, tt.wantErr, writer.Body.String())
 			continue
 		}
 
