@@ -18,6 +18,7 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
 	"github.com/prysmaticlabs/prysm/v5/crypto/bls"
+	"github.com/prysmaticlabs/prysm/v5/crypto/bls/common"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	"github.com/prysmaticlabs/prysm/v5/testing/assert"
 	"github.com/prysmaticlabs/prysm/v5/testing/require"
@@ -25,9 +26,9 @@ import (
 )
 
 func TestGetDepositEstimation(t *testing.T) {
-	pd, pubkeyBytes, err := generateValidPendingDeposit(321)
+	sk, err := bls.RandKey()
 	require.NoError(t, err)
-	pubkey := hexutil.Encode(pubkeyBytes)
+	pubkey := hexutil.Encode(sk.PublicKey().Marshal())
 
 	tests := []struct {
 		name     string
@@ -41,7 +42,16 @@ func TestGetDepositEstimation(t *testing.T) {
 			name:   "[initial] initial deposit",
 			pubkey: pubkey,
 			state: func() state.BeaconState {
-				st, _ := util.DeterministicGenesisStateElectra(t, 1000)
+				pd := &ethpb.PendingDeposit{
+					PublicKey:             sk.PublicKey().Marshal(),
+					WithdrawalCredentials: make([]byte, 32),
+					Amount:                params.BeaconConfig().MinActivationBalance,
+					Slot:                  primitives.Slot(321),
+				}
+				pd, err = signedPendingDeposit(sk, pd)
+				require.NoError(t, err)
+
+				st, _ := util.DeterministicGenesisStateElectra(t, 10)
 				require.NoError(t, st.SetSlot(384)) // current epoch = 12
 				require.NoError(t, st.SetFinalizedCheckpoint(&ethpb.Checkpoint{
 					Epoch: 10,
@@ -71,7 +81,16 @@ func TestGetDepositEstimation(t *testing.T) {
 			name:   "[initial] initial deposit was processed, validator's activation epoch is in the future",
 			pubkey: pubkey,
 			state: func() state.BeaconState {
-				st, _ := util.DeterministicGenesisStateElectra(t, 1000)
+				pd := &ethpb.PendingDeposit{
+					PublicKey:             sk.PublicKey().Marshal(),
+					WithdrawalCredentials: make([]byte, 32),
+					Amount:                params.BeaconConfig().MinActivationBalance,
+					Slot:                  primitives.Slot(321),
+				}
+				pd, err = signedPendingDeposit(sk, pd)
+				require.NoError(t, err)
+
+				st, _ := util.DeterministicGenesisStateElectra(t, 10)
 				require.NoError(t, st.SetSlot(384)) // current epoch = 12
 				require.NoError(t, st.AppendPendingDeposit(pd))
 				require.NoError(t, st.SetFinalizedCheckpoint(&ethpb.Checkpoint{
@@ -86,7 +105,7 @@ func TestGetDepositEstimation(t *testing.T) {
 			wantData: &structs.DepositEstimationContainer{
 				Pubkey: pubkey,
 				Validator: structs.ValidatorFromConsensus(&ethpb.Validator{
-					PublicKey:                  pubkeyBytes,
+					PublicKey:                  sk.PublicKey().Marshal(),
 					WithdrawalCredentials:      make([]byte, 32),
 					EffectiveBalance:           params.BeaconConfig().MinActivationBalance,
 					Slashed:                    false,
@@ -104,15 +123,22 @@ func TestGetDepositEstimation(t *testing.T) {
 			name:   "[initial] initial deposit was processed, validator's activation epoch is set",
 			pubkey: pubkey,
 			state: func() state.BeaconState {
-				st, _ := util.DeterministicGenesisStateElectra(t, 1000)
+				pd := &ethpb.PendingDeposit{
+					PublicKey:             sk.PublicKey().Marshal(),
+					WithdrawalCredentials: make([]byte, 32),
+					Amount:                params.BeaconConfig().MinActivationBalance,
+					Slot:                  primitives.Slot(321),
+				}
+				pd, err = signedPendingDeposit(sk, pd)
+				require.NoError(t, err)
+
+				st, _ := util.DeterministicGenesisStateElectra(t, 10)
 				require.NoError(t, st.SetSlot(384)) // current epoch = 12
 				require.NoError(t, st.AppendPendingDeposit(pd))
 				require.NoError(t, st.SetFinalizedCheckpoint(&ethpb.Checkpoint{
 					Epoch: 12,
 					Root:  []byte("finalized"),
 				}))
-				st, err = transition.ProcessSlots(context.Background(), st, 14*params.BeaconConfig().SlotsPerEpoch)
-				require.NoError(t, err)
 				st, err = transition.ProcessSlots(context.Background(), st, 16*params.BeaconConfig().SlotsPerEpoch)
 				require.NoError(t, err)
 				require.NoError(t, st.SetFinalizedCheckpoint(&ethpb.Checkpoint{
@@ -127,7 +153,7 @@ func TestGetDepositEstimation(t *testing.T) {
 			wantData: &structs.DepositEstimationContainer{
 				Pubkey: pubkey,
 				Validator: structs.ValidatorFromConsensus(&ethpb.Validator{
-					PublicKey:                  pubkeyBytes,
+					PublicKey:                  sk.PublicKey().Marshal(),
 					WithdrawalCredentials:      make([]byte, 32),
 					EffectiveBalance:           params.BeaconConfig().MinActivationBalance,
 					Slashed:                    false,
@@ -176,31 +202,21 @@ func TestGetDepositEstimation(t *testing.T) {
 	}
 }
 
-func generateValidPendingDeposit(slot uint64) (*ethpb.PendingDeposit, []byte, error) {
-	sk, err := bls.RandKey()
-	if err != nil {
-		return nil, nil, err
-	}
+func signedPendingDeposit(sk common.SecretKey, pd *ethpb.PendingDeposit) (*ethpb.PendingDeposit, error) {
 	domain, err := signing.ComputeDomain(params.BeaconConfig().DomainDeposit, nil, nil)
 	if err != nil {
-		return nil, nil, err
-	}
-	pd := &ethpb.PendingDeposit{
-		PublicKey:             sk.PublicKey().Marshal(),
-		WithdrawalCredentials: make([]byte, 32),
-		Amount:                params.BeaconConfig().MinActivationBalance,
-		Slot:                  primitives.Slot(slot),
+		return nil, err
 	}
 	sr, err := signing.ComputeSigningRoot(&ethpb.DepositMessage{
 		PublicKey:             pd.PublicKey,
 		WithdrawalCredentials: pd.WithdrawalCredentials,
-		Amount:                params.BeaconConfig().MinActivationBalance,
+		Amount:                pd.Amount,
 	}, domain)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	sig := sk.Sign(sr[:])
 	pd.Signature = sig.Marshal()
 
-	return pd, sk.PublicKey().Marshal(), nil
+	return pd, nil
 }
