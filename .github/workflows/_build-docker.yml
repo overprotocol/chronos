@@ -14,6 +14,12 @@ on:
         required: true
       DOCKERHUB_TOKEN:
         required: true
+      GCP_SERVICE_ACCOUNT:
+        required: true
+      GCP_WORKLOAD_IDENTITY_PROVIDER:
+        required: true
+      GCP_REMOTE_CACHE_BUCKET:
+        required: true
 
 jobs:
   build-and-push-images:
@@ -23,7 +29,19 @@ jobs:
     outputs:
       docker_tag: ${{ steps.set-docker-tag.outputs.docker_tag }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
+      - uses: "google-github-actions/auth@v2"
+        with:
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          create_credentials_file: true
+
+      - name: "Set up Cloud SDK"
+        uses: "google-github-actions/setup-gcloud@v2"
+        with:
+          version: ">= 390.0.0"
+
       - name: Git config
         run: |
           git config --global --add safe.directory /__w/chronos/chronos
@@ -45,6 +63,9 @@ jobs:
           bazel run \
             //cmd/beacon-chain:push_images \
             --config=release \
+            --remote_cache=https://storage.googleapis.com/${{ secrets.GCP_REMOTE_CACHE_BUCKET }}/ \
+            --remote_upload_local_results \
+            --google_default_credentials \
             -- \
             --tag=${{ steps.set-docker-tag.outputs.docker_tag }} \
             --repository=overfoundation/chronos-beacon-chain
@@ -55,6 +76,9 @@ jobs:
           bazel run \
             //cmd/validator:push_images \
             --config=release \
+            --remote_cache=https://storage.googleapis.com/${{ secrets.GCP_REMOTE_CACHE_BUCKET }}/ \
+            --remote_upload_local_results \
+            --google_default_credentials \
             -- \
             --tag=${{ steps.set-docker-tag.outputs.docker_tag }} \
             --repository=overfoundation/chronos-validator
@@ -66,6 +90,9 @@ jobs:
           bazel run \
             //cmd/beacon-chain:push_images \
             --config=release \
+            --remote_cache=https://storage.googleapis.com/${{ secrets.GCP_REMOTE_CACHE_BUCKET }}/ \
+            --remote_upload_local_results \
+            --google_default_credentials \
             -- \
             --tag=latest \
             --repository=overfoundation/chronos-beacon-chain
@@ -73,6 +100,9 @@ jobs:
           bazel run \
             //cmd/validator:push_images \
             --config=release \
+            --remote_cache=https://storage.googleapis.com/${{ secrets.GCP_REMOTE_CACHE_BUCKET }}/ \
+            --remote_upload_local_results \
+            --google_default_credentials \
             -- \
             --tag=latest \
             --repository=overfoundation/chronos-validator
