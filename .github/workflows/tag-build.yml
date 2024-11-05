@@ -14,9 +14,6 @@ jobs:
     outputs:
       tag_name: ${{ steps.extract.outputs.tag_name }}
       version_name: ${{ steps.extract.outputs.version_name }}
-    permissions:
-      id-token: write
-      contents: read
     steps:
       - uses: actions/checkout@v4
       - name: Extract tag name, version
@@ -27,21 +24,6 @@ jobs:
           tag_name="${full_tag#*_}"
           echo "tag_name=$tag_name" >> $GITHUB_OUTPUT
           echo "version_name=$version_name" >> $GITHUB_OUTPUT
-
-      # Temp
-      - uses: "google-github-actions/auth@v2"
-        with:
-          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-          create_credentials_file: true
-
-      - name: "Set up Cloud SDK"
-        uses: "google-github-actions/setup-gcloud@v2"
-        with:
-          version: ">= 390.0.0"
-
-      - name: "Use gcloud CLI"
-        run: "gcloud info"
 
   build:
     needs: extract-version

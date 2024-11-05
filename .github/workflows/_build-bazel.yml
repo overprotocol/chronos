@@ -29,19 +29,18 @@ jobs:
       id-token: write # Allows the workflow to request an OIDC token
       contents: read
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: "google-github-actions/auth@v2"
         with:
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          create_credentials_file: true
 
       - name: "Set up Cloud SDK"
         uses: "google-github-actions/setup-gcloud@v2"
-
-      - name: "List buckets"
-        run: |
-          gcloud storage ls
+        with:
+          version: ">= 390.0.0"
 
       - name: Git config
         run: |
