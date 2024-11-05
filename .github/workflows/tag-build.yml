@@ -36,6 +36,10 @@ jobs:
       build-type: ${{ matrix.symbol-list }}
       tag_name: ${{ needs.extract-version.outputs.tag_name }}
       version_name: ${{ needs.extract-version.outputs.version_name }}
+    secrets:
+      GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+      GCP_REMOTE_CACHE_BUCKET: ${{ secrets.GCP_REMOTE_CACHE_BUCKET }}
 
   upload-aws:
     needs: [build, extract-version]

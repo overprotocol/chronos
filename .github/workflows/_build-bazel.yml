@@ -12,14 +12,30 @@ on:
       version_name:
         required: true
         type: string
+    secrets:
+      GCP_SERVICE_ACCOUNT:
+        required: true
+      GCP_WORKLOAD_IDENTITY_PROVIDER:
+        required: true
+      GCP_REMOTE_CACHE_BUCKET:
+        required: true
 
 jobs:
   build-binaries:
     runs-on: ubuntu-latest
     container:
       image: overfoundation/bazel-cross:latest
+    permissions:
+      id-token: write # Allows the workflow to request an OIDC token
+      contents: read
     steps:
       - uses: actions/checkout@v3
+
+      - uses: "google-github-actions/auth@v2"
+        with:
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+
       - name: Git config
         run: |
           git config --global --add safe.directory /__w/chronos/chronos
@@ -29,6 +45,9 @@ jobs:
           bazel build \
             --config=release \
             --config=${{ inputs.build-type }} \
+            --remote_cache=https://storage.googleapis.com/${{ secrets.GCP_REMOTE_CACHE_BUCKET }}/ \
+            --remote_upload_local_results \
+            --google_default_credentials \
             //cmd/beacon-chain \
             //cmd/validator \
             //cmd/prysmctl \
