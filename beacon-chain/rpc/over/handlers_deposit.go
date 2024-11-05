@@ -287,8 +287,7 @@ func buildPendingDepositEstimations(st state.BeaconState, pubkey []byte,
 				data.ExpectedEpoch = uint64(currentEpoch)
 			}
 			if initial && pd.Amount >= params.BeaconConfig().MinActivationBalance {
-				// 1 epoch for registration, 1 epoch for activation eligibility
-				estimatedActivationEligibilityEpoch := currentEpoch + 1 + 1
+				estimatedActivationEligibilityEpoch := currentEpoch + 1
 				estimatedEligibleEpochForActivation := estimatedActivationEligibilityEpoch + expectedFinalityDelay
 				data.ExpectedActivationEpoch = uint64(helpers.ActivationExitEpoch(estimatedEligibleEpochForActivation))
 			}

@@ -2,7 +2,9 @@ package over
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -10,9 +12,13 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/prysmaticlabs/prysm/v5/api/server/structs"
 	chainMock "github.com/prysmaticlabs/prysm/v5/beacon-chain/blockchain/testing"
+	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/signing"
+	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/transition"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/rpc/testutil"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
+	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
+	"github.com/prysmaticlabs/prysm/v5/crypto/bls"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	"github.com/prysmaticlabs/prysm/v5/testing/assert"
 	"github.com/prysmaticlabs/prysm/v5/testing/require"
@@ -20,6 +26,10 @@ import (
 )
 
 func TestGetDepositEstimation(t *testing.T) {
+	pd, pubkeyBytes, err := generateValidPendingDeposit(321)
+	require.NoError(t, err)
+	pubkey := hexutil.Encode(pubkeyBytes)
+
 	tests := []struct {
 		name     string
 		pubkey   string
@@ -30,29 +40,20 @@ func TestGetDepositEstimation(t *testing.T) {
 	}{
 		{
 			name:   "initial deposit",
-			pubkey: "0x93fc14e0e90ff2053dfe0543b70ed8c945b15133d9d75785d2452eff5ef1ef36d2ca07f0fba71562b6803c40c6b2ff43",
+			pubkey: pubkey,
 			state: func() state.BeaconState {
 				st, _ := util.DeterministicGenesisStateElectra(t, 1000)
-				require.NoError(t, st.SetSlot(322)) // current epoch = 10
+				require.NoError(t, st.SetSlot(384)) // current epoch = 12
 				require.NoError(t, st.SetFinalizedCheckpoint(&ethpb.Checkpoint{
 					Epoch: 10,
 					Root:  []byte("finalized"),
 				}))
-				pubkey, err := hexutil.Decode("0x93fc14e0e90ff2053dfe0543b70ed8c945b15133d9d75785d2452eff5ef1ef36d2ca07f0fba71562b6803c40c6b2ff43")
-				require.NoError(t, err)
-				pd := &ethpb.PendingDeposit{
-					PublicKey:             pubkey,
-					WithdrawalCredentials: []byte("wc"),
-					Amount:                params.BeaconConfig().MinActivationBalance,
-					Slot:                  321, // second slot of Epoch 10
-					Signature:             []byte("signature"),
-				}
 				require.NoError(t, st.AppendPendingDeposit(pd))
 				return st
 			}(),
 			code: http.StatusOK,
 			wantData: &structs.DepositEstimationContainer{
-				Pubkey:    "0x93fc14e0e90ff2053dfe0543b70ed8c945b15133d9d75785d2452eff5ef1ef36d2ca07f0fba71562b6803c40c6b2ff43",
+				Pubkey:    pubkey,
 				Validator: nil,
 				PendingDeposits: []*structs.PendingDepositEstimationContainer{
 					{
@@ -60,11 +61,45 @@ func TestGetDepositEstimation(t *testing.T) {
 						Data: &structs.PendingDepositEstimation{
 							Amount:                  params.BeaconConfig().MinActivationBalance,
 							Slot:                    321,
-							ExpectedEpoch:           11,
-							ExpectedActivationEpoch: 20,
+							ExpectedEpoch:           13,
+							ExpectedActivationEpoch: 21,
 						},
 					},
 				},
+			},
+		},
+		{
+			name:   "initial deposit was processed, validator is waiting for activation",
+			pubkey: pubkey,
+			state: func() state.BeaconState {
+				st, _ := util.DeterministicGenesisStateElectra(t, 1000)
+				require.NoError(t, st.SetSlot(384)) // current epoch = 12
+				require.NoError(t, st.AppendPendingDeposit(pd))
+				require.NoError(t, st.SetFinalizedCheckpoint(&ethpb.Checkpoint{
+					Epoch: 12,
+					Root:  []byte("finalized"),
+				}))
+				st, err = transition.ProcessSlots(context.Background(), st, 14*params.BeaconConfig().SlotsPerEpoch)
+				require.NoError(t, err)
+				fmt.Println()
+				return st
+			}(),
+			code: http.StatusOK,
+			wantData: &structs.DepositEstimationContainer{
+				Pubkey: pubkey,
+				Validator: structs.ValidatorFromConsensus(&ethpb.Validator{
+					PublicKey:                  pubkeyBytes,
+					WithdrawalCredentials:      make([]byte, 32),
+					EffectiveBalance:           params.BeaconConfig().MinActivationBalance,
+					Slashed:                    false,
+					ActivationEligibilityEpoch: 14,
+					ActivationEpoch:            params.BeaconConfig().FarFutureEpoch,
+					ExitEpoch:                  params.BeaconConfig().FarFutureEpoch,
+					WithdrawableEpoch:          params.BeaconConfig().FarFutureEpoch,
+					PrincipalBalance:           params.BeaconConfig().MinActivationBalance,
+				}),
+				PendingDeposits:         []*structs.PendingDepositEstimationContainer{},
+				ExpectedActivationEpoch: 21,
 			},
 		},
 	}
@@ -100,4 +135,33 @@ func TestGetDepositEstimation(t *testing.T) {
 			require.DeepEqual(t, tt.wantData, resp.Data)
 		}
 	}
+}
+
+func generateValidPendingDeposit(slot uint64) (*ethpb.PendingDeposit, []byte, error) {
+	sk, err := bls.RandKey()
+	if err != nil {
+		return nil, nil, err
+	}
+	domain, err := signing.ComputeDomain(params.BeaconConfig().DomainDeposit, nil, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+	pd := &ethpb.PendingDeposit{
+		PublicKey:             sk.PublicKey().Marshal(),
+		WithdrawalCredentials: make([]byte, 32),
+		Amount:                params.BeaconConfig().MinActivationBalance,
+		Slot:                  primitives.Slot(slot),
+	}
+	sr, err := signing.ComputeSigningRoot(&ethpb.DepositMessage{
+		PublicKey:             pd.PublicKey,
+		WithdrawalCredentials: pd.WithdrawalCredentials,
+		Amount:                params.BeaconConfig().MinActivationBalance,
+	}, domain)
+	if err != nil {
+		return nil, nil, err
+	}
+	sig := sk.Sign(sr[:])
+	pd.Signature = sig.Marshal()
+
+	return pd, sk.PublicKey().Marshal(), nil
 }
