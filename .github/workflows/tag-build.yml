@@ -25,6 +25,21 @@ jobs:
           echo "tag_name=$tag_name" >> $GITHUB_OUTPUT
           echo "version_name=$version_name" >> $GITHUB_OUTPUT
 
+      # Temp
+      - uses: "google-github-actions/auth@v2"
+        with:
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          create_credentials_file: true
+
+      - name: "Set up Cloud SDK"
+        uses: "google-github-actions/setup-gcloud@v2"
+        with:
+          version: ">= 390.0.0"
+
+      - name: "Use gcloud CLI"
+        run: "gcloud info"
+
   build:
     needs: extract-version
     strategy:
