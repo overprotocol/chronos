@@ -458,6 +458,7 @@ func (bs *Server) GetValidatorQueue(
 	sort.Slice(activationQ, func(i, j int) bool {
 		return vals[i].ActivationEligibilityEpoch < vals[j].ActivationEligibilityEpoch
 	})
+	// sort by exit epoch
 	sort.Slice(awaitingExit, func(i, j int) bool {
 		return vals[i].ExitEpoch < vals[j].ExitEpoch
 	})

@@ -18,6 +18,7 @@ import (
 
 func TestInitializeEpochValidators_Ok(t *testing.T) {
 	ffe := params.BeaconConfig().FarFutureEpoch
+	params.BeaconConfig().MinValidatorWithdrawabilityDelay = 1
 	s, err := state_native.InitializeFromProtoAltair(&ethpb.BeaconStateAltair{
 		Slot: params.BeaconConfig().SlotsPerEpoch,
 		// Validator 0 is slashed
@@ -25,10 +26,10 @@ func TestInitializeEpochValidators_Ok(t *testing.T) {
 		// Validator 2 is active prev epoch and current epoch
 		// Validator 3 is active prev epoch
 		Validators: []*ethpb.Validator{
-			{Slashed: true, WithdrawableEpoch: ffe, EffectiveBalance: 100},
-			{EffectiveBalance: 100},
-			{WithdrawableEpoch: ffe, ExitEpoch: ffe, EffectiveBalance: 100},
-			{WithdrawableEpoch: ffe, ExitEpoch: 1, EffectiveBalance: 100},
+			{Slashed: true, ExitEpoch: 0, EffectiveBalance: 100},
+			{ExitEpoch: 0, EffectiveBalance: 100},
+			{ExitEpoch: ffe, EffectiveBalance: 100},
+			{ExitEpoch: 1, EffectiveBalance: 100},
 		},
 		InactivityScores: []uint64{0, 1, 2, 3},
 		Balances:         []uint64{100, 100, 100, 100},
@@ -74,8 +75,8 @@ func TestInitializeEpochValidators_Overflow(t *testing.T) {
 	s, err := state_native.InitializeFromProtoAltair(&ethpb.BeaconStateAltair{
 		Slot: params.BeaconConfig().SlotsPerEpoch,
 		Validators: []*ethpb.Validator{
-			{WithdrawableEpoch: ffe, ExitEpoch: ffe, EffectiveBalance: math.MaxUint64},
-			{WithdrawableEpoch: ffe, ExitEpoch: ffe, EffectiveBalance: math.MaxUint64},
+			{ExitEpoch: ffe, EffectiveBalance: math.MaxUint64},
+			{ExitEpoch: ffe, EffectiveBalance: math.MaxUint64},
 		},
 		InactivityScores: []uint64{0, 1},
 		Balances:         []uint64{math.MaxUint64, math.MaxUint64},
@@ -105,14 +106,14 @@ func TestProcessEpochParticipation(t *testing.T) {
 	require.DeepEqual(t, &precompute.Validator{
 		IsActiveCurrentEpoch:         true,
 		IsActivePrevEpoch:            true,
-		IsWithdrawableCurrentEpoch:   true,
+		IsWithdrawableCurrentEpoch:   false,
 		CurrentEpochEffectiveBalance: params.BeaconConfig().MaxEffectiveBalance,
 		PrincipalBalance:             params.BeaconConfig().MaxEffectiveBalance,
 	}, validators[0])
 	require.DeepEqual(t, &precompute.Validator{
 		IsActiveCurrentEpoch:         true,
 		IsActivePrevEpoch:            true,
-		IsWithdrawableCurrentEpoch:   true,
+		IsWithdrawableCurrentEpoch:   false,
 		CurrentEpochEffectiveBalance: params.BeaconConfig().MaxEffectiveBalance,
 		IsCurrentEpochAttester:       true,
 		IsPrevEpochAttester:          true,
@@ -122,7 +123,7 @@ func TestProcessEpochParticipation(t *testing.T) {
 	require.DeepEqual(t, &precompute.Validator{
 		IsActiveCurrentEpoch:         true,
 		IsActivePrevEpoch:            true,
-		IsWithdrawableCurrentEpoch:   true,
+		IsWithdrawableCurrentEpoch:   false,
 		CurrentEpochEffectiveBalance: params.BeaconConfig().MaxEffectiveBalance,
 		IsCurrentEpochAttester:       true,
 		IsPrevEpochAttester:          true,
@@ -134,7 +135,7 @@ func TestProcessEpochParticipation(t *testing.T) {
 	require.DeepEqual(t, &precompute.Validator{
 		IsActiveCurrentEpoch:         true,
 		IsActivePrevEpoch:            true,
-		IsWithdrawableCurrentEpoch:   true,
+		IsWithdrawableCurrentEpoch:   false,
 		CurrentEpochEffectiveBalance: params.BeaconConfig().MaxEffectiveBalance,
 		IsCurrentEpochAttester:       true,
 		IsPrevEpochAttester:          true,
@@ -151,6 +152,7 @@ func TestProcessEpochParticipation(t *testing.T) {
 }
 
 func TestProcessEpochParticipation_InactiveValidator(t *testing.T) {
+	params.BeaconConfig().MinValidatorWithdrawabilityDelay = 0
 	generateParticipation := func(flags ...uint8) byte {
 		b := byte(0)
 		var err error
@@ -206,7 +208,7 @@ func TestProcessEpochParticipation_InactiveValidator(t *testing.T) {
 	require.DeepEqual(t, &precompute.Validator{
 		IsActiveCurrentEpoch:         true,
 		IsActivePrevEpoch:            true,
-		IsWithdrawableCurrentEpoch:   true,
+		IsWithdrawableCurrentEpoch:   false,
 		CurrentEpochEffectiveBalance: eb,
 		IsCurrentEpochAttester:       true,
 		IsPrevEpochAttester:          true,

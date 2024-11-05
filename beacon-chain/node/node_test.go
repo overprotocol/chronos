@@ -142,7 +142,6 @@ func TestNodeStart_Ok_registerDeterministicGenesisService(t *testing.T) {
 			ActivationEligibilityEpoch: 1,
 			ActivationEpoch:            1,
 			ExitEpoch:                  1,
-			WithdrawableEpoch:          1,
 		})
 		genesisState.Balances = append(genesisState.Balances, params.BeaconConfig().MaxEffectiveBalance)
 	}

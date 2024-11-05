@@ -58,10 +58,9 @@ func TestValidatorStatus_Active(t *testing.T) {
 		GenesisTime: uint64(time.Unix(0, 0).Unix()),
 		Slot:        10000,
 		Validators: []*ethpb.Validator{{
-			ActivationEpoch:   activeEpoch,
-			ExitEpoch:         params.BeaconConfig().FarFutureEpoch,
-			WithdrawableEpoch: params.BeaconConfig().FarFutureEpoch,
-			PublicKey:         pubkey},
+			ActivationEpoch: activeEpoch,
+			ExitEpoch:       params.BeaconConfig().FarFutureEpoch,
+			PublicKey:       pubkey},
 		}}
 	stateObj, err := state_native.InitializeFromProtoUnsafePhase0(st)
 	require.NoError(t, err)

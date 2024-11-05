@@ -630,7 +630,7 @@ func TestBeaconState_ValidatorMutation_Phase0(t *testing.T) {
 		ActivationEligibilityEpoch: 1112,
 		ActivationEpoch:            1114,
 		ExitEpoch:                  1116,
-		WithdrawableEpoch:          1117,
+		PrincipalBalance:           1117,
 	}))
 
 	rt, err := testState.HashTreeRoot(context.Background())
@@ -654,7 +654,7 @@ func TestBeaconState_ValidatorMutation_Phase0(t *testing.T) {
 		ActivationEligibilityEpoch: 2112,
 		ActivationEpoch:            2114,
 		ExitEpoch:                  2116,
-		WithdrawableEpoch:          2117,
+		PrincipalBalance:           2117,
 	}))
 
 	rt, err = newState1.HashTreeRoot(context.Background())
@@ -697,7 +697,7 @@ func TestBeaconState_ValidatorMutation_Altair(t *testing.T) {
 		ActivationEligibilityEpoch: 1112,
 		ActivationEpoch:            1114,
 		ExitEpoch:                  1116,
-		WithdrawableEpoch:          1117,
+		PrincipalBalance:           1117,
 	}))
 
 	rt, err := testState.HashTreeRoot(context.Background())
@@ -721,7 +721,7 @@ func TestBeaconState_ValidatorMutation_Altair(t *testing.T) {
 		ActivationEligibilityEpoch: 2112,
 		ActivationEpoch:            2114,
 		ExitEpoch:                  2116,
-		WithdrawableEpoch:          2117,
+		PrincipalBalance:           2117,
 	}))
 
 	rt, err = newState1.HashTreeRoot(context.Background())
@@ -764,7 +764,7 @@ func TestBeaconState_ValidatorMutation_Bellatrix(t *testing.T) {
 		ActivationEligibilityEpoch: 1112,
 		ActivationEpoch:            1114,
 		ExitEpoch:                  1116,
-		WithdrawableEpoch:          1117,
+		PrincipalBalance:           1117,
 	}))
 
 	rt, err := testState.HashTreeRoot(context.Background())
@@ -788,7 +788,7 @@ func TestBeaconState_ValidatorMutation_Bellatrix(t *testing.T) {
 		ActivationEligibilityEpoch: 2112,
 		ActivationEpoch:            2114,
 		ExitEpoch:                  2116,
-		WithdrawableEpoch:          2117,
+		PrincipalBalance:           2117,
 	}))
 
 	rt, err = newState1.HashTreeRoot(context.Background())

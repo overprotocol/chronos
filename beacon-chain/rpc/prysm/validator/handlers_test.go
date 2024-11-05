@@ -441,7 +441,6 @@ func TestServer_GetValidatorActiveSetChanges(t *testing.T) {
 
 	for i := 0; i < len(validators); i++ {
 		activationEpoch := params.BeaconConfig().FarFutureEpoch
-		withdrawableEpoch := params.BeaconConfig().FarFutureEpoch
 		exitEpoch := params.BeaconConfig().FarFutureEpoch
 		slashed := false
 		balance := params.BeaconConfig().MaxEffectiveBalance
@@ -452,16 +451,13 @@ func TestServer_GetValidatorActiveSetChanges(t *testing.T) {
 			activationEpoch = 0
 		} else if i%3 == 0 {
 			// Mark indices divisible by 3 as slashed.
-			withdrawableEpoch = params.BeaconConfig().MinSlashingWithdrawableDelay
 			slashed = true
 		} else if i%5 == 0 {
 			// Mark indices divisible by 5 as exited.
 			exitEpoch = 0
-			withdrawableEpoch = params.BeaconConfig().MinValidatorWithdrawabilityDelay
 		} else if i%7 == 0 {
 			// Mark indices divisible by 7 as bailed out.
 			exitEpoch = 0
-			withdrawableEpoch = params.BeaconConfig().MinValidatorWithdrawabilityDelay
 			bailoutBuffer := balance * params.BeaconConfig().InactivityPenaltyRate / params.BeaconConfig().InactivityPenaltyRatePrecision
 			actualBalances[i] = balance - bailoutBuffer - 1
 		}
@@ -470,7 +466,6 @@ func TestServer_GetValidatorActiveSetChanges(t *testing.T) {
 			PublicKey:             pubKey(uint64(i)),
 			EffectiveBalance:      balance,
 			WithdrawalCredentials: make([]byte, 32),
-			WithdrawableEpoch:     withdrawableEpoch,
 			Slashed:               slashed,
 			ExitEpoch:             exitEpoch,
 			PrincipalBalance:      balance,

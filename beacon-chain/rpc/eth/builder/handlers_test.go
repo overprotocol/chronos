@@ -118,6 +118,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 		params.SetupTestConfigCleanup(t)
 		cfg := params.BeaconConfig().Copy()
 		cfg.MaxValidatorsPerWithdrawalsSweep = 16
+		cfg.MinValidatorWithdrawabilityDelay = 0
 		params.OverrideBeaconConfig(cfg)
 
 		// Update state with updated validator fields
@@ -131,7 +132,6 @@ func TestExpectedWithdrawals(t *testing.T) {
 				PublicKey:             blsKey.PublicKey().Marshal(),
 				WithdrawalCredentials: make([]byte, 32),
 				ExitEpoch:             params.BeaconConfig().FarFutureEpoch,
-				WithdrawableEpoch:     params.BeaconConfig().FarFutureEpoch,
 				EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalance,
 				PrincipalBalance:      params.BeaconConfig().MaxEffectiveBalance,
 			}
@@ -142,18 +142,18 @@ func TestExpectedWithdrawals(t *testing.T) {
 
 		epoch := slots.ToEpoch(st.Slot())
 		// Fully withdrawable now with more than 0 balance
-		validators[5].WithdrawableEpoch = epoch
+		validators[5].ExitEpoch = epoch - 1
 		// Fully withdrawable now but 0 balance
-		validators[10].WithdrawableEpoch = epoch
+		validators[10].ExitEpoch = epoch
 		balances[10] = 0
 		// Partially withdrawable now but fully withdrawable after 1 epoch
-		validators[14].WithdrawableEpoch = epoch + 1
+		validators[14].ExitEpoch = epoch + 1
 		balances[14] += params.BeaconConfig().MinDepositAmount
 		// Partially withdrawable
-		validators[15].WithdrawableEpoch = epoch + 2
+		validators[15].ExitEpoch = epoch + 2
 		balances[15] += params.BeaconConfig().MinDepositAmount
 		// Above sweep bound
-		validators[16].WithdrawableEpoch = epoch + 1
+		validators[16].ExitEpoch = epoch + 1
 		balances[16] += params.BeaconConfig().MinDepositAmount
 
 		require.NoError(t, st.SetValidators(validators))

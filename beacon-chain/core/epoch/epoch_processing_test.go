@@ -192,16 +192,15 @@ func TestProcessRegistryUpdates_ValidatorsBailedOutInLeak(t *testing.T) {
 func TestProcessRegistryUpdates_CanExits(t *testing.T) {
 	e := primitives.Epoch(5)
 	exitEpoch := helpers.ActivationExitEpoch(e)
-	minWithdrawalDelay := params.BeaconConfig().MinValidatorWithdrawabilityDelay
 	base := &ethpb.BeaconState{
 		Slot: params.BeaconConfig().SlotsPerEpoch.Mul(uint64(e)),
 		Validators: []*ethpb.Validator{
 			{
-				ExitEpoch:         exitEpoch,
-				WithdrawableEpoch: exitEpoch + minWithdrawalDelay},
+				ExitEpoch: exitEpoch,
+			},
 			{
-				ExitEpoch:         exitEpoch,
-				WithdrawableEpoch: exitEpoch + minWithdrawalDelay},
+				ExitEpoch: exitEpoch,
+			},
 		},
 		FinalizedCheckpoint: &ethpb.Checkpoint{Root: make([]byte, fieldparams.RootLength)},
 	}

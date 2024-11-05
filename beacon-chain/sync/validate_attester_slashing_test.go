@@ -31,7 +31,7 @@ func setupValidAttesterSlashing(t *testing.T) (*ethpb.AttesterSlashing, state.Be
 	s, privKeys := util.DeterministicGenesisState(t, 5)
 	vals := s.Validators()
 	for _, vv := range vals {
-		vv.WithdrawableEpoch = primitives.Epoch(1 * params.BeaconConfig().SlotsPerEpoch)
+		vv.ExitEpoch = primitives.Epoch(1 * params.BeaconConfig().SlotsPerEpoch)
 	}
 	require.NoError(t, s.SetValidators(vals))
 
@@ -163,11 +163,12 @@ func TestValidateAttesterSlashing_ValidOldSlashing(t *testing.T) {
 func TestValidateAttesterSlashing_InvalidSlashing_WithdrawableEpoch(t *testing.T) {
 	p := p2ptest.NewTestP2P(t)
 	ctx := context.Background()
-
+	params.BeaconConfig().MinSlashingWithdrawableDelay = 0
+	params.BeaconConfig().MinValidatorWithdrawabilityDelay = 0
 	slashing, s := setupValidAttesterSlashing(t)
 	// Set only one of the  validators as withdrawn
 	vals := s.Validators()
-	vals[1].WithdrawableEpoch = primitives.Epoch(1)
+	vals[1].ExitEpoch = primitives.Epoch(1)
 
 	require.NoError(t, s.SetValidators(vals))
 
@@ -207,7 +208,7 @@ func TestValidateAttesterSlashing_InvalidSlashing_WithdrawableEpoch(t *testing.T
 	// Set all validators as withdrawn.
 	vals = s.Validators()
 	for _, vv := range vals {
-		vv.WithdrawableEpoch = primitives.Epoch(1)
+		vv.ExitEpoch = primitives.Epoch(1)
 	}
 
 	require.NoError(t, s.SetValidators(vals))

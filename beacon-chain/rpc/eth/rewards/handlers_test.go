@@ -80,10 +80,9 @@ func BlockRewardTestSetup(t *testing.T, forkName string) (state.BeaconState, int
 		require.NoError(t, err)
 		secretKeys = append(secretKeys, blsKey)
 		validators = append(validators, &eth.Validator{
-			PublicKey:         blsKey.PublicKey().Marshal(),
-			ExitEpoch:         params.BeaconConfig().FarFutureEpoch,
-			WithdrawableEpoch: params.BeaconConfig().FarFutureEpoch,
-			EffectiveBalance:  params.BeaconConfig().MaxEffectiveBalance,
+			PublicKey:        blsKey.PublicKey().Marshal(),
+			ExitEpoch:        params.BeaconConfig().FarFutureEpoch,
+			EffectiveBalance: params.BeaconConfig().MaxEffectiveBalance,
 		})
 		balances = append(balances, params.BeaconConfig().MaxEffectiveBalance)
 	}
@@ -355,11 +354,10 @@ func TestAttestationRewards(t *testing.T) {
 		require.NoError(t, err)
 		secretKeys = append(secretKeys, blsKey)
 		validators = append(validators, &eth.Validator{
-			PublicKey:         blsKey.PublicKey().Marshal(),
-			ExitEpoch:         params.BeaconConfig().FarFutureEpoch,
-			WithdrawableEpoch: params.BeaconConfig().FarFutureEpoch,
-			EffectiveBalance:  params.BeaconConfig().MaxEffectiveBalance / 64 * uint64(i+1),
-			PrincipalBalance:  params.BeaconConfig().MaxEffectiveBalance / 64 * uint64(i+1),
+			PublicKey:        blsKey.PublicKey().Marshal(),
+			ExitEpoch:        params.BeaconConfig().FarFutureEpoch,
+			EffectiveBalance: params.BeaconConfig().MaxEffectiveBalance / 64 * uint64(i+1),
+			PrincipalBalance: params.BeaconConfig().MaxEffectiveBalance / 64 * uint64(i+1),
 		})
 		balances = append(balances, params.BeaconConfig().MaxEffectiveBalance/64*uint64(i+1))
 	}
@@ -650,11 +648,10 @@ func TestAttestationRewards_Electra(t *testing.T) {
 		require.NoError(t, err)
 		secretKeys = append(secretKeys, blsKey)
 		validators = append(validators, &eth.Validator{
-			PublicKey:         blsKey.PublicKey().Marshal(),
-			ExitEpoch:         params.BeaconConfig().FarFutureEpoch,
-			WithdrawableEpoch: params.BeaconConfig().FarFutureEpoch,
-			EffectiveBalance:  params.BeaconConfig().MaxEffectiveBalanceAlpaca / 64 * uint64(i+1),
-			PrincipalBalance:  params.BeaconConfig().MaxEffectiveBalanceAlpaca / 64 * uint64(i+1),
+			PublicKey:        blsKey.PublicKey().Marshal(),
+			ExitEpoch:        params.BeaconConfig().FarFutureEpoch,
+			EffectiveBalance: params.BeaconConfig().MaxEffectiveBalanceAlpaca / 64 * uint64(i+1),
+			PrincipalBalance: params.BeaconConfig().MaxEffectiveBalanceAlpaca / 64 * uint64(i+1),
 		})
 		balances = append(balances, params.BeaconConfig().MaxEffectiveBalanceAlpaca/64*uint64(i+1))
 	}

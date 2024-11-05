@@ -38,11 +38,11 @@ func TestReadOnlyValidator_ActivationEpoch(t *testing.T) {
 	assert.Equal(t, epoch, v.ActivationEpoch())
 }
 
-func TestReadOnlyValidator_WithdrawableEpoch(t *testing.T) {
-	epoch := primitives.Epoch(234)
-	v, err := statenative.NewValidator(&ethpb.Validator{WithdrawableEpoch: epoch})
+func TestReadOnlyValidator_PrincipalBalance(t *testing.T) {
+	bal := uint64(234)
+	v, err := statenative.NewValidator(&ethpb.Validator{PrincipalBalance: bal})
 	require.NoError(t, err)
-	assert.Equal(t, epoch, v.WithdrawableEpoch())
+	assert.Equal(t, bal, v.PrincipalBalance())
 }
 
 func TestReadOnlyValidator_ExitEpoch(t *testing.T) {

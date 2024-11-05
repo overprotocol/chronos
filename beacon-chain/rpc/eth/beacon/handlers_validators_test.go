@@ -67,7 +67,6 @@ func TestGetValidators(t *testing.T) {
 		assert.Equal(t, "0", val.Validator.ActivationEligibilityEpoch)
 		assert.Equal(t, "0", val.Validator.ActivationEpoch)
 		assert.Equal(t, "18446744073709551615", val.Validator.ExitEpoch)
-		assert.Equal(t, "18446744073709551615", val.Validator.WithdrawableEpoch)
 	})
 	t.Run("get by index", func(t *testing.T) {
 		chainService := &chainMock.ChainService{}
@@ -420,24 +419,26 @@ func TestGetValidators_FilterByStatus(t *testing.T) {
 		{
 			ActivationEpoch:            farFutureEpoch,
 			ActivationEligibilityEpoch: farFutureEpoch,
+			ExitEpoch:                  farFutureEpoch,
 		},
-		// Pending queued.
+		// Pending queued. (active ongoing at 35)
 		{
 			ActivationEpoch:            10,
 			ActivationEligibilityEpoch: 4,
+			ExitEpoch:                  farFutureEpoch,
 		},
 		// Active ongoing.
 		{
 			ActivationEpoch: 0,
 			ExitEpoch:       farFutureEpoch,
 		},
-		// Active slashed.
+		// Active slashed. (Exited slashed at 35)
 		{
 			ActivationEpoch: 0,
 			ExitEpoch:       30,
 			Slashed:         true,
 		},
-		// Active exiting.
+		// Active exiting. (exited unslashed at 35)
 		{
 			ActivationEpoch: 3,
 			ExitEpoch:       30,
@@ -445,40 +446,37 @@ func TestGetValidators_FilterByStatus(t *testing.T) {
 		},
 		// Exited slashed (at epoch 35).
 		{
-			ActivationEpoch:   3,
-			ExitEpoch:         30,
-			WithdrawableEpoch: 40,
-			Slashed:           true,
+			ActivationEpoch: 3,
+			ExitEpoch:       30,
+			Slashed:         true,
 		},
 		// Exited unslashed (at epoch 35).
 		{
-			ActivationEpoch:   3,
-			ExitEpoch:         30,
-			WithdrawableEpoch: 40,
-			Slashed:           false,
+			ActivationEpoch: 3,
+			ExitEpoch:       30,
+			Slashed:         false,
 		},
-		// Withdrawable (at epoch 45).
+		// Withdrawable (at epoch 35).
 		{
-			ActivationEpoch:   3,
-			ExitEpoch:         30,
-			WithdrawableEpoch: 40,
-			EffectiveBalance:  params.BeaconConfig().MaxEffectiveBalance,
-			Slashed:           false,
+			ActivationEpoch:  3,
+			ExitEpoch:        25,
+			EffectiveBalance: params.BeaconConfig().MaxEffectiveBalance,
+			Slashed:          false,
 		},
-		// Withdrawal done (at epoch 45).
+		// Withdrawal done (at epoch 35).
 		{
-			ActivationEpoch:   3,
-			ExitEpoch:         30,
-			WithdrawableEpoch: 40,
-			EffectiveBalance:  0,
-			Slashed:           false,
+			ActivationEpoch:  3,
+			ExitEpoch:        25,
+			EffectiveBalance: 0,
+			Slashed:          false,
 		},
 	}
 	for _, val := range validators {
 		require.NoError(t, st.AppendValidator(val))
 		require.NoError(t, st.AppendBalance(params.BeaconConfig().MaxEffectiveBalance))
 	}
-
+	params.BeaconConfig().MinValidatorWithdrawabilityDelay = 10
+	params.BeaconConfig().MinSlashingWithdrawableDelay = 10
 	t.Run("active", func(t *testing.T) {
 		chainService := &chainMock.ChainService{}
 		s := Server{
@@ -593,7 +591,7 @@ func TestGetValidators_FilterByStatus(t *testing.T) {
 		assert.Equal(t, http.StatusOK, writer.Code)
 		resp := &structs.GetValidatorsResponse{}
 		require.NoError(t, json.Unmarshal(writer.Body.Bytes(), resp))
-		assert.Equal(t, 4, len(resp.Data))
+		assert.Equal(t, 3, len(resp.Data))
 		for _, vc := range resp.Data {
 			require.Equal(
 				t,
@@ -626,7 +624,7 @@ func TestGetValidators_FilterByStatus(t *testing.T) {
 		assert.Equal(t, http.StatusOK, writer.Code)
 		resp := &structs.GetValidatorsResponse{}
 		require.NoError(t, json.Unmarshal(writer.Body.Bytes(), resp))
-		assert.Equal(t, 2, len(resp.Data))
+		assert.Equal(t, 3, len(resp.Data))
 		for _, vc := range resp.Data {
 			require.Equal(
 				t,
@@ -673,7 +671,7 @@ func TestGetValidator(t *testing.T) {
 		assert.Equal(t, "0", resp.Data.Validator.ActivationEligibilityEpoch)
 		assert.Equal(t, "0", resp.Data.Validator.ActivationEpoch)
 		assert.Equal(t, "18446744073709551615", resp.Data.Validator.ExitEpoch)
-		assert.Equal(t, "18446744073709551615", resp.Data.Validator.WithdrawableEpoch)
+		//assert.Equal(t, "18446744073709551615", resp.Data.Validator.WithdrawableEpoch)
 	})
 	t.Run("get by pubkey", func(t *testing.T) {
 		chainService := &chainMock.ChainService{}

@@ -33,11 +33,11 @@ func setupValidProposerSlashing(t *testing.T) (*ethpb.ProposerSlashing, state.Be
 	validators := make([]*ethpb.Validator, 100)
 	for i := 0; i < len(validators); i++ {
 		validators[i] = &ethpb.Validator{
-			EffectiveBalance:  params.BeaconConfig().MaxEffectiveBalance,
-			Slashed:           false,
-			ExitEpoch:         params.BeaconConfig().FarFutureEpoch,
-			WithdrawableEpoch: params.BeaconConfig().FarFutureEpoch,
-			ActivationEpoch:   0,
+			EffectiveBalance: params.BeaconConfig().MaxEffectiveBalance,
+			Slashed:          false,
+			ExitEpoch:        params.BeaconConfig().FarFutureEpoch,
+			PrincipalBalance: params.BeaconConfig().MaxEffectiveBalance,
+			ActivationEpoch:  0,
 		}
 	}
 	validatorBalances := make([]uint64, len(validators))

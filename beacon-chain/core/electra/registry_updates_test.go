@@ -85,10 +85,9 @@ func TestProcessRegistryUpdates(t *testing.T) {
 				for i := uint64(0); i < 10; i++ {
 					principalBalance := params.BeaconConfig().MinActivationBalance
 					base.Validators = append(base.Validators, &eth.Validator{
-						EffectiveBalance:  params.BeaconConfig().MinActivationBalance,
-						ExitEpoch:         params.BeaconConfig().FarFutureEpoch,
-						WithdrawableEpoch: params.BeaconConfig().FarFutureEpoch,
-						PrincipalBalance:  principalBalance,
+						EffectiveBalance: params.BeaconConfig().MinActivationBalance,
+						ExitEpoch:        params.BeaconConfig().FarFutureEpoch,
+						PrincipalBalance: principalBalance,
 					})
 					bailoutBuffer := principalBalance * params.BeaconConfig().InactivityPenaltyRate / params.BeaconConfig().InactivityPenaltyRatePrecision
 					actualBalance := principalBalance - bailoutBuffer - 1
@@ -102,7 +101,6 @@ func TestProcessRegistryUpdates(t *testing.T) {
 				// All validators should be bailed out
 				for i, val := range st.Validators() {
 					require.NotEqual(t, params.BeaconConfig().FarFutureEpoch, val.ExitEpoch, "failed to update exit epoch on validator %d", i)
-					require.NotEqual(t, params.BeaconConfig().FarFutureEpoch, val.WithdrawableEpoch, "failed to update withdrawable epoch on validator %d", i)
 				}
 			},
 		},
@@ -118,10 +116,9 @@ func TestProcessRegistryUpdates(t *testing.T) {
 				for i := uint64(0); i < 10; i++ {
 					principalBalance := params.BeaconConfig().MinActivationBalance
 					base.Validators = append(base.Validators, &eth.Validator{
-						EffectiveBalance:  params.BeaconConfig().MinActivationBalance,
-						ExitEpoch:         params.BeaconConfig().FarFutureEpoch,
-						WithdrawableEpoch: params.BeaconConfig().FarFutureEpoch,
-						PrincipalBalance:  principalBalance,
+						EffectiveBalance: params.BeaconConfig().MinActivationBalance,
+						ExitEpoch:        params.BeaconConfig().FarFutureEpoch,
+						PrincipalBalance: principalBalance,
 					})
 					actualBalance := principalBalance
 					base.Balances = append(base.Balances, actualBalance)
@@ -136,7 +133,6 @@ func TestProcessRegistryUpdates(t *testing.T) {
 				// All validators should be bailed out
 				for i, val := range st.Validators() {
 					require.NotEqual(t, params.BeaconConfig().FarFutureEpoch, val.ExitEpoch, "failed to update exit epoch on validator %d", i)
-					require.NotEqual(t, params.BeaconConfig().FarFutureEpoch, val.WithdrawableEpoch, "failed to update withdrawable epoch on validator %d", i)
 				}
 			},
 		},
@@ -149,9 +145,8 @@ func TestProcessRegistryUpdates(t *testing.T) {
 				}
 				for i := uint64(0); i < 10; i++ {
 					base.Validators = append(base.Validators, &eth.Validator{
-						EffectiveBalance:  params.BeaconConfig().MinActivationBalance,
-						ExitEpoch:         10,
-						WithdrawableEpoch: 20,
+						EffectiveBalance: params.BeaconConfig().MinActivationBalance,
+						ExitEpoch:        10,
 					})
 				}
 				st, err := state_native.InitializeFromProtoElectra(base)
@@ -162,7 +157,6 @@ func TestProcessRegistryUpdates(t *testing.T) {
 				// All validators should be exited
 				for i, val := range st.Validators() {
 					require.NotEqual(t, params.BeaconConfig().FarFutureEpoch, val.ExitEpoch, "failed to update exit epoch on validator %d", i)
-					require.NotEqual(t, params.BeaconConfig().FarFutureEpoch, val.WithdrawableEpoch, "failed to update withdrawable epoch on validator %d", i)
 				}
 			},
 		},

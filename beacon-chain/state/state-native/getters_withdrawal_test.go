@@ -67,6 +67,8 @@ func TestNextWithdrawalValidatorIndex(t *testing.T) {
 func TestExpectedWithdrawals(t *testing.T) {
 	for _, stateVersion := range []int{version.Capella, version.Deneb, version.Electra} {
 		t.Run(version.String(stateVersion), func(t *testing.T) {
+			params.BeaconConfig().MinSlashingWithdrawableDelay = 0
+			params.BeaconConfig().MinValidatorWithdrawabilityDelay = 0
 			t.Run("no withdrawals", func(t *testing.T) {
 				s := state_native.EmptyStateFromVersion(t, stateVersion)
 				vals := make([]*ethpb.Validator, 100)
@@ -76,7 +78,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 					val := &ethpb.Validator{
 						WithdrawalCredentials: make([]byte, 32),
 						EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalance,
-						WithdrawableEpoch:     primitives.Epoch(1),
+						ExitEpoch:             primitives.Epoch(1),
 						PrincipalBalance:      params.BeaconConfig().MaxEffectiveBalance,
 					}
 					val.WithdrawalCredentials[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
@@ -99,14 +101,14 @@ func TestExpectedWithdrawals(t *testing.T) {
 					val := &ethpb.Validator{
 						WithdrawalCredentials: make([]byte, 32),
 						EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalance,
-						WithdrawableEpoch:     primitives.Epoch(1),
+						ExitEpoch:             primitives.Epoch(1),
 						PrincipalBalance:      params.BeaconConfig().MaxEffectiveBalance,
 					}
 					val.WithdrawalCredentials[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
 
 					vals[i] = val
 				}
-				vals[3].WithdrawableEpoch = primitives.Epoch(0)
+				vals[3].ExitEpoch = primitives.Epoch(0)
 				require.NoError(t, s.SetValidators(vals))
 				require.NoError(t, s.SetBalances(balances))
 
@@ -132,7 +134,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 					val := &ethpb.Validator{
 						WithdrawalCredentials: make([]byte, 32),
 						EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalance,
-						WithdrawableEpoch:     primitives.Epoch(1),
+						ExitEpoch:             primitives.Epoch(1),
 						PrincipalBalance:      params.BeaconConfig().MaxEffectiveBalance,
 					}
 					val.WithdrawalCredentials[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
@@ -162,7 +164,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 					val := &ethpb.Validator{
 						WithdrawalCredentials: make([]byte, 32),
 						EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalance,
-						WithdrawableEpoch:     primitives.Epoch(1),
+						ExitEpoch:             primitives.Epoch(1),
 						PrincipalBalance:      params.BeaconConfig().MaxEffectiveBalance,
 					}
 					val.WithdrawalCredentials[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
@@ -170,7 +172,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 					vals[i] = val
 				}
 				balances[3] += params.BeaconConfig().MinDepositAmount
-				vals[7].WithdrawableEpoch = primitives.Epoch(0)
+				vals[7].ExitEpoch = primitives.Epoch(0)
 				require.NoError(t, s.SetValidators(vals))
 				require.NoError(t, s.SetBalances(balances))
 				expected, _, _, err := s.ExpectedWithdrawals()
@@ -201,7 +203,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 					val := &ethpb.Validator{
 						WithdrawalCredentials: make([]byte, 32),
 						EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalance,
-						WithdrawableEpoch:     primitives.Epoch(1),
+						ExitEpoch:             primitives.Epoch(1),
 						PrincipalBalance:      params.BeaconConfig().MaxEffectiveBalance,
 					}
 					val.WithdrawalCredentials[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
@@ -230,7 +232,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 					val := &ethpb.Validator{
 						WithdrawalCredentials: make([]byte, 32),
 						EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalance,
-						WithdrawableEpoch:     primitives.Epoch(0),
+						ExitEpoch:             primitives.Epoch(0),
 						PrincipalBalance:      params.BeaconConfig().MaxEffectiveBalance,
 					}
 					val.WithdrawalCredentials[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
@@ -259,7 +261,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 					val := &ethpb.Validator{
 						WithdrawalCredentials: make([]byte, 32),
 						EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalance,
-						WithdrawableEpoch:     primitives.Epoch(0),
+						ExitEpoch:             primitives.Epoch(0),
 					}
 					val.WithdrawalCredentials[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
 					val.WithdrawalCredentials[31] = byte(i)
@@ -288,14 +290,14 @@ func TestExpectedWithdrawals(t *testing.T) {
 					val := &ethpb.Validator{
 						WithdrawalCredentials: make([]byte, 32),
 						EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalance,
-						WithdrawableEpoch:     primitives.Epoch(1),
+						ExitEpoch:             primitives.Epoch(1),
 						PrincipalBalance:      params.BeaconConfig().MaxEffectiveBalance,
 					}
 					val.WithdrawalCredentials[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
 					val.WithdrawalCredentials[31] = byte(i)
 					vals[i] = val
 				}
-				vals[3].WithdrawableEpoch = primitives.Epoch(0)
+				vals[3].ExitEpoch = primitives.Epoch(0)
 				balances[3] = 0
 				require.NoError(t, s.SetValidators(vals))
 				require.NoError(t, s.SetBalances(balances))
@@ -313,7 +315,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 					val := &ethpb.Validator{
 						WithdrawalCredentials: make([]byte, 32),
 						EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalance,
-						WithdrawableEpoch:     primitives.Epoch(1),
+						ExitEpoch:             primitives.Epoch(1),
 						PrincipalBalance:      params.BeaconConfig().MaxEffectiveBalance,
 					}
 					val.WithdrawalCredentials[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte

@@ -337,7 +337,7 @@ func validator() *ethpb.Validator {
 		ActivationEligibilityEpoch: 123,
 		ActivationEpoch:            123,
 		ExitEpoch:                  123,
-		WithdrawableEpoch:          123,
+		PrincipalBalance:           123,
 	}
 }
 

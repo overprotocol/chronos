@@ -24,14 +24,12 @@ func TestGetValidatorCount(t *testing.T) {
 			ActivationEpoch:            farFutureEpoch,
 			ActivationEligibilityEpoch: farFutureEpoch,
 			ExitEpoch:                  farFutureEpoch,
-			WithdrawableEpoch:          farFutureEpoch,
 		},
 		// Pending queued.
 		{
 			ActivationEpoch:            10,
 			ActivationEligibilityEpoch: 4,
 			ExitEpoch:                  farFutureEpoch,
-			WithdrawableEpoch:          farFutureEpoch,
 		},
 		// Active ongoing.
 		{
@@ -40,47 +38,41 @@ func TestGetValidatorCount(t *testing.T) {
 		},
 		// Active slashed.
 		{
-			ActivationEpoch:   0,
-			ExitEpoch:         30,
-			Slashed:           true,
-			WithdrawableEpoch: 50,
+			ActivationEpoch: 0,
+			ExitEpoch:       30,
+			Slashed:         true,
 		},
 		// Active exiting.
 		{
-			ActivationEpoch:   0,
-			ExitEpoch:         30,
-			Slashed:           false,
-			WithdrawableEpoch: 50,
+			ActivationEpoch: 0,
+			ExitEpoch:       30,
+			Slashed:         false,
 		},
 		// Exit slashed (at epoch 35).
 		{
-			ActivationEpoch:   3,
-			ExitEpoch:         30,
-			WithdrawableEpoch: 50,
-			Slashed:           true,
+			ActivationEpoch: 3,
+			ExitEpoch:       30,
+			Slashed:         true,
 		},
 		// Exit unslashed (at epoch 35).
 		{
-			ActivationEpoch:   3,
-			ExitEpoch:         30,
-			WithdrawableEpoch: 50,
-			Slashed:           false,
+			ActivationEpoch: 3,
+			ExitEpoch:       30,
+			Slashed:         false,
 		},
 		// Withdrawable (at epoch 45).
 		{
-			ActivationEpoch:   3,
-			ExitEpoch:         30,
-			WithdrawableEpoch: 40,
-			EffectiveBalance:  params.BeaconConfig().MaxEffectiveBalance,
-			Slashed:           false,
+			ActivationEpoch:  3,
+			ExitEpoch:        25,
+			EffectiveBalance: params.BeaconConfig().MaxEffectiveBalance,
+			Slashed:          false,
 		},
 		// Withdrawal done (at epoch 45).
 		{
-			ActivationEpoch:   3,
-			ExitEpoch:         30,
-			WithdrawableEpoch: 40,
-			EffectiveBalance:  0,
-			Slashed:           false,
+			ActivationEpoch:  3,
+			ExitEpoch:        25,
+			EffectiveBalance: 0,
+			Slashed:          false,
 		},
 	}
 	for _, v := range validators {
@@ -281,6 +273,8 @@ func TestGetValidatorCount(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			params.BeaconConfig().MinValidatorWithdrawabilityDelay = 20
+			params.BeaconConfig().MinSlashingWithdrawableDelay = 20
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 

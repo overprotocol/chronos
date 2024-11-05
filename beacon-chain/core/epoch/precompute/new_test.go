@@ -14,6 +14,8 @@ import (
 
 func TestNew(t *testing.T) {
 	ffe := params.BeaconConfig().FarFutureEpoch
+	params.BeaconConfig().MinSlashingWithdrawableDelay = 2
+	params.BeaconConfig().MinValidatorWithdrawabilityDelay = 1
 	s, err := state_native.InitializeFromProtoPhase0(&ethpb.BeaconState{
 		Slot: params.BeaconConfig().SlotsPerEpoch,
 		// Validator 0 is slashed
@@ -21,10 +23,10 @@ func TestNew(t *testing.T) {
 		// Validator 2 is active prev epoch and current epoch
 		// Validator 3 is active prev epoch
 		Validators: []*ethpb.Validator{
-			{Slashed: true, WithdrawableEpoch: ffe, EffectiveBalance: 100},
-			{EffectiveBalance: 100},
-			{WithdrawableEpoch: ffe, ExitEpoch: ffe, EffectiveBalance: 100},
-			{WithdrawableEpoch: ffe, ExitEpoch: 1, EffectiveBalance: 100},
+			{Slashed: true, ExitEpoch: 0, EffectiveBalance: 100},
+			{ExitEpoch: 0, EffectiveBalance: 100},
+			{ExitEpoch: ffe, EffectiveBalance: 100},
+			{ExitEpoch: 1, EffectiveBalance: 100},
 		},
 	})
 	require.NoError(t, err)

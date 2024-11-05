@@ -571,7 +571,6 @@ func TestSubmitSignedBLSToExecutionChanges_Ok(t *testing.T) {
 	for i := range validators {
 		v := &ethpbv1alpha1.Validator{}
 		v.EffectiveBalance = maxEffectiveBalance
-		v.WithdrawableEpoch = params.BeaconConfig().FarFutureEpoch
 		v.WithdrawalCredentials = make([]byte, 32)
 		priv, err := bls.RandKey()
 		require.NoError(t, err)
@@ -669,7 +668,6 @@ func TestSubmitSignedBLSToExecutionChanges_Bellatrix(t *testing.T) {
 	for i := range validators {
 		v := &ethpbv1alpha1.Validator{}
 		v.EffectiveBalance = maxEffectiveBalance
-		v.WithdrawableEpoch = params.BeaconConfig().FarFutureEpoch
 		v.WithdrawalCredentials = make([]byte, 32)
 		priv, err := bls.RandKey()
 		require.NoError(t, err)
@@ -783,7 +781,6 @@ func TestSubmitSignedBLSToExecutionChanges_Failures(t *testing.T) {
 	for i := range validators {
 		v := &ethpbv1alpha1.Validator{}
 		v.EffectiveBalance = maxEffectiveBalance
-		v.WithdrawableEpoch = params.BeaconConfig().FarFutureEpoch
 		v.WithdrawalCredentials = make([]byte, 32)
 		priv, err := bls.RandKey()
 		require.NoError(t, err)
