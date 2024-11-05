@@ -282,7 +282,7 @@ type WriteOnlyInactivity interface {
 
 type WriteOnlyWithdrawals interface {
 	AppendPendingPartialWithdrawal(ppw *ethpb.PendingPartialWithdrawal) error
-	DequeuePartialWithdrawals(num uint64) error
+	DequeuePendingPartialWithdrawals(num uint64) error
 	SetNextWithdrawalIndex(i uint64) error
 	SetNextWithdrawalValidatorIndex(i primitives.ValidatorIndex) error
 }
