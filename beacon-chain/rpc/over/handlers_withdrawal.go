@@ -23,6 +23,10 @@ const (
 	pendingPartialWithdrawalResponseLimit = 100
 )
 
+// GetWithdrawalEstimation returns the estimated processing epoch for a validator's pending partial withdrawals.
+// Accepts a validator ID as either a validator index or a public key.
+// If there is no validator with the given ID, or if there are no pending partial withdrawals for the validator,
+// the response will return a 404 status(not found) code.
 func (s *Server) GetWithdrawalEstimation(w http.ResponseWriter, r *http.Request) {
 	ctx, span := trace.StartSpan(r.Context(), "over.GetDepositEstimation")
 	defer span.End()
