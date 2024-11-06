@@ -97,16 +97,6 @@ var ValidatorsVoteWithTheMajority = e2etypes.Evaluator{
 	Evaluation: validatorsVoteWithTheMajority,
 }
 
-type mismatch struct {
-	k [48]byte
-	e uint64
-	o uint64
-}
-
-func (m mismatch) String() string {
-	return fmt.Sprintf("(%#x:%d:%d)", m.k, m.e, m.o)
-}
-
 func verifyGraffitiInBlocks(_ *e2etypes.EvaluationContext, conns ...*grpc.ClientConn) error {
 	conn := conns[0]
 	client := ethpb.NewBeaconChainClient(conn)

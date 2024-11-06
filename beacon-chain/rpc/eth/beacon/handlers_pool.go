@@ -29,8 +29,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/time/slots"
 )
 
-const broadcastBLSChangesRateLimit = 128
-
 // ListAttestations retrieves attestations known by the node but
 // not necessarily incorporated into any block. Allows filtering by committee index or slot.
 func (s *Server) ListAttestations(w http.ResponseWriter, r *http.Request) {
