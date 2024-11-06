@@ -247,14 +247,6 @@ func (s *PremineGenesisConfig) keys() ([]bls.SecretKey, []bls.PublicKey, error) 
 	return prv, pub, nil
 }
 
-func emptyDepositRoot() ([32]byte, error) {
-	t, err := trie.NewTrie(params.BeaconConfig().DepositContractTreeDepth)
-	if err != nil {
-		return [32]byte{}, err
-	}
-	return t.HashTreeRoot()
-}
-
 func (s *PremineGenesisConfig) populate(g state.BeaconState) error {
 	if err := g.SetGenesisTime(s.GenesisTime); err != nil {
 		return err

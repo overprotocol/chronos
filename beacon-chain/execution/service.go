@@ -429,93 +429,10 @@ func (s *Service) handleETH1FollowDistance() {
 	}
 }
 
-func (s *Service) initPOWService() {
-	// Use a custom logger to only log errors
-	logCounter := 0
-	errorLogger := func(err error, msg string) {
-		if logCounter > logThreshold {
-			log.WithError(err).Error(msg)
-			logCounter = 0
-		}
-		logCounter++
-	}
-
-	// Run in a select loop to retry in the event of any failures.
-	for {
-		select {
-		case <-s.ctx.Done():
-			return
-		default:
-			ctx := s.ctx
-			header, err := s.HeaderByNumber(ctx, nil)
-			if err != nil {
-				err = errors.Wrap(err, "HeaderByNumber")
-				s.retryExecutionClientConnection(ctx, err)
-				errorLogger(err, "Unable to retrieve latest execution client header")
-				continue
-			}
-
-			s.latestEth1DataLock.Lock()
-			s.latestEth1Data.BlockHeight = header.Number.Uint64()
-			s.latestEth1Data.BlockHash = header.Hash.Bytes()
-			s.latestEth1Data.BlockTime = header.Time
-			s.latestEth1DataLock.Unlock()
-
-			if err := s.processPastLogs(ctx); err != nil {
-				err = errors.Wrap(err, "processPastLogs")
-				s.retryExecutionClientConnection(ctx, err)
-				errorLogger(
-					err,
-					"Unable to process past deposit contract logs, perhaps your execution client is not fully synced",
-				)
-				continue
-			}
-			// Cache eth1 headers from our voting period.
-			if err := s.cacheHeadersForEth1DataVote(ctx); err != nil {
-				err = errors.Wrap(err, "cacheHeadersForEth1DataVote")
-				s.retryExecutionClientConnection(ctx, err)
-				if errors.Is(err, errBlockTimeTooLate) {
-					log.WithError(err).Debug("Unable to cache headers for execution client votes")
-				} else {
-					errorLogger(err, "Unable to cache headers for execution client votes")
-				}
-				continue
-			}
-			// Handle edge case with embedded genesis state by fetching genesis header to determine
-			// its height.
-			if s.chainStartData.Chainstarted && s.chainStartData.GenesisBlock == 0 {
-				genHash := common.BytesToHash(s.chainStartData.Eth1Data.BlockHash)
-				genBlock := s.chainStartData.GenesisBlock
-				// In the event our provided chainstart data references a non-existent block hash,
-				// we assume the genesis block to be 0.
-				if genHash != [32]byte{} {
-					genHeader, err := s.HeaderByHash(ctx, genHash)
-					if err != nil {
-						err = errors.Wrapf(err, "HeaderByHash, hash=%#x", genHash)
-						s.retryExecutionClientConnection(ctx, err)
-						errorLogger(err, "Unable to retrieve proof-of-stake genesis block data")
-						continue
-					}
-					genBlock = genHeader.Number.Uint64()
-				}
-				s.chainStartData.GenesisBlock = genBlock
-				if err := s.savePowchainData(ctx); err != nil {
-					err = errors.Wrap(err, "savePowchainData")
-					s.retryExecutionClientConnection(ctx, err)
-					errorLogger(err, "Unable to save execution client data")
-					continue
-				}
-			}
-			return
-		}
-	}
-}
-
 // run subscribes to all the services for the eth1 chain.
 func (s *Service) run(done <-chan struct{}) {
 	s.runError = nil
 
-	s.initPOWService()
 	// Do not keep storing the finalized state as it is
 	// no longer of use.
 	s.removeStartupState()
@@ -579,21 +496,6 @@ func (s *Service) logTillChainStart(ctx context.Context) {
 	}
 
 	log.WithFields(fields).Info("Currently waiting for chainstart")
-}
-
-// cacheHeadersForEth1DataVote makes sure that voting for eth1data after startup utilizes cached headers
-// instead of making multiple RPC requests to the eth1 endpoint.
-func (s *Service) cacheHeadersForEth1DataVote(ctx context.Context) error {
-	// Find the end block to request from.
-	end, err := s.followedBlockHeight(ctx)
-	if err != nil {
-		return errors.Wrap(err, "followedBlockHeight")
-	}
-	start, err := s.determineEarliestVotingBlock(ctx, end)
-	if err != nil {
-		return errors.Wrapf(err, "determineEarliestVotingBlock=%d", end)
-	}
-	return s.cacheBlockHeaders(start, end)
 }
 
 // Caches block headers from the desired range.
