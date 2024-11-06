@@ -515,6 +515,7 @@ func (s *Service) initPOWService() {
 func (s *Service) run(done <-chan struct{}) {
 	s.runError = nil
 
+	s.initPOWService()
 	// Do not keep storing the finalized state as it is
 	// no longer of use.
 	s.removeStartupState()
