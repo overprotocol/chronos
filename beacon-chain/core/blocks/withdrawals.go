@@ -15,8 +15,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/runtime/version"
 )
 
-const executionToBLSPadding = 12
-
 // ProcessWithdrawals processes the validator withdrawals from the provided execution payload
 // into the beacon state.
 //

@@ -82,7 +82,6 @@ func ProcessDeposits(
 //	  signature=deposit.data.signature,
 //	 )
 func ProcessDeposit(beaconState state.BeaconState, deposit *ethpb.Deposit, allSignaturesVerified bool) (state.BeaconState, error) {
-
 	return ApplyDeposit(beaconState, deposit.Data, allSignaturesVerified)
 }
 
