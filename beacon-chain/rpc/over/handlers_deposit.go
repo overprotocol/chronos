@@ -92,8 +92,7 @@ func (s *Server) GetDepositEstimation(w http.ResponseWriter, r *http.Request) {
 	valIndex, found := st.ValidatorIndexByPubkey(bytesutil.ToBytes48(pubkey))
 
 	activeBalance := uint64(0)
-	pendingBalanceToBeActivated := map[primitives.Epoch]primitives.Gwei{} // epoch -> balance
-	expectedActivationEpoch := uint64(math.MaxUint64)                     // Default to max uint64
+	expectedActivationEpoch := params.BeaconConfig().FarFutureEpoch
 
 	// Iterate through validators to calculate expected activation epoch and active balance.
 	for i, val := range vals {
@@ -111,10 +110,8 @@ func (s *Server) GetDepositEstimation(w http.ResponseWriter, r *http.Request) {
 				estimatedActivationEligibilityEpoch := epoch + 1
 				estimatedEligibleEpochForActivation := estimatedActivationEligibilityEpoch + expectedFinalityDelay
 				_expectedActivationEpoch := helpers.ActivationExitEpoch(estimatedEligibleEpochForActivation)
-				// Pending balance will be capped at the churn limit, so adding will be safe from overflow.
-				pendingBalanceToBeActivated[_expectedActivationEpoch] += primitives.Gwei(val.EffectiveBalance())
 				if found && primitives.ValidatorIndex(i) == valIndex {
-					expectedActivationEpoch = uint64(_expectedActivationEpoch)
+					expectedActivationEpoch = _expectedActivationEpoch
 				}
 			}
 		case validator.PendingQueued:
@@ -125,10 +122,8 @@ func (s *Server) GetDepositEstimation(w http.ResponseWriter, r *http.Request) {
 			} else {
 				_expectedActivationEpoch = val.ActivationEpoch()
 			}
-			// Pending balance will be capped at the churn limit, so adding will be safe from overflow.
-			pendingBalanceToBeActivated[_expectedActivationEpoch] += primitives.Gwei(val.EffectiveBalance())
 			if found && primitives.ValidatorIndex(i) == valIndex {
-				expectedActivationEpoch = uint64(_expectedActivationEpoch)
+				expectedActivationEpoch = _expectedActivationEpoch
 			}
 		case validator.ActiveOngoing, validator.ActiveSlashed, validator.ActiveExiting:
 			activeBalance, err = math.Add64(activeBalance, val.EffectiveBalance())
@@ -153,12 +148,12 @@ func (s *Server) GetDepositEstimation(w http.ResponseWriter, r *http.Request) {
 		data.Validator = structs.ValidatorFromConsensus(val)
 		// If validator is already in the registry and ready to be activated,
 		// expectedActivationEpoch will be set to the epoch when the validator is assigned/expected to be activated.
-		if expectedActivationEpoch < math.MaxUint64 {
-			data.ExpectedActivationEpoch = expectedActivationEpoch
+		if expectedActivationEpoch < params.BeaconConfig().FarFutureEpoch {
+			data.ExpectedActivationEpoch = uint64(expectedActivationEpoch)
 		}
 	}
 
-	pdes, err := buildPendingDepositEstimations(st, pubkey, primitives.Gwei(activeBalance), pendingBalanceToBeActivated, !found /* initial */)
+	pdes, err := buildPendingDepositEstimations(st, pubkey, primitives.Gwei(activeBalance), !found /* initial */)
 	if err != nil {
 		httputil.WriteError(w, handleWrapError(err, "could not build pending deposit estimations", http.StatusBadRequest))
 		return
@@ -174,8 +169,7 @@ func (s *Server) GetDepositEstimation(w http.ResponseWriter, r *http.Request) {
 
 // buildPendingDepositEstimations iterates through the pending deposits and calculates the expected epoch.
 func buildPendingDepositEstimations(st state.BeaconState, pubkey []byte,
-	activeBalance primitives.Gwei, pendingBalanceToBeActivated map[primitives.Epoch]primitives.Gwei,
-	initial bool) ([]*structs.PendingDepositEstimationContainer, error) {
+	activeBalance primitives.Gwei, initial bool) ([]*structs.PendingDepositEstimationContainer, error) {
 	pdes := make([]*structs.PendingDepositEstimationContainer, 0)
 	pds, err := st.PendingDeposits()
 	if err != nil {
@@ -212,7 +206,6 @@ func buildPendingDepositEstimations(st state.BeaconState, pubkey []byte,
 		for pd.Slot > finalizedSlot {
 			currentEpoch += 1
 
-			activeBalance += pendingBalanceToBeActivated[currentEpoch]
 			availableForProcessing = helpers.ActivationBalanceChurnLimit(activeBalance)
 			finalizedSlot += params.BeaconConfig().SlotsPerEpoch
 
@@ -224,7 +217,6 @@ func buildPendingDepositEstimations(st state.BeaconState, pubkey []byte,
 		if nextDepositIndex >= params.BeaconConfig().MaxPendingDepositsPerEpoch {
 			currentEpoch += 1
 
-			activeBalance += pendingBalanceToBeActivated[currentEpoch]
 			availableForProcessing = helpers.ActivationBalanceChurnLimit(activeBalance)
 			finalizedSlot += params.BeaconConfig().SlotsPerEpoch
 
@@ -250,7 +242,6 @@ func buildPendingDepositEstimations(st state.BeaconState, pubkey []byte,
 			if isChurnLimitReached {
 				currentEpoch += 1
 
-				activeBalance += pendingBalanceToBeActivated[currentEpoch]
 				finalizedSlot += params.BeaconConfig().SlotsPerEpoch
 
 				depBalToConsume = availableForProcessing - primitives.Gwei(processedAmount)
@@ -282,7 +273,7 @@ func buildPendingDepositEstimations(st state.BeaconState, pubkey []byte,
 			}
 			if isValidatorExited {
 				// if the validator is already exited, it is hard to predict the expected epoch(postponed).
-				data.ExpectedEpoch = uint64(math.MaxUint64)
+				data.ExpectedEpoch = uint64(params.BeaconConfig().FarFutureEpoch)
 			} else {
 				data.ExpectedEpoch = uint64(currentEpoch)
 			}
