@@ -60,9 +60,4 @@ build --host_cxxopt=-std=c++20
 build:remote-cache --remote_cache=https://storage.googleapis.com/chronos-bazel-cache
 build:remote-cache --remote_download_minimal
 build:remote-cache --remote_build_event_upload=minimal
-build:remote-cache --remote_local_fallback
-build:remote-cache --experimental_remote_cache_async
-build:remote-cache --experimental_remote_merkle_tree_cache
-build:remote-cache --experimental_action_cache_store_output_metadata
-build:remote-cache --experimental_remote_cache_compression
 build:remote-cache --google_default_credentials
