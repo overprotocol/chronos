@@ -18,8 +18,6 @@ on:
         required: true
       GCP_WORKLOAD_IDENTITY_PROVIDER:
         required: true
-      GCP_REMOTE_CACHE_BUCKET:
-        required: true
 
 jobs:
   build-and-push-images:
@@ -63,9 +61,7 @@ jobs:
           bazel run \
             //cmd/beacon-chain:push_images \
             --config=release \
-            --remote_cache=https://storage.googleapis.com/${{ secrets.GCP_REMOTE_CACHE_BUCKET }}/ \
-            --remote_upload_local_results \
-            --google_default_credentials \
+            --config=remote-cache \
             -- \
             --tag=${{ steps.set-docker-tag.outputs.docker_tag }} \
             --repository=overfoundation/chronos-beacon-chain
@@ -76,9 +72,7 @@ jobs:
           bazel run \
             //cmd/validator:push_images \
             --config=release \
-            --remote_cache=https://storage.googleapis.com/${{ secrets.GCP_REMOTE_CACHE_BUCKET }}/ \
-            --remote_upload_local_results \
-            --google_default_credentials \
+            --config=remote-cache \
             -- \
             --tag=${{ steps.set-docker-tag.outputs.docker_tag }} \
             --repository=overfoundation/chronos-validator
@@ -90,9 +84,7 @@ jobs:
           bazel run \
             //cmd/beacon-chain:push_images \
             --config=release \
-            --remote_cache=https://storage.googleapis.com/${{ secrets.GCP_REMOTE_CACHE_BUCKET }}/ \
-            --remote_upload_local_results \
-            --google_default_credentials \
+            --config=remote-cache \
             -- \
             --tag=latest \
             --repository=overfoundation/chronos-beacon-chain
@@ -100,9 +92,7 @@ jobs:
           bazel run \
             //cmd/validator:push_images \
             --config=release \
-            --remote_cache=https://storage.googleapis.com/${{ secrets.GCP_REMOTE_CACHE_BUCKET }}/ \
-            --remote_upload_local_results \
-            --google_default_credentials \
+            --config=remote-cache \
             -- \
             --tag=latest \
             --repository=overfoundation/chronos-validator

@@ -42,7 +42,6 @@ jobs:
     secrets:
       GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
       GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-      GCP_REMOTE_CACHE_BUCKET: ${{ secrets.GCP_REMOTE_CACHE_BUCKET }}
 
   upload-aws:
     needs: [build, extract-version]
@@ -126,7 +125,6 @@ jobs:
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
       GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
       GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-      GCP_REMOTE_CACHE_BUCKET: ${{ secrets.GCP_REMOTE_CACHE_BUCKET }}
 
   create-release:
     needs: [build, extract-version]

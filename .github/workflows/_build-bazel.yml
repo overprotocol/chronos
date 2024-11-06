@@ -17,8 +17,6 @@ on:
         required: true
       GCP_WORKLOAD_IDENTITY_PROVIDER:
         required: true
-      GCP_REMOTE_CACHE_BUCKET:
-        required: true
 
 jobs:
   build-binaries:
@@ -51,9 +49,7 @@ jobs:
           bazel build \
             --config=release \
             --config=${{ inputs.build-type }} \
-            --remote_cache=https://storage.googleapis.com/${{ secrets.GCP_REMOTE_CACHE_BUCKET }}/ \
-            --remote_upload_local_results \
-            --google_default_credentials \
+            --config=remote-cache \
             //cmd/beacon-chain \
             //cmd/validator \
             //cmd/prysmctl \
