@@ -2,7 +2,6 @@ package execution
 
 import (
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/cache"
 	statefeed "github.com/prysmaticlabs/prysm/v5/beacon-chain/core/feed/state"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/db"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
@@ -57,14 +56,6 @@ func WithDepositContractAddress(addr common.Address) Option {
 func WithDatabase(database db.HeadAccessDatabase) Option {
 	return func(s *Service) error {
 		s.cfg.beaconDB = database
-		return nil
-	}
-}
-
-// WithDepositCache for caching deposits.
-func WithDepositCache(cache cache.DepositCache) Option {
-	return func(s *Service) error {
-		s.cfg.depositCache = cache
 		return nil
 	}
 }

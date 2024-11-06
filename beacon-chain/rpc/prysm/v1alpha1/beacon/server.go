@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/blockchain"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/cache"
 	blockfeed "github.com/prysmaticlabs/prysm/v5/beacon-chain/core/feed/block"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/feed/operation"
 	statefeed "github.com/prysmaticlabs/prysm/v5/beacon-chain/core/feed/state"
@@ -28,11 +27,9 @@ import (
 type Server struct {
 	BeaconDB                    db.ReadOnlyDatabase
 	Ctx                         context.Context
-	ChainStartFetcher           execution.ChainStartFetcher
 	HeadFetcher                 blockchain.HeadFetcher
 	CanonicalFetcher            blockchain.CanonicalFetcher
 	FinalizationFetcher         blockchain.FinalizationFetcher
-	DepositFetcher              cache.DepositFetcher
 	BlockFetcher                execution.POWBlockFetcher
 	GenesisTimeFetcher          blockchain.TimeFetcher
 	StateNotifier               statefeed.Notifier

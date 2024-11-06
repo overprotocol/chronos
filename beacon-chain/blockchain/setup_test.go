@@ -8,7 +8,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/async/event"
 	mock "github.com/prysmaticlabs/prysm/v5/beacon-chain/blockchain/testing"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/cache"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/cache/depositsnapshot"
 	statefeed "github.com/prysmaticlabs/prysm/v5/beacon-chain/core/feed/state"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/db"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/db/filesystem"
@@ -70,7 +69,6 @@ type testServiceRequirements struct {
 	cs      *startup.ClockSynchronizer
 	attPool attestations.Pool
 	attSrv  *attestations.Service
-	dc      *depositsnapshot.Cache
 }
 
 func minimalTestService(t *testing.T, opts ...Option) (*Service, *testServiceRequirements) {
@@ -84,8 +82,6 @@ func minimalTestService(t *testing.T, opts ...Option) (*Service, *testServiceReq
 	attPool := attestations.NewPool()
 	attSrv, err := attestations.NewService(ctx, &attestations.Config{Pool: attPool})
 	require.NoError(t, err)
-	dc, err := depositsnapshot.New()
-	require.NoError(t, err)
 	req := &testServiceRequirements{
 		ctx:     ctx,
 		db:      beaconDB,
@@ -95,7 +91,6 @@ func minimalTestService(t *testing.T, opts ...Option) (*Service, *testServiceReq
 		cs:      cs,
 		attPool: attPool,
 		attSrv:  attSrv,
-		dc:      dc,
 	}
 	defOpts := []Option{WithDatabase(req.db),
 		WithStateNotifier(req.notif),
@@ -104,7 +99,6 @@ func minimalTestService(t *testing.T, opts ...Option) (*Service, *testServiceReq
 		WithClockSynchronizer(req.cs),
 		WithAttestationPool(req.attPool),
 		WithAttestationService(req.attSrv),
-		WithDepositCache(dc),
 		WithTrackedValidatorsCache(cache.NewTrackedValidatorsCache()),
 		WithBlobStorage(filesystem.NewEphemeralBlobStorage(t)),
 		WithSyncChecker(mock.MockChecker{}),

@@ -9,9 +9,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/cache"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/db"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/execution"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
 	state_native "github.com/prysmaticlabs/prysm/v5/beacon-chain/state/state-native"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
@@ -22,8 +20,6 @@ import (
 )
 
 var _ runtime.Service = (*Service)(nil)
-var _ cache.FinalizedFetcher = (*Service)(nil)
-var _ execution.ChainStartFetcher = (*Service)(nil)
 
 // Service spins up an client interoperability service that handles responsibilities such
 // as kickstarting a genesis state for the beacon node from cli flags or a genesis.ssz file.
@@ -35,25 +31,6 @@ type Service struct {
 }
 
 // All of these methods are stubs as they are not used by a node running with deterministic-genesis.
-
-func (s *Service) AllDepositContainers(ctx context.Context) []*ethpb.DepositContainer {
-	log.Errorf("AllDepositContainers should not be called")
-	return nil
-}
-
-func (s *Service) InsertPendingDeposit(ctx context.Context, d *ethpb.Deposit, blockNum uint64, index int64, depositRoot [32]byte) {
-	log.Errorf("InsertPendingDeposit should not be called")
-}
-
-func (s *Service) PendingDeposits(ctx context.Context, untilBlk *big.Int) []*ethpb.Deposit {
-	log.Errorf("PendingDeposits should not be called")
-	return nil
-}
-
-func (s *Service) PendingContainers(ctx context.Context, untilBlk *big.Int) []*ethpb.DepositContainer {
-	log.Errorf("PendingContainers should not be called")
-	return nil
-}
 
 func (s *Service) PrunePendingDeposits(ctx context.Context, merkleTreeIndex int64) {
 	log.Errorf("PrunePendingDeposits should not be called")
@@ -69,7 +46,6 @@ type Config struct {
 	GenesisTime   uint64
 	NumValidators uint64
 	BeaconDB      db.HeadAccessDatabase
-	DepositCache  cache.DepositCache
 	GenesisPath   string
 }
 
@@ -175,16 +151,6 @@ func (_ *Service) DepositByPubkey(_ context.Context, _ []byte) (*ethpb.Deposit, 
 // DepositsNumberAndRootAtHeight mocks out the deposit cache functionality for interop.
 func (_ *Service) DepositsNumberAndRootAtHeight(_ context.Context, _ *big.Int) (uint64, [32]byte) {
 	return 0, [32]byte{}
-}
-
-// FinalizedDeposits mocks out the deposit cache functionality for interop.
-func (_ *Service) FinalizedDeposits(ctx context.Context) (cache.FinalizedDeposits, error) {
-	return nil, nil
-}
-
-// NonFinalizedDeposits mocks out the deposit cache functionality for interop.
-func (_ *Service) NonFinalizedDeposits(_ context.Context, _ int64, _ *big.Int) []*ethpb.Deposit {
-	return []*ethpb.Deposit{}
 }
 
 func (s *Service) saveGenesisState(ctx context.Context, genesisState state.BeaconState) error {

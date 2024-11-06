@@ -14,11 +14,7 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/async/event"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/blockchain/kzg"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/cache"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/feed"
 	statefeed "github.com/prysmaticlabs/prysm/v5/beacon-chain/core/feed/state"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
-	coreTime "github.com/prysmaticlabs/prysm/v5/beacon-chain/core/time"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/transition"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/db"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/db/filesystem"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/execution"
@@ -37,7 +33,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/blocks"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/interfaces"
 	"github.com/prysmaticlabs/prysm/v5/encoding/bytesutil"
-	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing/trace"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	prysmTime "github.com/prysmaticlabs/prysm/v5/time"
 	"github.com/prysmaticlabs/prysm/v5/time/slots"
@@ -69,9 +64,7 @@ type Service struct {
 // config options for the service.
 type config struct {
 	BeaconBlockBuf          int
-	ChainStartFetcher       execution.ChainStartFetcher
 	BeaconDB                db.HeadAccessDatabase
-	DepositCache            cache.DepositCache
 	PayloadIDCache          *cache.PayloadIDCache
 	TrackedValidatorsCache  *cache.TrackedValidatorsCache
 	AttPool                 attestations.Pool
@@ -200,11 +193,8 @@ func (s *Service) Start() {
 		if err := s.StartFromSavedState(saved); err != nil {
 			log.Fatal(err)
 		}
-	} else {
-		if err := s.startFromExecutionChain(); err != nil {
-			log.Fatal(err)
-		}
 	}
+
 	s.spawnProcessAttestationsRoutine()
 	go s.runLateBlockTasks()
 }
@@ -394,102 +384,6 @@ func (s *Service) initializeHeadFromDB(ctx context.Context) error {
 	}
 
 	return nil
-}
-
-func (s *Service) startFromExecutionChain() error {
-	log.Info("Waiting to reach the validator deposit threshold to start the beacon chain...")
-	if s.cfg.ChainStartFetcher == nil {
-		return errors.New("not configured execution chain")
-	}
-	go func() {
-		stateChannel := make(chan *feed.Event, 1)
-		stateSub := s.cfg.StateNotifier.StateFeed().Subscribe(stateChannel)
-		defer stateSub.Unsubscribe()
-		for {
-			select {
-			case e := <-stateChannel:
-				if e.Type == statefeed.ChainStarted {
-					data, ok := e.Data.(*statefeed.ChainStartedData)
-					if !ok {
-						log.Error("event data is not type *statefeed.ChainStartedData")
-						return
-					}
-					log.WithField("startTime", data.StartTime).Debug("Received chain start event")
-					s.onExecutionChainStart(s.ctx, data.StartTime)
-					return
-				}
-			case <-s.ctx.Done():
-				log.Debug("Context closed, exiting goroutine")
-				return
-			case err := <-stateSub.Err():
-				log.WithError(err).Error("Subscription to state forRoot failed")
-				return
-			}
-		}
-	}()
-
-	return nil
-}
-
-// onExecutionChainStart initializes a series of deposits from the ChainStart deposits in the eth1
-// deposit contract, initializes the beacon chain's state, and kicks off the beacon chain.
-func (s *Service) onExecutionChainStart(ctx context.Context, genesisTime time.Time) {
-	preGenesisState := s.cfg.ChainStartFetcher.PreGenesisState()
-	initializedState, err := s.initializeBeaconChain(ctx, genesisTime, preGenesisState, s.cfg.ChainStartFetcher.ChainStartEth1Data())
-	if err != nil {
-		log.WithError(err).Fatal("Could not initialize beacon chain")
-	}
-	// We start a counter to genesis, if needed.
-	gRoot, err := initializedState.HashTreeRoot(s.ctx)
-	if err != nil {
-		log.WithError(err).Fatal("Could not hash tree root genesis state")
-	}
-	go slots.CountdownToGenesis(ctx, genesisTime, uint64(initializedState.NumValidators()), gRoot)
-
-	vr := bytesutil.ToBytes32(initializedState.GenesisValidatorsRoot())
-	if err := s.clockSetter.SetClock(startup.NewClock(genesisTime, vr)); err != nil {
-		log.WithError(err).Fatal("failed to initialize blockchain service from execution start event")
-	}
-}
-
-// initializes the state and genesis block of the beacon chain to persistent storage
-// based on a genesis timestamp value obtained from the ChainStart event emitted
-// by the ETH1.0 Deposit Contract and the POWChain service of the node.
-func (s *Service) initializeBeaconChain(
-	ctx context.Context,
-	genesisTime time.Time,
-	preGenesisState state.BeaconState,
-	eth1data *ethpb.Eth1Data) (state.BeaconState, error) {
-	ctx, span := trace.StartSpan(ctx, "beacon-chain.Service.initializeBeaconChain")
-	defer span.End()
-	s.genesisTime = genesisTime
-	unixTime := uint64(genesisTime.Unix())
-
-	genesisState, err := transition.OptimizedGenesisBeaconState(unixTime, preGenesisState)
-	if err != nil {
-		return nil, errors.Wrap(err, "could not initialize genesis state")
-	}
-
-	if err := s.saveGenesisData(ctx, genesisState); err != nil {
-		return nil, errors.Wrap(err, "could not save genesis data")
-	}
-
-	log.Info("Initialized beacon chain genesis state")
-
-	// Clear out all pre-genesis data now that the state is initialized.
-	s.cfg.ChainStartFetcher.ClearPreGenesisData()
-
-	// Update committee shuffled indices for genesis epoch.
-	if err := helpers.UpdateCommitteeCache(ctx, genesisState, 0); err != nil {
-		return nil, err
-	}
-	if err := helpers.UpdateProposerIndicesInCache(ctx, genesisState, coreTime.CurrentEpoch(genesisState)); err != nil {
-		return nil, err
-	}
-
-	s.cfg.AttService.SetGenesisTime(genesisState.GenesisTime())
-
-	return genesisState, nil
 }
 
 // This gets called when beacon chain is first initialized to save genesis data (state, block, and more) in db.

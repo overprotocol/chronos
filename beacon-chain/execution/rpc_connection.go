@@ -11,7 +11,6 @@ import (
 	gethRPC "github.com/ethereum/go-ethereum/rpc"
 	"github.com/pkg/errors"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
-	contracts "github.com/prysmaticlabs/prysm/v5/contracts/deposit"
 	"github.com/prysmaticlabs/prysm/v5/io/logs"
 	"github.com/prysmaticlabs/prysm/v5/network"
 	"github.com/prysmaticlabs/prysm/v5/network/authorization"
@@ -26,13 +25,6 @@ func (s *Service) setupExecutionClientConnections(ctx context.Context, currEndpo
 	fetcher := ethclient.NewClient(client)
 	s.rpcClient = client
 	s.httpLogger = fetcher
-
-	depositContractCaller, err := contracts.NewDepositContractCaller(s.cfg.depositContractAddr, fetcher)
-	if err != nil {
-		client.Close()
-		return errors.Wrap(err, "could not initialize deposit contract caller")
-	}
-	s.depositContractCaller = depositContractCaller
 
 	// Ensure we have the correct chain and deposit IDs.
 	if err := ensureCorrectExecutionChain(ctx, fetcher); err != nil {
@@ -84,6 +76,24 @@ func (s *Service) pollConnectionStatus(ctx context.Context) {
 			return
 		}
 	}
+}
+
+func (s *Service) retryExecutionClientConnection(ctx context.Context, err error) {
+	s.runError = errors.Wrap(err, "retryExecutionClientConnection")
+	s.updateConnectedETH1(false)
+	// Back off for a while before redialing.
+	time.Sleep(backOffPeriod)
+	currClient := s.rpcClient
+	if err := s.setupExecutionClientConnections(ctx, s.cfg.currHttpEndpoint); err != nil {
+		s.runError = errors.Wrap(err, "setupExecutionClientConnections")
+		return
+	}
+	// Close previous client, if connection was successful.
+	if currClient != nil {
+		currClient.Close()
+	}
+	// Reset run error in the event of a successful connection.
+	s.runError = nil
 }
 
 // Initializes an RPC connection with authentication headers.

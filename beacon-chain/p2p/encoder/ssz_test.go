@@ -113,7 +113,7 @@ type BeaconBlocksByRangeRequestCreator struct{}
 type ENRForkIDCreator struct{}
 type MetaDataV1Creator struct{}
 type BlobSidecarsByRangeRequestCreator struct{}
-type DepositSnapshotCreator struct{}
+
 type ValidatorCreator struct{}
 
 func (AttestationCreator) Create() MarshalerProtoMessage        { return &ethpb.Attestation{} }
@@ -277,8 +277,8 @@ func (MetaDataV1Creator) Create() MarshalerProtoMessage { return &ethpb.MetaData
 func (BlobSidecarsByRangeRequestCreator) Create() MarshalerProtoMessage {
 	return &ethpb.BlobSidecarsByRangeRequest{}
 }
-func (DepositSnapshotCreator) Create() MarshalerProtoMessage { return &ethpb.DepositSnapshot{} }
-func (ValidatorCreator) Create() MarshalerProtoMessage       { return &ethpb.Validator{} }
+
+func (ValidatorCreator) Create() MarshalerProtoMessage { return &ethpb.Validator{} }
 
 var creators = []MarshalerProtoCreator{
 	AttestationCreator{},
@@ -361,7 +361,6 @@ var creators = []MarshalerProtoCreator{
 	ENRForkIDCreator{},
 	MetaDataV1Creator{},
 	BlobSidecarsByRangeRequestCreator{},
-	DepositSnapshotCreator{},
 	ValidatorCreator{},
 }
 

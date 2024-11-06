@@ -51,15 +51,6 @@ func New() *Chain {
 	}
 }
 
-// GenesisExecutionChainInfo --
-func (m *Chain) GenesisExecutionChainInfo() (uint64, *big.Int) {
-	blk := m.GenesisEth1Block
-	if blk == nil {
-		blk = big.NewInt(GenesisTime)
-	}
-	return uint64(GenesisTime), blk
-}
-
 // BlockExists --
 func (m *Chain) BlockExists(_ context.Context, hash common.Hash) (bool, *big.Int, error) {
 	// Reverse the map of heights by hash.

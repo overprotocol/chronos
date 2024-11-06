@@ -15,7 +15,6 @@ import (
 	ssz "github.com/prysmaticlabs/fastssz"
 	"github.com/prysmaticlabs/prysm/v5/api"
 	"github.com/prysmaticlabs/prysm/v5/api/server/structs"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/cache/depositsnapshot"
 	corehelpers "github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/transition"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/db/filters"
@@ -1402,47 +1401,6 @@ func (s *Server) GetGenesis(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 	httputil.WriteJson(w, resp)
-}
-
-// GetDepositSnapshot retrieves the EIP-4881 Deposit Tree Snapshot. Either a JSON or,
-// if the Accept header was added, bytes serialized by SSZ will be returned.
-func (s *Server) GetDepositSnapshot(w http.ResponseWriter, r *http.Request) {
-	ctx, span := trace.StartSpan(r.Context(), "beacon.GetDepositSnapshot")
-	defer span.End()
-
-	eth1data, err := s.BeaconDB.ExecutionChainData(ctx)
-	if err != nil {
-		httputil.HandleError(w, "Could not retrieve execution chain data: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-	if eth1data == nil {
-		httputil.HandleError(w, "Could not retrieve execution chain data: empty Eth1Data", http.StatusInternalServerError)
-		return
-	}
-	snapshot := eth1data.DepositSnapshot
-	if snapshot == nil || len(snapshot.Finalized) == 0 {
-		httputil.HandleError(w, "No finalized snapshot available", http.StatusNotFound)
-		return
-	}
-	if len(snapshot.Finalized) > depositsnapshot.DepositContractDepth {
-		httputil.HandleError(w, "Retrieved invalid deposit snapshot", http.StatusInternalServerError)
-		return
-	}
-	if httputil.RespondWithSsz(r) {
-		sszData, err := snapshot.MarshalSSZ()
-		if err != nil {
-			httputil.HandleError(w, "Could not marshal deposit snapshot into SSZ: "+err.Error(), http.StatusInternalServerError)
-			return
-		}
-		httputil.WriteSsz(w, sszData, "deposit_snapshot.ssz")
-		return
-	}
-	httputil.WriteJson(
-		w,
-		&structs.GetDepositSnapshotResponse{
-			Data: structs.DepositSnapshotFromConsensus(snapshot),
-		},
-	)
 }
 
 // Broadcast blob sidecars even if the block of the same slot has been imported.
