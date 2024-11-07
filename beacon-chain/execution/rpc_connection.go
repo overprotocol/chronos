@@ -78,24 +78,6 @@ func (s *Service) pollConnectionStatus(ctx context.Context) {
 	}
 }
 
-func (s *Service) retryExecutionClientConnection(ctx context.Context, err error) {
-	s.runError = errors.Wrap(err, "retryExecutionClientConnection")
-	s.updateConnectedETH1(false)
-	// Back off for a while before redialing.
-	time.Sleep(backOffPeriod)
-	currClient := s.rpcClient
-	if err := s.setupExecutionClientConnections(ctx, s.cfg.currHttpEndpoint); err != nil {
-		s.runError = errors.Wrap(err, "setupExecutionClientConnections")
-		return
-	}
-	// Close previous client, if connection was successful.
-	if currClient != nil {
-		currClient.Close()
-	}
-	// Reset run error in the event of a successful connection.
-	s.runError = nil
-}
-
 // Initializes an RPC connection with authentication headers.
 func (s *Service) newRPCClientWithAuth(ctx context.Context, endpoint network.Endpoint) (*gethRPC.Client, error) {
 	headers := http.Header{}
