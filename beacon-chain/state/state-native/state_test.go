@@ -43,7 +43,7 @@ func TestBeaconState_NoDeadlock_Phase0(t *testing.T) {
 		Validators: vals,
 	})
 	assert.NoError(t, err)
-	st, ok := newState.(*BeaconState)TestConfigGenesisValidatorRoot
+	st, ok := newState.(*BeaconState)
 	require.Equal(t, true, ok)
 
 	wg := new(sync.WaitGroup)
