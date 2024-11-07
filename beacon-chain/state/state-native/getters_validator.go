@@ -2,7 +2,6 @@ package state_native
 
 import (
 	"github.com/pkg/errors"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
 	"github.com/prysmaticlabs/prysm/v5/config/features"
 	fieldparams "github.com/prysmaticlabs/prysm/v5/config/fieldparams"
@@ -444,34 +443,6 @@ func (b *BeaconState) inactivityScoreAtIndex(idx primitives.ValidatorIndex) (uin
 		return 0, errors.Wrapf(consensus_types.ErrOutOfBounds, "inactity score index %d does not exist", idx)
 	}
 	return b.inactivityScores[idx], nil
-}
-
-// ActiveBalanceAtIndex returns the active balance for the given validator.
-//
-// Spec definition:
-//
-//	def get_active_balance(state: BeaconState, validator_index: ValidatorIndex) -> Gwei:
-//	    max_effective_balance = get_validator_max_effective_balance(state.validators[validator_index])
-//	    return min(state.balances[validator_index], max_effective_balance)
-func (b *BeaconState) ActiveBalanceAtIndex(i primitives.ValidatorIndex) (uint64, error) {
-	if b.version < version.Electra {
-		return 0, errNotSupported("ActiveBalanceAtIndex", b.version)
-	}
-
-	b.lock.RLock()
-	defer b.lock.RUnlock()
-
-	v, err := b.validatorAtIndex(i)
-	if err != nil {
-		return 0, err
-	}
-
-	bal, err := b.balanceAtIndex(i)
-	if err != nil {
-		return 0, err
-	}
-
-	return min(bal, helpers.ValidatorMaxEffectiveBalance(v)), nil
 }
 
 // PendingBalanceToWithdraw returns the sum of all pending withdrawals for the given validator.

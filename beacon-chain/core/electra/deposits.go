@@ -434,8 +434,7 @@ func GetValidatorFromDeposit(pubKey []byte, withdrawalCredentials []byte, amount
 		EffectiveBalance:           0,
 		PrincipalBalance:           0,
 	}
-	maxEffectiveBalance := helpers.ValidatorMaxEffectiveBalance(validator)
-	validator.EffectiveBalance = min(amount-(amount%params.BeaconConfig().EffectiveBalanceIncrement), maxEffectiveBalance)
+	validator.EffectiveBalance = min(amount-(amount%params.BeaconConfig().EffectiveBalanceIncrement), params.BeaconConfig().MaxEffectiveBalanceAlpaca)
 	validator.PrincipalBalance = amount
 	return validator
 }
