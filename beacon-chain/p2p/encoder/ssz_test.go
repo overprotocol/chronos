@@ -300,7 +300,6 @@ var creators = []MarshalerProtoCreator{
 	DepositCreator{},
 	VoluntaryExitCreator{},
 	SignedVoluntaryExitCreator{},
-	Eth1DataCreator{},
 	BeaconBlockHeaderCreator{},
 	SignedBeaconBlockHeaderCreator{},
 	IndexedAttestationCreator{},

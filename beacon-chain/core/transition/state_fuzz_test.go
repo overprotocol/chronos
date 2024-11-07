@@ -20,12 +20,11 @@ func TestGenesisBeaconState_1000(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		fuzzer.Fuzz(&deposits)
 		fuzzer.Fuzz(&genesisTime)
-		fuzzer.Fuzz(eth1Data)
 		gs, err := GenesisBeaconState(context.Background(), deposits, genesisTime)
 		if err != nil {
 			if gs != nil {
 				t.Fatalf("Genesis state should be nil on err. found: %v on error: %v for inputs deposit: %v "+
-					"genesis time: %v eth1data: %v", gs, err, deposits, genesisTime, eth1Data)
+					"genesis time: %v", gs, err, deposits, genesisTime)
 			}
 		}
 	}
@@ -41,13 +40,12 @@ func TestOptimizedGenesisBeaconState_1000(t *testing.T) {
 	require.NoError(t, err)
 	for i := 0; i < 1000; i++ {
 		fuzzer.Fuzz(&genesisTime)
-		fuzzer.Fuzz(eth1Data)
 		fuzzer.Fuzz(preState)
 		gs, err := OptimizedGenesisBeaconState(genesisTime, preState)
 		if err != nil {
 			if gs != nil {
 				t.Fatalf("Genesis state should be nil on err. found: %v on error: %v for inputs genesis time: %v "+
-					"pre state: %v eth1data: %v", gs, err, genesisTime, preState, eth1Data)
+					"pre state: %v", gs, err, genesisTime, preState)
 			}
 		}
 	}
