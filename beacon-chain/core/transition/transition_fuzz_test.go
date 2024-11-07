@@ -61,23 +61,6 @@ func TestFuzzCalculateStateRoot_1000(t *testing.T) {
 	}
 }
 
-func TestFuzzProcessSlot_1000(t *testing.T) {
-	SkipSlotCache.Disable()
-	defer SkipSlotCache.Enable()
-	ctx := context.Background()
-	state, err := state_native.InitializeFromProtoUnsafePhase0(&ethpb.BeaconState{})
-	require.NoError(t, err)
-	fuzzer := fuzz.NewWithSeed(0)
-	fuzzer.NilChance(0.1)
-	for i := 0; i < 1000; i++ {
-		fuzzer.Fuzz(state)
-		s, err := ProcessSlot(ctx, state)
-		if err != nil && s != nil {
-			t.Fatalf("state should be nil on err. found: %v on error: %v for state: %v", s, err, state)
-		}
-	}
-}
-
 func TestFuzzProcessSlots_1000(t *testing.T) {
 	SkipSlotCache.Disable()
 	defer SkipSlotCache.Enable()

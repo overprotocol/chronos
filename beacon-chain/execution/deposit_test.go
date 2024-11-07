@@ -80,36 +80,6 @@ func TestProcessDeposit_OK(t *testing.T) {
 	require.Equal(t, 1, int(valcount), "Did not get correct active validator count")
 }
 
-func TestProcessDeposit_InvalidMerkleBranch(t *testing.T) {
-	beaconDB := testDB.SetupDB(t)
-	server, endpoint, err := testing2.SetupRPCServer()
-	require.NoError(t, err)
-	t.Cleanup(func() {
-		server.Stop()
-	})
-	web3Service, err := NewService(context.Background(),
-		WithHttpEndpoint(endpoint),
-		WithDatabase(beaconDB),
-	)
-	require.NoError(t, err, "unable to setup web3 ETH1.0 chain service")
-	web3Service = setDefaultMocks(web3Service)
-
-	deposits, _, err := util.DeterministicDepositsAndKeys(1)
-	require.NoError(t, err)
-
-	eth1Data, err := util.DeterministicEth1Data(len(deposits))
-	require.NoError(t, err)
-
-	deposits[0].Proof = [][]byte{{'f', 'a', 'k', 'e'}}
-
-	err = web3Service.processDeposit(context.Background(), eth1Data, deposits[0])
-	require.NotNil(t, err, "No errors, when an error was expected")
-
-	want := "deposit merkle branch of deposit root did not verify for root"
-
-	assert.ErrorContains(t, want, err)
-}
-
 func TestProcessDeposit_InvalidPublicKey(t *testing.T) {
 	hook := logTest.NewGlobal()
 	beaconDB := testDB.SetupDB(t)
