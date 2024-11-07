@@ -15,7 +15,6 @@ syntax = "proto3";
 
 package ethereum.eth.v2;
 
-import "proto/eth/ext/options.proto";
 import "proto/eth/v2/beacon_block.proto";
 import "proto/eth/v2/version.proto";
 

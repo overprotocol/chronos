@@ -8,7 +8,6 @@ go_library(
         "generate_keys.go",
         "genesis.go",
         "premine-state.go",
-        "premined_genesis_state.go",
     ],
     importpath = "github.com/prysmaticlabs/prysm/v5/runtime/interop",
     visibility = ["//visibility:public"],

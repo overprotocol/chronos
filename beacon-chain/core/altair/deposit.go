@@ -13,7 +13,7 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/runtime/version"
 )
 
-// ProcessPreGenesisDeposits processes a deposit for the beacon state before chainstart.
+// // ProcessPreGenesisDeposits processes a deposit for the beacon state before chainstart.
 func ProcessPreGenesisDeposits(
 	ctx context.Context,
 	beaconState state.BeaconState,

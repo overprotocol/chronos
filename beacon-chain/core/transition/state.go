@@ -5,7 +5,6 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/altair"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
 	state_native "github.com/prysmaticlabs/prysm/v5/beacon-chain/state/state-native"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state/stateutil"
@@ -56,14 +55,8 @@ import (
 //	  return state
 //
 // This method differs from the spec so as to process deposits beforehand instead of the end of the function.
-func GenesisBeaconState(ctx context.Context, deposits []*ethpb.Deposit, genesisTime uint64, eth1Data *ethpb.Eth1Data) (state.BeaconState, error) {
+func GenesisBeaconState(ctx context.Context, deposits []*ethpb.Deposit, genesisTime uint64) (state.BeaconState, error) {
 	st, err := EmptyGenesisState()
-	if err != nil {
-		return nil, err
-	}
-
-	// Process initial deposits.
-	st, err = helpers.UpdateGenesisEth1Data(st, deposits, eth1Data)
 	if err != nil {
 		return nil, err
 	}
@@ -80,17 +73,13 @@ func GenesisBeaconState(ctx context.Context, deposits []*ethpb.Deposit, genesisT
 // are not represented in the deposit contract and are only found in the genesis state validator registry. In order
 // to ensure the deposit root and count match the empty deposit contract deployed in a testnet genesis block, the root
 // of an empty deposit trie is computed and used as Eth1Data.deposit_root, and the deposit count is set to 0.
-func PreminedGenesisBeaconState(ctx context.Context, deposits []*ethpb.Deposit, genesisTime uint64, eth1Data *ethpb.Eth1Data) (state.BeaconState, error) {
+func PreminedGenesisBeaconState(ctx context.Context, deposits []*ethpb.Deposit, genesisTime uint64) (state.BeaconState, error) {
 	st, err := EmptyGenesisState()
 	if err != nil {
 		return nil, err
 	}
 
 	// Process initial deposits.
-	st, err = helpers.UpdateGenesisEth1Data(st, deposits, eth1Data)
-	if err != nil {
-		return nil, err
-	}
 	st, err = altair.ProcessPreGenesisDeposits(ctx, st, deposits)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not process validator deposits")

@@ -58,8 +58,6 @@ func fieldConverters(field types.FieldIndex, indices []uint64, elements interfac
 	switch field {
 	case types.BlockRoots, types.StateRoots, types.RandaoMixes:
 		return convertRoots(indices, elements, convertAll)
-	case types.Eth1DataVotes:
-		return convertEth1DataVotes(indices, elements, convertAll)
 	case types.Validators:
 		return convertValidators(indices, elements, convertAll)
 	case types.PreviousEpochAttestations, types.CurrentEpochAttestations:
@@ -84,14 +82,6 @@ func convertRoots(indices []uint64, elements interface{}, convertAll bool) ([][3
 	default:
 		return nil, errors.Errorf("non-existent type provided %T", castedType)
 	}
-}
-
-func convertEth1DataVotes(indices []uint64, elements interface{}, convertAll bool) ([][32]byte, error) {
-	val, ok := elements.([]*ethpb.Eth1Data)
-	if !ok {
-		return nil, errors.Errorf("Wanted type of %T but got %T", []*ethpb.Eth1Data{}, elements)
-	}
-	return handleEth1DataSlice(val, indices, convertAll)
 }
 
 func convertValidators(indices []uint64, elements interface{}, convertAll bool) ([][32]byte, error) {
@@ -193,43 +183,43 @@ func handleValidatorMVSlice(mv multi_value_slice.MultiValueSliceComposite[*ethpb
 	return roots, nil
 }
 
-// handleEth1DataSlice processes a list of eth1data and indices into the appropriate roots.
-func handleEth1DataSlice(val []*ethpb.Eth1Data, indices []uint64, convertAll bool) ([][32]byte, error) {
-	length := len(indices)
-	if convertAll {
-		length = len(val)
-	}
-	roots := make([][32]byte, 0, length)
-	rootCreator := func(input *ethpb.Eth1Data) error {
-		newRoot, err := stateutil.Eth1DataRootWithHasher(input)
-		if err != nil {
-			return err
-		}
-		roots = append(roots, newRoot)
-		return nil
-	}
-	if convertAll {
-		for i := range val {
-			err := rootCreator(val[i])
-			if err != nil {
-				return nil, err
-			}
-		}
-		return roots, nil
-	}
-	if len(val) > 0 {
-		for _, idx := range indices {
-			if idx > uint64(len(val))-1 {
-				return nil, fmt.Errorf("index %d greater than number of items in eth1 data slice %d", idx, len(val))
-			}
-			err := rootCreator(val[idx])
-			if err != nil {
-				return nil, err
-			}
-		}
-	}
-	return roots, nil
-}
+//// handleEth1DataSlice processes a list of eth1data and indices into the appropriate roots.
+//func handleEth1DataSlice(val []*ethpb.Eth1Data, indices []uint64, convertAll bool) ([][32]byte, error) {
+//	length := len(indices)
+//	if convertAll {
+//		length = len(val)
+//	}
+//	roots := make([][32]byte, 0, length)
+//	rootCreator := func(input *ethpb.Eth1Data) error {
+//		newRoot, err := stateutil.Eth1DataRootWithHasher(input)
+//		if err != nil {
+//			return err
+//		}
+//		roots = append(roots, newRoot)
+//		return nil
+//	}
+//	if convertAll {
+//		for i := range val {
+//			err := rootCreator(val[i])
+//			if err != nil {
+//				return nil, err
+//			}
+//		}
+//		return roots, nil
+//	}
+//	if len(val) > 0 {
+//		for _, idx := range indices {
+//			if idx > uint64(len(val))-1 {
+//				return nil, fmt.Errorf("index %d greater than number of items in eth1 data slice %d", idx, len(val))
+//			}
+//			err := rootCreator(val[idx])
+//			if err != nil {
+//				return nil, err
+//			}
+//		}
+//	}
+//	return roots, nil
+//}
 
 // handlePendingAttestationSlice returns the root of a slice of pending attestations.
 func handlePendingAttestationSlice(val []*ethpb.PendingAttestation, indices []uint64, convertAll bool) ([][32]byte, error) {

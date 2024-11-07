@@ -7,7 +7,6 @@ import (
 	state_native "github.com/prysmaticlabs/prysm/v5/beacon-chain/state/state-native"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	enginev1 "github.com/prysmaticlabs/prysm/v5/proto/engine/v1"
-	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	"github.com/prysmaticlabs/prysm/v5/testing/require"
 )
 
@@ -28,12 +27,8 @@ func TestGenerateGenesisStateBellatrix(t *testing.T) {
 		BlockHash:     make([]byte, 32),
 		Transactions:  make([][]byte, 0),
 	}
-	e1d := &ethpb.Eth1Data{
-		DepositRoot:  make([]byte, 32),
-		DepositCount: 0,
-		BlockHash:    make([]byte, 32),
-	}
-	g, _, err := GenerateGenesisStateBellatrix(context.Background(), 0, params.BeaconConfig().MinGenesisActiveValidatorCount, ep, e1d)
+
+	g, _, err := GenerateGenesisStateBellatrix(context.Background(), 0, params.BeaconConfig().MinGenesisActiveValidatorCount, ep)
 	require.NoError(t, err)
 
 	st, err := state_native.InitializeFromProtoUnsafeBellatrix(g)

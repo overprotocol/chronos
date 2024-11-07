@@ -3781,12 +3781,12 @@ func TestServer_GetBlockHeader(t *testing.T) {
 		resp := &structs.GetBlockHeaderResponse{}
 		require.NoError(t, json.Unmarshal(writer.Body.Bytes(), resp))
 		assert.Equal(t, true, resp.Data.Canonical)
-		assert.Equal(t, "0xd7d92f6206707f2c9c4e7e82320617d5abac2b6461a65ea5bb1a154b5b5ea2fa", resp.Data.Root)
+		assert.Equal(t, "0xef43d93aa8e39b47ccad274e20fbbcbb1e57c3ce6049e58089a63f042418f1ba", resp.Data.Root)
 		assert.Equal(t, "0x736967000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", resp.Data.Header.Signature)
 		assert.Equal(t, "123", resp.Data.Header.Message.Slot)
 		assert.Equal(t, "0x706172656e74726f6f7400000000000000000000000000000000000000000000", resp.Data.Header.Message.ParentRoot)
 		assert.Equal(t, "123", resp.Data.Header.Message.ProposerIndex)
-		assert.Equal(t, "0xdd32cbaa01c6c0ef399b293f86884ce6a15b532d34682edb16a48fa70ea5bc79", resp.Data.Header.Message.BodyRoot)
+		assert.Equal(t, "0x76c439abbfaef47017168d33f64ace71d4f3ee7559faf3abc8c65a6180f47ed0", resp.Data.Header.Message.BodyRoot)
 		assert.Equal(t, "0x7374617465726f6f740000000000000000000000000000000000000000000000", resp.Data.Header.Message.StateRoot)
 	})
 	t.Run("missing block_id", func(t *testing.T) {

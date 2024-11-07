@@ -445,18 +445,6 @@ func (body *BeaconBlockBodyElectra) Copy() *BeaconBlockBodyElectra {
 }
 
 // Copy --
-func (data *Eth1Data) Copy() *Eth1Data {
-	if data == nil {
-		return nil
-	}
-	return &Eth1Data{
-		DepositRoot:  bytesutil.SafeCopyBytes(data.DepositRoot),
-		DepositCount: data.DepositCount,
-		BlockHash:    bytesutil.SafeCopyBytes(data.BlockHash),
-	}
-}
-
-// Copy --
 func (slashing *ProposerSlashing) Copy() *ProposerSlashing {
 	if slashing == nil {
 		return nil

@@ -4,9 +4,7 @@ go_library(
     name = "go_default_library",
     srcs = [
         "block_header_root.go",
-        "eth1_root.go",
         "field_root_attestation.go",
-        "field_root_eth1.go",
         "field_root_validator.go",
         "field_root_vector.go",
         "historical_summaries_root.go",

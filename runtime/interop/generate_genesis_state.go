@@ -53,18 +53,11 @@ func GenerateGenesisStateFromDepositData(
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "could not generate deposits from the deposit data provided")
 	}
-	root, err := t.HashTreeRoot()
-	if err != nil {
-		return nil, nil, errors.Wrap(err, "could not hash tree root of deposit trie")
-	}
+
 	if genesisTime == 0 {
 		genesisTime = uint64(time.Now().Unix())
 	}
-	beaconState, err := coreState.GenesisBeaconState(ctx, deposits, genesisTime, &ethpb.Eth1Data{
-		DepositRoot:  root[:],
-		DepositCount: uint64(len(deposits)),
-		BlockHash:    mockEth1BlockHash,
-	})
+	beaconState, err := coreState.GenesisBeaconState(ctx, deposits, genesisTime)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "could not generate genesis state")
 	}

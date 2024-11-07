@@ -17,7 +17,7 @@ import (
 
 // GenerateGenesisStateBellatrix deterministically given a genesis time and number of validators.
 // If a genesis time of 0 is supplied it is set to the current time.
-func GenerateGenesisStateBellatrix(ctx context.Context, genesisTime, numValidators uint64, ep *enginev1.ExecutionPayload, ed *ethpb.Eth1Data) (*ethpb.BeaconStateBellatrix, []*ethpb.Deposit, error) {
+func GenerateGenesisStateBellatrix(ctx context.Context, genesisTime, numValidators uint64, ep *enginev1.ExecutionPayload) (*ethpb.BeaconStateBellatrix, []*ethpb.Deposit, error) {
 	privKeys, pubKeys, err := DeterministicallyGenerateKeys(0 /*startIndex*/, numValidators)
 	if err != nil {
 		return nil, nil, errors.Wrapf(err, "could not deterministically generate keys for %d validators", numValidators)
@@ -26,13 +26,13 @@ func GenerateGenesisStateBellatrix(ctx context.Context, genesisTime, numValidato
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "could not generate deposit data from keys")
 	}
-	return GenerateGenesisStateBellatrixFromDepositData(ctx, genesisTime, depositDataItems, depositDataRoots, ep, ed)
+	return GenerateGenesisStateBellatrixFromDepositData(ctx, genesisTime, depositDataItems, depositDataRoots, ep)
 }
 
 // GenerateGenesisStateBellatrixFromDepositData creates a genesis state given a list of
 // deposit data items and their corresponding roots.
 func GenerateGenesisStateBellatrixFromDepositData(
-	ctx context.Context, genesisTime uint64, depositData []*ethpb.Deposit_Data, depositDataRoots [][]byte, ep *enginev1.ExecutionPayload, e1d *ethpb.Eth1Data,
+	ctx context.Context, genesisTime uint64, depositData []*ethpb.Deposit_Data, depositDataRoots [][]byte, ep *enginev1.ExecutionPayload,
 ) (*ethpb.BeaconStateBellatrix, []*ethpb.Deposit, error) {
 	t, err := trie.GenerateTrieFromItems(depositDataRoots, params.BeaconConfig().DepositContractTreeDepth)
 	if err != nil {
@@ -45,7 +45,7 @@ func GenerateGenesisStateBellatrixFromDepositData(
 	if genesisTime == 0 {
 		genesisTime = uint64(time.Now().Unix())
 	}
-	beaconState, err := coreState.GenesisBeaconStateBellatrix(ctx, deposits, genesisTime, e1d, ep)
+	beaconState, err := coreState.GenesisBeaconStateBellatrix(ctx, deposits, genesisTime, ep)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "could not generate genesis state")
 	}
