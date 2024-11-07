@@ -2,6 +2,7 @@ package electra_test
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/electra"
@@ -274,6 +275,42 @@ func TestProcessPendingDeposits(t *testing.T) {
 	}
 }
 
+func BenchmarkProcessPendingDeposits(b *testing.B) {
+	params.BeaconConfig().MaxPendingDepositsPerEpoch = 16
+	benchmarks := []struct {
+		name  string
+		state state.BeaconState
+	}{
+		{
+			name: "Benchmark with 100 validators",
+			state: func() state.BeaconState {
+				numDeposits := uint64(1000)
+				balETH := (params.BeaconConfig().MinActivationBalance * numDeposits) / 1_000_000_000
+				return stateWithPendingDeposits(b, balETH, numDeposits, 8_000_000)
+			}(),
+		},
+	}
+
+	for _, bm := range benchmarks {
+		b.Run(bm.name, func(b *testing.B) {
+			var tab uint64
+			var err error
+
+			if bm.state != nil {
+				tab, err = helpers.TotalActiveBalance(bm.state)
+				require.NoError(b, err)
+			}
+
+			b.ResetTimer()
+
+			for i := 0; i < b.N; i++ {
+				err = electra.ProcessPendingDeposits(context.TODO(), bm.state, primitives.Gwei(tab))
+				require.NoError(b, err)
+			}
+		})
+	}
+}
+
 func TestBatchProcessNewPendingDeposits(t *testing.T) {
 	t.Run("invalid batch initiates correct individual validation", func(t *testing.T) {
 		st := stateWithActiveBalanceETH(t, 0)
@@ -346,6 +383,45 @@ func TestProcessDepositRequests(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 1, len(pbd))
 	require.Equal(t, uint64(1000), pbd[0].Amount)
+}
+
+func BenchmarkProcessDepositRequests(b *testing.B) {
+	numRequestsList := []uint64{100, 200, 500, 1000, 2000, 5000}
+	for _, numRequests := range numRequestsList {
+		b.Run(fmt.Sprintf("Benchmark with %d deposit requests", numRequests), func(b *testing.B) {
+			state := stateWithActiveBalanceETH(b, uint64((params.BeaconConfig().MinActivationBalance*numRequests)/1_000_000_000))
+			requests := make([]*enginev1.DepositRequest, numRequests)
+			for i := 0; i < int(numRequests); i++ {
+				sk, err := bls.RandKey()
+				require.NoError(b, err)
+				withdrawalCred := make([]byte, 32)
+				withdrawalCred[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
+				depositMessage := &eth.DepositMessage{
+					PublicKey:             sk.PublicKey().Marshal(),
+					Amount:                1_000,
+					WithdrawalCredentials: withdrawalCred,
+				}
+				domain, err := signing.ComputeDomain(params.BeaconConfig().DomainDeposit, nil, nil)
+				require.NoError(b, err)
+				sr, err := signing.ComputeSigningRoot(depositMessage, domain)
+				require.NoError(b, err)
+				sig := sk.Sign(sr[:])
+				requests[i] = &enginev1.DepositRequest{
+					Pubkey:                depositMessage.PublicKey,
+					Index:                 uint64(i),
+					WithdrawalCredentials: depositMessage.WithdrawalCredentials,
+					Amount:                depositMessage.Amount,
+					Signature:             sig.Marshal(),
+				}
+			}
+
+			b.ResetTimer()
+			for i := 0; i < b.N; i++ {
+				_, err := electra.ProcessDepositRequests(context.TODO(), state, requests)
+				require.NoError(b, err)
+			}
+		})
+	}
 }
 
 func TestProcessDeposit_Electra_Simple(t *testing.T) {
@@ -454,7 +530,7 @@ func TestApplyDeposit_TopUps_WithBadSignature(t *testing.T) {
 }
 
 // stateWithActiveBalanceETH generates a mock beacon state given a balance in eth
-func stateWithActiveBalanceETH(t *testing.T, balETH uint64) state.BeaconState {
+func stateWithActiveBalanceETH(t testing.TB, balETH uint64) state.BeaconState {
 	gwei := balETH * 1_000_000_000
 	balPerVal := params.BeaconConfig().MinActivationBalance
 	numVals := gwei / balPerVal
@@ -492,7 +568,7 @@ func stateWithActiveBalanceETH(t *testing.T, balETH uint64) state.BeaconState {
 }
 
 // stateWithPendingDeposits with pending deposits and existing ethbalance
-func stateWithPendingDeposits(t *testing.T, balETH uint64, numDeposits, amount uint64) state.BeaconState {
+func stateWithPendingDeposits(t testing.TB, balETH uint64, numDeposits, amount uint64) state.BeaconState {
 	st := stateWithActiveBalanceETH(t, balETH)
 	deps := make([]*eth.PendingDeposit, numDeposits)
 	validators := st.Validators()
