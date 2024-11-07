@@ -228,7 +228,6 @@ func ProcessBlockNoVerifyAnySig(
 //	    for_ops(body.proposer_slashings, process_proposer_slashing)
 //	    for_ops(body.attester_slashings, process_attester_slashing)
 //	    for_ops(body.attestations, process_attestation)  # [Modified in Electra:EIP7549]
-//	    for_ops(body.deposits, process_deposit)  # [Modified in Electra:EIP7251]
 //	    for_ops(body.voluntary_exits, process_voluntary_exit)  # [Modified in Electra:EIP7251]
 //	    # [New in Electra:EIP7002:EIP7251]
 //	    for_ops(body.execution_payload.withdrawal_requests, process_execution_layer_withdrawal_request)
@@ -278,9 +277,7 @@ func ProcessOperationsNoVerifyAttsSigs(
 //	if is_execution_enabled(state, block.body):
 //	    process_execution_payload(state, block.body.execution_payload, EXECUTION_ENGINE)  # [New in Bellatrix]
 //	process_randao(state, block.body)
-//	process_eth1_data(state, block.body)
 //	process_operations(state, block.body)
-//	process_sync_aggregate(state, block.body.sync_aggregate)
 func ProcessBlockForStateRoot(
 	ctx context.Context,
 	state state.BeaconState,

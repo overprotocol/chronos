@@ -14,8 +14,8 @@ import (
 const (
 	bodyLength    = 9  // The number of elements in the BeaconBlockBody Container for Electra
 	logBodyLength = 4  // The log 2 of bodyLength
-	kzgPosition   = 8  // The index of the KZG commitment list in the Body
-	kzgRootIndex  = 52 // The Merkle index of the KZG commitment list's root in the Body's Merkle tree
+	kzgPosition   = 7  // The index of the KZG commitment list in the Body
+	kzgRootIndex  = 30 // The Merkle index of the KZG commitment list's root in the Body's Merkle tree
 	KZGOffset     = kzgRootIndex * field_params.MaxBlobCommitmentsPerBlock
 )
 
@@ -190,7 +190,7 @@ func topLevelRoots(body interfaces.ReadOnlyBeaconBlockBody) ([][]byte, error) {
 	}
 	copy(layer[6], root[:])
 
-	// KZG commitments is not needed. skip index 10
+	// KZG commitments is not needed. skip index 7
 
 	// Execution requests
 	if body.Version() >= version.Electra {

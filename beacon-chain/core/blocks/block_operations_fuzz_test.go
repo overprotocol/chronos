@@ -76,19 +76,6 @@ func TestFuzzverifyDepositDataSigningRoot_10000(_ *testing.T) {
 	}
 }
 
-func TestFuzzareEth1DataEqual_10000(_ *testing.T) {
-	fuzzer := fuzz.NewWithSeed(0)
-	eth1data := &ethpb.Eth1Data{}
-	eth1data2 := &ethpb.Eth1Data{}
-
-	for i := 0; i < 10000; i++ {
-		fuzzer.Fuzz(eth1data)
-		fuzzer.Fuzz(eth1data2)
-		AreEth1DataEqual(eth1data, eth1data2)
-		AreEth1DataEqual(eth1data, eth1data)
-	}
-}
-
 func TestFuzzProcessBlockHeaderNoVerify_10000(t *testing.T) {
 	fuzzer := fuzz.NewWithSeed(0)
 	state := &ethpb.BeaconState{}
