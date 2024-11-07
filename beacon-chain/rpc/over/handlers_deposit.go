@@ -87,12 +87,6 @@ func (s *Server) GetDepositEstimation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	activeBalance, err := helpers.TotalActiveBalance(st)
-	if err != nil {
-		httputil.WriteError(w, handleWrapError(err, "could not get total active balance", http.StatusInternalServerError))
-		return
-	}
-
 	epoch := slots.ToEpoch(st.Slot())
 	valIndex, found := st.ValidatorIndexByPubkey(bytesutil.ToBytes48(pubkey))
 
@@ -135,8 +129,7 @@ func (s *Server) GetDepositEstimation(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	balanceChurnLimit := helpers.ActivationBalanceChurnLimit(primitives.Gwei(activeBalance))
-	pdes, err := buildPendingDepositEstimations(st, pubkey, balanceChurnLimit, !found /* initial */)
+	pdes, err := buildPendingDepositEstimations(st, pubkey, !found /* initial */)
 	if err != nil {
 		httputil.WriteError(w, handleWrapError(err, "could not build pending deposit estimations", http.StatusBadRequest))
 		return
@@ -151,8 +144,13 @@ func (s *Server) GetDepositEstimation(w http.ResponseWriter, r *http.Request) {
 }
 
 // buildPendingDepositEstimations iterates through the pending deposits and calculates the expected epoch.
-func buildPendingDepositEstimations(st state.BeaconState, pubkey []byte,
-	balanceChurnLimit primitives.Gwei, initial bool) ([]*structs.PendingDepositEstimationContainer, error) {
+func buildPendingDepositEstimations(st state.BeaconState, pubkey []byte, initial bool) ([]*structs.PendingDepositEstimationContainer, error) {
+	activeBalance, err := helpers.TotalActiveBalance(st)
+	if err != nil {
+		return nil, errors.Wrap(err, "could not get total active balance")
+	}
+	balanceChurnLimit := helpers.ActivationBalanceChurnLimit(primitives.Gwei(activeBalance))
+
 	pdes := make([]*structs.PendingDepositEstimationContainer, 0)
 	pds, err := st.PendingDeposits()
 	if err != nil {
