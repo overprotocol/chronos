@@ -473,6 +473,9 @@ func ProcessDepositRequests(ctx context.Context, beaconState state.BeaconState, 
 //	    )
 //	)
 func processDepositRequest(beaconState state.BeaconState, request *enginev1.DepositRequest) (state.BeaconState, error) {
+	if request == nil {
+		return nil, errors.New("nil deposit request")
+	}
 	if err := beaconState.AppendPendingDeposit(&ethpb.PendingDeposit{
 		PublicKey:             bytesutil.SafeCopyBytes(request.Pubkey),
 		Amount:                request.Amount,
