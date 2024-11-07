@@ -25,7 +25,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/blockchain"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/builder"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/cache"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/cache/depositsnapshot"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/db"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/db/filesystem"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/db/kv"
@@ -96,7 +95,6 @@ type BeaconNode struct {
 	attestationPool         attestations.Pool
 	exitPool                voluntaryexits.PoolManager
 	slashingsPool           slashings.PoolManager
-	depositCache            cache.DepositCache
 	trackedValidatorsCache  *cache.TrackedValidatorsCache
 	payloadIDCache          *cache.PayloadIDCache
 	stateFeed               *event.Feed
@@ -517,8 +515,6 @@ func (b *BeaconNode) checkAndSaveDepositContract(depositAddress string) error {
 }
 
 func (b *BeaconNode) startDB(cliCtx *cli.Context, depositAddress string) error {
-	var depositCache cache.DepositCache
-
 	baseDir := cliCtx.String(cmd.DataDirFlag.Name)
 	dbPath := filepath.Join(baseDir, kv.BeaconNodeDbDirName)
 	clearDBRequired := cliCtx.Bool(cmd.ClearDB.Name)
@@ -543,13 +539,6 @@ func (b *BeaconNode) startDB(cliCtx *cli.Context, depositAddress string) error {
 	}
 
 	b.db = d
-
-	depositCache, err = depositsnapshot.New()
-	if err != nil {
-		return errors.Wrap(err, "could not create deposit cache")
-	}
-
-	b.depositCache = depositCache
 
 	if b.GenesisInitializer != nil {
 		if err := b.GenesisInitializer.Initialize(b.ctx, d); err != nil {
@@ -754,8 +743,6 @@ func (b *BeaconNode) registerBlockchainService(fc forkchoice.ForkChoicer, gs *st
 		b.serviceFlagOpts.blockchainFlagOpts,
 		blockchain.WithForkChoiceStore(fc),
 		blockchain.WithDatabase(b.db),
-		blockchain.WithDepositCache(b.depositCache),
-		blockchain.WithChainStartFetcher(web3Service),
 		blockchain.WithExecutionEngineCaller(web3Service),
 		blockchain.WithAttestationPool(b.attestationPool),
 		blockchain.WithExitPool(b.exitPool),
@@ -799,7 +786,6 @@ func (b *BeaconNode) registerPOWChainService() error {
 		b.serviceFlagOpts.executionChainFlagOpts,
 		execution.WithDepositContractAddress(common.HexToAddress(depositContractAddr)),
 		execution.WithDatabase(b.db),
-		execution.WithDepositCache(b.depositCache),
 		execution.WithStateNotifier(b),
 		execution.WithStateGen(b.stateGen),
 		execution.WithBeaconNodeStatsUpdater(bs),
@@ -933,21 +919,6 @@ func (b *BeaconNode) registerRPCService(router *http.ServeMux) error {
 		}
 	}
 
-	genesisValidators := b.cliCtx.Uint64(flags.InteropNumValidatorsFlag.Name)
-	var depositFetcher cache.DepositFetcher
-	var chainStartFetcher execution.ChainStartFetcher
-	if genesisValidators > 0 {
-		var interopService *interopcoldstart.Service
-		if err := b.services.FetchService(&interopService); err != nil {
-			return err
-		}
-		depositFetcher = interopService
-		chainStartFetcher = interopService
-	} else {
-		depositFetcher = b.depositCache
-		chainStartFetcher = web3Service
-	}
-
 	host := b.cliCtx.String(flags.RPCHost.Name)
 	port := b.cliCtx.String(flags.RPCPort.Name)
 	beaconMonitoringHost := b.cliCtx.String(cmd.MonitoringHostFlag.Name)
@@ -997,11 +968,8 @@ func (b *BeaconNode) registerRPCService(router *http.ServeMux) error {
 		SlashingsPool:                 b.slashingsPool,
 		ExecutionChainService:         web3Service,
 		ExecutionChainInfoFetcher:     web3Service,
-		ChainStartFetcher:             chainStartFetcher,
 		MockEth1Votes:                 mockEth1DataVotes,
 		SyncService:                   syncService,
-		DepositFetcher:                depositFetcher,
-		PendingDepositFetcher:         b.depositCache,
 		BlockNotifier:                 b,
 		StateNotifier:                 b,
 		OperationNotifier:             b,
@@ -1084,7 +1052,6 @@ func (b *BeaconNode) registerDeterministicGenesisService() error {
 			GenesisTime:   genesisTime,
 			NumValidators: genesisValidators,
 			BeaconDB:      b.db,
-			DepositCache:  b.depositCache,
 		})
 		svc.Start()
 

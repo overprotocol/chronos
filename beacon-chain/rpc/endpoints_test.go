@@ -36,7 +36,6 @@ func Test_endpoints(t *testing.T) {
 		"/eth/v1/beacon/blocks/{block_id}/attestations":              {http.MethodGet},
 		"/eth/v2/beacon/blocks/{block_id}/attestations":              {http.MethodGet},
 		"/eth/v1/beacon/blob_sidecars/{block_id}":                    {http.MethodGet},
-		"/eth/v1/beacon/deposit_snapshot":                            {http.MethodGet},
 		"/eth/v1/beacon/blinded_blocks/{block_id}":                   {http.MethodGet},
 		"/eth/v1/beacon/pool/attestations":                           {http.MethodGet, http.MethodPost},
 		"/eth/v1/beacon/pool/attester_slashings":                     {http.MethodGet, http.MethodPost},
@@ -142,7 +141,6 @@ func Test_endpoints(t *testing.T) {
 		}
 	}
 	expectedRoutes := combineMaps(beaconRoutes, builderRoutes, configRoutes, debugRoutes, eventsRoutes, nodeRoutes, validatorRoutes, rewardsRoutes, blobRoutes, prysmValidatorRoutes, prysmNodeRoutes, prysmBeaconRoutes, overNodeRoutes, overRoutes)
-
 	assert.Equal(t, true, maps.EqualFunc(expectedRoutes, actualRoutes, func(actualMethods []string, expectedMethods []string) bool {
 		return slices.Equal(expectedMethods, actualMethods)
 	}))

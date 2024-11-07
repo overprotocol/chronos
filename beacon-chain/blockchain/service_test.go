@@ -10,10 +10,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/cache"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/cache/depositsnapshot"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/altair"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/transition"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/db"
 	testDB "github.com/prysmaticlabs/prysm/v5/beacon-chain/db/testing"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/execution"
@@ -31,7 +27,6 @@ import (
 	consensusblocks "github.com/prysmaticlabs/prysm/v5/consensus-types/blocks"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/interfaces"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
-	"github.com/prysmaticlabs/prysm/v5/container/trie"
 	"github.com/prysmaticlabs/prysm/v5/encoding/bytesutil"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	"github.com/prysmaticlabs/prysm/v5/testing/assert"
@@ -43,7 +38,6 @@ import (
 
 func setupBeaconChain(t *testing.T, beaconDB db.Database) *Service {
 	ctx := context.Background()
-	var web3Service *execution.Service
 	var err error
 	srv, endpoint, err := mockExecution.SetupRPCServer()
 	require.NoError(t, err)
@@ -53,25 +47,15 @@ func setupBeaconChain(t *testing.T, beaconDB db.Database) *Service {
 	bState, _ := util.DeterministicGenesisState(t, 10)
 	pbState, err := state_native.ProtobufBeaconStatePhase0(bState.ToProtoUnsafe())
 	require.NoError(t, err)
-	mockTrie, err := trie.NewTrie(0)
-	require.NoError(t, err)
+
 	err = beaconDB.SaveExecutionChainData(ctx, &ethpb.ETH1ChainData{
 		BeaconState: pbState,
-		Trie:        mockTrie.ToProto(),
 		CurrentEth1Data: &ethpb.LatestETH1Data{
 			BlockHash: make([]byte, 32),
 		},
-		ChainstartData: &ethpb.ChainStartData{
-			Eth1Data: &ethpb.Eth1Data{
-				DepositRoot:  make([]byte, 32),
-				DepositCount: 0,
-				BlockHash:    make([]byte, 32),
-			},
-		},
-		DepositContainers: []*ethpb.DepositContainer{},
 	})
 	require.NoError(t, err)
-	web3Service, err = execution.NewService(
+	_, err = execution.NewService(
 		ctx,
 		execution.WithDatabase(beaconDB),
 		execution.WithHttpEndpoint(endpoint),
@@ -82,9 +66,6 @@ func setupBeaconChain(t *testing.T, beaconDB db.Database) *Service {
 	attService, err := attestations.NewService(ctx, &attestations.Config{Pool: attestations.NewPool()})
 	require.NoError(t, err)
 
-	depositCache, err := depositsnapshot.New()
-	require.NoError(t, err)
-
 	fc := doublylinkedtree.New()
 	stateGen := stategen.New(beaconDB, fc)
 	// Safe a state in stategen to purposes of testing a service stop / shutdown.
@@ -92,8 +73,6 @@ func setupBeaconChain(t *testing.T, beaconDB db.Database) *Service {
 
 	opts := []Option{
 		WithDatabase(beaconDB),
-		WithDepositCache(depositCache),
-		WithChainStartFetcher(web3Service),
 		WithAttestationPool(attestations.NewPool()),
 		WithSlashingPool(slashings.NewPool()),
 		WithExitPool(voluntaryexits.NewPool()),
@@ -179,45 +158,6 @@ func TestChainStartStop_GenesisZeroHashes(t *testing.T) {
 	// The context should have been canceled.
 	assert.Equal(t, context.Canceled, chainService.ctx.Err(), "Context was not canceled")
 	require.LogsContain(t, hook, "data already exists")
-}
-
-func TestChainService_InitializeBeaconChain(t *testing.T) {
-	helpers.ClearCache()
-	beaconDB := testDB.SetupDB(t)
-	ctx := context.Background()
-
-	bc := setupBeaconChain(t, beaconDB)
-	var err error
-
-	// Set up 10 deposits pre chain start for validators to register
-	count := uint64(10)
-	deposits, _, err := util.DeterministicDepositsAndKeys(count)
-	require.NoError(t, err)
-	dt, _, err := util.DepositTrieFromDeposits(deposits)
-	require.NoError(t, err)
-	hashTreeRoot, err := dt.HashTreeRoot()
-	require.NoError(t, err)
-	genState, err := transition.EmptyGenesisState()
-	require.NoError(t, err)
-	require.NoError(t, err)
-	genState, err = altair.ProcessPreGenesisDeposits(ctx, genState, deposits)
-	require.NoError(t, err)
-
-	_, err = bc.initializeBeaconChain(ctx, time.Unix(0, 0), genState, &ethpb.Eth1Data{DepositRoot: hashTreeRoot[:], BlockHash: make([]byte, 32)})
-	require.NoError(t, err)
-
-	_, err = bc.HeadState(ctx)
-	assert.NoError(t, err)
-	headBlk, err := bc.HeadBlock(ctx)
-	require.NoError(t, err)
-	if headBlk == nil {
-		t.Error("Head state can't be nil after initialize beacon chain")
-	}
-	r, err := bc.HeadRoot(ctx)
-	require.NoError(t, err)
-	if bytesutil.ToBytes32(r) == params.BeaconConfig().ZeroHash {
-		t.Error("Canonical root for slot 0 can't be zeros after initialize beacon chain")
-	}
 }
 
 func TestChainService_CorrectGenesisRoots(t *testing.T) {
@@ -398,24 +338,6 @@ func TestServiceStop_SaveCachedBlocks(t *testing.T) {
 	require.NoError(t, s.saveInitSyncBlock(ctx, r, wsb))
 	require.NoError(t, s.Stop())
 	require.Equal(t, true, s.cfg.BeaconDB.HasBlock(ctx, r))
-}
-
-func TestProcessChainStartTime_ReceivedFeed(t *testing.T) {
-	ctx := context.Background()
-	beaconDB := testDB.SetupDB(t)
-	service := setupBeaconChain(t, beaconDB)
-	mgs := &MockClockSetter{}
-	service.clockSetter = mgs
-	gt := time.Now()
-	service.onExecutionChainStart(context.Background(), gt)
-	gs, err := beaconDB.GenesisState(ctx)
-	require.NoError(t, err)
-	require.NotEqual(t, nil, gs)
-	require.Equal(t, 32, len(gs.GenesisValidatorsRoot()))
-	var zero [32]byte
-	require.DeepNotEqual(t, gs.GenesisValidatorsRoot(), zero[:])
-	require.Equal(t, gt, mgs.G.GenesisTime())
-	require.Equal(t, bytesutil.ToBytes32(gs.GenesisValidatorsRoot()), mgs.G.GenesisValidatorsRoot())
 }
 
 func BenchmarkHasBlockDB(b *testing.B) {

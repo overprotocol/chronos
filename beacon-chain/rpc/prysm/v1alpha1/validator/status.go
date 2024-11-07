@@ -5,13 +5,11 @@ import (
 	"errors"
 
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/signing"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/time"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
 	fieldparams "github.com/prysmaticlabs/prysm/v5/config/fieldparams"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
-	"github.com/prysmaticlabs/prysm/v5/contracts/deposit"
 	"github.com/prysmaticlabs/prysm/v5/encoding/bytesutil"
 	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing"
 	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing/trace"
@@ -279,7 +277,7 @@ func (vs *Server) validatorStatus(
 	pubKey []byte,
 	lastActiveValidatorFn func() (primitives.ValidatorIndex, error),
 ) (*ethpb.ValidatorStatusResponse, primitives.ValidatorIndex) {
-	ctx, span := trace.StartSpan(ctx, "ValidatorServer.validatorStatus")
+	_, span := trace.StartSpan(ctx, "ValidatorServer.validatorStatus")
 	defer span.End()
 
 	// Using ^0 as the default value for index, in case the validators index cannot be determined.
@@ -308,44 +306,11 @@ func (vs *Server) validatorStatus(
 		// If no connection to ETH1, the deposit block number or position in queue cannot be determined.
 		if !vs.Eth1InfoFetcher.ExecutionClientConnected() {
 			log.Warn("Not connected to ETH1. Cannot determine validator ETH1 deposit block number")
-			return resp, nonExistentIndex
 		}
-		dep, eth1BlockNumBigInt := vs.DepositFetcher.DepositByPubkey(ctx, pubKey)
-		if eth1BlockNumBigInt == nil { // No deposit found in ETH1.
-			return resp, nonExistentIndex
-		}
-		domain, err := signing.ComputeDomain(
-			params.BeaconConfig().DomainDeposit,
-			nil, /*forkVersion*/
-			nil, /*genesisValidatorsRoot*/
-		)
-		if err != nil {
-			log.Warn("Could not compute domain")
-			return resp, nonExistentIndex
-		}
-		if err := deposit.VerifyDepositSignature(dep.Data, domain); err != nil {
-			resp.Status = ethpb.ValidatorStatus_INVALID
-			log.Warn("Invalid Eth1 deposit")
-			return resp, nonExistentIndex
-		}
-		// Set validator deposit status if their deposit is visible.
-		resp.Status = depositStatus(dep.Data.Amount)
-		resp.Eth1DepositBlockNumber = eth1BlockNumBigInt.Uint64()
 
 		return resp, nonExistentIndex
 	// Deposited, Pending or Partially Deposited mean the validator has been put into the state.
 	case ethpb.ValidatorStatus_DEPOSITED, ethpb.ValidatorStatus_PENDING, ethpb.ValidatorStatus_PARTIALLY_DEPOSITED:
-		if resp.Status == ethpb.ValidatorStatus_PENDING {
-			if vs.DepositFetcher == nil {
-				log.Warn("Not connected to ETH1. Cannot determine validator ETH1 deposit.")
-			} else {
-				// Check if there was a deposit.
-				_, eth1BlockNumBigInt := vs.DepositFetcher.DepositByPubkey(ctx, pubKey)
-				if eth1BlockNumBigInt != nil {
-					resp.Eth1DepositBlockNumber = eth1BlockNumBigInt.Uint64()
-				}
-			}
-		}
 		if lastActiveValidatorFn == nil {
 			return resp, idx
 		}
