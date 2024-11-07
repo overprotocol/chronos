@@ -304,16 +304,6 @@ func latestBlockHeader() *ethpb.BeaconBlockHeader {
 	}
 }
 
-func eth1Data() *ethpb.Eth1Data {
-	dr := bytesutil.ToBytes32([]byte("deposit"))
-	bh := bytesutil.ToBytes32([]byte("block"))
-	return &ethpb.Eth1Data{
-		DepositRoot:  dr[:],
-		DepositCount: 123,
-		BlockHash:    bh[:],
-	}
-}
-
 func validator() *ethpb.Validator {
 	pk := bytesutil.ToBytes48([]byte("public"))
 	wc := bytesutil.ToBytes32([]byte("withdrawal"))

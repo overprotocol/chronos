@@ -385,14 +385,6 @@ func genCheckpoint() *v1alpha1.Checkpoint {
 	}
 }
 
-func genEth1Data() *v1alpha1.Eth1Data {
-	return &v1alpha1.Eth1Data{
-		DepositRoot:  bytes(32),
-		DepositCount: 4,
-		BlockHash:    bytes(32),
-	}
-}
-
 func genPendingAttestation() *v1alpha1.PendingAttestation {
 	return &v1alpha1.PendingAttestation{
 		AggregationBits: bytes(32),

@@ -10,7 +10,6 @@ import (
 	customtypes "github.com/prysmaticlabs/prysm/v5/beacon-chain/state/state-native/custom-types"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state/state-native/types"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state/stateutil"
-	fieldparams "github.com/prysmaticlabs/prysm/v5/config/fieldparams"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	mvslice "github.com/prysmaticlabs/prysm/v5/container/multi-value-slice"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
@@ -23,14 +22,6 @@ func Test_handlePendingAttestation_OutOfRange(t *testing.T) {
 	indices := []uint64{3}
 	_, err := handlePendingAttestationSlice(items, indices, false)
 	assert.ErrorContains(t, "index 3 greater than number of pending attestations 1", err)
-}
-
-func Test_handleEth1DataSlice_OutOfRange(t *testing.T) {
-	items := make([]*ethpb.Eth1Data, 1)
-	indices := []uint64{3}
-	_, err := handleEth1DataSlice(items, indices, false)
-	assert.ErrorContains(t, "index 3 greater than number of items in eth1 data slice 1", err)
-
 }
 
 func Test_handleValidatorSlice_OutOfRange(t *testing.T) {
@@ -180,51 +171,6 @@ func TestFieldTrie_NativeState_fieldConvertersNative(t *testing.T) {
 			},
 			wantHex: nil,
 			errMsg:  "non-existent type provided",
-		},
-		{
-			name: "Eth1DataVotes type not found",
-			args: &args{
-				field:   types.FieldIndex(9),
-				indices: []uint64{},
-				elements: []*ethpb.Eth1Data{
-					{
-						DepositRoot:  make([]byte, fieldparams.RootLength),
-						DepositCount: 1,
-					},
-				},
-				convertAll: true,
-			},
-			wantHex: []string{"0x4833912e1264aef8a18392d795f3f2eed17cf5c0e8471cb0c0db2ec5aca10231"},
-		},
-		{
-			name: "Eth1DataVotes convertAll false",
-			args: &args{
-				field:   types.FieldIndex(9),
-				indices: []uint64{1},
-				elements: []*ethpb.Eth1Data{
-					{
-						DepositRoot:  make([]byte, fieldparams.RootLength),
-						DepositCount: 2,
-					},
-					{
-						DepositRoot:  make([]byte, fieldparams.RootLength),
-						DepositCount: 1,
-					},
-				},
-				convertAll: false,
-			},
-			wantHex: []string{"0x4833912e1264aef8a18392d795f3f2eed17cf5c0e8471cb0c0db2ec5aca10231"},
-		},
-		{
-			name: "Eth1DataVotes type not found",
-			args: &args{
-				field:      types.FieldIndex(9),
-				indices:    []uint64{},
-				elements:   123,
-				convertAll: true,
-			},
-			wantHex: nil,
-			errMsg:  fmt.Sprintf("Wanted type of %T", []*ethpb.Eth1Data{}),
 		},
 		{
 			name: "Balance",

@@ -1286,24 +1286,6 @@ func TestExecutionPayloadResponseDenebToProtoDifferentProofCount(t *testing.T) {
 	require.ErrorContains(t, "proofs length 2 does not equal blobs length 1", err)
 }
 
-func pbEth1Data() *eth.Eth1Data {
-	return &eth.Eth1Data{
-		DepositRoot:  make([]byte, 32),
-		DepositCount: 23,
-		BlockHash:    make([]byte, 32),
-	}
-}
-
-func TestEth1DataMarshal(t *testing.T) {
-	ed := &Eth1Data{
-		Eth1Data: pbEth1Data(),
-	}
-	b, err := json.Marshal(ed)
-	require.NoError(t, err)
-	expected := `{"deposit_root":"0x0000000000000000000000000000000000000000000000000000000000000000","deposit_count":"23","block_hash":"0x0000000000000000000000000000000000000000000000000000000000000000"}`
-	require.Equal(t, expected, string(b))
-}
-
 func pbDeposit(t *testing.T) *eth.Deposit {
 	return &eth.Deposit{
 		Proof: [][]byte{ezDecode(t, "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2")},

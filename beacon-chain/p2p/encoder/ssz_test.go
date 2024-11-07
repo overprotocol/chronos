@@ -152,7 +152,6 @@ func (VoluntaryExitCreator) Create() MarshalerProtoMessage { return &ethpb.Volun
 func (SignedVoluntaryExitCreator) Create() MarshalerProtoMessage {
 	return &ethpb.SignedVoluntaryExit{}
 }
-func (Eth1DataCreator) Create() MarshalerProtoMessage          { return &ethpb.Eth1Data{} }
 func (BeaconBlockHeaderCreator) Create() MarshalerProtoMessage { return &ethpb.BeaconBlockHeader{} }
 func (SignedBeaconBlockHeaderCreator) Create() MarshalerProtoMessage {
 	return &ethpb.SignedBeaconBlockHeader{}
