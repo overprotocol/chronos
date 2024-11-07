@@ -124,11 +124,6 @@ func (_ *Service) AllDeposits(_ context.Context, _ *big.Int) []*ethpb.Deposit {
 	return []*ethpb.Deposit{}
 }
 
-// ChainStartEth1Data mocks out the powchain functionality for interop.
-func (_ *Service) ChainStartEth1Data() *ethpb.Eth1Data {
-	return &ethpb.Eth1Data{}
-}
-
 // PreGenesisState returns an empty beacon state.
 func (_ *Service) PreGenesisState() state.BeaconState {
 	s, err := state_native.InitializeFromProtoPhase0(&ethpb.BeaconState{})

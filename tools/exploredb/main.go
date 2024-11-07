@@ -510,11 +510,6 @@ func sizeAndCountGeneric(genericItems interface{}, err error) (uint64, uint64) {
 	}
 
 	switch items := genericItems.(type) {
-	case []*ethpb.Eth1Data:
-		for _, item := range items {
-			size += uint64(item.SizeSSZ())
-		}
-		count = uint64(len(items))
 	case []*ethpb.Validator:
 		for _, item := range items {
 			size += uint64(item.SizeSSZ())

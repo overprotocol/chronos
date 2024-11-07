@@ -6,7 +6,6 @@ go_library(
     srcs = [
         "mock_engine_client.go",
         "mock_execution_chain.go",
-        "mock_faulty_powchain.go",
     ],
     importpath = "github.com/prysmaticlabs/prysm/v5/beacon-chain/execution/testing",
     visibility = [

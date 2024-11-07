@@ -919,24 +919,6 @@ func (ve *VoluntaryExit) MarshalJSON() ([]byte, error) {
 	})
 }
 
-// Eth1Data is a field of Beacon Block Body.
-type Eth1Data struct {
-	*eth.Eth1Data
-}
-
-// MarshalJSON returns a JSON byte array representation of Eth1Data.
-func (e *Eth1Data) MarshalJSON() ([]byte, error) {
-	return json.Marshal(struct {
-		DepositRoot  hexutil.Bytes `json:"deposit_root"`
-		DepositCount string        `json:"deposit_count"`
-		BlockHash    hexutil.Bytes `json:"block_hash"`
-	}{
-		DepositRoot:  e.DepositRoot,
-		DepositCount: fmt.Sprintf("%d", e.DepositCount),
-		BlockHash:    e.BlockHash,
-	})
-}
-
 // ExecHeaderResponseDeneb is the header response for builder API /eth/v1/builder/header/{slot}/{parent_hash}/{pubkey}.
 type ExecHeaderResponseDeneb struct {
 	Data struct {

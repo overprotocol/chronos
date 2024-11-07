@@ -406,13 +406,6 @@ func ExitFromConsensus(e *eth.VoluntaryExit) *VoluntaryExit {
 		ValidatorIndex: fmt.Sprintf("%d", e.ValidatorIndex),
 	}
 }
-func Eth1DataFromConsensus(e1d *eth.Eth1Data) *Eth1Data {
-	return &Eth1Data{
-		DepositRoot:  hexutil.Encode(e1d.DepositRoot),
-		DepositCount: fmt.Sprintf("%d", e1d.DepositCount),
-		BlockHash:    hexutil.Encode(e1d.BlockHash),
-	}
-}
 
 func (s *ProposerSlashing) ToConsensus() (*eth.ProposerSlashing, error) {
 	h1, err := s.SignedHeader1.ToConsensus()

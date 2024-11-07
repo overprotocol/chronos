@@ -265,21 +265,3 @@ func TestDeterministicGenesisState_100Validators(t *testing.T) {
 		t.Fatalf("expected validators in state %d to match requested amount %d", activeValidators, validatorCount)
 	}
 }
-
-func TestDepositTrieFromDeposits(t *testing.T) {
-	deposits, _, err := DeterministicDepositsAndKeys(100)
-	require.NoError(t, err)
-	eth1Data, err := DeterministicEth1Data(len(deposits))
-	require.NoError(t, err)
-
-	depositTrie, _, err := DepositTrieFromDeposits(deposits)
-	require.NoError(t, err)
-
-	root, err := depositTrie.HashTreeRoot()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !bytes.Equal(root[:], eth1Data.DepositRoot) {
-		t.Fatal("expected deposit trie root to equal eth1data deposit root")
-	}
-}

@@ -173,10 +173,6 @@ func (BeaconBlockBody) RandaoReveal() [field_params.BLSSignatureLength]byte {
 	panic("implement me")
 }
 
-func (BeaconBlockBody) Eth1Data() *eth.Eth1Data {
-	panic("implement me")
-}
-
 func (BeaconBlockBody) Graffiti() [field_params.RootLength]byte {
 	panic("implement me")
 }

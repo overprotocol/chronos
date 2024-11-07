@@ -22,11 +22,7 @@ func DeterministicGenesisStateElectra(t testing.TB, numValidators uint64) (state
 	if err != nil {
 		t.Fatal(errors.Wrapf(err, "failed to get %d deposits", numValidators))
 	}
-	eth1Data, err := DeterministicEth1Data(len(deposits))
-	if err != nil {
-		t.Fatal(errors.Wrapf(err, "failed to get eth1data for %d deposits", numValidators))
-	}
-	beaconState, err := genesisBeaconStateElectra(context.Background(), deposits, uint64(0), eth1Data)
+	beaconState, err := genesisBeaconStateElectra(context.Background(), deposits, uint64(0))
 	if err != nil {
 		t.Fatal(errors.Wrapf(err, "failed to get genesis beacon state of %d validators", numValidators))
 	}
@@ -49,18 +45,13 @@ func setKeysToActive(beaconState state.BeaconState) error {
 }
 
 // genesisBeaconStateElectra returns the genesis beacon state.
-func genesisBeaconStateElectra(ctx context.Context, deposits []*ethpb.Deposit, genesisTime uint64, eth1Data *ethpb.Eth1Data) (state.BeaconState, error) {
+func genesisBeaconStateElectra(ctx context.Context, deposits []*ethpb.Deposit, genesisTime uint64) (state.BeaconState, error) {
 	st, err := emptyGenesisStateElectra()
 	if err != nil {
 		return nil, err
 	}
 
 	// Process initial deposits.
-	st, err = helpers.UpdateGenesisEth1Data(st, deposits, eth1Data)
-	if err != nil {
-		return nil, err
-	}
-
 	st, err = processPreGenesisDeposits(ctx, st, deposits)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not process validator deposits")

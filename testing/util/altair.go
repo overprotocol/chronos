@@ -29,11 +29,7 @@ func DeterministicGenesisStateAltair(t testing.TB, numValidators uint64) (state.
 	if err != nil {
 		t.Fatal(errors.Wrapf(err, "failed to get %d deposits", numValidators))
 	}
-	eth1Data, err := DeterministicEth1Data(len(deposits))
-	if err != nil {
-		t.Fatal(errors.Wrapf(err, "failed to get eth1data for %d deposits", numValidators))
-	}
-	beaconState, err := GenesisBeaconState(context.Background(), deposits, uint64(0), eth1Data)
+	beaconState, err := GenesisBeaconState(context.Background(), deposits, uint64(0))
 	if err != nil {
 		t.Fatal(errors.Wrapf(err, "failed to get genesis beacon state of %d validators", numValidators))
 	}
@@ -42,14 +38,8 @@ func DeterministicGenesisStateAltair(t testing.TB, numValidators uint64) (state.
 }
 
 // GenesisBeaconState returns the genesis beacon state.
-func GenesisBeaconState(ctx context.Context, deposits []*ethpb.Deposit, genesisTime uint64, eth1Data *ethpb.Eth1Data) (state.BeaconState, error) {
+func GenesisBeaconState(ctx context.Context, deposits []*ethpb.Deposit, genesisTime uint64) (state.BeaconState, error) {
 	st, err := emptyGenesisState()
-	if err != nil {
-		return nil, err
-	}
-
-	// Process initial deposits.
-	st, err = helpers.UpdateGenesisEth1Data(st, deposits, eth1Data)
 	if err != nil {
 		return nil, err
 	}

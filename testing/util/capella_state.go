@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/pkg/errors"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
 	state_native "github.com/prysmaticlabs/prysm/v5/beacon-chain/state/state-native"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state/stateutil"
@@ -21,11 +20,7 @@ func DeterministicGenesisStateCapella(t testing.TB, numValidators uint64) (state
 	if err != nil {
 		t.Fatal(errors.Wrapf(err, "failed to get %d deposits", numValidators))
 	}
-	eth1Data, err := DeterministicEth1Data(len(deposits))
-	if err != nil {
-		t.Fatal(errors.Wrapf(err, "failed to get eth1data for %d deposits", numValidators))
-	}
-	beaconState, err := genesisBeaconStateCapella(context.Background(), deposits, uint64(0), eth1Data)
+	beaconState, err := genesisBeaconStateCapella(context.Background(), deposits, uint64(0))
 	if err != nil {
 		t.Fatal(errors.Wrapf(err, "failed to get genesis beacon state of %d validators", numValidators))
 	}
@@ -34,18 +29,13 @@ func DeterministicGenesisStateCapella(t testing.TB, numValidators uint64) (state
 }
 
 // genesisBeaconStateCapella returns the genesis beacon state.
-func genesisBeaconStateCapella(ctx context.Context, deposits []*ethpb.Deposit, genesisTime uint64, eth1Data *ethpb.Eth1Data) (state.BeaconState, error) {
+func genesisBeaconStateCapella(ctx context.Context, deposits []*ethpb.Deposit, genesisTime uint64) (state.BeaconState, error) {
 	st, err := emptyGenesisStateCapella()
 	if err != nil {
 		return nil, err
 	}
 
 	// Process initial deposits.
-	st, err = helpers.UpdateGenesisEth1Data(st, deposits, eth1Data)
-	if err != nil {
-		return nil, err
-	}
-
 	st, err = processPreGenesisDeposits(ctx, st, deposits)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not process validator deposits")

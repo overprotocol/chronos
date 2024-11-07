@@ -18,14 +18,6 @@ func jsonifyTransactions(transactions [][]byte) []string {
 	return jsonTransactions
 }
 
-func jsonifyEth1Data(eth1Data *ethpb.Eth1Data) *structs.Eth1Data {
-	return &structs.Eth1Data{
-		BlockHash:    hexutil.Encode(eth1Data.BlockHash),
-		DepositCount: uint64ToString(eth1Data.DepositCount),
-		DepositRoot:  hexutil.Encode(eth1Data.DepositRoot),
-	}
-}
-
 func jsonifyAttestations(attestations []*ethpb.Attestation) []*structs.Attestation {
 	jsonAttestations := make([]*structs.Attestation, len(attestations))
 	for index, attestation := range attestations {
