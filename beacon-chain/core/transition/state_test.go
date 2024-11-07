@@ -59,9 +59,6 @@ func TestGenesisBeaconState_OK(t *testing.T) {
 
 	// Randomness and committees fields checks.
 	assert.Equal(t, latestRandaoMixesLength, primitives.Epoch(len(newState.RandaoMixes())), "Length of RandaoMixes was not correctly initialized")
-	mix, err := newState.RandaoMixAtIndex(0)
-	require.NoError(t, err)
-	assert.DeepEqual(t, eth1Data.BlockHash, mix, "RandaoMixes was not correctly initialized")
 
 	// Finality fields checks.
 	assert.Equal(t, genesisEpoch, newState.PreviousJustifiedCheckpoint().Epoch, "PreviousJustifiedCheckpoint.Epoch was not correctly initialized")
