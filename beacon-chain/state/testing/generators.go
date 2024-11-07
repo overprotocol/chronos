@@ -14,7 +14,7 @@ import (
 )
 
 // GeneratePendingDeposit is used for testing and producing a signed pending deposit
-func GeneratePendingDeposit(t *testing.T, key common.SecretKey, amount uint64, withdrawalCredentials [32]byte, slot primitives.Slot) *ethpb.PendingDeposit {
+func GeneratePendingDeposit(t testing.TB, key common.SecretKey, amount uint64, withdrawalCredentials [32]byte, slot primitives.Slot) *ethpb.PendingDeposit {
 	dm := &ethpb.DepositMessage{
 		PublicKey:             key.PublicKey().Marshal(),
 		WithdrawalCredentials: withdrawalCredentials[:],

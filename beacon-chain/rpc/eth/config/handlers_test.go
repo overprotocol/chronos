@@ -144,8 +144,8 @@ func TestGetSpec(t *testing.T) {
 	config.MaxPendingPartialsPerWithdrawalsSweep = 93
 	config.MaxPartialWithdrawalsPerPayload = 94
 	config.FullExitRequestAmount = 95
-	config.MaxAttesterSlashingsElectra = 96
-	config.MaxAttestationsElectra = 97
+	config.MaxAttesterSlashingsAlpaca = 96
+	config.MaxAttestationsAlpaca = 97
 	config.MaxWithdrawalRequestsPerPayload = 98
 	config.MaxCellsInExtendedMatrix = 99
 	config.UnsetDepositRequestsStartIndex = 100
@@ -516,9 +516,9 @@ func TestGetSpec(t *testing.T) {
 				assert.Equal(t, "93", v)
 			case "FULL_EXIT_REQUEST_AMOUNT":
 				assert.Equal(t, "94", v)
-			case "MAX_ATTESTER_SLASHINGS_ELECTRA":
+			case "MAX_ATTESTER_SLASHINGS_ALPACA":
 				assert.Equal(t, "95", v)
-			case "MAX_ATTESTATIONS_ELECTRA":
+			case "MAX_ATTESTATIONS_ALPACA":
 				assert.Equal(t, "96", v)
 			case "MAX_WITHDRAWAL_REQUESTS_PER_PAYLOAD":
 				assert.Equal(t, "97", v)

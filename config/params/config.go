@@ -87,7 +87,7 @@ type BeaconChainConfig struct {
 	ProposerScoreBoost              uint64           `yaml:"PROPOSER_SCORE_BOOST" spec:"true"`                // ProposerScoreBoost defines a value that is a % of the committee weight for fork-choice boosting.
 	ReorgWeightThreshold            uint64           `yaml:"REORG_WEIGHT_THRESHOLD" spec:"true"`              // ReorgWeightThreshold defines a value that is a % of the committee weight to consider a block weak and subject to being orphaned.
 	ReorgParentWeightThreshold      uint64           `yaml:"REORG_PARENT_WEIGHT_THRESHOLD" spec:"true"`       // ReorgParentWeightThreshold defines a value that is a % of the committee weight to consider a parent block strong and subject its child to being orphaned.
-	ReorgMaxEpochsSinceFinalization primitives.Epoch `yaml:"REORG_MAX_EPOCHS_SINCE_FINALIZATION" spec:"true"` // This defines a limit to consider safe to orphan a block if the network is finalizing
+	ReorgMaxEpochsSinceFinalization primitives.Epoch `yaml:"REORG_MAX_EPOCHS_SINCE_FINALIZATION" spec:"true"` // This defines a limit to consider safe to orphan a blockF if the network is finalizing
 	IntervalsPerSlot                uint64           `yaml:"INTERVALS_PER_SLOT" spec:"true"`                  // IntervalsPerSlot defines the number of fork choice intervals in a slot defined in the fork choice spec.
 
 	// Ethereum PoW parameters.
@@ -118,15 +118,15 @@ type BeaconChainConfig struct {
 	InactivityLeakBailoutScoreThreshold  uint64 `yaml:"INACTIVITY_LEAK_BAILOUT_SCORE_THRESHOLD" spec:"true"`  // InactivityLeakBailoutScoreThreshold defines the inactivity score accumulated for 15 days.
 
 	// Max operations per block constants.
-	MaxProposerSlashings             uint64 `yaml:"MAX_PROPOSER_SLASHINGS" spec:"true"`         // MaxProposerSlashings defines the maximum number of slashings of proposers possible in a block.
-	MaxAttesterSlashings             uint64 `yaml:"MAX_ATTESTER_SLASHINGS" spec:"true"`         // MaxAttesterSlashings defines the maximum number of casper FFG slashings possible in a block.
-	MaxAttesterSlashingsElectra      uint64 `yaml:"MAX_ATTESTER_SLASHINGS_ELECTRA" spec:"true"` // MaxAttesterSlashingsElectra defines the maximum number of casper FFG slashings possible in a block post Electra hard fork.
-	MaxAttestations                  uint64 `yaml:"MAX_ATTESTATIONS" spec:"true"`               // MaxAttestations defines the maximum allowed attestations in a beacon block.
-	MaxAttestationsElectra           uint64 `yaml:"MAX_ATTESTATIONS_ELECTRA" spec:"true"`       // MaxAttestationsElectra defines the maximum allowed attestations in a beacon block post Electra hard fork.
-	MaxDeposits                      uint64 `yaml:"MAX_DEPOSITS" spec:"true"`                   // MaxDeposits defines the maximum number of validator deposits in a block.
-	MaxDepositsAlpaca                uint64 `yaml:"MAX_DEPOSITS_ALPACA" spec:"true"`            // MaxDepositsAlpaca defines the maximum number of validator deposits in a block.
-	MaxVoluntaryExits                uint64 `yaml:"MAX_VOLUNTARY_EXITS" spec:"true"`            // MaxVoluntaryExits defines the maximum number of validator exits in a block.
-	MaxWithdrawalsPerPayload         uint64 `yaml:"MAX_WITHDRAWALS_PER_PAYLOAD" spec:"true"`    // MaxWithdrawalsPerPayload defines the maximum number of withdrawals in a block.
+	MaxProposerSlashings             uint64 `yaml:"MAX_PROPOSER_SLASHINGS" spec:"true"`        // MaxProposerSlashings defines the maximum number of slashings of proposers possible in a block.
+	MaxAttesterSlashings             uint64 `yaml:"MAX_ATTESTER_SLASHINGS" spec:"true"`        // MaxAttesterSlashings defines the maximum number of casper FFG slashings possible in a block.
+	MaxAttesterSlashingsAlpaca       uint64 `yaml:"MAX_ATTESTER_SLASHINGS_ALPACA" spec:"true"` // MaxAttesterSlashingsAlpaca defines the maximum number of casper FFG slashings possible in a block post Alpaca hard fork.
+	MaxAttestations                  uint64 `yaml:"MAX_ATTESTATIONS" spec:"true"`              // MaxAttestations defines the maximum allowed attestations in a beacon block.
+	MaxAttestationsAlpaca            uint64 `yaml:"MAX_ATTESTATIONS_ALPACA" spec:"true"`       // MaxAttestationsAlpaca defines the maximum allowed attestations in a beacon block post Electra hard fork.
+	MaxDeposits                      uint64 `yaml:"MAX_DEPOSITS" spec:"true"`                  // MaxDeposits defines the maximum number of validator deposits in a block.
+	MaxDepositsAlpaca                uint64 `yaml:"MAX_DEPOSITS_ALPACA" spec:"true"`           // MaxDepositsAlpaca defines the maximum number of validator deposits in a block.
+	MaxVoluntaryExits                uint64 `yaml:"MAX_VOLUNTARY_EXITS" spec:"true"`           // MaxVoluntaryExits defines the maximum number of validator exits in a block.
+	MaxWithdrawalsPerPayload         uint64 `yaml:"MAX_WITHDRAWALS_PER_PAYLOAD" spec:"true"`   // MaxWithdrawalsPerPayload defines the maximum number of withdrawals in a block.
 	MaxPartialWithdrawalsPerPayload  uint64 `yaml:"MAX_PARTIAL_WITHDRAWALS_PER_PAYLOAD" spec:"true"`
 	MaxBlsToExecutionChanges         uint64 `yaml:"MAX_BLS_TO_EXECUTION_CHANGES" spec:"true"`         // MaxBlsToExecutionChanges defines the maximum number of BLS-to-execution-change objects in a block.
 	MaxValidatorsPerWithdrawalsSweep uint64 `yaml:"MAX_VALIDATORS_PER_WITHDRAWALS_SWEEP" spec:"true"` // MaxValidatorsPerWithdrawalsSweep bounds the size of the sweep searching for withdrawals per slot.

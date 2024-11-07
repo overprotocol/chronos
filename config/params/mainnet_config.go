@@ -61,7 +61,7 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	ChurnLimitQuotient:              1 << 16,
 	ChurnLimitBias:                  1,
 	ShuffleRoundCount:               90,
-	MinGenesisActiveValidatorCount:  16384,
+	MinGenesisActiveValidatorCount:  8192,
 	MinGenesisTime:                  1718690400, // Jun 19, 2024, 00 AM UTC+9.
 	TargetAggregatorsPerCommittee:   16,
 	HysteresisQuotient:              4,
@@ -141,9 +141,9 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	// Max operations per block constants.
 	MaxProposerSlashings:             16,
 	MaxAttesterSlashings:             2,
-	MaxAttesterSlashingsElectra:      1,
+	MaxAttesterSlashingsAlpaca:       1,
 	MaxAttestations:                  128,
-	MaxAttestationsElectra:           8,
+	MaxAttestationsAlpaca:            8,
 	MaxDeposits:                      16,
 	MaxDepositsAlpaca:                512,
 	MaxVoluntaryExits:                16,
