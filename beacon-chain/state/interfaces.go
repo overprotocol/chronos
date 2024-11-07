@@ -157,13 +157,6 @@ type ReadOnlyRandaoMixes interface {
 	RandaoMixesLength() int
 }
 
-// ReadOnlyEth1Data defines a struct which only has read access to eth1 data methods.
-type ReadOnlyEth1Data interface {
-	Eth1Data() *ethpb.Eth1Data
-	Eth1DataVotes() []*ethpb.Eth1Data
-	Eth1DepositIndex() uint64
-}
-
 // ReadOnlyExits defines a struct which only has read access to Exit related methods.
 type ReadOnlyExits interface {
 	ExitBalanceToConsume() (primitives.Gwei, error)

@@ -21,7 +21,6 @@ import (
 //	process_inactivity_updates(state)  # [New in Altair]
 //	process_rewards_and_penalties(state)  # [Modified in Altair]
 //	process_registry_updates(state)
-//	process_eth1_data_reset(state)
 //	process_effective_balance_updates(state)
 //	process_randao_mixes_reset(state)
 //	process_historical_roots_update(state)
