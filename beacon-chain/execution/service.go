@@ -34,17 +34,9 @@ import (
 )
 
 var (
-	validDepositsCount = promauto.NewCounter(prometheus.CounterOpts{
-		Name: "powchain_valid_deposits_received",
-		Help: "The number of valid deposits received in the deposit contract",
-	})
 	blockNumberGauge = promauto.NewGauge(prometheus.GaugeOpts{
 		Name: "powchain_block_number",
 		Help: "The current block number in the proof-of-work chain",
-	})
-	missedDepositLogsCount = promauto.NewCounter(prometheus.CounterOpts{
-		Name: "powchain_missed_deposit_logs",
-		Help: "The number of times a missed deposit log is detected",
 	})
 )
 
@@ -120,7 +112,6 @@ type config struct {
 type Service struct {
 	connectedETH1           bool
 	isRunning               bool
-	processingLock          sync.RWMutex
 	latestEth1DataLock      sync.RWMutex
 	cfg                     *config
 	ctx                     context.Context
@@ -339,42 +330,6 @@ func safelyHandlePanic() {
 		}).Error("Panicked when handling data from ETH 1.0 Chain! Recovering...")
 
 		debug.PrintStack()
-	}
-}
-
-func (s *Service) initPOWService() {
-	// Use a custom logger to only log errors
-	logCounter := 0
-	errorLogger := func(err error, msg string) {
-		if logCounter > logThreshold {
-			log.WithError(err).Error(msg)
-			logCounter = 0
-		}
-		logCounter++
-	}
-
-	// Run in a select loop to retry in the event of any failures.
-	for {
-		select {
-		case <-s.ctx.Done():
-			return
-		default:
-			ctx := s.ctx
-			header, err := s.HeaderByNumber(ctx, nil)
-			if err != nil {
-				err = errors.Wrap(err, "HeaderByNumber")
-				s.retryExecutionClientConnection(ctx, err)
-				errorLogger(err, "Unable to retrieve latest execution client header")
-				continue
-			}
-
-			s.latestEth1DataLock.Lock()
-			s.latestEth1Data.BlockHeight = header.Number.Uint64()
-			s.latestEth1Data.BlockHash = header.Hash.Bytes()
-			s.latestEth1Data.BlockTime = header.Time
-			s.latestEth1DataLock.Unlock()
-			return
-		}
 	}
 }
 
