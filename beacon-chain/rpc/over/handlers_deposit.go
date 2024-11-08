@@ -23,8 +23,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/time/slots"
 )
 
-const ()
-
 const (
 	// constants for search limit. These are used to slice down the pending deposits.
 	defaultSearchLimit = 1000
