@@ -68,7 +68,7 @@ func BenchmarkTestValidatorRegistryRoot(b *testing.B) {
 			PrincipalBalance: uint64(i),
 		}
 	}
-	b.Run("100k validators", func(b *testing.B) {
+	b.Run("1 mil validators", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			_, err := validatorRegistryRoot(valList)
 			require.NoError(b, err)
