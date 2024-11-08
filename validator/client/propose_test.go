@@ -881,10 +881,10 @@ func TestSignBlock(t *testing.T) {
 			require.NoError(t, err)
 			sig, blockRoot, err := validator.signBlock(ctx, kp.pub, 0, 0, b)
 			require.NoError(t, err, "%x,%v", sig, err)
-			require.Equal(t, "a049e1dc723e5a8b5bd14f292973572dffd53785ddb337"+
-				"82f20bf762cbe10ee7b9b4f5ae1ad6ff2089d352403750bed402b94b58469c072536"+
-				"faa9a09a88beaff697404ca028b1c7052b0de37dbcff985dfa500459783370312bdd"+
-				"36d6e0f224", hex.EncodeToString(sig))
+			require.Equal(t, "b33342f2c9a302dff04196993e7ee000f8a4"+
+				"8225521a9f2ff1bee8da8798b6c2276e507d93fe8d83be35a74091aeab6105434675"+
+				"56671d8602daecfeec6293413719d0b48d7ffda0970e3b949107add1c863fe8a9783"+
+				"00695000e341a23ac1c3", hex.EncodeToString(sig))
 
 			// Verify the returned block root matches the expected root using the proposer signature
 			// domain.

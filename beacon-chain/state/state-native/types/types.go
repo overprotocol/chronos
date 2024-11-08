@@ -46,12 +46,6 @@ func (f FieldIndex) String() string {
 		return "stateRoots"
 	case RewardAdjustmentFactor:
 		return "rewardAdjustmentFactor"
-	case Eth1Data:
-		return "eth1Data"
-	case Eth1DataVotes:
-		return "eth1DataVotes"
-	case Eth1DepositIndex:
-		return "eth1DepositIndex"
 	case Validators:
 		return "validators"
 	case Balances:
@@ -90,8 +84,6 @@ func (f FieldIndex) String() string {
 		return "nextWithdrawalValidatorIndex"
 	case HistoricalSummaries:
 		return "historicalSummaries"
-	case DepositRequestsStartIndex:
-		return "depositRequestsStartIndex"
 	case DepositBalanceToConsume:
 		return "depositBalanceToConsume"
 	case ExitBalanceToConsume:
@@ -198,9 +190,6 @@ const (
 	BlockRoots
 	StateRoots
 	RewardAdjustmentFactor
-	Eth1Data
-	Eth1DataVotes
-	Eth1DepositIndex
 	Validators
 	Balances
 	Reserves
@@ -220,7 +209,6 @@ const (
 	NextWithdrawalIndex
 	NextWithdrawalValidatorIndex
 	HistoricalSummaries
-	DepositRequestsStartIndex // Electra: EIP-6110
 	DepositBalanceToConsume   // Electra: EIP-7251
 	ExitBalanceToConsume      // Electra: EIP-7251
 	EarliestExitEpoch         // Electra: EIP-7251

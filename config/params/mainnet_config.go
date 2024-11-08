@@ -268,7 +268,6 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	FullExitRequestAmount:                  0,
 	MaxWithdrawalRequestsPerPayload:        16,
 	MaxDepositRequestsPerPayload:           8192, // 2**13 (= 8192)
-	UnsetDepositRequestsStartIndex:         math.MaxUint64,
 
 	// Values related to alpaca
 	MinSlashingPenaltyQuotientAlpaca:  10,

@@ -147,7 +147,6 @@ func TestGetSpec(t *testing.T) {
 	config.MaxAttestationsAlpaca = 97
 	config.MaxWithdrawalRequestsPerPayload = 98
 	config.MaxCellsInExtendedMatrix = 99
-	config.UnsetDepositRequestsStartIndex = 100
 	config.MaxDepositRequestsPerPayload = 101
 	config.MaxPendingDepositsPerEpoch = 102
 	config.MinSlashingPenaltyQuotientAlpaca = 103
@@ -519,8 +518,6 @@ func TestGetSpec(t *testing.T) {
 				assert.Equal(t, "98", v)
 			case "MAX_CELLS_IN_EXTENDED_MATRIX":
 				assert.Equal(t, "99", v)
-			case "UNSET_DEPOSIT_REQUESTS_START_INDEX":
-				assert.Equal(t, "100", v)
 			case "MAX_DEPOSIT_REQUESTS_PER_PAYLOAD":
 				assert.Equal(t, "101", v)
 			case "MAX_PENDING_DEPOSITS_PER_EPOCH":

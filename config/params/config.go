@@ -249,7 +249,6 @@ type BeaconChainConfig struct {
 	FullExitRequestAmount                  uint64 `yaml:"FULL_EXIT_REQUEST_AMOUNT" spec:"true"`                     // FullExitRequestAmount is the amount of Gwei required to request a full exit.
 	MaxWithdrawalRequestsPerPayload        uint64 `yaml:"MAX_WITHDRAWAL_REQUESTS_PER_PAYLOAD" spec:"true"`          // MaxWithdrawalRequestsPerPayload is the maximum number of execution layer withdrawal requests in each payload.
 	MaxDepositRequestsPerPayload           uint64 `yaml:"MAX_DEPOSIT_REQUESTS_PER_PAYLOAD" spec:"true"`             // MaxDepositRequestsPerPayload is the maximum number of execution layer deposits in each payload
-	UnsetDepositRequestsStartIndex         uint64 `yaml:"UNSET_DEPOSIT_REQUESTS_START_INDEX" spec:"true"`           // UnsetDepositRequestsStartIndex is used to check the start index for eip6110
 
 	// Values introduce in Alpaca upgrade
 	MinSlashingPenaltyQuotientAlpaca  uint64 `yaml:"MIN_SLASHING_PENALTY_QUOTIENT_ALPACA" spec:"true"` // MinSlashingPenaltyQuotientAlpaca is used to calculate the minimum penalty to prevent DoS attacks, modified for alpaca.

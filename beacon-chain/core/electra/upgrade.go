@@ -86,8 +86,6 @@ import (
 //	    next_withdrawal_validator_index=pre.next_withdrawal_validator_index,
 //	    # Deep history valid from Capella onwards
 //	    historical_summaries=pre.historical_summaries,
-//	    # [New in Electra:EIP6110]
-//	    deposit_requests_start_index=UNSET_DEPOSIT_REQUESTS_START_INDEX,
 //	    # [New in Electra:EIP7251]
 //	    deposit_balance_to_consume=0,
 //	    exit_balance_to_consume=0,
