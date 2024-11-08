@@ -361,7 +361,7 @@ func (b *BeaconChainConfig) InitializeDolphinDepositPlan() {
 // InitializeInactivityValues initializes INACTIVITY_SCORE_PENALTY_THRESHOLD and INACTIVITY_LEAK_BAILOUT_SCORE_THRESHOLD.
 func (b *BeaconChainConfig) InitializeInactivityValues() {
 	b.InactivityScorePenaltyThreshold = 225 * b.InactivityScoreBias
-	b.InactivityLeakBailoutScoreThreshold = b.InactivityScorePenaltyThreshold + (b.InactivityPenaltyDuration * b.InactivityScoreBias)
+	b.InactivityLeakBailoutScoreThreshold = b.InactivityScorePenaltyThreshold + (b.InactivityPenaltyDuration * b.InactivityScoreBias) // 2*1575 +
 }
 
 // TtfbTimeoutDuration returns the time duration of the timeout.
