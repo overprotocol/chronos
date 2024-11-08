@@ -24,7 +24,7 @@ import (
 )
 
 const (
-	// constants for search limit. These are used to slice down the pending deposits.
+	// constants for search limit. These are used to slice down the pending deposits/pending partial withdrawals.
 	defaultSearchLimit = 1000
 	minSearchLimit     = 1
 	maxSearchLimit     = 10000

@@ -52,3 +52,19 @@ type PendingDepositEstimation struct {
 	// if it is "initial" deposit, include estimation for activation.
 	ExpectedActivationEpoch uint64 `json:"expected_activation_epoch,omitempty"`
 }
+
+type GetWithdrawalEstimationResponse struct {
+	Data                *WithdrawalEstimationContainer `json:"data"`
+	ExecutionOptimistic bool                           `json:"execution_optimistic"`
+	Finalized           bool                           `json:"finalized"`
+}
+
+type WithdrawalEstimationContainer struct {
+	Pubkey                    string                               `json:"pubkey"`
+	PendingPartialWithdrawals []*PendingPartialWithdrawalContainer `json:"pending_partial_withdrawals"`
+}
+
+type PendingPartialWithdrawalContainer struct {
+	Amount        uint64 `json:"amount"`
+	ExpectedEpoch uint64 `json:"expected_epoch"`
+}
