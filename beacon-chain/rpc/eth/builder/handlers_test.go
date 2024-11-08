@@ -142,7 +142,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 
 		epoch := slots.ToEpoch(st.Slot())
 		// Fully withdrawable now with more than 0 balance
-		validators[5].ExitEpoch = epoch - 1
+		validators[5].ExitEpoch = epoch
 		// Fully withdrawable now but 0 balance
 		validators[10].ExitEpoch = epoch
 		balances[10] = 0
