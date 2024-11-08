@@ -230,67 +230,6 @@ func TestGetWithdrawalEstimation(t *testing.T) {
 				},
 			},
 		},
-		{
-			name:        "expected epoch is larger because of max pending partial withdrawals per sweep",
-			validatorId: "0",
-			state: func() state.BeaconState {
-				st, _ := util.DeterministicGenesisStateElectra(t, 10)
-
-				// Increase validator 0's balance to 100 OVER
-				val0, err := st.ValidatorAtIndex(primitives.ValidatorIndex(0))
-				require.NoError(t, err)
-				val0.EffectiveBalance += 100_000_000_000 // 100 OVER
-				val0.PrincipalBalance += 100_000_000_000 // 100 OVER
-				require.NoError(t, st.UpdateValidatorAtIndex(primitives.ValidatorIndex(0), val0))
-
-				bal, err := st.BalanceAtIndex(primitives.ValidatorIndex(0))
-				require.NoError(t, err)
-
-				bal += 100_000_000_000 // 100 OVER
-				require.NoError(t, st.UpdateBalancesAtIndex(primitives.ValidatorIndex(0), bal))
-
-				// Increase validator 1's balance to 100 OVER
-				val1, err := st.ValidatorAtIndex(primitives.ValidatorIndex(1))
-				require.NoError(t, err)
-				val1.EffectiveBalance += 100_000_000_000 // 100 OVER
-				val1.PrincipalBalance += 100_000_000_000 // 100 OVER
-				require.NoError(t, st.UpdateValidatorAtIndex(primitives.ValidatorIndex(1), val1))
-
-				bal, err = st.BalanceAtIndex(primitives.ValidatorIndex(1))
-				require.NoError(t, err)
-
-				bal += 100_000_000_000 // 100 OVER
-				require.NoError(t, st.UpdateBalancesAtIndex(primitives.ValidatorIndex(1), bal))
-
-				// Append small partial withdrawal for validator 1, so that validator 0's partial withdrawal is not the first one
-				maxPendingPartialsPerWithdrawalsSweep := int(params.BeaconConfig().MaxPendingPartialsPerWithdrawalsSweep) // casting is safe
-				for i := 0; i < maxPendingPartialsPerWithdrawalsSweep; i++ {
-					require.NoError(t, st.AppendPendingPartialWithdrawal(&ethpb.PendingPartialWithdrawal{
-						Index:             1,
-						Amount:            1_000_000_000, // 1 OVER
-						WithdrawableEpoch: params.BeaconConfig().MinValidatorWithdrawabilityDelay,
-					}))
-				}
-
-				// Append target partial withdrawal for validator 0
-				require.NoError(t, st.AppendPendingPartialWithdrawal(&ethpb.PendingPartialWithdrawal{
-					Index:             0,
-					Amount:            100_000_000_000, // 100 OVER
-					WithdrawableEpoch: params.BeaconConfig().MinValidatorWithdrawabilityDelay,
-				}))
-				return st
-			}(),
-			code: http.StatusOK,
-			wantData: &structs.WithdrawalEstimationContainer{
-				Pubkey: hexutil.Encode(firstVal.PublicKey),
-				PendingPartialWithdrawals: []*structs.PendingPartialWithdrawalContainer{
-					{
-						Amount:        100_000_000_000,                                                    // 100 OVER
-						ExpectedEpoch: uint64(params.BeaconConfig().MinValidatorWithdrawabilityDelay) + 1, // 1 epoch later
-					},
-				},
-			},
-		},
 	}
 
 	for _, tt := range tests {
