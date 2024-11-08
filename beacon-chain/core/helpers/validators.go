@@ -655,7 +655,7 @@ func IsFullyWithdrawableValidator(val *ethpb.Validator, balance uint64, epoch pr
 	if val == nil || balance <= 0 {
 		return false
 	}
-	withdrawalEpoch := GetWithdrawableEpoch(val.ExitEpoch, val.Slashed)
+	withdrawableEpoch := GetWithdrawableEpoch(val.ExitEpoch, val.Slashed)
 	// Electra / EIP-7251 logic
 	if fork >= version.Electra {
 		return HasExecutionWithdrawalCredentials(val) && withdrawalEpoch <= epoch
