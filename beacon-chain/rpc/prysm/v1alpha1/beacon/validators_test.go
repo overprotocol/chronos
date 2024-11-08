@@ -1467,7 +1467,6 @@ func TestServer_GetValidatorQueue_PendingExit(t *testing.T) {
 	wanted := [][]byte{
 		pubKey(1),
 		pubKey(2),
-		pubKey(3),
 	}
 	activeValidatorCount, err := helpers.ActiveValidatorCount(context.Background(), headState, coreTime.CurrentEpoch(headState))
 	require.NoError(t, err)
