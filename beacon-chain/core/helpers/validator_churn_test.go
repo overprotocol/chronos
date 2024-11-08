@@ -81,7 +81,7 @@ func TestExitBalanceChurnLimit(t *testing.T) {
 			expected:      primitives.Gwei(params.BeaconConfig().MinPerEpochChurnLimitAlpaca),
 		},
 		{
-			name:          "more than MIN_PER_EPOCH_CHURN_LIMIT_ELECTRA",
+			name:          "more than MIN_PER_EPOCH_CHURN_LIMIT_ALPACA",
 			activeBalance: primitives.Gwei(2000 * params.BeaconConfig().EffectiveBalanceIncrement * params.BeaconConfig().ChurnLimitQuotient),
 			expected:      primitives.Gwei(2000 * params.BeaconConfig().EffectiveBalanceIncrement),
 		},

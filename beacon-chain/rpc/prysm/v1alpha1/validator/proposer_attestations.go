@@ -352,7 +352,7 @@ func (a proposerAtts) limitToMaxAttestations() proposerAtts {
 	if a[0].Version() == version.Phase0 {
 		limit = params.BeaconConfig().MaxAttestations
 	} else {
-		limit = params.BeaconConfig().MaxAttestationsElectra
+		limit = params.BeaconConfig().MaxAttestationsAlpaca
 	}
 	if uint64(len(a)) > limit {
 		return a[:limit]

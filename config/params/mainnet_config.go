@@ -61,7 +61,7 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	ChurnLimitQuotient:              1 << 16,
 	ChurnLimitBias:                  1,
 	ShuffleRoundCount:               90,
-	MinGenesisActiveValidatorCount:  16384,
+	MinGenesisActiveValidatorCount:  8192,
 	MinGenesisTime:                  1718690400, // Jun 19, 2024, 00 AM UTC+9.
 	TargetAggregatorsPerCommittee:   16,
 	HysteresisQuotient:              4,
@@ -76,9 +76,9 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	MaxRewardAdjustmentFactors:      [11]uint64{1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000},
 
 	// Gwei value constants.
-	MinDepositAmount:          1 * 1e9,
+	MinDepositAmount:          64 * 1e9,
 	MaxEffectiveBalance:       256 * 1e9,
-	EffectiveBalanceIncrement: 8 * 1e9,
+	EffectiveBalanceIncrement: 1 * 1e9,
 	MaxTokenSupply:            1000000000 * 1e9,
 	IssuancePerYear:           20000000 * 1e9,
 
@@ -141,9 +141,9 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	// Max operations per block constants.
 	MaxProposerSlashings:             16,
 	MaxAttesterSlashings:             2,
-	MaxAttesterSlashingsElectra:      1,
+	MaxAttesterSlashingsAlpaca:       1,
 	MaxAttestations:                  128,
-	MaxAttestationsElectra:           8,
+	MaxAttestationsAlpaca:            8,
 	MaxDeposits:                      16,
 	MaxDepositsAlpaca:                512,
 	MaxVoluntaryExits:                16,
@@ -223,13 +223,13 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	WeightDenominator:  64,
 
 	// Misc values.
-	InactivityScoreBias:         2,
+	InactivityScoreBias:         4,
 	InactivityScoreRecoveryRate: 1,
 
 	// Updated penalty values.
 	MinSlashingPenaltyQuotientAltair:     64,
 	MinSlashingPenaltyQuotientBellatrix:  32,
-	InactivityPenaltyRate:                1,
+	InactivityPenaltyRate:                2,
 	InactivityPenaltyRatePrecision:       100,
 	InactivityPenaltyDuration:            1575, // epochs, 1 week
 	InactivityLeakPenaltyBuffer:          10,   // 10%
@@ -266,7 +266,7 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	PendingPartialWithdrawalsLimit:         134_217_728,
 	MinActivationBalance:                   256_000_000_000,
 	MaxPendingPartialsPerWithdrawalsSweep:  8,
-	MaxPendingDepositsPerEpoch:             16,
+	MaxPendingDepositsPerEpoch:             64,
 	FullExitRequestAmount:                  0,
 	MaxWithdrawalRequestsPerPayload:        16,
 	MaxDepositRequestsPerPayload:           8192, // 2**13 (= 8192)

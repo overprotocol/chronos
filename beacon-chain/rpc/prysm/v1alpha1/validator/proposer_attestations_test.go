@@ -700,7 +700,7 @@ func Test_limitToMaxAttestations(t *testing.T) {
 		assert.Equal(t, len(pAtts)-1, len(pAtts.limitToMaxAttestations()))
 	})
 	t.Run("Electra", func(t *testing.T) {
-		atts := make([]ethpb.Att, params.BeaconConfig().MaxAttestationsElectra+1)
+		atts := make([]ethpb.Att, params.BeaconConfig().MaxAttestationsAlpaca+1)
 		for i := range atts {
 			atts[i] = &ethpb.AttestationElectra{}
 		}

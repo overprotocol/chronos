@@ -771,10 +771,10 @@ message BeaconBlockBodyElectra {
     // At most MAX_PROPOSER_SLASHINGS.
     repeated ProposerSlashing proposer_slashings = 4 [(ethereum.eth.ext.ssz_max) = "16"];
 
-    // At most MAX_ATTESTER_SLASHINGS_ELECTRA.
+    // At most MAX_ATTESTER_SLASHINGS_ALPACA.
     repeated AttesterSlashingElectra attester_slashings = 5 [(ethereum.eth.ext.ssz_max) = "1"];
 
-    // At most MAX_ATTESTATIONS_ELECTRA.
+    // At most MAX_ATTESTATIONS_ALPACA.
     repeated AttestationElectra attestations = 6 [(ethereum.eth.ext.ssz_max) = "8"];
 
     // At most MAX_DEPOSITS.
@@ -833,10 +833,10 @@ message BlindedBeaconBlockBodyElectra {
     // At most MAX_PROPOSER_SLASHINGS.
     repeated ProposerSlashing proposer_slashings = 4 [(ethereum.eth.ext.ssz_max) = "16"];
 
-    // At most MAX_ATTESTER_SLASHINGS_ELECTRA.
+    // At most MAX_ATTESTER_SLASHINGS_ALPACA.
     repeated AttesterSlashingElectra attester_slashings = 5 [(ethereum.eth.ext.ssz_max) = "1"];
 
-    // At most MAX_ATTESTATIONS_ELECTRA.
+    // At most MAX_ATTESTATIONS_ALPACA.
     repeated AttestationElectra attestations = 6 [(ethereum.eth.ext.ssz_max) = "8"];
 
     // At most MAX_DEPOSITS.

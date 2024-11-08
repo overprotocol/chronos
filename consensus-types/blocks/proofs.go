@@ -85,7 +85,7 @@ func ComputeBlockBodyFieldRoots(ctx context.Context, blockBody *BeaconBlockBody)
 	if bodyVersion < version.Electra {
 		root, err = ssz.MerkleizeListSSZ(as, params.BeaconConfig().MaxAttesterSlashings)
 	} else {
-		root, err = ssz.MerkleizeListSSZ(as, params.BeaconConfig().MaxAttesterSlashingsElectra)
+		root, err = ssz.MerkleizeListSSZ(as, params.BeaconConfig().MaxAttesterSlashingsAlpaca)
 	}
 	if err != nil {
 		return nil, err
@@ -97,7 +97,7 @@ func ComputeBlockBodyFieldRoots(ctx context.Context, blockBody *BeaconBlockBody)
 	if bodyVersion < version.Electra {
 		root, err = ssz.MerkleizeListSSZ(att, params.BeaconConfig().MaxAttestations)
 	} else {
-		root, err = ssz.MerkleizeListSSZ(att, params.BeaconConfig().MaxAttestationsElectra)
+		root, err = ssz.MerkleizeListSSZ(att, params.BeaconConfig().MaxAttestationsAlpaca)
 	}
 	if err != nil {
 		return nil, err
