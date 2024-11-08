@@ -599,7 +599,7 @@ func TestProcessBlindWithdrawals(t *testing.T) {
 		for i := range validators {
 			v := &ethpb.Validator{}
 			v.EffectiveBalance = maxEffectiveBalance
-			v.WithdrawableEpoch = epochInFuture
+			v.ExitEpoch = epochInFuture
 			v.WithdrawalCredentials = make([]byte, 32)
 			v.WithdrawalCredentials[31] = byte(i)
 			v.PrincipalBalance = maxEffectiveBalance
@@ -608,7 +608,7 @@ func TestProcessBlindWithdrawals(t *testing.T) {
 		}
 		for _, idx := range arguments.FullWithdrawalIndices {
 			if idx != notWithdrawableIndex {
-				validators[idx].WithdrawableEpoch = epochInPast
+				validators[idx].ExitEpoch = epochInPast
 			}
 			st.Balances[idx] = withdrawalAmount(idx)
 			validators[idx].WithdrawalCredentials[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
@@ -625,6 +625,7 @@ func TestProcessBlindWithdrawals(t *testing.T) {
 		t.Run(test.Args.Name, func(t *testing.T) {
 			saved := params.BeaconConfig().MaxValidatorsPerWithdrawalsSweep
 			params.BeaconConfig().MaxValidatorsPerWithdrawalsSweep = maxSweep
+			params.BeaconConfig().MinValidatorWithdrawabilityDelay = 2
 			if test.Args.Withdrawals == nil {
 				test.Args.Withdrawals = make([]*enginev1.Withdrawal, 0)
 			}
@@ -1053,7 +1054,7 @@ func TestProcessWithdrawals(t *testing.T) {
 		for i := range validators {
 			v := &ethpb.Validator{}
 			v.EffectiveBalance = maxEffectiveBalance
-			v.WithdrawableEpoch = epochInFuture
+			v.ExitEpoch = epochInFuture
 			v.WithdrawalCredentials = make([]byte, 32)
 			v.WithdrawalCredentials[31] = byte(i)
 			v.PrincipalBalance = v.EffectiveBalance
@@ -1064,7 +1065,7 @@ func TestProcessWithdrawals(t *testing.T) {
 		}
 		for _, idx := range arguments.FullWithdrawalIndices {
 			if idx != notWithdrawableIndex {
-				validators[idx].WithdrawableEpoch = epochInPast
+				validators[idx].ExitEpoch = epochInPast
 			}
 			if err := st.UpdateBalancesAtIndex(idx, withdrawalAmount(idx)); err != nil {
 				return err
@@ -1086,6 +1087,7 @@ func TestProcessWithdrawals(t *testing.T) {
 				t.Run(version.String(fork), func(t *testing.T) {
 					saved := params.BeaconConfig().MaxValidatorsPerWithdrawalsSweep
 					params.BeaconConfig().MaxValidatorsPerWithdrawalsSweep = maxSweep
+					params.BeaconConfig().MinValidatorWithdrawabilityDelay = 2
 					if test.Args.Withdrawals == nil {
 						test.Args.Withdrawals = make([]*enginev1.Withdrawal, 0)
 					}
@@ -1159,7 +1161,7 @@ func TestProcessBLSToExecutionChanges(t *testing.T) {
 	for i := range validators {
 		v := &ethpb.Validator{}
 		v.EffectiveBalance = maxEffectiveBalance
-		v.WithdrawableEpoch = params.BeaconConfig().FarFutureEpoch
+		v.ExitEpoch = params.BeaconConfig().FarFutureEpoch
 		v.WithdrawalCredentials = make([]byte, 32)
 		priv, err := bls.RandKey()
 		require.NoError(t, err)
@@ -1230,7 +1232,7 @@ func TestBLSChangesSignatureBatch(t *testing.T) {
 	for i := range validators {
 		v := &ethpb.Validator{}
 		v.EffectiveBalance = maxEffectiveBalance
-		v.WithdrawableEpoch = params.BeaconConfig().FarFutureEpoch
+		v.ExitEpoch = params.BeaconConfig().FarFutureEpoch
 		v.WithdrawalCredentials = make([]byte, 32)
 		priv, err := bls.RandKey()
 		require.NoError(t, err)
@@ -1294,7 +1296,7 @@ func TestBLSChangesSignatureBatchWrongFork(t *testing.T) {
 	for i := range validators {
 		v := &ethpb.Validator{}
 		v.EffectiveBalance = maxEffectiveBalance
-		v.WithdrawableEpoch = params.BeaconConfig().FarFutureEpoch
+		v.ExitEpoch = params.BeaconConfig().FarFutureEpoch
 		v.WithdrawalCredentials = make([]byte, 32)
 		priv, err := bls.RandKey()
 		require.NoError(t, err)
@@ -1367,7 +1369,7 @@ func TestBLSChangesSignatureBatchFromBellatrix(t *testing.T) {
 	for i := range validators {
 		v := &ethpb.Validator{}
 		v.EffectiveBalance = maxEffectiveBalance
-		v.WithdrawableEpoch = params.BeaconConfig().FarFutureEpoch
+		v.ExitEpoch = params.BeaconConfig().FarFutureEpoch
 		v.WithdrawalCredentials = make([]byte, 32)
 		priv, err := bls.RandKey()
 		require.NoError(t, err)

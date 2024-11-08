@@ -88,10 +88,9 @@ func Test_ValidatorStatus(t *testing.T) {
 			name: "exited slashed",
 			args: args{
 				validator: &ethpb.Validator{
-					ActivationEpoch:   3,
-					ExitEpoch:         30,
-					WithdrawableEpoch: 40,
-					Slashed:           true,
+					ActivationEpoch: 3,
+					ExitEpoch:       30,
+					Slashed:         true,
 				},
 				epoch: primitives.Epoch(35),
 			},
@@ -101,10 +100,9 @@ func Test_ValidatorStatus(t *testing.T) {
 			name: "exited unslashed",
 			args: args{
 				validator: &ethpb.Validator{
-					ActivationEpoch:   3,
-					ExitEpoch:         30,
-					WithdrawableEpoch: 40,
-					Slashed:           false,
+					ActivationEpoch: 3,
+					ExitEpoch:       30,
+					Slashed:         false,
 				},
 				epoch: primitives.Epoch(35),
 			},
@@ -114,11 +112,10 @@ func Test_ValidatorStatus(t *testing.T) {
 			name: "withdrawal possible",
 			args: args{
 				validator: &ethpb.Validator{
-					ActivationEpoch:   3,
-					ExitEpoch:         30,
-					WithdrawableEpoch: 40,
-					EffectiveBalance:  params.BeaconConfig().MaxEffectiveBalance,
-					Slashed:           false,
+					ActivationEpoch:  3,
+					ExitEpoch:        30,
+					EffectiveBalance: params.BeaconConfig().MaxEffectiveBalance,
+					Slashed:          false,
 				},
 				epoch: primitives.Epoch(45),
 			},
@@ -128,11 +125,10 @@ func Test_ValidatorStatus(t *testing.T) {
 			name: "withdrawal done",
 			args: args{
 				validator: &ethpb.Validator{
-					ActivationEpoch:   3,
-					ExitEpoch:         30,
-					WithdrawableEpoch: 40,
-					EffectiveBalance:  0,
-					Slashed:           false,
+					ActivationEpoch:  3,
+					ExitEpoch:        30,
+					EffectiveBalance: 0,
+					Slashed:          false,
 				},
 				epoch: primitives.Epoch(45),
 			},
@@ -141,6 +137,8 @@ func Test_ValidatorStatus(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			params.BeaconConfig().MinSlashingWithdrawableDelay = 10
+			params.BeaconConfig().MinValidatorWithdrawabilityDelay = 10
 			readOnlyVal, err := state_native.NewValidator(migration.V1ValidatorToV1Alpha1(tt.args.validator))
 			require.NoError(t, err)
 			got, err := ValidatorStatus(readOnlyVal, tt.args.epoch)
@@ -226,10 +224,9 @@ func Test_ValidatorSubStatus(t *testing.T) {
 			name: "exited slashed",
 			args: args{
 				validator: &ethpb.Validator{
-					ActivationEpoch:   3,
-					ExitEpoch:         30,
-					WithdrawableEpoch: 40,
-					Slashed:           true,
+					ActivationEpoch: 3,
+					ExitEpoch:       30,
+					Slashed:         true,
 				},
 				epoch: primitives.Epoch(35),
 			},
@@ -239,10 +236,9 @@ func Test_ValidatorSubStatus(t *testing.T) {
 			name: "exited unslashed",
 			args: args{
 				validator: &ethpb.Validator{
-					ActivationEpoch:   3,
-					ExitEpoch:         30,
-					WithdrawableEpoch: 40,
-					Slashed:           false,
+					ActivationEpoch: 3,
+					ExitEpoch:       30,
+					Slashed:         false,
 				},
 				epoch: primitives.Epoch(35),
 			},
@@ -252,11 +248,10 @@ func Test_ValidatorSubStatus(t *testing.T) {
 			name: "withdrawal possible",
 			args: args{
 				validator: &ethpb.Validator{
-					ActivationEpoch:   3,
-					ExitEpoch:         30,
-					WithdrawableEpoch: 40,
-					EffectiveBalance:  params.BeaconConfig().MaxEffectiveBalance,
-					Slashed:           false,
+					ActivationEpoch:  3,
+					ExitEpoch:        30,
+					EffectiveBalance: params.BeaconConfig().MaxEffectiveBalance,
+					Slashed:          false,
 				},
 				epoch: primitives.Epoch(45),
 			},
@@ -266,11 +261,10 @@ func Test_ValidatorSubStatus(t *testing.T) {
 			name: "withdrawal done",
 			args: args{
 				validator: &ethpb.Validator{
-					ActivationEpoch:   3,
-					ExitEpoch:         30,
-					WithdrawableEpoch: 40,
-					EffectiveBalance:  0,
-					Slashed:           false,
+					ActivationEpoch:  3,
+					ExitEpoch:        30,
+					EffectiveBalance: 0,
+					Slashed:          false,
 				},
 				epoch: primitives.Epoch(45),
 			},
@@ -279,6 +273,8 @@ func Test_ValidatorSubStatus(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			params.BeaconConfig().MinSlashingWithdrawableDelay = 10
+			params.BeaconConfig().MinValidatorWithdrawabilityDelay = 10
 			readOnlyVal, err := state_native.NewValidator(migration.V1ValidatorToV1Alpha1(tt.args.validator))
 			require.NoError(t, err)
 			got, err := ValidatorSubStatus(readOnlyVal, tt.args.epoch)

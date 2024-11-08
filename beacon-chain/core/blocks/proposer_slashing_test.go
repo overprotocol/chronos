@@ -91,19 +91,19 @@ func TestProcessProposerSlashings_SameHeaders(t *testing.T) {
 func TestProcessProposerSlashings_ValidatorNotSlashable(t *testing.T) {
 	registry := []*ethpb.Validator{
 		{
-			PublicKey:         []byte("key"),
-			Slashed:           true,
-			ActivationEpoch:   0,
-			WithdrawableEpoch: 0,
+			PublicKey:       []byte("key"),
+			Slashed:         true,
+			ActivationEpoch: 0,
+			ExitEpoch:       0,
 		},
 	}
-	currentSlot := primitives.Slot(0)
+	currentSlot := 8193 * params.BeaconConfig().SlotsPerEpoch // test slot after withdrawal epoch
 	slashings := []*ethpb.ProposerSlashing{
 		{
 			Header_1: &ethpb.SignedBeaconBlockHeader{
 				Header: &ethpb.BeaconBlockHeader{
 					ProposerIndex: 0,
-					Slot:          0,
+					Slot:          8193 * params.BeaconConfig().SlotsPerEpoch,
 					BodyRoot:      []byte("foo"),
 				},
 				Signature: bytesutil.PadTo([]byte("A"), fieldparams.BLSSignatureLength),
@@ -111,7 +111,7 @@ func TestProcessProposerSlashings_ValidatorNotSlashable(t *testing.T) {
 			Header_2: &ethpb.SignedBeaconBlockHeader{
 				Header: &ethpb.BeaconBlockHeader{
 					ProposerIndex: 0,
-					Slot:          0,
+					Slot:          8193 * params.BeaconConfig().SlotsPerEpoch,
 					BodyRoot:      []byte("bar"),
 				},
 				Signature: bytesutil.PadTo([]byte("B"), fieldparams.BLSSignatureLength),

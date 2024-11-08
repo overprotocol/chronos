@@ -93,11 +93,11 @@ func TestPool_InsertAttesterSlashing(t *testing.T) {
 	// We mark the following validators with some preconditions.
 	exitedVal, err := beaconState.ValidatorAtIndex(primitives.ValidatorIndex(2))
 	require.NoError(t, err)
-	exitedVal.WithdrawableEpoch = 0
+	exitedVal.ExitEpoch = 0
 	require.NoError(t, beaconState.UpdateValidatorAtIndex(primitives.ValidatorIndex(2), exitedVal))
 	futureWithdrawVal, err := beaconState.ValidatorAtIndex(primitives.ValidatorIndex(4))
 	require.NoError(t, err)
-	futureWithdrawVal.WithdrawableEpoch = 17
+
 	require.NoError(t, beaconState.UpdateValidatorAtIndex(primitives.ValidatorIndex(4), futureWithdrawVal))
 	slashedVal, err := beaconState.ValidatorAtIndex(primitives.ValidatorIndex(5))
 	require.NoError(t, err)

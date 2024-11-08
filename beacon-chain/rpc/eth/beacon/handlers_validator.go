@@ -410,7 +410,6 @@ func valContainerFromReadOnlyVal(
 			ActivationEligibilityEpoch: strconv.FormatUint(uint64(val.ActivationEligibilityEpoch()), 10),
 			ActivationEpoch:            strconv.FormatUint(uint64(val.ActivationEpoch()), 10),
 			ExitEpoch:                  strconv.FormatUint(uint64(val.ExitEpoch()), 10),
-			WithdrawableEpoch:          strconv.FormatUint(uint64(val.WithdrawableEpoch()), 10),
 			PrincipalBalance:           strconv.FormatUint(val.PrincipalBalance(), 10),
 		},
 	}

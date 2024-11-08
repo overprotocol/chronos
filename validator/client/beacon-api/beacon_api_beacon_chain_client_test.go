@@ -226,7 +226,7 @@ func TestListValidators(t *testing.T) {
 							ActivationEligibilityEpoch: "6",
 							ActivationEpoch:            "7",
 							ExitEpoch:                  "8",
-							WithdrawableEpoch:          "9",
+							PrincipalBalance:           "9",
 						},
 					},
 				},
@@ -310,15 +310,6 @@ func TestListValidators(t *testing.T) {
 				},
 				expectedError: "failed to parse validator exit epoch `foo`",
 			},
-			{
-				name: "invalid withdrawable epoch",
-				generateStateValidatorsResponse: func() *structs.GetValidatorsResponse {
-					validatorsResponse := generateValidStateValidatorsResponse()
-					validatorsResponse.Data[0].Validator.WithdrawableEpoch = "bar"
-					return validatorsResponse
-				},
-				expectedError: "failed to parse validator withdrawable epoch `bar`",
-			},
 		}
 
 		for _, testCase := range testCases {
@@ -356,8 +347,7 @@ func TestListValidators(t *testing.T) {
 							ActivationEligibilityEpoch: "5",
 							ActivationEpoch:            "6",
 							ExitEpoch:                  "7",
-							WithdrawableEpoch:          "8",
-							PrincipalBalance:           "9",
+							PrincipalBalance:           "8",
 						},
 					},
 					{
@@ -370,8 +360,7 @@ func TestListValidators(t *testing.T) {
 							ActivationEligibilityEpoch: "14",
 							ActivationEpoch:            "15",
 							ExitEpoch:                  "16",
-							WithdrawableEpoch:          "17",
-							PrincipalBalance:           "18",
+							PrincipalBalance:           "17",
 						},
 					},
 				},
@@ -419,8 +408,7 @@ func TestListValidators(t *testing.T) {
 								ActivationEligibilityEpoch: 5,
 								ActivationEpoch:            6,
 								ExitEpoch:                  7,
-								WithdrawableEpoch:          8,
-								PrincipalBalance:           9,
+								PrincipalBalance:           8,
 							},
 						}
 					}
@@ -455,8 +443,7 @@ func TestListValidators(t *testing.T) {
 									ActivationEligibilityEpoch: 5,
 									ActivationEpoch:            6,
 									ExitEpoch:                  7,
-									WithdrawableEpoch:          8,
-									PrincipalBalance:           9,
+									PrincipalBalance:           8,
 								},
 							},
 						},
@@ -484,8 +471,7 @@ func TestListValidators(t *testing.T) {
 									ActivationEligibilityEpoch: 5,
 									ActivationEpoch:            6,
 									ExitEpoch:                  7,
-									WithdrawableEpoch:          8,
-									PrincipalBalance:           9,
+									PrincipalBalance:           8,
 								},
 							},
 							{
@@ -498,8 +484,7 @@ func TestListValidators(t *testing.T) {
 									ActivationEligibilityEpoch: 14,
 									ActivationEpoch:            15,
 									ExitEpoch:                  16,
-									WithdrawableEpoch:          17,
-									PrincipalBalance:           18,
+									PrincipalBalance:           17,
 								},
 							},
 						},
@@ -527,8 +512,7 @@ func TestListValidators(t *testing.T) {
 									ActivationEligibilityEpoch: 14,
 									ActivationEpoch:            15,
 									ExitEpoch:                  16,
-									WithdrawableEpoch:          17,
-									PrincipalBalance:           18,
+									PrincipalBalance:           17,
 								},
 							},
 						},

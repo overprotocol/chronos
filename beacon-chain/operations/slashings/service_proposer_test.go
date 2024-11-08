@@ -47,10 +47,8 @@ func TestPool_InsertProposerSlashing(t *testing.T) {
 	// We mark the following validators with some preconditions.
 	exitedVal, err := beaconState.ValidatorAtIndex(primitives.ValidatorIndex(2))
 	require.NoError(t, err)
-	exitedVal.WithdrawableEpoch = 0
 	futureExitedVal, err := beaconState.ValidatorAtIndex(primitives.ValidatorIndex(4))
 	require.NoError(t, err)
-	futureExitedVal.WithdrawableEpoch = 17
 	slashedVal, err := beaconState.ValidatorAtIndex(primitives.ValidatorIndex(5))
 	require.NoError(t, err)
 	slashedVal.Slashed = true

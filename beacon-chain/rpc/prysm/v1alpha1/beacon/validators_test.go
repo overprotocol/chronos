@@ -1247,7 +1247,6 @@ func TestServer_GetValidatorActiveSetChanges(t *testing.T) {
 
 	for i := 0; i < len(validators); i++ {
 		activationEpoch := params.BeaconConfig().FarFutureEpoch
-		withdrawableEpoch := params.BeaconConfig().FarFutureEpoch
 		exitEpoch := params.BeaconConfig().FarFutureEpoch
 		slashed := false
 		balance := params.BeaconConfig().MinActivationBalance
@@ -1258,16 +1257,13 @@ func TestServer_GetValidatorActiveSetChanges(t *testing.T) {
 			activationEpoch = 0
 		} else if i%3 == 0 {
 			// Mark indices divisible by 3 as slashed.
-			withdrawableEpoch = params.BeaconConfig().MinSlashingWithdrawableDelay
 			slashed = true
 		} else if i%5 == 0 {
 			// Mark indices divisible by 5 as exited.
 			exitEpoch = 0
-			withdrawableEpoch = params.BeaconConfig().MinValidatorWithdrawabilityDelay
 		} else if i%7 == 0 {
 			// Mark indices divisible by 7 as bailed out.
 			exitEpoch = 0
-			withdrawableEpoch = params.BeaconConfig().MinValidatorWithdrawabilityDelay
 			bailoutBuffer := balance * params.BeaconConfig().InactivityPenaltyRate / params.BeaconConfig().InactivityPenaltyRatePrecision
 			actualBalances[i] = balance - bailoutBuffer - 1
 		}
@@ -1276,7 +1272,6 @@ func TestServer_GetValidatorActiveSetChanges(t *testing.T) {
 			PublicKey:             pubKey(uint64(i)),
 			EffectiveBalance:      balance,
 			WithdrawalCredentials: make([]byte, 32),
-			WithdrawableEpoch:     withdrawableEpoch,
 			Slashed:               slashed,
 			ExitEpoch:             exitEpoch,
 			PrincipalBalance:      balance,
@@ -1391,16 +1386,14 @@ func TestServer_GetValidatorQueue_PendingActivation(t *testing.T) {
 func TestServer_GetValidatorQueue_ExitedValidatorLeavesQueue(t *testing.T) {
 	validators := []*ethpb.Validator{
 		{
-			ActivationEpoch:   0,
-			ExitEpoch:         params.BeaconConfig().FarFutureEpoch,
-			WithdrawableEpoch: params.BeaconConfig().FarFutureEpoch,
-			PublicKey:         bytesutil.PadTo([]byte("1"), 48),
+			ActivationEpoch: 0,
+			ExitEpoch:       params.BeaconConfig().FarFutureEpoch,
+			PublicKey:       bytesutil.PadTo([]byte("1"), 48),
 		},
 		{
-			ActivationEpoch:   0,
-			ExitEpoch:         4,
-			WithdrawableEpoch: 6,
-			PublicKey:         bytesutil.PadTo([]byte("2"), 48),
+			ActivationEpoch: 0,
+			ExitEpoch:       4,
+			PublicKey:       bytesutil.PadTo([]byte("2"), 48),
 		},
 	}
 
@@ -1442,21 +1435,18 @@ func TestServer_GetValidatorQueue_PendingExit(t *testing.T) {
 			{
 				ActivationEpoch:       0,
 				ExitEpoch:             4,
-				WithdrawableEpoch:     3,
 				PublicKey:             pubKey(3),
 				WithdrawalCredentials: make([]byte, 32),
 			},
 			{
 				ActivationEpoch:       0,
-				ExitEpoch:             4,
-				WithdrawableEpoch:     2,
+				ExitEpoch:             3,
 				PublicKey:             pubKey(2),
 				WithdrawalCredentials: make([]byte, 32),
 			},
 			{
 				ActivationEpoch:       0,
-				ExitEpoch:             4,
-				WithdrawableEpoch:     1,
+				ExitEpoch:             2,
 				PublicKey:             pubKey(1),
 				WithdrawalCredentials: make([]byte, 32),
 			},
@@ -1473,11 +1463,10 @@ func TestServer_GetValidatorQueue_PendingExit(t *testing.T) {
 	}
 	res, err := bs.GetValidatorQueue(context.Background(), &emptypb.Empty{})
 	require.NoError(t, err)
-	// We verify the keys are properly sorted by the validators' withdrawable epoch.
+	// We verify the keys are properly sorted by the validators' exit epoch.
 	wanted := [][]byte{
 		pubKey(1),
 		pubKey(2),
-		pubKey(3),
 	}
 	activeValidatorCount, err := helpers.ActiveValidatorCount(context.Background(), headState, coreTime.CurrentEpoch(headState))
 	require.NoError(t, err)

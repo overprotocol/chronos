@@ -88,14 +88,15 @@ func checkValidatorExitingStatus(activationEpoch, exitEpoch, epoch primitives.Ep
 //	"""
 //	Check if ``validator`` is slashable.
 //	"""
-//	return (not validator.slashed) and (validator.activation_epoch <= epoch < validator.withdrawable_epoch)
+//	return (not validator.slashed) and (validator.activation_epoch <= epoch < get_withdrawable_epoch(validator))
 func IsSlashableValidator(activationEpoch, withdrawableEpoch primitives.Epoch, slashed bool, epoch primitives.Epoch) bool {
 	return checkValidatorSlashable(activationEpoch, withdrawableEpoch, slashed, epoch)
 }
 
 // IsSlashableValidatorUsingTrie checks if a read only validator is slashable.
 func IsSlashableValidatorUsingTrie(val state.ReadOnlyValidator, epoch primitives.Epoch) bool {
-	return checkValidatorSlashable(val.ActivationEpoch(), val.WithdrawableEpoch(), val.Slashed(), epoch)
+	withdrawableEpoch := GetWithdrawableEpoch(val.ExitEpoch(), val.Slashed())
+	return checkValidatorSlashable(val.ActivationEpoch(), withdrawableEpoch, val.Slashed(), epoch)
 }
 
 func checkValidatorSlashable(activationEpoch, withdrawableEpoch primitives.Epoch, slashed bool, epoch primitives.Epoch) bool {
@@ -647,20 +648,20 @@ func IsSameWithdrawalCredentials(a, b *ethpb.Validator) bool {
 //	    """
 //	    return (
 //	        has_execution_withdrawal_credential(validator)  # [Modified in Electra:EIP7251]
-//	        and validator.withdrawable_epoch <= epoch
+//	        and get_withdrawable_epoch(validator) <= epoch
 //	        and balance > 0
 //	    )
 func IsFullyWithdrawableValidator(val *ethpb.Validator, balance uint64, epoch primitives.Epoch, fork int) bool {
 	if val == nil || balance <= 0 {
 		return false
 	}
-
+	withdrawableEpoch := GetWithdrawableEpoch(val.ExitEpoch, val.Slashed)
 	// Electra / EIP-7251 logic
 	if fork >= version.Electra {
-		return HasExecutionWithdrawalCredentials(val) && val.WithdrawableEpoch <= epoch
+		return HasExecutionWithdrawalCredentials(val) && withdrawableEpoch <= epoch
 	}
 
-	return HasETH1WithdrawalCredential(val) && val.WithdrawableEpoch <= epoch
+	return HasETH1WithdrawalCredential(val) && withdrawableEpoch <= epoch
 }
 
 // IsPartiallyWithdrawableValidator returns whether the validator is able to perform a
@@ -707,4 +708,25 @@ func ValidatorMaxEffectiveBalance(val *ethpb.Validator) uint64 {
 		return params.BeaconConfig().MaxEffectiveBalanceAlpaca
 	}
 	return params.BeaconConfig().MinActivationBalance
+}
+
+// GetWithdrawableEpoch returns the epoch at which the validator can withdraw.
+//
+// Spec definition:
+//
+//	def get_withdrawable_epoch(validator: Validator) -> Epoch:
+//		if validator.exit_epoch == FAR_FUTURE_EPOCH:
+//			return FAR_FUTURE_EPOCH
+//		elif validator.slashed:
+//			return Epoch(validator.exit_epoch + MIN_SLASHING_WITHDRAWABLE_DELAY)
+//		return Epoch(validator.exit_epoch + MIN_VALIDATOR_WITHDRAWABILITY_DELAY)
+func GetWithdrawableEpoch(exitEpoch primitives.Epoch, slashed bool) primitives.Epoch {
+	beaconConfig := params.BeaconConfig()
+
+	if exitEpoch == beaconConfig.FarFutureEpoch {
+		return beaconConfig.FarFutureEpoch
+	} else if slashed {
+		return exitEpoch + beaconConfig.MinSlashingWithdrawableDelay
+	}
+	return exitEpoch + beaconConfig.MinValidatorWithdrawabilityDelay
 }

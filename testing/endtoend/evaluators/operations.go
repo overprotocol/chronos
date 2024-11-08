@@ -240,9 +240,6 @@ func activatesDepositedValidators(ec *e2etypes.EvaluationContext, conns ...*grpc
 		if v.ExitEpoch != params.BeaconConfig().FarFutureEpoch {
 			wrongExit++
 		}
-		if v.WithdrawableEpoch != params.BeaconConfig().FarFutureEpoch {
-			wrongWithdraw++
-		}
 	}
 
 	// Make sure every post-genesis deposit has been processed, resulting in a validator.

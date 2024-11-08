@@ -26,7 +26,7 @@ func TestValidatorConstants(t *testing.T) {
 		}
 		numOfValFields++
 	}
-	assert.Equal(t, validatorFields, numOfValFields)
+	assert.Equal(t, validatorFieldRoots, numOfValFields)
 	expectedTreeDepth := math.Ceil(math.Log2(float64(validatorFieldRoots)))
 	assert.Equal(t, validatorTreeDepth, int(expectedTreeDepth))
 
@@ -57,4 +57,21 @@ func TestHashValidatorHelper(t *testing.T) {
 	for i := 6 * validatorFieldRoots; i < 10*validatorFieldRoots; i++ {
 		require.Equal(t, [32]byte{}, roots[i])
 	}
+}
+
+func BenchmarkTestValidatorRegistryRoot(b *testing.B) {
+	valList := make([]*ethpb.Validator, 1_000_000)
+	for i := range valList {
+		valList[i] = &ethpb.Validator{
+			PublicKey:        []byte{byte(i)},
+			EffectiveBalance: uint64(i),
+			PrincipalBalance: uint64(i),
+		}
+	}
+	b.Run("1 mil validators", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			_, err := validatorRegistryRoot(valList)
+			require.NoError(b, err)
+		}
+	})
 }
