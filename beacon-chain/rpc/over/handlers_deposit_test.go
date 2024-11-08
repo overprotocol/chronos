@@ -310,7 +310,7 @@ func TestGetDepositEstimation(t *testing.T) {
 			},
 		},
 		{
-			name:   "[top-up] deposits exceeds churn limit",
+			name:   "[top-up] deposit amount is same as churn limit",
 			pubkey: pubkey1,
 			state: func() state.BeaconState {
 				st, _ := util.DeterministicGenesisStateElectra(t, 10)
@@ -353,7 +353,123 @@ func TestGetDepositEstimation(t *testing.T) {
 						Data: &structs.PendingDepositEstimation{
 							Amount:        4096_000_000_000,
 							Slot:          321,
+							ExpectedEpoch: 13, // churn limit is reached for epoch 12, so the expected epoch is 13
+						},
+					},
+				},
+			},
+		},
+		{
+			name:   "[top-up] first deposit exceeds churn limit, second deposit is within churn limit",
+			pubkey: pubkey1,
+			state: func() state.BeaconState {
+				st, _ := util.DeterministicGenesisStateElectra(t, 10)
+
+				pd := &ethpb.PendingDeposit{
+					PublicKey:             sk1.PublicKey().Marshal(),
+					WithdrawalCredentials: make([]byte, 32),
+					Amount:                4097_000_000_000, // 4097 OVER = activation balance churn limit + 1
+					Slot:                  primitives.Slot(321),
+				}
+				pd, err = signedPendingDeposit(sk1, pd)
+				require.NoError(t, err)
+
+				pd2 := &ethpb.PendingDeposit{
+					PublicKey:             sk1.PublicKey().Marshal(),
+					WithdrawalCredentials: make([]byte, 32),
+					Amount:                4095_000_000_000, // 4095 OVER
+					Slot:                  primitives.Slot(321),
+				}
+				pd2, err = signedPendingDeposit(sk1, pd2)
+				require.NoError(t, err)
+
+				require.NoError(t, st.AppendPendingDeposit(pd))
+				require.NoError(t, st.AppendPendingDeposit(pd2))
+
+				require.NoError(t, st.SetSlot(384)) // current epoch = 12
+				require.NoError(t, st.SetFinalizedCheckpoint(&ethpb.Checkpoint{
+					Epoch: 12,
+					Root:  []byte("finalized"),
+				}))
+				return st
+			}(),
+			code: http.StatusOK,
+			wantData: &structs.DepositEstimationContainer{
+				Pubkey:    pubkey1,
+				Validator: structs.ValidatorFromConsensus(val0),
+				PendingDeposits: []*structs.PendingDepositEstimationContainer{
+					{
+						Type: "top-up",
+						Data: &structs.PendingDepositEstimation{
+							Amount:        4097_000_000_000,
+							Slot:          321,
 							ExpectedEpoch: 13, // churn limit is exceeded for epoch 12, so the expected epoch is 13
+						},
+					},
+					{
+						Type: "top-up",
+						Data: &structs.PendingDepositEstimation{
+							Amount:        4095_000_000_000,
+							Slot:          321,
+							ExpectedEpoch: 13, // As available amount for processing increased, this deposit is processed in epoch 13
+						},
+					},
+				},
+			},
+		},
+		{
+			name:   "[top-up] first deposit exceeds churn limit, second deposit exceeds churn limit",
+			pubkey: pubkey1,
+			state: func() state.BeaconState {
+				st, _ := util.DeterministicGenesisStateElectra(t, 10)
+
+				pd := &ethpb.PendingDeposit{
+					PublicKey:             sk1.PublicKey().Marshal(),
+					WithdrawalCredentials: make([]byte, 32),
+					Amount:                4097_000_000_000, // 4097 OVER = activation balance churn limit + 1
+					Slot:                  primitives.Slot(321),
+				}
+				pd, err = signedPendingDeposit(sk1, pd)
+				require.NoError(t, err)
+
+				pd2 := &ethpb.PendingDeposit{
+					PublicKey:             sk1.PublicKey().Marshal(),
+					WithdrawalCredentials: make([]byte, 32),
+					Amount:                4096_000_000_000, // 4096 OVER
+					Slot:                  primitives.Slot(321),
+				}
+				pd2, err = signedPendingDeposit(sk1, pd2)
+				require.NoError(t, err)
+
+				require.NoError(t, st.AppendPendingDeposit(pd))
+				require.NoError(t, st.AppendPendingDeposit(pd2))
+
+				require.NoError(t, st.SetSlot(384)) // current epoch = 12
+				require.NoError(t, st.SetFinalizedCheckpoint(&ethpb.Checkpoint{
+					Epoch: 12,
+					Root:  []byte("finalized"),
+				}))
+				return st
+			}(),
+			code: http.StatusOK,
+			wantData: &structs.DepositEstimationContainer{
+				Pubkey:    pubkey1,
+				Validator: structs.ValidatorFromConsensus(val0),
+				PendingDeposits: []*structs.PendingDepositEstimationContainer{
+					{
+						Type: "top-up",
+						Data: &structs.PendingDepositEstimation{
+							Amount:        4097_000_000_000,
+							Slot:          321,
+							ExpectedEpoch: 13, // churn limit is exceeded for epoch 12, so the expected epoch is 13
+						},
+					},
+					{
+						Type: "top-up",
+						Data: &structs.PendingDepositEstimation{
+							Amount:        4096_000_000_000,
+							Slot:          321,
+							ExpectedEpoch: 14,
 						},
 					},
 				},
