@@ -20,10 +20,6 @@ import (
 )
 
 const (
-	// constants for search limit. These are used to slice down the pending partial withdrawals.
-	defaultSearchLimit = 1000
-	minSearchLimit     = 1
-	maxSearchLimit     = 10000
 	// pendingPartialWithdrawalResponseLimit is the maximum number of partial withdrawals that can be included in a response.
 	pendingPartialWithdrawalResponseLimit = 100
 )
