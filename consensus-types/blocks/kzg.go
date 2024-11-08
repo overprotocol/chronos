@@ -15,7 +15,7 @@ const (
 	bodyLength    = 9  // The number of elements in the BeaconBlockBody Container for Electra
 	logBodyLength = 4  // The log 2 of bodyLength
 	kzgPosition   = 7  // The index of the KZG commitment list in the Body
-	kzgRootIndex  = 30 // The Merkle index of the KZG commitment list's root in the Body's Merkle tree
+	kzgRootIndex  = 46 // The Merkle index of the KZG commitment list's root in the Body's Merkle tree
 	KZGOffset     = kzgRootIndex * field_params.MaxBlobCommitmentsPerBlock
 )
 
