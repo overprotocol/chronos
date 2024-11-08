@@ -599,7 +599,6 @@ func TestProcessBlindWithdrawals(t *testing.T) {
 		for i := range validators {
 			v := &ethpb.Validator{}
 			v.EffectiveBalance = maxEffectiveBalance
-			//v.WithdrawableEpoch = epochInFuture
 			v.ExitEpoch = epochInFuture
 			v.WithdrawalCredentials = make([]byte, 32)
 			v.WithdrawalCredentials[31] = byte(i)

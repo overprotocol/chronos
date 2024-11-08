@@ -671,7 +671,6 @@ func TestGetValidator(t *testing.T) {
 		assert.Equal(t, "0", resp.Data.Validator.ActivationEligibilityEpoch)
 		assert.Equal(t, "0", resp.Data.Validator.ActivationEpoch)
 		assert.Equal(t, "18446744073709551615", resp.Data.Validator.ExitEpoch)
-		//assert.Equal(t, "18446744073709551615", resp.Data.Validator.WithdrawableEpoch)
 	})
 	t.Run("get by pubkey", func(t *testing.T) {
 		chainService := &chainMock.ChainService{}
