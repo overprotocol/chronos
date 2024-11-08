@@ -55,3 +55,9 @@ build --define gotags=bazel
 # Abseil requires c++14 or greater.
 build --cxxopt=-std=c++20
 build --host_cxxopt=-std=c++20
+
+# remote-cache properties
+build:remote-cache --remote_cache=https://storage.googleapis.com/chronos-bazel-cache
+build:remote-cache --remote_download_minimal
+build:remote-cache --remote_build_event_upload=minimal
+build:remote-cache --google_default_credentials

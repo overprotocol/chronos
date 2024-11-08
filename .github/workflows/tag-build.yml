@@ -15,7 +15,7 @@ jobs:
       tag_name: ${{ steps.extract.outputs.tag_name }}
       version_name: ${{ steps.extract.outputs.version_name }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Extract tag name, version
         id: extract
         run: |
@@ -36,6 +36,12 @@ jobs:
       build-type: ${{ matrix.symbol-list }}
       tag_name: ${{ needs.extract-version.outputs.tag_name }}
       version_name: ${{ needs.extract-version.outputs.version_name }}
+    permissions:
+      id-token: write
+      contents: read
+    secrets:
+      GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
 
   upload-aws:
     needs: [build, extract-version]
@@ -111,9 +117,14 @@ jobs:
     with:
       tag_name: ${{ needs.extract-version.outputs.tag_name }}
       version_name: ${{ needs.extract-version.outputs.version_name }}
+    permissions:
+      id-token: write
+      contents: read
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
 
   create-release:
     needs: [build, extract-version]
