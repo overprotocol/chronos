@@ -443,6 +443,7 @@ func (bs *Server) GetValidatorQueue(
 	// Queue the validators whose eligible to activate and sort them by activation eligibility epoch number.
 	// Additionally, determine those validators queued to exit
 	awaitingExit := make([]primitives.ValidatorIndex, 0)
+	exitEpochs := make([]primitives.Epoch, 0)
 	activationQ := make([]primitives.ValidatorIndex, 0)
 	vals := headState.Validators()
 	for idx, validator := range vals {
@@ -452,6 +453,7 @@ func (bs *Server) GetValidatorQueue(
 			activationQ = append(activationQ, primitives.ValidatorIndex(idx))
 		}
 		if validator.ExitEpoch != params.BeaconConfig().FarFutureEpoch {
+			exitEpochs = append(exitEpochs, validator.ExitEpoch)
 			awaitingExit = append(awaitingExit, primitives.ValidatorIndex(idx))
 		}
 	}
@@ -468,13 +470,33 @@ func (bs *Server) GetValidatorQueue(
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Could not get active validator count: %v", err)
 	}
+	exitQueueEpoch := primitives.Epoch(0)
+	for _, i := range exitEpochs {
+		if exitQueueEpoch < i {
+			exitQueueEpoch = i
+		}
+	}
+	exitQueueChurn := uint64(0)
+	for _, val := range vals {
+		if val.ExitEpoch == exitQueueEpoch {
+			exitQueueChurn++
+		}
+	}
+	// Prevent churn limit from causing index out of bound issues.
+	exitChurnLimit := helpers.ValidatorExitChurnLimit(activeValidatorCount)
+	if exitChurnLimit < exitQueueChurn {
+		// If we are above the churn limit, we simply increase the churn by one.
+		exitQueueEpoch++
+	}
 
 	// We use the exit queue churn to determine if we have passed a churn limit.
+	minEpoch := exitQueueEpoch + params.BeaconConfig().MinValidatorWithdrawabilityDelay
 	exitQueueIndices := make([]primitives.ValidatorIndex, 0)
 	for _, valIdx := range awaitingExit {
 		val := vals[valIdx]
+		withdrawableEpoch := helpers.GetWithdrawableEpoch(val.ExitEpoch, val.Slashed)
 		// Ensure the validator has not yet exited before adding its index to the exit queue.
-		if !val.Slashed && !validatorHasExited(val, coreTime.CurrentEpoch(headState)) {
+		if withdrawableEpoch < minEpoch && !validatorHasExited(val, coreTime.CurrentEpoch(headState)) {
 			exitQueueIndices = append(exitQueueIndices, valIdx)
 		}
 	}

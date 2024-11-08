@@ -26,8 +26,8 @@ func TestInitializeEpochValidators_Ok(t *testing.T) {
 		// Validator 2 is active prev epoch and current epoch
 		// Validator 3 is active prev epoch
 		Validators: []*ethpb.Validator{
-			{Slashed: true, ExitEpoch: 0, EffectiveBalance: 100},
-			{ExitEpoch: 0, EffectiveBalance: 100},
+			{Slashed: true, EffectiveBalance: 100},
+			{EffectiveBalance: 100},
 			{ExitEpoch: ffe, EffectiveBalance: 100},
 			{ExitEpoch: 1, EffectiveBalance: 100},
 		},
@@ -152,7 +152,6 @@ func TestProcessEpochParticipation(t *testing.T) {
 }
 
 func TestProcessEpochParticipation_InactiveValidator(t *testing.T) {
-	params.BeaconConfig().MinValidatorWithdrawabilityDelay = 0
 	generateParticipation := func(flags ...uint8) byte {
 		b := byte(0)
 		var err error
@@ -191,7 +190,7 @@ func TestProcessEpochParticipation_InactiveValidator(t *testing.T) {
 	require.DeepEqual(t, &precompute.Validator{
 		IsActiveCurrentEpoch:         false,
 		IsActivePrevEpoch:            false,
-		IsWithdrawableCurrentEpoch:   true,
+		IsWithdrawableCurrentEpoch:   false,
 		CurrentEpochEffectiveBalance: eb,
 		ActualBalance:                eb,
 	}, validators[0])
@@ -201,7 +200,7 @@ func TestProcessEpochParticipation_InactiveValidator(t *testing.T) {
 		IsPrevEpochAttester:          true,
 		IsPrevEpochSourceAttester:    true,
 		IsPrevEpochTargetAttester:    true,
-		IsWithdrawableCurrentEpoch:   true,
+		IsWithdrawableCurrentEpoch:   false,
 		CurrentEpochEffectiveBalance: eb,
 		ActualBalance:                eb,
 	}, validators[1])

@@ -55,14 +55,14 @@ func ValidatorSubStatus(val state.ReadOnlyValidator, epoch primitives.Epoch) (va
 
 	// Exited.
 	withdrawableEpoch := helpers.GetWithdrawableEpoch(val.ExitEpoch(), val.Slashed())
-	if val.ExitEpoch() <= epoch && epoch < withdrawalEpoch {
+	if val.ExitEpoch() <= epoch && epoch < withdrawableEpoch {
 		if val.Slashed() {
 			return validator.ExitedSlashed, nil
 		}
 		return validator.ExitedUnslashed, nil
 	}
 
-	if withdrawalEpoch <= epoch {
+	if withdrawableEpoch <= epoch {
 		if val.EffectiveBalance() != 0 {
 			return validator.WithdrawalPossible, nil
 		} else {
