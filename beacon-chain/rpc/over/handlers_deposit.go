@@ -244,7 +244,8 @@ func buildPendingDepositEstimations(st state.BeaconState, pubkey []byte, initial
 				return nil, errors.Wrap(err, "could not get validator")
 			}
 			isValidatorExited = val.ExitEpoch() < params.BeaconConfig().FarFutureEpoch
-			isValidatorWithdrawn = val.WithdrawableEpoch() < currentEpoch+1
+			withdrawableEpoch := helpers.GetWithdrawableEpoch(val.ExitEpoch(), val.Slashed())
+			isValidatorWithdrawn = withdrawableEpoch < currentEpoch+1
 		}
 
 		if !isValidatorWithdrawn && !isValidatorExited {
@@ -317,7 +318,6 @@ func validatorFromROVal(val state.ReadOnlyValidator) *structs.Validator {
 		ActivationEligibilityEpoch: fmt.Sprintf("%d", val.ActivationEligibilityEpoch()),
 		ActivationEpoch:            fmt.Sprintf("%d", val.ActivationEpoch()),
 		ExitEpoch:                  fmt.Sprintf("%d", val.ExitEpoch()),
-		WithdrawableEpoch:          fmt.Sprintf("%d", val.WithdrawableEpoch()),
 		PrincipalBalance:           fmt.Sprintf("%d", val.PrincipalBalance()),
 	}
 }
