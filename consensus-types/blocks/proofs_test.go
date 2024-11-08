@@ -64,7 +64,7 @@ func TestComputeBlockBodyFieldRoots_Bellatrix(t *testing.T) {
 
 	fieldRoots, err := ComputeBlockBodyFieldRoots(context.Background(), b)
 	require.NoError(t, err)
-	trie, err := trie.GenerateTrieFromItems(fieldRoots, 4)
+	trie, err := trie.GenerateTrieFromItems(fieldRoots, 3)
 	require.NoError(t, err)
 	layers := trie.ToProto().GetLayers()
 
@@ -87,7 +87,7 @@ func TestComputeBlockBodyFieldRoots_Capella(t *testing.T) {
 
 	fieldRoots, err := ComputeBlockBodyFieldRoots(context.Background(), b)
 	require.NoError(t, err)
-	trie, err := trie.GenerateTrieFromItems(fieldRoots, 4)
+	trie, err := trie.GenerateTrieFromItems(fieldRoots, 3)
 	require.NoError(t, err)
 	layers := trie.ToProto().GetLayers()
 
@@ -110,7 +110,7 @@ func TestComputeBlockBodyFieldRoots_Deneb(t *testing.T) {
 
 	fieldRoots, err := ComputeBlockBodyFieldRoots(context.Background(), b)
 	require.NoError(t, err)
-	trie, err := trie.GenerateTrieFromItems(fieldRoots, 4)
+	trie, err := trie.GenerateTrieFromItems(fieldRoots, 3)
 	require.NoError(t, err)
 	layers := trie.ToProto().GetLayers()
 
