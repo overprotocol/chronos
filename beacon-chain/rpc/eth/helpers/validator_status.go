@@ -54,7 +54,7 @@ func ValidatorSubStatus(val state.ReadOnlyValidator, epoch primitives.Epoch) (va
 	}
 
 	// Exited.
-	withdrawalEpoch := helpers.GetWithdrawableEpoch(val.ExitEpoch(), val.Slashed())
+	withdrawableEpoch := helpers.GetWithdrawableEpoch(val.ExitEpoch(), val.Slashed())
 	if val.ExitEpoch() <= epoch && epoch < withdrawalEpoch {
 		if val.Slashed() {
 			return validator.ExitedSlashed, nil
