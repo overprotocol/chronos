@@ -71,7 +71,7 @@ func (s *Service) validateAttesterSlashing(ctx context.Context, pid peer.ID, msg
 			previouslySlashed = true
 			continue
 		}
-		withdrawalEpoch := helpers.GetWithdrawableEpoch(val.ExitEpoch(), val.Slashed())
+		withdrawableEpoch := helpers.GetWithdrawableEpoch(val.ExitEpoch(), val.Slashed())
 		if helpers.IsSlashableValidator(val.ActivationEpoch(), withdrawalEpoch, val.Slashed(), slots.ToEpoch(headState.Slot())) {
 			isSlashable = true
 			break
