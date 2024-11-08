@@ -20,6 +20,10 @@ import (
 )
 
 const (
+	// constants for search limit. These are used to slice down the pending partial withdrawals.
+	defaultSearchLimit = 1000
+	minSearchLimit     = 1
+	maxSearchLimit     = 10000
 	// pendingPartialWithdrawalResponseLimit is the maximum number of partial withdrawals that can be included in a response.
 	pendingPartialWithdrawalResponseLimit = 100
 )
@@ -74,6 +78,24 @@ func (s *Server) GetWithdrawalEstimation(w http.ResponseWriter, r *http.Request)
 	}
 	isFinalized := s.FinalizationFetcher.IsFinalized(ctx, blockRoot)
 
+	// Parse search_limit from URL params
+	searchLimit := defaultSearchLimit
+	rawSearchLimit := r.URL.Query().Get("search_limit")
+	if rawSearchLimit != "" {
+		_limit, err := strconv.Atoi(rawSearchLimit)
+		if err != nil {
+			httputil.HandleError(w, "search_limit must be a number", http.StatusBadRequest)
+			return
+		}
+		if _limit < minSearchLimit {
+			searchLimit = minSearchLimit
+		} else if _limit > maxSearchLimit {
+			searchLimit = maxSearchLimit
+		} else {
+			searchLimit = _limit
+		}
+	}
+
 	ppws, err := st.PendingPartialWithdrawals()
 	if err != nil {
 		httputil.WriteError(w, handleWrapError(err, "could not get pending partial withdrawals from state", http.StatusInternalServerError))
@@ -88,6 +110,9 @@ func (s *Server) GetWithdrawalEstimation(w http.ResponseWriter, r *http.Request)
 		})
 		return
 	}
+
+	// Limit the number of partial withdrawals to search
+	ppws = ppws[:min(len(ppws), searchLimit)]
 
 	val, err := st.ValidatorAtIndex(valId)
 	if err != nil {
