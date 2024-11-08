@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/pkg/errors"
@@ -22,7 +23,17 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/time/slots"
 )
 
+const ()
+
 const (
+	// constants for search limit. These are used to slice down the pending deposits.
+	defaultSearchLimit = 1000
+	minSearchLimit     = 1
+	maxSearchLimit     = 10000
+
+	// pendingDepositResponseLimit is the maximum number of deposits that can be included in a response.
+	pendingDepositResponseLimit = 100
+
 	// Beacon chain is expected to be finalized after 2 epochs.
 	// Use this constant to calculate estimation.
 	expectedFinalityDelay = primitives.Epoch(2)
@@ -74,6 +85,24 @@ func (s *Server) GetDepositEstimation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	isFinalized := s.FinalizationFetcher.IsFinalized(ctx, blockRoot)
+
+	// Parse search_limit from URL params
+	searchLimit := defaultSearchLimit
+	rawSearchLimit := r.URL.Query().Get("search_limit")
+	if rawSearchLimit != "" {
+		_limit, err := strconv.Atoi(rawSearchLimit)
+		if err != nil {
+			httputil.HandleError(w, "search_limit must be a number", http.StatusBadRequest)
+			return
+		}
+		if _limit < minSearchLimit {
+			searchLimit = minSearchLimit
+		} else if _limit > maxSearchLimit {
+			searchLimit = maxSearchLimit
+		} else {
+			searchLimit = _limit
+		}
+	}
 
 	// Decode pubkey
 	hexId := append0x(rawPubkey)
@@ -129,7 +158,7 @@ func (s *Server) GetDepositEstimation(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	pdes, err := buildPendingDepositEstimations(st, pubkey, !found /* initial */)
+	pdes, err := buildPendingDepositEstimations(st, pubkey, !found /* initial */, searchLimit)
 	if err != nil {
 		httputil.WriteError(w, handleWrapError(err, "could not build pending deposit estimations", http.StatusBadRequest))
 		return
@@ -144,7 +173,7 @@ func (s *Server) GetDepositEstimation(w http.ResponseWriter, r *http.Request) {
 }
 
 // buildPendingDepositEstimations iterates through the pending deposits and calculates the expected epoch.
-func buildPendingDepositEstimations(st state.BeaconState, pubkey []byte, initial bool) ([]*structs.PendingDepositEstimationContainer, error) {
+func buildPendingDepositEstimations(st state.BeaconState, pubkey []byte, initial bool, searchLimit int) ([]*structs.PendingDepositEstimationContainer, error) {
 	activeBalance, err := helpers.TotalActiveBalance(st)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not get total active balance")
@@ -161,6 +190,9 @@ func buildPendingDepositEstimations(st state.BeaconState, pubkey []byte, initial
 	if len(pds) == 0 {
 		return pdes, nil
 	}
+
+	// Limit the number of pending deposits to search
+	pds = pds[:min(len(pds), searchLimit)]
 
 	finalizedEpoch := st.FinalizedCheckpointEpoch()
 	finalizedSlot, err := slots.EpochStart(finalizedEpoch)
@@ -267,6 +299,11 @@ func buildPendingDepositEstimations(st state.BeaconState, pubkey []byte, initial
 
 			pdes = append(pdes, pde)
 			initial = false // only one initial deposit is expected in the queue.
+
+			if len(pdes) >= pendingDepositResponseLimit {
+				// Limit the number of pending deposits in the response.
+				break
+			}
 		}
 	}
 
