@@ -44,11 +44,12 @@ func InitializePrecomputeValidators(ctx context.Context, beaconState state.Beaco
 
 	if err := beaconState.ReadFromEveryValidator(func(idx int, val state.ReadOnlyValidator) error {
 		// Set validator's balance, inactivity score and slashed/withdrawable status.
+		withdrawableEpoch := helpers.GetWithdrawableEpoch(val.ExitEpoch(), val.Slashed())
 		v := &precompute.Validator{
 			CurrentEpochEffectiveBalance: val.EffectiveBalance(),
 			InactivityScore:              inactivityScores[idx],
 			IsSlashed:                    val.Slashed(),
-			IsWithdrawableCurrentEpoch:   currentEpoch >= val.WithdrawableEpoch(),
+			IsWithdrawableCurrentEpoch:   currentEpoch >= withdrawableEpoch,
 			PrincipalBalance:             val.PrincipalBalance(),
 			ActualBalance:                actualBalances[idx],
 		}

@@ -96,7 +96,6 @@ type ReadOnlyValidator interface {
 	EffectiveBalance() uint64
 	ActivationEligibilityEpoch() primitives.Epoch
 	ActivationEpoch() primitives.Epoch
-	WithdrawableEpoch() primitives.Epoch
 	ExitEpoch() primitives.Epoch
 	PublicKey() [fieldparams.BLSPubkeyLength]byte
 	GetWithdrawalCredentials() []byte

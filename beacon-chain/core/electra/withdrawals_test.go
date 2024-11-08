@@ -72,7 +72,6 @@ func TestProcessWithdrawRequests(t *testing.T) {
 				prefix[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
 				v.WithdrawalCredentials = append(prefix, source...)
 				v.ExitEpoch = 261
-				v.WithdrawableEpoch = 517
 				require.NoError(t, wantPostSt.SetValidators([]*eth.Validator{v}))
 				require.NoError(t, wantPostSt.AppendPendingPartialWithdrawal(&eth.PendingPartialWithdrawal{
 					Index:             0,

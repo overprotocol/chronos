@@ -277,11 +277,6 @@ func (c beaconApiChainClient) Validators(ctx context.Context, in *ethpb.ListVali
 			return nil, errors.Wrapf(err, "failed to parse validator exit epoch `%s`", stateValidator.Validator.ExitEpoch)
 		}
 
-		withdrawableEpoch, err := strconv.ParseUint(stateValidator.Validator.WithdrawableEpoch, 10, 64)
-		if err != nil {
-			return nil, errors.Wrapf(err, "failed to parse validator withdrawable epoch `%s`", stateValidator.Validator.WithdrawableEpoch)
-		}
-
 		principalBalance, err := strconv.ParseUint(stateValidator.Validator.PrincipalBalance, 10, 64)
 		if err != nil {
 			return nil, errors.Wrapf(err, "failed to parse validator principal balance `%s`", stateValidator.Validator.PrincipalBalance)
@@ -297,7 +292,6 @@ func (c beaconApiChainClient) Validators(ctx context.Context, in *ethpb.ListVali
 				ActivationEligibilityEpoch: primitives.Epoch(activationEligibilityEpoch),
 				ActivationEpoch:            primitives.Epoch(activationEpoch),
 				ExitEpoch:                  primitives.Epoch(exitEpoch),
-				WithdrawableEpoch:          primitives.Epoch(withdrawableEpoch),
 				PrincipalBalance:           principalBalance,
 			},
 		}

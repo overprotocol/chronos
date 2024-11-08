@@ -27,7 +27,6 @@ func CopyValidator(val *Validator) *Validator {
 		ActivationEligibilityEpoch: val.ActivationEligibilityEpoch,
 		ActivationEpoch:            val.ActivationEpoch,
 		ExitEpoch:                  val.ExitEpoch,
-		WithdrawableEpoch:          val.WithdrawableEpoch,
 		PrincipalBalance:           val.PrincipalBalance,
 	}
 }

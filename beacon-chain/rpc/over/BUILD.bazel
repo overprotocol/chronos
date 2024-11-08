@@ -39,7 +39,6 @@ go_test(
         "handlers_test.go",
         "handlers_withdrawal_test.go",
         "handlers_deposit_test.go",
-        "handlers_test.go",
     ],
     embed = [":go_default_library"],
     deps = [

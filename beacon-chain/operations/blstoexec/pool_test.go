@@ -60,7 +60,6 @@ func TestBLSToExecChangesForInclusion(t *testing.T) {
 	for i := range validators {
 		v := &eth.Validator{}
 		v.EffectiveBalance = maxEffectiveBalance
-		v.WithdrawableEpoch = params.BeaconConfig().FarFutureEpoch
 		v.WithdrawalCredentials = make([]byte, 32)
 		priv, err := bls.RandKey()
 		require.NoError(t, err)

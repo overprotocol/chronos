@@ -461,7 +461,7 @@ func (bs *Server) GetValidatorQueue(
 		return vals[i].ActivationEligibilityEpoch < vals[j].ActivationEligibilityEpoch
 	})
 	sort.Slice(awaitingExit, func(i, j int) bool {
-		return vals[i].WithdrawableEpoch < vals[j].WithdrawableEpoch
+		return helpers.GetWithdrawableEpoch(vals[i].ExitEpoch, vals[i].Slashed) < helpers.GetWithdrawableEpoch(vals[j].ExitEpoch, vals[j].Slashed)
 	})
 
 	// Only activate just enough validators according to the activation churn limit.
@@ -493,8 +493,9 @@ func (bs *Server) GetValidatorQueue(
 	exitQueueIndices := make([]primitives.ValidatorIndex, 0)
 	for _, valIdx := range awaitingExit {
 		val := vals[valIdx]
+		withdrawableEpoch := helpers.GetWithdrawableEpoch(val.ExitEpoch, val.Slashed)
 		// Ensure the validator has not yet exited before adding its index to the exit queue.
-		if val.WithdrawableEpoch < minEpoch && !validatorHasExited(val, coreTime.CurrentEpoch(headState)) {
+		if withdrawableEpoch < minEpoch && !validatorHasExited(val, coreTime.CurrentEpoch(headState)) {
 			exitQueueIndices = append(exitQueueIndices, valIdx)
 		}
 	}

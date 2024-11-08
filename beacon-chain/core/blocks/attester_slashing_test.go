@@ -106,9 +106,6 @@ func TestProcessAttesterSlashings_IndexedAttestationFailedToVerify(t *testing.T)
 
 func TestProcessAttesterSlashings_AppliesCorrectStatus(t *testing.T) {
 	beaconState, privKeys := util.DeterministicGenesisState(t, 100)
-	for _, vv := range beaconState.Validators() {
-		vv.WithdrawableEpoch = primitives.Epoch(params.BeaconConfig().SlotsPerEpoch)
-	}
 
 	att1 := util.HydrateIndexedAttestation(&ethpb.IndexedAttestation{
 		Data: &ethpb.AttestationData{
@@ -179,9 +176,6 @@ func TestProcessAttesterSlashings_AppliesCorrectStatus(t *testing.T) {
 
 func TestProcessAttesterSlashings_AppliesCorrectStatusAltair(t *testing.T) {
 	beaconState, privKeys := util.DeterministicGenesisStateAltair(t, 100)
-	for _, vv := range beaconState.Validators() {
-		vv.WithdrawableEpoch = primitives.Epoch(params.BeaconConfig().SlotsPerEpoch)
-	}
 
 	att1 := util.HydrateIndexedAttestation(&ethpb.IndexedAttestation{
 		Data: &ethpb.AttestationData{
@@ -252,9 +246,6 @@ func TestProcessAttesterSlashings_AppliesCorrectStatusAltair(t *testing.T) {
 
 func TestProcessAttesterSlashings_AppliesCorrectStatusBellatrix(t *testing.T) {
 	beaconState, privKeys := util.DeterministicGenesisStateBellatrix(t, 100)
-	for _, vv := range beaconState.Validators() {
-		vv.WithdrawableEpoch = primitives.Epoch(params.BeaconConfig().SlotsPerEpoch)
-	}
 
 	att1 := util.HydrateIndexedAttestation(&ethpb.IndexedAttestation{
 		Data: &ethpb.AttestationData{
@@ -325,9 +316,6 @@ func TestProcessAttesterSlashings_AppliesCorrectStatusBellatrix(t *testing.T) {
 
 func TestProcessAttesterSlashings_AppliesCorrectStatusCapella(t *testing.T) {
 	beaconState, privKeys := util.DeterministicGenesisStateCapella(t, 100)
-	for _, vv := range beaconState.Validators() {
-		vv.WithdrawableEpoch = primitives.Epoch(params.BeaconConfig().SlotsPerEpoch)
-	}
 
 	att1 := util.HydrateIndexedAttestation(&ethpb.IndexedAttestation{
 		Data: &ethpb.AttestationData{

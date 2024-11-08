@@ -36,7 +36,7 @@ func TestBeaconState_NoDeadlock_Phase0(t *testing.T) {
 			ActivationEligibilityEpoch: 1,
 			ActivationEpoch:            1,
 			ExitEpoch:                  1,
-			WithdrawableEpoch:          1,
+			PrincipalBalance:           params.BeaconConfig().MaxEffectiveBalance,
 		})
 	}
 	newState, err := InitializeFromProtoUnsafePhase0(&ethpb.BeaconState{
@@ -92,7 +92,7 @@ func TestBeaconState_NoDeadlock_Altair(t *testing.T) {
 			ActivationEligibilityEpoch: 1,
 			ActivationEpoch:            1,
 			ExitEpoch:                  1,
-			WithdrawableEpoch:          1,
+			PrincipalBalance:           params.BeaconConfig().MaxEffectiveBalance,
 		})
 	}
 	st, err := InitializeFromProtoUnsafeAltair(&ethpb.BeaconStateAltair{
@@ -148,7 +148,7 @@ func TestBeaconState_NoDeadlock_Bellatrix(t *testing.T) {
 			ActivationEligibilityEpoch: 1,
 			ActivationEpoch:            1,
 			ExitEpoch:                  1,
-			WithdrawableEpoch:          1,
+			PrincipalBalance:           params.BeaconConfig().MaxEffectiveBalance,
 		})
 	}
 	st, err := InitializeFromProtoUnsafeBellatrix(&ethpb.BeaconStateBellatrix{
@@ -204,7 +204,7 @@ func TestBeaconState_NoDeadlock_Capella(t *testing.T) {
 			ActivationEligibilityEpoch: 1,
 			ActivationEpoch:            1,
 			ExitEpoch:                  1,
-			WithdrawableEpoch:          1,
+			PrincipalBalance:           params.BeaconConfig().MaxEffectiveBalance,
 		})
 	}
 	st, err := InitializeFromProtoUnsafeCapella(&ethpb.BeaconStateCapella{
@@ -260,7 +260,7 @@ func TestBeaconState_NoDeadlock_Deneb(t *testing.T) {
 			ActivationEligibilityEpoch: 1,
 			ActivationEpoch:            1,
 			ExitEpoch:                  1,
-			WithdrawableEpoch:          1,
+			PrincipalBalance:           params.BeaconConfig().MaxEffectiveBalance,
 		})
 	}
 	st, err := InitializeFromProtoUnsafeDeneb(&ethpb.BeaconStateDeneb{
@@ -425,7 +425,7 @@ func generateState(t *testing.T) state.BeaconState {
 			ActivationEligibilityEpoch: 1,
 			ActivationEpoch:            1,
 			ExitEpoch:                  1,
-			WithdrawableEpoch:          1,
+			PrincipalBalance:           params.BeaconConfig().MaxEffectiveBalance,
 		})
 		bals = append(bals, params.BeaconConfig().MaxEffectiveBalance)
 	}

@@ -95,26 +95,24 @@ func TestIsSlashableValidator_OK(t *testing.T) {
 		slashable bool
 	}{
 		{
-			name: "Unset withdrawable, slashable",
-			validator: &ethpb.Validator{
-				WithdrawableEpoch: params.BeaconConfig().FarFutureEpoch,
-			},
+			name:      "Unset withdrawable, slashable",
+			validator: &ethpb.Validator{},
 			epoch:     0,
 			slashable: true,
 		},
 		{
 			name: "before withdrawable, slashable",
 			validator: &ethpb.Validator{
-				WithdrawableEpoch: 5,
+				ExitEpoch: 5,
 			},
-			epoch:     3,
+			epoch:     6,
 			slashable: true,
 		},
 		{
 			name: "inactive, not slashable",
 			validator: &ethpb.Validator{
-				ActivationEpoch:   5,
-				WithdrawableEpoch: params.BeaconConfig().FarFutureEpoch,
+				ActivationEpoch: 5,
+				ExitEpoch:       params.BeaconConfig().FarFutureEpoch,
 			},
 			epoch:     2,
 			slashable: false,
@@ -122,27 +120,25 @@ func TestIsSlashableValidator_OK(t *testing.T) {
 		{
 			name: "after withdrawable, not slashable",
 			validator: &ethpb.Validator{
-				WithdrawableEpoch: 3,
+				ExitEpoch: 0,
 			},
-			epoch:     3,
+			epoch:     257,
 			slashable: false,
 		},
 		{
 			name: "slashed and withdrawable, not slashable",
 			validator: &ethpb.Validator{
-				Slashed:           true,
-				ExitEpoch:         params.BeaconConfig().FarFutureEpoch,
-				WithdrawableEpoch: 1,
+				Slashed:   true,
+				ExitEpoch: 0,
 			},
-			epoch:     2,
+			epoch:     257,
 			slashable: false,
 		},
 		{
 			name: "slashed, not slashable",
 			validator: &ethpb.Validator{
-				Slashed:           true,
-				ExitEpoch:         params.BeaconConfig().FarFutureEpoch,
-				WithdrawableEpoch: params.BeaconConfig().FarFutureEpoch,
+				Slashed:   true,
+				ExitEpoch: params.BeaconConfig().FarFutureEpoch,
 			},
 			epoch:     2,
 			slashable: false,
@@ -150,10 +146,9 @@ func TestIsSlashableValidator_OK(t *testing.T) {
 		{
 			name: "inactive and slashed, not slashable",
 			validator: &ethpb.Validator{
-				Slashed:           true,
-				ActivationEpoch:   4,
-				ExitEpoch:         params.BeaconConfig().FarFutureEpoch,
-				WithdrawableEpoch: params.BeaconConfig().FarFutureEpoch,
+				Slashed:         true,
+				ActivationEpoch: 4,
+				ExitEpoch:       params.BeaconConfig().FarFutureEpoch,
 			},
 			epoch:     2,
 			slashable: false,
@@ -163,8 +158,9 @@ func TestIsSlashableValidator_OK(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			t.Run("without trie", func(t *testing.T) {
+				withdrawableEpoch := helpers.GetWithdrawableEpoch(test.validator.ExitEpoch, test.validator.Slashed)
 				slashableValidator := helpers.IsSlashableValidator(test.validator.ActivationEpoch,
-					test.validator.WithdrawableEpoch, test.validator.Slashed, test.epoch)
+					withdrawableEpoch, test.validator.Slashed, test.epoch)
 				assert.Equal(t, test.slashable, slashableValidator, "Expected active validator slashable to be %t", test.slashable)
 			})
 			t.Run("with trie", func(t *testing.T) {
@@ -1094,7 +1090,7 @@ func TestIsFullyWithdrawableValidator(t *testing.T) {
 			name: "No ETH1 prefix",
 			validator: &ethpb.Validator{
 				WithdrawalCredentials: []byte{0xFA, 0xCC},
-				WithdrawableEpoch:     2,
+				ExitEpoch:             2,
 			},
 			balance: params.BeaconConfig().MaxEffectiveBalance,
 			epoch:   3,
@@ -1104,40 +1100,64 @@ func TestIsFullyWithdrawableValidator(t *testing.T) {
 			name: "Wrong withdrawable epoch",
 			validator: &ethpb.Validator{
 				WithdrawalCredentials: []byte{params.BeaconConfig().ETH1AddressWithdrawalPrefixByte, 0xCC},
-				WithdrawableEpoch:     2,
+				ExitEpoch:             2,
 			},
 			balance: params.BeaconConfig().MaxEffectiveBalance,
-			epoch:   1,
+			epoch:   2 + params.BeaconConfig().MinValidatorWithdrawabilityDelay - 1,
 			want:    false,
 		},
 		{
 			name: "No balance",
 			validator: &ethpb.Validator{
 				WithdrawalCredentials: []byte{params.BeaconConfig().ETH1AddressWithdrawalPrefixByte, 0xCC},
-				WithdrawableEpoch:     2,
+				ExitEpoch:             2,
 			},
 			balance: 0,
-			epoch:   3,
+			epoch:   2 + params.BeaconConfig().MinValidatorWithdrawabilityDelay,
 			want:    false,
 		},
 		{
 			name: "Fully withdrawable",
 			validator: &ethpb.Validator{
 				WithdrawalCredentials: []byte{params.BeaconConfig().ETH1AddressWithdrawalPrefixByte, 0xCC},
-				WithdrawableEpoch:     2,
+				ExitEpoch:             2,
 			},
 			balance: params.BeaconConfig().MaxEffectiveBalance,
-			epoch:   3,
+			epoch:   2 + params.BeaconConfig().MinValidatorWithdrawabilityDelay,
 			want:    true,
 		},
 		{
 			name: "Fully withdrawable compounding validator electra",
 			validator: &ethpb.Validator{
 				WithdrawalCredentials: []byte{params.BeaconConfig().CompoundingWithdrawalPrefixByte, 0xCC},
-				WithdrawableEpoch:     2,
+				ExitEpoch:             2,
 			},
 			balance: params.BeaconConfig().MaxEffectiveBalance,
-			epoch:   params.BeaconConfig().ElectraForkEpoch,
+			epoch:   params.BeaconConfig().MinValidatorWithdrawabilityDelay + 2,
+			fork:    version.Electra,
+			want:    true,
+		},
+		{
+			name: "Slashed ETH1 validator before withdrawable epoch electra",
+			validator: &ethpb.Validator{
+				WithdrawalCredentials: []byte{params.BeaconConfig().ETH1AddressWithdrawalPrefixByte, 0xCC},
+				ExitEpoch:             2,
+				Slashed:               true,
+			},
+			balance: params.BeaconConfig().MaxEffectiveBalance,
+			epoch:   2 + params.BeaconConfig().MinSlashingWithdrawableDelay - 1,
+			fork:    version.Electra,
+			want:    false,
+		},
+		{
+			name: "Slashed ETH1 validator after withdrawable epoch electra",
+			validator: &ethpb.Validator{
+				WithdrawalCredentials: []byte{params.BeaconConfig().ETH1AddressWithdrawalPrefixByte, 0xCC},
+				ExitEpoch:             2,
+				Slashed:               true,
+			},
+			balance: params.BeaconConfig().MaxEffectiveBalance,
+			epoch:   2 + params.BeaconConfig().MinSlashingWithdrawableDelay,
 			fork:    version.Electra,
 			want:    true,
 		},
@@ -1294,4 +1314,56 @@ func TestValidatorMaxEffectiveBalance(t *testing.T) {
 	}
 	// Sanity check that MinActivationBalance equals (pre-electra) MaxEffectiveBalance
 	assert.Equal(t, params.BeaconConfig().MinActivationBalance, params.BeaconConfig().MaxEffectiveBalance)
+}
+
+func TestGetWithdrawableEpoch(t *testing.T) {
+	params.SetupTestConfigCleanup(t)
+	config := params.BeaconConfig()
+
+	tests := []struct {
+		name      string
+		exitEpoch primitives.Epoch
+		slashed   bool
+		want      primitives.Epoch
+	}{
+		{
+			name:      "Returns FAR_FUTURE_EPOCH",
+			exitEpoch: config.FarFutureEpoch,
+			slashed:   false,
+			want:      config.FarFutureEpoch,
+		},
+		{
+			name:      "Slashed validator",
+			exitEpoch: 100,
+			slashed:   true,
+			want:      100 + config.MinSlashingWithdrawableDelay,
+		},
+		{
+			name:      "Regular validator",
+			exitEpoch: 100,
+			slashed:   false,
+			want:      100 + config.MinValidatorWithdrawabilityDelay,
+		},
+		{
+			name:      "Validator with 0 exit epoch",
+			exitEpoch: 0,
+			slashed:   false,
+			want:      0 + config.MinValidatorWithdrawabilityDelay,
+		},
+		{
+			name:      "Slashed validator with 0 exit epoch",
+			exitEpoch: 0,
+			slashed:   true,
+			want:      0 + config.MinSlashingWithdrawableDelay,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := helpers.GetWithdrawableEpoch(tt.exitEpoch, tt.slashed)
+			if got != tt.want {
+				t.Errorf("GetWithdrawableEpoch() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }

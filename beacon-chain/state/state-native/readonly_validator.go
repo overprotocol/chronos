@@ -50,12 +50,6 @@ func (v readOnlyValidator) ActivationEpoch() primitives.Epoch {
 	return v.validator.ActivationEpoch
 }
 
-// WithdrawableEpoch returns the withdrawable epoch of the
-// read only validator.
-func (v readOnlyValidator) WithdrawableEpoch() primitives.Epoch {
-	return v.validator.WithdrawableEpoch
-}
-
 // ExitEpoch returns the exit epoch of the
 // read only validator.
 func (v readOnlyValidator) ExitEpoch() primitives.Epoch {
@@ -104,7 +98,6 @@ func (v readOnlyValidator) Copy() *ethpb.Validator {
 		ActivationEligibilityEpoch: v.ActivationEligibilityEpoch(),
 		ActivationEpoch:            v.ActivationEpoch(),
 		ExitEpoch:                  v.ExitEpoch(),
-		WithdrawableEpoch:          v.WithdrawableEpoch(),
 		PrincipalBalance:           v.PrincipalBalance(),
 	}
 }

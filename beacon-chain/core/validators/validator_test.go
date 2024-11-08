@@ -131,17 +131,6 @@ func TestInitiateValidatorExitAltair_ChurnOverflow(t *testing.T) {
 	assert.Equal(t, wantedEpoch, v.ExitEpoch, "Exit epoch did not cover overflow case")
 }
 
-func TestInitiateValidatorExit_WithdrawalOverflows(t *testing.T) {
-	base := &ethpb.BeaconState{Validators: []*ethpb.Validator{
-		{ExitEpoch: params.BeaconConfig().FarFutureEpoch - 1},
-		{EffectiveBalance: params.BeaconConfig().MinActivationBalance, ExitEpoch: params.BeaconConfig().FarFutureEpoch},
-	}}
-	state, err := state_native.InitializeFromProtoPhase0(base)
-	require.NoError(t, err)
-	_, _, err = validators.InitiateValidatorExit(context.Background(), state, 1, params.BeaconConfig().FarFutureEpoch-1, 1)
-	require.ErrorContains(t, "addition overflows", err)
-}
-
 func TestInitiateValidatorExit_ProperExit_Electra(t *testing.T) {
 	exitedEpoch := primitives.Epoch(100)
 	idx := primitives.ValidatorIndex(3)
@@ -224,7 +213,9 @@ func TestSlashValidator_OK(t *testing.T) {
 	v, err := state.ValidatorAtIndex(slashedIdx)
 	require.NoError(t, err)
 	assert.Equal(t, true, v.Slashed, "Validator not slashed despite supposed to being slashed")
-	assert.Equal(t, time.CurrentEpoch(state)+params.BeaconConfig().MinSlashingWithdrawableDelay, v.WithdrawableEpoch, "Withdrawable epoch not the expected value")
+	withdrawableEpoch := helpers.GetWithdrawableEpoch(v.ExitEpoch, v.Slashed)
+	exitEpoch := helpers.ActivationExitEpoch(time.CurrentEpoch(state))
+	assert.Equal(t, exitEpoch+params.BeaconConfig().MinSlashingWithdrawableDelay, withdrawableEpoch, "Withdrawable epoch not the expected value")
 
 	whistleblowerReward := v.EffectiveBalance / params.BeaconConfig().WhistleBlowerRewardQuotient
 	bal, err := state.BalanceAtIndex(proposer)
@@ -272,7 +263,9 @@ func TestSlashValidator_Electra(t *testing.T) {
 	v, err := state.ValidatorAtIndex(slashedIdx)
 	require.NoError(t, err)
 	assert.Equal(t, true, v.Slashed, "Validator not slashed despite supposed to being slashed")
-	assert.Equal(t, time.CurrentEpoch(state)+params.BeaconConfig().MinSlashingWithdrawableDelay, v.WithdrawableEpoch, "Withdrawable epoch not the expected value")
+	withdrawableEpoch := helpers.GetWithdrawableEpoch(v.ExitEpoch, v.Slashed)
+	exitEpoch := helpers.ActivationExitEpoch(time.CurrentEpoch(state))
+	assert.Equal(t, exitEpoch+params.BeaconConfig().MinSlashingWithdrawableDelay, withdrawableEpoch, "Withdrawable epoch not the expected value")
 
 	whistleblowerReward := v.EffectiveBalance / params.BeaconConfig().WhistleBlowerRewardQuotientAlpaca
 	bal, err := state.BalanceAtIndex(proposer)
@@ -352,16 +345,16 @@ func TestSlashedValidatorIndices(t *testing.T) {
 			state: &ethpb.BeaconState{
 				Validators: []*ethpb.Validator{
 					{
-						WithdrawableEpoch: params.BeaconConfig().MinSlashingWithdrawableDelay,
-						Slashed:           true,
+						ExitEpoch: 0,
+						Slashed:   true,
 					},
 					{
-						WithdrawableEpoch: params.BeaconConfig().MinSlashingWithdrawableDelay,
-						Slashed:           false,
+						ExitEpoch: 0,
+						Slashed:   false,
 					},
 					{
-						WithdrawableEpoch: params.BeaconConfig().MinSlashingWithdrawableDelay,
-						Slashed:           true,
+						ExitEpoch: 0,
+						Slashed:   true,
 					},
 				},
 			},
@@ -371,7 +364,7 @@ func TestSlashedValidatorIndices(t *testing.T) {
 			state: &ethpb.BeaconState{
 				Validators: []*ethpb.Validator{
 					{
-						WithdrawableEpoch: params.BeaconConfig().MinSlashingWithdrawableDelay,
+						ExitEpoch: 0,
 					},
 				},
 			},
@@ -381,8 +374,8 @@ func TestSlashedValidatorIndices(t *testing.T) {
 			state: &ethpb.BeaconState{
 				Validators: []*ethpb.Validator{
 					{
-						WithdrawableEpoch: params.BeaconConfig().MinSlashingWithdrawableDelay,
-						Slashed:           true,
+						ExitEpoch: 0,
+						Slashed:   true,
 					},
 				},
 			},
@@ -532,19 +525,16 @@ func TestValidatorMaxExitEpochAndChurn(t *testing.T) {
 			state: &ethpb.BeaconState{
 				Validators: []*ethpb.Validator{
 					{
-						EffectiveBalance:  params.BeaconConfig().MaxEffectiveBalance,
-						ExitEpoch:         0,
-						WithdrawableEpoch: params.BeaconConfig().MinValidatorWithdrawabilityDelay,
+						EffectiveBalance: params.BeaconConfig().MaxEffectiveBalance,
+						ExitEpoch:        0,
 					},
 					{
-						EffectiveBalance:  params.BeaconConfig().MaxEffectiveBalance,
-						ExitEpoch:         0,
-						WithdrawableEpoch: 10,
+						EffectiveBalance: params.BeaconConfig().MaxEffectiveBalance,
+						ExitEpoch:        0,
 					},
 					{
-						EffectiveBalance:  params.BeaconConfig().MaxEffectiveBalance,
-						ExitEpoch:         0,
-						WithdrawableEpoch: params.BeaconConfig().MinValidatorWithdrawabilityDelay,
+						EffectiveBalance: params.BeaconConfig().MaxEffectiveBalance,
+						ExitEpoch:        0,
 					},
 				},
 			},
@@ -555,9 +545,8 @@ func TestValidatorMaxExitEpochAndChurn(t *testing.T) {
 			state: &ethpb.BeaconState{
 				Validators: []*ethpb.Validator{
 					{
-						EffectiveBalance:  params.BeaconConfig().MaxEffectiveBalance,
-						ExitEpoch:         params.BeaconConfig().FarFutureEpoch,
-						WithdrawableEpoch: params.BeaconConfig().MinValidatorWithdrawabilityDelay,
+						EffectiveBalance: params.BeaconConfig().MaxEffectiveBalance,
+						ExitEpoch:        params.BeaconConfig().FarFutureEpoch,
 					},
 				},
 			},
@@ -568,19 +557,16 @@ func TestValidatorMaxExitEpochAndChurn(t *testing.T) {
 			state: &ethpb.BeaconState{
 				Validators: []*ethpb.Validator{
 					{
-						EffectiveBalance:  params.BeaconConfig().MaxEffectiveBalance,
-						ExitEpoch:         1,
-						WithdrawableEpoch: params.BeaconConfig().MinValidatorWithdrawabilityDelay,
+						EffectiveBalance: params.BeaconConfig().MaxEffectiveBalance,
+						ExitEpoch:        1,
 					},
 					{
-						EffectiveBalance:  params.BeaconConfig().MaxEffectiveBalance,
-						ExitEpoch:         0,
-						WithdrawableEpoch: 10,
+						EffectiveBalance: params.BeaconConfig().MaxEffectiveBalance,
+						ExitEpoch:        0,
 					},
 					{
-						EffectiveBalance:  params.BeaconConfig().MaxEffectiveBalance,
-						ExitEpoch:         1,
-						WithdrawableEpoch: params.BeaconConfig().MinValidatorWithdrawabilityDelay,
+						EffectiveBalance: params.BeaconConfig().MaxEffectiveBalance,
+						ExitEpoch:        1,
 					},
 				},
 			},

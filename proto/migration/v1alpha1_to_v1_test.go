@@ -18,7 +18,7 @@ func Test_V1ValidatorToV1Alpha1(t *testing.T) {
 		ActivationEligibilityEpoch: 1,
 		ActivationEpoch:            11,
 		ExitEpoch:                  111,
-		WithdrawableEpoch:          1111,
+		PrincipalBalance:           1111,
 	}
 
 	v1Alpha1Validator := V1ValidatorToV1Alpha1(v1Validator)
@@ -30,5 +30,5 @@ func Test_V1ValidatorToV1Alpha1(t *testing.T) {
 	assert.Equal(t, primitives.Epoch(1), v1Alpha1Validator.ActivationEligibilityEpoch)
 	assert.Equal(t, primitives.Epoch(11), v1Alpha1Validator.ActivationEpoch)
 	assert.Equal(t, primitives.Epoch(111), v1Alpha1Validator.ExitEpoch)
-	assert.Equal(t, primitives.Epoch(1111), v1Alpha1Validator.WithdrawableEpoch)
+	assert.Equal(t, uint64(1111), v1Alpha1Validator.PrincipalBalance)
 }

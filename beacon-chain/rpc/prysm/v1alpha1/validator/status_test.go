@@ -200,7 +200,6 @@ func TestValidatorStatus_Pending_MultipleDeposits(t *testing.T) {
 				EffectiveBalance:           params.BeaconConfig().MaxEffectiveBalance,
 				ActivationEpoch:            params.BeaconConfig().FarFutureEpoch,
 				ExitEpoch:                  params.BeaconConfig().FarFutureEpoch,
-				WithdrawableEpoch:          params.BeaconConfig().FarFutureEpoch,
 			},
 		},
 	})
@@ -237,7 +236,6 @@ func TestValidatorStatus_Pending(t *testing.T) {
 		{
 			ActivationEpoch:       params.BeaconConfig().FarFutureEpoch,
 			ExitEpoch:             params.BeaconConfig().FarFutureEpoch,
-			WithdrawableEpoch:     params.BeaconConfig().FarFutureEpoch,
 			PublicKey:             pubKey,
 			WithdrawalCredentials: make([]byte, 32),
 		},
@@ -292,7 +290,6 @@ func TestValidatorStatus_Exiting(t *testing.T) {
 	slot := primitives.Slot(10000)
 	epoch := slots.ToEpoch(slot)
 	exitEpoch := helpers.ActivationExitEpoch(epoch)
-	withdrawableEpoch := exitEpoch + params.BeaconConfig().MinValidatorWithdrawabilityDelay
 	block := util.NewBeaconBlock()
 	genesisRoot, err := block.Block.HashTreeRoot()
 	require.NoError(t, err, "Could not get signing root")
@@ -300,10 +297,10 @@ func TestValidatorStatus_Exiting(t *testing.T) {
 	st := &ethpb.BeaconState{
 		Slot: slot,
 		Validators: []*ethpb.Validator{{
-			PublicKey:         pubKey,
-			ActivationEpoch:   0,
-			ExitEpoch:         exitEpoch,
-			WithdrawableEpoch: withdrawableEpoch},
+			PublicKey:       pubKey,
+			ActivationEpoch: 0,
+			ExitEpoch:       exitEpoch,
+		},
 		}}
 	stateObj, err := state_native.InitializeFromProtoUnsafePhase0(st)
 	require.NoError(t, err)
@@ -360,9 +357,10 @@ func TestValidatorStatus_Slashing(t *testing.T) {
 	st := &ethpb.BeaconState{
 		Slot: slot,
 		Validators: []*ethpb.Validator{{
-			Slashed:           true,
-			PublicKey:         pubKey,
-			WithdrawableEpoch: epoch + 1},
+			Slashed:   true,
+			PublicKey: pubKey,
+			ExitEpoch: epoch,
+		},
 		}}
 	stateObj, err := state_native.InitializeFromProtoUnsafePhase0(st)
 	require.NoError(t, err)
@@ -420,7 +418,7 @@ func TestValidatorStatus_Exited(t *testing.T) {
 	require.NoError(t, st.SetSlot(slot))
 	err = st.SetValidators([]*ethpb.Validator{{
 		PublicKey:             pubKey,
-		WithdrawableEpoch:     epoch + 1,
+		ExitEpoch:             epoch,
 		WithdrawalCredentials: make([]byte, 32)},
 	})
 	require.NoError(t, err)
@@ -614,42 +612,36 @@ func TestValidatorStatus_CorrectActivationQueue(t *testing.T) {
 			PublicKey:             pubKey(0),
 			WithdrawalCredentials: make([]byte, 32),
 			ExitEpoch:             params.BeaconConfig().FarFutureEpoch,
-			WithdrawableEpoch:     params.BeaconConfig().FarFutureEpoch,
 		},
 		{
 			ActivationEpoch:       0,
 			PublicKey:             pubKey(1),
 			WithdrawalCredentials: make([]byte, 32),
 			ExitEpoch:             params.BeaconConfig().FarFutureEpoch,
-			WithdrawableEpoch:     params.BeaconConfig().FarFutureEpoch,
 		},
 		{
 			ActivationEpoch:       0,
 			PublicKey:             pubKey(2),
 			WithdrawalCredentials: make([]byte, 32),
 			ExitEpoch:             params.BeaconConfig().FarFutureEpoch,
-			WithdrawableEpoch:     params.BeaconConfig().FarFutureEpoch,
 		},
 		{
 			ActivationEpoch:       0,
 			PublicKey:             pubKey(3),
 			WithdrawalCredentials: make([]byte, 32),
 			ExitEpoch:             params.BeaconConfig().FarFutureEpoch,
-			WithdrawableEpoch:     params.BeaconConfig().FarFutureEpoch,
 		},
 		{
 			ActivationEpoch:       primitives.Epoch(currentSlot/params.BeaconConfig().SlotsPerEpoch + 1),
 			PublicKey:             pbKey,
 			WithdrawalCredentials: make([]byte, 32),
 			ExitEpoch:             params.BeaconConfig().FarFutureEpoch,
-			WithdrawableEpoch:     params.BeaconConfig().FarFutureEpoch,
 		},
 		{
 			ActivationEpoch:       primitives.Epoch(currentSlot/params.BeaconConfig().SlotsPerEpoch + 4),
 			PublicKey:             pubKey(5),
 			WithdrawalCredentials: make([]byte, 32),
 			ExitEpoch:             params.BeaconConfig().FarFutureEpoch,
-			WithdrawableEpoch:     params.BeaconConfig().FarFutureEpoch,
 		},
 	}
 	st, err := util.NewBeaconState()

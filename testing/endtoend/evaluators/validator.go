@@ -76,9 +76,6 @@ func validatorsAreActive(ec *types.EvaluationContext, conns ...*grpc.ClientConn)
 		if item.Validator.ExitEpoch != params.BeaconConfig().FarFutureEpoch {
 			exitEpochWrongCount++
 		}
-		if item.Validator.WithdrawableEpoch != params.BeaconConfig().FarFutureEpoch {
-			withdrawEpochWrongCount++
-		}
 	}
 
 	if effBalanceLowCount > 0 {
