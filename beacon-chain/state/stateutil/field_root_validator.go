@@ -21,7 +21,7 @@ const (
 	// Depth of tree representation of an individual
 	// validator.
 	// NumOfRoots = 2 ^ (TreeDepth)
-	// 16 = 2 ^ 3
+	// 8 = 2 ^ 3
 	validatorTreeDepth = 3
 )
 
