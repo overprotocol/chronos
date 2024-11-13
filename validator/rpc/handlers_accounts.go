@@ -547,6 +547,6 @@ func createDepositData(
 // eth1WithdrawalCredential wraps eth1 address(20 bytes) into
 // eth1 withdrawal credential(32 bytes).
 func eth1WithdrawalCredential(eth1WithdrawalAddress []byte) []byte {
-	prefix := params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
+	prefix := params.BeaconConfig().CompoundingWithdrawalPrefixByte
 	return append(append([]byte{prefix}, params.BeaconConfig().ZeroHash[1:12]...), eth1WithdrawalAddress[:20]...)[:32]
 }
