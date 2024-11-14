@@ -192,7 +192,7 @@ func (s *Service) NewPayload(ctx context.Context, payload interfaces.ExecutionDa
 	}
 }
 
-// ForkchoiceUpdated calls the engine_forkchoiceUpdatedV1 method via JSON-RPC.
+// ForkchoiceUpdated calls the engine_forkchoiceUpdatedVX method via JSON-RPC.
 func (s *Service) ForkchoiceUpdated(
 	ctx context.Context, state *pb.ForkchoiceState, attrs payloadattribute.Attributer,
 ) (*pb.PayloadIDBytes, []byte, error) {

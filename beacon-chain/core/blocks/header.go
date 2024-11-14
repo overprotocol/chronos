@@ -3,6 +3,7 @@ package blocks
 import (
 	"bytes"
 	"context"
+	"encoding/hex"
 	"fmt"
 
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
@@ -12,6 +13,7 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/interfaces"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
+	"github.com/sirupsen/logrus"
 )
 
 // ProcessBlockHeader validates a block by its header.
@@ -119,7 +121,10 @@ func ProcessBlockHeaderNoVerify(
 	if err != nil {
 		return nil, err
 	}
-
+	log.WithFields(logrus.Fields{
+		"ProcessBlockHeaderNoVerify_parentHeader":     parentHeader,
+		"ProcessBlockHeaderNoVerify_parentHeaderRoot": hex.EncodeToString(parentHeaderRoot[:]),
+	}).Info("000000000000000000000")
 	if !bytes.Equal(parentRoot, parentHeaderRoot[:]) {
 		return nil, fmt.Errorf(
 			"parent root %#x does not match the latest block header signing root in state %#x",

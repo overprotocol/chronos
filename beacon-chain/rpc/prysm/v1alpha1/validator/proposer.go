@@ -2,6 +2,7 @@ package validator
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
 	"strings"
 	"sync"
@@ -38,7 +39,6 @@ import (
 )
 
 const (
-	eth1dataTimeout           = 2 * time.Second
 	defaultBuilderBoostFactor = primitives.Gwei(100)
 )
 
@@ -73,6 +73,10 @@ func (vs *Server) GetBeaconBlock(ctx context.Context, req *ethpb.BlockRequest) (
 	if err != nil {
 		return nil, err
 	}
+	log.WithFields(logrus.Fields{
+		"GetBeaconBlock_parentRoot_latestBlockheader": head.LatestBlockHeader(),
+		"GetBeaconBlock_parentRoot":                   hex.EncodeToString(parentRoot[:]),
+	}).Info("000000000000000000000")
 	sBlk, err := getEmptyBlock(req.Slot)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Could not prepare block: %v", err)
@@ -82,6 +86,10 @@ func (vs *Server) GetBeaconBlock(ctx context.Context, req *ethpb.BlockRequest) (
 	sBlk.SetGraffiti(req.Graffiti)
 	sBlk.SetRandaoReveal(req.RandaoReveal)
 	sBlk.SetParentRoot(parentRoot[:])
+	log.WithFields(logrus.Fields{
+		"slot":                      req.Slot,
+		"GetBeaconBlock_parentRoot": hex.EncodeToString(parentRoot[:]),
+	}).Info("000000000000000000000")
 
 	// Set proposer index.
 	idx, err := helpers.BeaconProposerIndex(ctx, head)

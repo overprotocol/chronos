@@ -132,33 +132,33 @@ func TestGetSpec(t *testing.T) {
 	config.RewardAdjustmentFactorDelta = 78
 	config.RewardAdjustmentFactorPrecision = 79
 	config.MaxRewardAdjustmentFactors = [11]uint64{80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80}
-	config.MaxTokenSupply = 82
-	config.EpochsPerYear = 83
-	config.IssuancePerYear = 84
-	config.LightLayerWeight = 85
+	config.MaxTokenSupply = 81
+	config.EpochsPerYear = 82
+	config.IssuancePerYear = 83
+	config.LightLayerWeight = 84
 	config.CompoundingWithdrawalPrefixByte = byte('d')
-	config.PendingPartialWithdrawalsLimit = 90
-	config.MinActivationBalance = 91
-	config.PendingDepositLimit = 92
-	config.MaxPendingPartialsPerWithdrawalsSweep = 93
-	config.MaxPartialWithdrawalsPerPayload = 94
-	config.FullExitRequestAmount = 95
-	config.MaxAttesterSlashingsAlpaca = 96
-	config.MaxAttestationsAlpaca = 97
-	config.MaxWithdrawalRequestsPerPayload = 98
-	config.MaxCellsInExtendedMatrix = 99
-	config.MaxDepositRequestsPerPayload = 101
-	config.MaxPendingDepositsPerEpoch = 102
-	config.MinSlashingPenaltyQuotientAlpaca = 103
-	config.WhistleBlowerRewardQuotientAlpaca = 104
-	config.InactivityPenaltyRate = 105
-	config.InactivityPenaltyRatePrecision = 106
-	config.InactivityPenaltyDuration = 107
-	config.InactivityScorePenaltyThreshold = 108
-	config.InactivityLeakPenaltyBuffer = 109
-	config.InactivityLeakPenaltyBufferPrecision = 110
-	config.InactivityLeakBailoutScoreThreshold = 111
-	config.MaxDepositsAlpaca = 112
+	config.PendingPartialWithdrawalsLimit = 85
+	config.MinActivationBalance = 86
+	config.PendingDepositLimit = 87
+	config.MaxPendingPartialsPerWithdrawalsSweep = 88
+	config.MaxPartialWithdrawalsPerPayload = 89
+	config.FullExitRequestAmount = 90
+	config.MaxAttesterSlashingsAlpaca = 91
+	config.MaxAttestationsAlpaca = 92
+	config.MaxWithdrawalRequestsPerPayload = 93
+	config.MaxCellsInExtendedMatrix = 94
+	config.MaxDepositRequestsPerPayload = 95
+	config.MaxPendingDepositsPerEpoch = 96
+	config.MinSlashingPenaltyQuotientAlpaca = 97
+	config.WhistleBlowerRewardQuotientAlpaca = 98
+	config.InactivityPenaltyRate = 99
+	config.InactivityPenaltyRatePrecision = 100
+	config.InactivityPenaltyDuration = 101
+	config.InactivityScorePenaltyThreshold = 102
+	config.InactivityLeakPenaltyBuffer = 103
+	config.InactivityLeakPenaltyBufferPrecision = 104
+	config.InactivityLeakBailoutScoreThreshold = 105
+	config.MaxDepositsAlpaca = 106
 
 	var dbp [4]byte
 	copy(dbp[:], []byte{'0', '0', '0', '1'})
@@ -197,7 +197,7 @@ func TestGetSpec(t *testing.T) {
 	data, ok := resp.Data.(map[string]interface{})
 	require.Equal(t, true, ok)
 
-	assert.Equal(t, 159, len(data))
+	assert.Equal(t, 156, len(data))
 	for k, v := range data {
 		t.Run(k, func(t *testing.T) {
 			switch k {
@@ -499,49 +499,49 @@ func TestGetSpec(t *testing.T) {
 			case "COMPOUNDING_WITHDRAWAL_PREFIX":
 				assert.Equal(t, "0x64", v)
 			case "PENDING_PARTIAL_WITHDRAWALS_LIMIT":
-				assert.Equal(t, "90", v)
+				assert.Equal(t, "85", v)
 			case "MIN_ACTIVATION_BALANCE":
-				assert.Equal(t, "91", v)
+				assert.Equal(t, "86", v)
 			case "PENDING_DEPOSITS_LIMIT":
-				assert.Equal(t, "92", v)
+				assert.Equal(t, "87", v)
 			case "MAX_PENDING_PARTIALS_PER_WITHDRAWALS_SWEEP":
-				assert.Equal(t, "93", v)
+				assert.Equal(t, "88", v)
 			case "MAX_PARTIAL_WITHDRAWALS_PER_PAYLOAD":
-				assert.Equal(t, "94", v)
+				assert.Equal(t, "89", v)
 			case "FULL_EXIT_REQUEST_AMOUNT":
-				assert.Equal(t, "95", v)
+				assert.Equal(t, "90", v)
 			case "MAX_ATTESTER_SLASHINGS_ALPACA":
-				assert.Equal(t, "96", v)
+				assert.Equal(t, "91", v)
 			case "MAX_ATTESTATIONS_ALPACA":
-				assert.Equal(t, "97", v)
+				assert.Equal(t, "92", v)
 			case "MAX_WITHDRAWAL_REQUESTS_PER_PAYLOAD":
-				assert.Equal(t, "98", v)
+				assert.Equal(t, "93", v)
 			case "MAX_CELLS_IN_EXTENDED_MATRIX":
-				assert.Equal(t, "99", v)
+				assert.Equal(t, "94", v)
 			case "MAX_DEPOSIT_REQUESTS_PER_PAYLOAD":
-				assert.Equal(t, "101", v)
+				assert.Equal(t, "95", v)
 			case "MAX_PENDING_DEPOSITS_PER_EPOCH":
-				assert.Equal(t, "102", v)
-			case "MAX_DEPOSITS_ALPACA":
-				assert.Equal(t, "112", v)
+				assert.Equal(t, "96", v)
 			case "MIN_SLASHING_PENALTY_QUOTIENT_ALPACA":
-				assert.Equal(t, "103", v)
+				assert.Equal(t, "97", v)
 			case "WHISTLEBLOWER_REWARD_QUOTIENT_ALPACA":
-				assert.Equal(t, "104", v)
+				assert.Equal(t, "98", v)
 			case "INACTIVITY_PENALTY_RATE":
-				assert.Equal(t, "105", v)
+				assert.Equal(t, "99", v)
 			case "INACTIVITY_PENALTY_RATE_PRECISION":
-				assert.Equal(t, "106", v)
+				assert.Equal(t, "100", v)
 			case "INACTIVITY_PENALTY_DURATION":
-				assert.Equal(t, "107", v)
+				assert.Equal(t, "101", v)
 			case "INACTIVITY_SCORE_PENALTY_THRESHOLD":
-				assert.Equal(t, "108", v)
+				assert.Equal(t, "102", v)
 			case "INACTIVITY_LEAK_PENALTY_BUFFER":
-				assert.Equal(t, "109", v)
+				assert.Equal(t, "103", v)
 			case "INACTIVITY_LEAK_PENALTY_BUFFER_PRECISION":
-				assert.Equal(t, "110", v)
+				assert.Equal(t, "104", v)
 			case "INACTIVITY_LEAK_BAILOUT_SCORE_THRESHOLD":
-				assert.Equal(t, "111", v)
+				assert.Equal(t, "105", v)
+			case "MAX_DEPOSITS_ALPACA":
+				assert.Equal(t, "106", v)
 			default:
 				t.Errorf("Incorrect key: %s", k)
 			}

@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"encoding/hex"
 	"fmt"
 
 	"github.com/pkg/errors"
@@ -293,6 +294,7 @@ func GetBlockV2BlindedSignRequest(request *validatorpb.SignRequest, genesisValid
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(hex.EncodeToString(beaconBlockHeader.BodyRoot))
 	return &BlockV2BlindedSignRequest{
 		Type:        "BLOCK_V2",
 		ForkInfo:    fork,

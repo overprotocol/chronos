@@ -5,6 +5,7 @@ import (
 
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/time/slots"
+	"github.com/sirupsen/logrus"
 )
 
 // orphanLateBlockProposingEarly determines the maximum threshold that we
@@ -161,5 +162,8 @@ func (f *ForkChoice) GetProposerHead() [32]byte {
 	if secs >= orphanLateBlockProposingEarly {
 		return head.root
 	}
+	log.WithFields(logrus.Fields{
+		"GetProposerHead_parent": parent,
+	}).Info("000000000000000000000")
 	return parent.root
 }
