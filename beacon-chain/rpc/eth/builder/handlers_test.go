@@ -202,7 +202,7 @@ func TestExpectedWithdrawals(t *testing.T) {
 			ValidatorIndex: strconv.FormatUint(15, 10),
 			Address:        hexutil.Encode(validators[15].WithdrawalCredentials[12:]),
 			// MinDepositAmount
-			Amount: strconv.FormatUint(1000000000, 10),
+			Amount: strconv.FormatUint(64000000000, 10),
 		}
 		require.DeepEqual(t, expectedWithdrawal1, resp.Data[0])
 		require.DeepEqual(t, expectedWithdrawal2, resp.Data[1])

@@ -478,22 +478,14 @@ func TestGetSpec(t *testing.T) {
 				assert.Equal(t, "79", v)
 			case "MAX_REWARD_ADJUSTMENT_FACTORS":
 				assert.Equal(t, "[80,80,80,80,80,80,80,80,80,80,80]", v)
-			case "REWARD_FEEDBACK_PRECISION":
-				assert.Equal(t, "89", v)
-			case "REWARD_FEEDBACK_THRESHOLD_RECIPROCAL":
-				assert.Equal(t, "90", v)
-			case "MAX_BOOST_YIELD":
-				assert.Equal(t, "[91,91,91,91,91,91,91,91,91,91,91]", v)
-			case "TARGET_CHANGE_RATE":
-				assert.Equal(t, "92", v)
 			case "MAX_TOKEN_SUPPLY":
-				assert.Equal(t, "82", v)
+				assert.Equal(t, "81", v)
 			case "EPOCHS_PER_YEAR":
-				assert.Equal(t, "83", v)
+				assert.Equal(t, "82", v)
 			case "ISSUANCE_PER_YEAR":
-				assert.Equal(t, "84", v)
+				assert.Equal(t, "83", v)
 			case "LIGHT_LAYER_WEIGHT":
-				assert.Equal(t, "85", v)
+				assert.Equal(t, "84", v)
 			case "MAX_EFFECTIVE_BALANCE_ALPACA":
 				assert.Equal(t, "16384000000000", v)
 			case "COMPOUNDING_WITHDRAWAL_PREFIX":

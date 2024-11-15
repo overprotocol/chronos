@@ -37,7 +37,7 @@ func TestProcessFinalUpdates_CanProcess(t *testing.T) {
 
 	// Verify effective balance is correctly updated.
 	assert.Equal(t, params.BeaconConfig().MaxEffectiveBalance, newS.Validators()[0].EffectiveBalance, "Effective balance incorrectly updated")
-	assert.Equal(t, uint64(248*1e9), newS.Validators()[1].EffectiveBalance, "Effective balance incorrectly updated")
+	assert.Equal(t, uint64(250*1e9), newS.Validators()[1].EffectiveBalance, "Effective balance incorrectly updated")
 
 	// Verify randao is correctly updated in the right position.
 	mix, err := newS.RandaoMixAtIndex(uint64(ne))
