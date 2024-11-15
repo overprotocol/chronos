@@ -81,7 +81,7 @@ func TestProcessPendingDeposits(t *testing.T) {
 				// set the pending deposits to the maximum churn limit
 				st := stateWithPendingDeposits(t, 8_000, 2, depositAmount)
 				vals := st.Validators()
-				vals[1].WithdrawableEpoch = 0
+				vals[1].ExitEpoch = 0
 				require.NoError(t, st.SetValidators(vals))
 				return st
 			}(),
@@ -203,7 +203,6 @@ func TestProcessPendingDeposits(t *testing.T) {
 				v, err := st.ValidatorAtIndex(0)
 				require.NoError(t, err)
 				v.ExitEpoch = 10
-				v.WithdrawableEpoch = 20
 				require.NoError(t, st.UpdateValidatorAtIndex(0, v))
 				return st
 			}(),
@@ -233,7 +232,6 @@ func TestProcessPendingDeposits(t *testing.T) {
 				v, err := st.ValidatorAtIndex(0)
 				require.NoError(t, err)
 				v.ExitEpoch = 2
-				v.WithdrawableEpoch = 8
 				require.NoError(t, st.UpdateValidatorAtIndex(0, v))
 				require.NoError(t, st.UpdateBalancesAtIndex(0, 800_000))
 				return st
@@ -364,7 +362,6 @@ func stateWithActiveBalanceETH(t *testing.T, balETH uint64) state.BeaconState {
 			ExitEpoch:             params.BeaconConfig().FarFutureEpoch,
 			EffectiveBalance:      balPerVal,
 			WithdrawalCredentials: wc,
-			WithdrawableEpoch:     params.BeaconConfig().FarFutureEpoch,
 		}
 		bals[i] = balPerVal
 	}
