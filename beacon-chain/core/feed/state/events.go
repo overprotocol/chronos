@@ -27,6 +27,8 @@ const (
 	NewHead
 	// MissedSlot is sent when we need to notify users that a slot was missed.
 	MissedSlot
+	// PayloadAttributes events are fired upon a missed slot or new head.
+	PayloadAttributes
 )
 
 // BlockProcessedData is the data sent with BlockProcessed events.
