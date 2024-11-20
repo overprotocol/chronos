@@ -16,7 +16,7 @@ func TestProcessEffectiveBalanceUpdates_SafeCopy(t *testing.T) {
 		Validators: []*eth.Validator{
 			{
 				EffectiveBalance:      params.BeaconConfig().MinActivationBalance,
-				WithdrawalCredentials: []byte{params.BeaconConfig().CompoundingWithdrawalPrefixByte, 0x11},
+				WithdrawalCredentials: []byte{0x00, 0x11},
 			},
 		},
 		Balances: []uint64{
@@ -53,7 +53,7 @@ func TestProcessEffectiveBalnceUpdates(t *testing.T) {
 					Validators: []*eth.Validator{
 						{
 							EffectiveBalance:      params.BeaconConfig().MinActivationBalance,
-							WithdrawalCredentials: []byte{params.BeaconConfig().CompoundingWithdrawalPrefixByte, 0x11},
+							WithdrawalCredentials: []byte{0x00, 0x11},
 						},
 					},
 					Balances: []uint64{
@@ -101,19 +101,19 @@ func TestProcessEffectiveBalnceUpdates(t *testing.T) {
 					Validators: []*eth.Validator{
 						{
 							EffectiveBalance:      params.BeaconConfig().MinActivationBalance,
-							WithdrawalCredentials: []byte{params.BeaconConfig().CompoundingWithdrawalPrefixByte, 0x11},
+							WithdrawalCredentials: []byte{0x00, 0x11},
 						},
 						{
 							EffectiveBalance:      params.BeaconConfig().MinActivationBalance,
-							WithdrawalCredentials: []byte{params.BeaconConfig().CompoundingWithdrawalPrefixByte, 0x11},
+							WithdrawalCredentials: []byte{0x00, 0x11},
 						},
 						{
 							EffectiveBalance:      params.BeaconConfig().MinActivationBalance,
-							WithdrawalCredentials: []byte{params.BeaconConfig().CompoundingWithdrawalPrefixByte, 0x11},
+							WithdrawalCredentials: []byte{0x00, 0x11},
 						},
 						{
 							EffectiveBalance:      params.BeaconConfig().MinActivationBalance,
-							WithdrawalCredentials: []byte{params.BeaconConfig().CompoundingWithdrawalPrefixByte, 0x11},
+							WithdrawalCredentials: []byte{0x00, 0x11},
 						},
 					},
 					Balances: []uint64{

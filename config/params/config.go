@@ -61,10 +61,7 @@ type BeaconChainConfig struct {
 	IssuancePerYear           uint64 `yaml:"ISSUANCE_PER_YEAR" spec:"true"`           // IssuancePerYear defines the issuance of tokens per year in GWei.
 
 	// Initial value constants.
-	BLSWithdrawalPrefixByte         byte     `yaml:"BLS_WITHDRAWAL_PREFIX" spec:"true"`          // BLSWithdrawalPrefixByte is used for BLS withdrawal and it's the first byte.
-	ETH1AddressWithdrawalPrefixByte byte     `yaml:"ETH1_ADDRESS_WITHDRAWAL_PREFIX" spec:"true"` // ETH1AddressWithdrawalPrefixByte is used for withdrawals and it's the first byte.
-	CompoundingWithdrawalPrefixByte byte     `yaml:"COMPOUNDING_WITHDRAWAL_PREFIX" spec:"true"`  // CompoundingWithdrawalPrefixByteByte is used for compounding withdrawals and it's the first byte.
-	ZeroHash                        [32]byte // ZeroHash is used to represent a zeroed out 32 byte array.
+	ZeroHash [32]byte // ZeroHash is used to represent a zeroed out 32 byte array.
 
 	// Time parameters constants.
 	GenesisDelay                     uint64           `yaml:"GENESIS_DELAY" spec:"true"`                   // GenesisDelay is the minimum number of seconds to delay starting the Ethereum Beacon Chain genesis. Must be at least 1 second.

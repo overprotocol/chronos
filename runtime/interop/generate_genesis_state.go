@@ -150,14 +150,14 @@ func depositDataFromKeys(privKeys []bls.SecretKey, pubKeys []bls.PublicKey, numO
 
 // Generates a deposit data item from BLS keys and signs the hash tree root of the data.
 func createDepositData(privKey bls.SecretKey, pubKey bls.PublicKey, withExecCreds bool) (*ethpb.Deposit_Data, error) {
+	h := hash.Hash(pubKey.Marshal())
 	depositMessage := &ethpb.DepositMessage{
 		PublicKey:             pubKey.Marshal(),
-		WithdrawalCredentials: withdrawalCredentialsHash(pubKey.Marshal()),
+		WithdrawalCredentials: h[:],
 		Amount:                params.BeaconConfig().MaxEffectiveBalance,
 	}
 	if withExecCreds {
 		newCredentials := make([]byte, 12)
-		newCredentials[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
 		execAddr := bytesutil.ToBytes20(pubKey.Marshal())
 		depositMessage.WithdrawalCredentials = append(newCredentials, execAddr[:]...)
 	}
@@ -180,18 +180,4 @@ func createDepositData(privKey bls.SecretKey, pubKey bls.PublicKey, withExecCred
 		Signature:             privKey.Sign(root[:]).Marshal(),
 	}
 	return di, nil
-}
-
-// withdrawalCredentialsHash forms a 32 byte hash of the withdrawal public
-// address.
-//
-// The specification is as follows:
-//
-//	withdrawal_credentials[:1] == BLS_WITHDRAWAL_PREFIX_BYTE
-//	withdrawal_credentials[1:] == hash(withdrawal_pubkey)[1:]
-//
-// where withdrawal_credentials is of type bytes32.
-func withdrawalCredentialsHash(pubKey []byte) []byte {
-	h := hash.Hash(pubKey)
-	return append([]byte{blsWithdrawalPrefixByte}, h[1:]...)[:32]
 }

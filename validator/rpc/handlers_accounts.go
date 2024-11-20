@@ -495,9 +495,10 @@ func createDepositData(
 ) (*DepositDataResponse, error) {
 	depositMessage := &ethpb.DepositMessage{
 		PublicKey:             depositPubkey.Marshal(),
-		WithdrawalCredentials: eth1WithdrawalCredential(eth1WithdrawalAddress),
+		WithdrawalCredentials: append(params.BeaconConfig().ZeroHash[0:12], eth1WithdrawalAddress[:20]...)[:32],
 		Amount:                amountInGwei,
 	}
+	fmt.Println("DepositMessage: ", depositMessage.WithdrawalCredentials)
 
 	sr, err := depositMessage.HashTreeRoot()
 	if err != nil {
@@ -542,11 +543,4 @@ func createDepositData(
 		DepositDataRoot:       dr[:],
 	}
 	return dd, nil
-}
-
-// eth1WithdrawalCredential wraps eth1 address(20 bytes) into
-// eth1 withdrawal credential(32 bytes).
-func eth1WithdrawalCredential(eth1WithdrawalAddress []byte) []byte {
-	prefix := params.BeaconConfig().CompoundingWithdrawalPrefixByte
-	return append(append([]byte{prefix}, params.BeaconConfig().ZeroHash[1:12]...), eth1WithdrawalAddress[:20]...)[:32]
 }

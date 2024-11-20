@@ -172,9 +172,7 @@ func UpgradeToElectra(beaconState state.BeaconState) (state.BeaconState, error) 
 		if val.ActivationEpoch() == params.BeaconConfig().FarFutureEpoch {
 			preActivationIndices = append(preActivationIndices, primitives.ValidatorIndex(index))
 		}
-		if helpers.HasCompoundingWithdrawalCredential(val) {
-			compoundWithdrawalIndices = append(compoundWithdrawalIndices, primitives.ValidatorIndex(index))
-		}
+		compoundWithdrawalIndices = append(compoundWithdrawalIndices, primitives.ValidatorIndex(index))
 		return nil
 	}); err != nil {
 		return nil, err

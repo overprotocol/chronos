@@ -305,15 +305,7 @@ func generateDepositRequests(
 			return nil, err
 		}
 		amount := nBig.Uint64() // random amount created
-		prefixes := []byte{params.BeaconConfig().CompoundingWithdrawalPrefixByte, 0, params.BeaconConfig().BLSWithdrawalPrefixByte}
 		withdrawalCred := make([]byte, 32)
-		// Get a random index
-		nBig, err = rand.Int(rand.Reader, big.NewInt(int64(len(prefixes))))
-		if err != nil {
-			return nil, err
-		}
-		randPrefixIndex := nBig.Uint64()
-		withdrawalCred[0] = prefixes[randPrefixIndex]
 
 		depositMessage := &ethpb.DepositMessage{
 			PublicKey:             privs[valIndex].PublicKey().Marshal(),

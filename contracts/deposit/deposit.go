@@ -27,9 +27,10 @@ import (
 //
 // See: https://github.com/ethereum/consensus-specs/blob/master/specs/validator/0_beacon-chain-validator.md#submit-deposit
 func DepositInput(depositKey, withdrawalKey bls.SecretKey, amountInGwei uint64) (*ethpb.Deposit_Data, [32]byte, error) {
+	h := hash.Hash(withdrawalKey.PublicKey().Marshal())
 	depositMessage := &ethpb.DepositMessage{
 		PublicKey:             depositKey.PublicKey().Marshal(),
-		WithdrawalCredentials: WithdrawalCredentialsHash(withdrawalKey),
+		WithdrawalCredentials: h[:],
 		Amount:                amountInGwei,
 	}
 
@@ -63,20 +64,6 @@ func DepositInput(depositKey, withdrawalKey bls.SecretKey, amountInGwei uint64) 
 	}
 
 	return di, dr, nil
-}
-
-// WithdrawalCredentialsHash forms a 32 byte hash of the withdrawal public
-// address.
-//
-// The specification is as follows:
-//
-//	withdrawal_credentials[:1] == BLS_WITHDRAWAL_PREFIX_BYTE
-//	withdrawal_credentials[1:] == hash(withdrawal_pubkey)[1:]
-//
-// where withdrawal_credentials is of type bytes32.
-func WithdrawalCredentialsHash(withdrawalKey bls.SecretKey) []byte {
-	h := hash.Hash(withdrawalKey.PublicKey().Marshal())
-	return append([]byte{params.BeaconConfig().BLSWithdrawalPrefixByte}, h[1:]...)[:32]
 }
 
 // VerifyDepositSignature verifies the correctness of Eth1 deposit BLS signature

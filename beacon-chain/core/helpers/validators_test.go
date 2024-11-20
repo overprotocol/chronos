@@ -1013,63 +1013,6 @@ func TestProposerIndexFromCheckpoint(t *testing.T) {
 	require.Equal(t, ids[5], id)
 }
 
-func TestHasETH1WithdrawalCredentials(t *testing.T) {
-	creds := []byte{0xFA, 0xCC}
-	v := &ethpb.Validator{WithdrawalCredentials: creds}
-	require.Equal(t, false, helpers.HasETH1WithdrawalCredential(v))
-	creds = []byte{params.BeaconConfig().ETH1AddressWithdrawalPrefixByte, 0xCC}
-	v = &ethpb.Validator{WithdrawalCredentials: creds}
-	require.Equal(t, true, helpers.HasETH1WithdrawalCredential(v))
-	// No Withdrawal cred
-	v = &ethpb.Validator{}
-	require.Equal(t, false, helpers.HasETH1WithdrawalCredential(v))
-}
-
-func TestHasCompoundingWithdrawalCredential(t *testing.T) {
-	tests := []struct {
-		name      string
-		validator *ethpb.Validator
-		want      bool
-	}{
-		{"Has compounding withdrawal credential",
-			&ethpb.Validator{WithdrawalCredentials: bytesutil.PadTo([]byte{params.BeaconConfig().CompoundingWithdrawalPrefixByte}, 32)},
-			true},
-		{"Does not have compounding withdrawal credential",
-			&ethpb.Validator{WithdrawalCredentials: bytesutil.PadTo([]byte{0x00}, 32)},
-			false},
-		{"Handles nil case", nil, false},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, helpers.HasCompoundingWithdrawalCredential(tt.validator))
-		})
-	}
-}
-
-func TestHasExecutionWithdrawalCredentials(t *testing.T) {
-	tests := []struct {
-		name      string
-		validator *ethpb.Validator
-		want      bool
-	}{
-		{"Has compounding withdrawal credential",
-			&ethpb.Validator{WithdrawalCredentials: bytesutil.PadTo([]byte{params.BeaconConfig().CompoundingWithdrawalPrefixByte}, 32)},
-			true},
-		{"Has eth1 withdrawal credential",
-			&ethpb.Validator{WithdrawalCredentials: bytesutil.PadTo([]byte{params.BeaconConfig().ETH1AddressWithdrawalPrefixByte}, 32)},
-			true},
-		{"Does not have compounding withdrawal credential or eth1 withdrawal credential",
-			&ethpb.Validator{WithdrawalCredentials: bytesutil.PadTo([]byte{0x00}, 32)},
-			false},
-		{"Handles nil case", nil, false},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, helpers.HasExecutionWithdrawalCredentials(tt.validator))
-		})
-	}
-}
-
 func TestIsFullyWithdrawableValidator(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -1099,7 +1042,7 @@ func TestIsFullyWithdrawableValidator(t *testing.T) {
 		{
 			name: "Wrong withdrawable epoch",
 			validator: &ethpb.Validator{
-				WithdrawalCredentials: []byte{params.BeaconConfig().ETH1AddressWithdrawalPrefixByte, 0xCC},
+				WithdrawalCredentials: []byte{0x00, 0xCC},
 				ExitEpoch:             2,
 			},
 			balance: params.BeaconConfig().MaxEffectiveBalance,
@@ -1109,7 +1052,7 @@ func TestIsFullyWithdrawableValidator(t *testing.T) {
 		{
 			name: "No balance",
 			validator: &ethpb.Validator{
-				WithdrawalCredentials: []byte{params.BeaconConfig().ETH1AddressWithdrawalPrefixByte, 0xCC},
+				WithdrawalCredentials: []byte{0x00, 0xCC},
 				ExitEpoch:             2,
 			},
 			balance: 0,
@@ -1119,7 +1062,7 @@ func TestIsFullyWithdrawableValidator(t *testing.T) {
 		{
 			name: "Fully withdrawable",
 			validator: &ethpb.Validator{
-				WithdrawalCredentials: []byte{params.BeaconConfig().ETH1AddressWithdrawalPrefixByte, 0xCC},
+				WithdrawalCredentials: []byte{0x00, 0xCC},
 				ExitEpoch:             2,
 			},
 			balance: params.BeaconConfig().MaxEffectiveBalance,
@@ -1129,7 +1072,7 @@ func TestIsFullyWithdrawableValidator(t *testing.T) {
 		{
 			name: "Fully withdrawable compounding validator electra",
 			validator: &ethpb.Validator{
-				WithdrawalCredentials: []byte{params.BeaconConfig().CompoundingWithdrawalPrefixByte, 0xCC},
+				WithdrawalCredentials: []byte{0x00, 0xCC},
 				ExitEpoch:             2,
 			},
 			balance: params.BeaconConfig().MaxEffectiveBalance,
@@ -1140,7 +1083,7 @@ func TestIsFullyWithdrawableValidator(t *testing.T) {
 		{
 			name: "Slashed ETH1 validator before withdrawable epoch electra",
 			validator: &ethpb.Validator{
-				WithdrawalCredentials: []byte{params.BeaconConfig().ETH1AddressWithdrawalPrefixByte, 0xCC},
+				WithdrawalCredentials: []byte{0x00, 0xCC},
 				ExitEpoch:             2,
 				Slashed:               true,
 			},
@@ -1152,7 +1095,7 @@ func TestIsFullyWithdrawableValidator(t *testing.T) {
 		{
 			name: "Slashed ETH1 validator after withdrawable epoch electra",
 			validator: &ethpb.Validator{
-				WithdrawalCredentials: []byte{params.BeaconConfig().ETH1AddressWithdrawalPrefixByte, 0xCC},
+				WithdrawalCredentials: []byte{0x00, 0xCC},
 				ExitEpoch:             2,
 				Slashed:               true,
 			},
@@ -1201,7 +1144,7 @@ func TestIsPartiallyWithdrawableValidator(t *testing.T) {
 			name: "No balance",
 			validator: &ethpb.Validator{
 				EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalance,
-				WithdrawalCredentials: []byte{params.BeaconConfig().ETH1AddressWithdrawalPrefixByte, 0xCC},
+				WithdrawalCredentials: []byte{0x00, 0xCC},
 				PrincipalBalance:      params.BeaconConfig().MaxEffectiveBalance,
 			},
 			balance: 0,
@@ -1212,7 +1155,7 @@ func TestIsPartiallyWithdrawableValidator(t *testing.T) {
 			name: "Partially withdrawable",
 			validator: &ethpb.Validator{
 				EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalance,
-				WithdrawalCredentials: []byte{params.BeaconConfig().ETH1AddressWithdrawalPrefixByte, 0xCC},
+				WithdrawalCredentials: []byte{0x00, 0xCC},
 				PrincipalBalance:      params.BeaconConfig().MaxEffectiveBalance,
 			},
 			balance: params.BeaconConfig().MaxEffectiveBalance * 2,
@@ -1223,7 +1166,7 @@ func TestIsPartiallyWithdrawableValidator(t *testing.T) {
 			name: "Fully withdrawable vanilla validator electra",
 			validator: &ethpb.Validator{
 				EffectiveBalance:      params.BeaconConfig().MinActivationBalance,
-				WithdrawalCredentials: []byte{params.BeaconConfig().ETH1AddressWithdrawalPrefixByte, 0xCC},
+				WithdrawalCredentials: []byte{0x00, 0xCC},
 				PrincipalBalance:      params.BeaconConfig().MaxEffectiveBalance,
 			},
 			balance: params.BeaconConfig().MinActivationBalance * 2,
@@ -1235,7 +1178,7 @@ func TestIsPartiallyWithdrawableValidator(t *testing.T) {
 			name: "Fully withdrawable compounding validator electra",
 			validator: &ethpb.Validator{
 				EffectiveBalance:      params.BeaconConfig().MaxEffectiveBalanceAlpaca,
-				WithdrawalCredentials: []byte{params.BeaconConfig().CompoundingWithdrawalPrefixByte, 0xCC},
+				WithdrawalCredentials: []byte{0x00, 0xCC},
 				PrincipalBalance:      params.BeaconConfig().MaxEffectiveBalance,
 			},
 			balance: params.BeaconConfig().MaxEffectiveBalanceAlpaca * 2,
@@ -1293,12 +1236,12 @@ func TestValidatorMaxEffectiveBalance(t *testing.T) {
 	}{
 		{
 			name:      "Compounding withdrawal credential",
-			validator: &ethpb.Validator{WithdrawalCredentials: []byte{params.BeaconConfig().CompoundingWithdrawalPrefixByte, 0xCC}},
+			validator: &ethpb.Validator{WithdrawalCredentials: []byte{0x00, 0xCC}},
 			want:      params.BeaconConfig().MaxEffectiveBalanceAlpaca,
 		},
 		{
 			name:      "Vanilla credentials",
-			validator: &ethpb.Validator{WithdrawalCredentials: []byte{params.BeaconConfig().ETH1AddressWithdrawalPrefixByte, 0xCC}},
+			validator: &ethpb.Validator{WithdrawalCredentials: []byte{0x00, 0xCC}},
 			want:      params.BeaconConfig().MinActivationBalance,
 		},
 		{

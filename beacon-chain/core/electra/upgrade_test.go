@@ -18,7 +18,7 @@ func TestUpgradeToElectra(t *testing.T) {
 	st, _ := util.DeterministicGenesisStateDeneb(t, params.BeaconConfig().MaxValidatorsPerCommittee)
 	vals := st.Validators()
 	vals[0].ActivationEpoch = params.BeaconConfig().FarFutureEpoch
-	vals[1].WithdrawalCredentials = []byte{params.BeaconConfig().CompoundingWithdrawalPrefixByte}
+	vals[1].WithdrawalCredentials = []byte{0x00}
 	require.NoError(t, st.SetValidators(vals))
 	bals := st.Balances()
 	bals[1] = params.BeaconConfig().MinActivationBalance + 1000

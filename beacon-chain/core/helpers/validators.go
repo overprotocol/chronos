@@ -12,7 +12,6 @@ import (
 	forkchoicetypes "github.com/prysmaticlabs/prysm/v5/beacon-chain/forkchoice/types"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
-	"github.com/prysmaticlabs/prysm/v5/consensus-types/interfaces"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
 	"github.com/prysmaticlabs/prysm/v5/crypto/hash"
 	"github.com/prysmaticlabs/prysm/v5/encoding/bytesutil"
@@ -567,63 +566,6 @@ func LastActivatedValidatorIndex(ctx context.Context, st state.ReadOnlyBeaconSta
 	return lastActivatedvalidatorIndex, nil
 }
 
-// hasETH1WithdrawalCredential returns whether the validator has an ETH1
-// Withdrawal prefix. It assumes that the caller has a lock on the state
-func HasETH1WithdrawalCredential(val interfaces.WithWithdrawalCredentials) bool {
-	if val == nil {
-		return false
-	}
-	return isETH1WithdrawalCredential(val.GetWithdrawalCredentials())
-}
-
-func isETH1WithdrawalCredential(creds []byte) bool {
-	return bytes.HasPrefix(creds, []byte{params.BeaconConfig().ETH1AddressWithdrawalPrefixByte})
-}
-
-// HasCompoundingWithdrawalCredential checks if the validator has a compounding withdrawal credential.
-// New in Electra EIP-7251: https://eips.ethereum.org/EIPS/eip-7251
-//
-// Spec definition:
-//
-//	def has_compounding_withdrawal_credential(validator: Validator) -> bool:
-//	    """
-//	    Check if ``validator`` has an 0x02 prefixed "compounding" withdrawal credential.
-//	    """
-//	    return is_compounding_withdrawal_credential(validator.withdrawal_credentials)
-func HasCompoundingWithdrawalCredential(v interfaces.WithWithdrawalCredentials) bool {
-	if v == nil {
-		return false
-	}
-	return IsCompoundingWithdrawalCredential(v.GetWithdrawalCredentials())
-}
-
-// IsCompoundingWithdrawalCredential checks if the credentials are a compounding withdrawal credential.
-//
-// Spec definition:
-//
-//	def is_compounding_withdrawal_credential(withdrawal_credentials: Bytes32) -> bool:
-//	    return withdrawal_credentials[:1] == COMPOUNDING_WITHDRAWAL_PREFIX
-func IsCompoundingWithdrawalCredential(creds []byte) bool {
-	return bytes.HasPrefix(creds, []byte{params.BeaconConfig().CompoundingWithdrawalPrefixByte})
-}
-
-// HasExecutionWithdrawalCredentials checks if the validator has an execution withdrawal credential or compounding credential.
-// New in Electra EIP-7251: https://eips.ethereum.org/EIPS/eip-7251
-//
-// Spec definition:
-//
-//	def has_execution_withdrawal_credential(validator: Validator) -> bool:
-//	    """
-//	    Check if ``validator`` has a 0x01 or 0x02 prefixed withdrawal credential.
-//	    """
-//	    return has_compounding_withdrawal_credential(validator) or has_eth1_withdrawal_credential(validator)
-func HasExecutionWithdrawalCredentials(v interfaces.WithWithdrawalCredentials) bool {
-	if v == nil {
-		return false
-	}
-	return HasCompoundingWithdrawalCredential(v) || HasETH1WithdrawalCredential(v)
-}
-
 // IsSameWithdrawalCredentials returns true if both validators have the same withdrawal credentials.
 //
 //	return a.withdrawal_credentials[12:] == b.withdrawal_credentials[12:]
@@ -658,10 +600,10 @@ func IsFullyWithdrawableValidator(val *ethpb.Validator, balance uint64, epoch pr
 	withdrawableEpoch := GetWithdrawableEpoch(val.ExitEpoch, val.Slashed)
 	// Electra / EIP-7251 logic
 	if fork >= version.Electra {
-		return HasExecutionWithdrawalCredentials(val) && withdrawableEpoch <= epoch
+		return withdrawableEpoch <= epoch
 	}
 
-	return HasETH1WithdrawalCredential(val) && withdrawableEpoch <= epoch
+	return withdrawableEpoch <= epoch
 }
 
 // IsPartiallyWithdrawableValidator returns whether the validator is able to perform a
@@ -704,10 +646,7 @@ func IsPartiallyWithdrawableValidatorAlpaca(val *ethpb.Validator, balance uint64
 //	    else:
 //	        return MIN_ACTIVATION_BALANCE
 func ValidatorMaxEffectiveBalance(val *ethpb.Validator) uint64 {
-	if HasCompoundingWithdrawalCredential(val) {
-		return params.BeaconConfig().MaxEffectiveBalanceAlpaca
-	}
-	return params.BeaconConfig().MinActivationBalance
+	return params.BeaconConfig().MaxEffectiveBalanceAlpaca
 }
 
 // GetWithdrawableEpoch returns the epoch at which the validator can withdraw.

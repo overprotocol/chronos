@@ -78,8 +78,6 @@ func TestGetSpec(t *testing.T) {
 	config.DenebForkEpoch = 103
 	config.ElectraForkVersion = []byte("ElectraForkVersion")
 	config.ElectraForkEpoch = 104
-	config.BLSWithdrawalPrefixByte = byte('b')
-	config.ETH1AddressWithdrawalPrefixByte = byte('c')
 	config.GenesisDelay = 24
 	config.SecondsPerSlot = 25
 	config.MinAttestationInclusionDelay = 26
@@ -136,7 +134,6 @@ func TestGetSpec(t *testing.T) {
 	config.EpochsPerYear = 82
 	config.IssuancePerYear = 83
 	config.LightLayerWeight = 84
-	config.CompoundingWithdrawalPrefixByte = byte('d')
 	config.PendingPartialWithdrawalsLimit = 85
 	config.MinActivationBalance = 86
 	config.PendingDepositLimit = 87

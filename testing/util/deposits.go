@@ -169,7 +169,6 @@ func signedDeposit(
 	balance uint64,
 ) (*ethpb.Deposit, error) {
 	withdrawalCreds := hash.Hash(withdrawalKey)
-	withdrawalCreds[0] = params.BeaconConfig().BLSWithdrawalPrefixByte
 	depositMessage := &ethpb.DepositMessage{
 		PublicKey:             publicKey,
 		Amount:                balance,

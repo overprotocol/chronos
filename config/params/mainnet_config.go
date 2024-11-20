@@ -83,10 +83,7 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	IssuancePerYear:           20000000 * 1e9,
 
 	// Initial value constants.
-	BLSWithdrawalPrefixByte:         byte(0),
-	ETH1AddressWithdrawalPrefixByte: byte(1),
-	CompoundingWithdrawalPrefixByte: byte(2),
-	ZeroHash:                        [32]byte{},
+	ZeroHash: [32]byte{},
 
 	// Time parameter constants.
 	MinAttestationInclusionDelay:     1,

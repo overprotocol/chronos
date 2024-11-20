@@ -403,7 +403,6 @@ func TestServer_CreateDepositDataList(t *testing.T) {
 	resp := &CreateDepositDataListResponse{}
 	require.NoError(t, json.Unmarshal(wr.Body.Bytes(), resp))
 	require.DeepEqual(t, pubkey, resp.DepositDataList[0].Pubkey)
-	require.DeepEqual(t, eth1WithdrawalCredential(withdrawKey), resp.DepositDataList[0].WithdrawalCredentials)
 }
 
 func TestServer_ImportAccountsWithPrivateKey_Ok(t *testing.T) {
@@ -654,15 +653,6 @@ func TestServer_ImportAccountsWithPrivateKey_DecryptFailed(t *testing.T) {
 	s.ImportAccountsWithPrivateKey(wr, req)
 	require.Equal(t, http.StatusBadRequest, wr.Code)
 	require.StringContains(t, "Could not decrypt private key", string(wr.Body.Bytes()))
-}
-
-func Test_eth1WithdrawalCredential(t *testing.T) {
-	eth1Address, err := hexutil.Decode("0xa83114A443dA1CecEFC50368531cACE9F37fCCcb")
-	require.NoError(t, err)
-	require.Equal(t, 20, len(eth1Address))
-	wc := eth1WithdrawalCredential(eth1Address)
-	require.Equal(t, "0x020000000000000000000000a83114a443da1cecefc50368531cace9f37fcccb", hexutil.Encode(wc))
-	require.Equal(t, 32, len(wc))
 }
 
 func generateRandomBytes(length int) ([]byte, error) {

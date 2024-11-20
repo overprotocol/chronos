@@ -134,7 +134,6 @@ func TestProcessPendingDeposits(t *testing.T) {
 				sk, err := bls.RandKey()
 				require.NoError(t, err)
 				wc := make([]byte, 32)
-				wc[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
 				wc[31] = byte(0)
 				dep := stateTesting.GeneratePendingDeposit(t, sk, params.BeaconConfig().MinActivationBalance, bytesutil.ToBytes32(wc), 0)
 				require.NoError(t, st.SetPendingDeposits([]*eth.PendingDeposit{dep}))
@@ -169,7 +168,6 @@ func TestProcessPendingDeposits(t *testing.T) {
 				sk, err := bls.RandKey()
 				require.NoError(t, err)
 				wc := make([]byte, 32)
-				wc[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
 				wc[31] = byte(0)
 				validators[0].PublicKey = sk.PublicKey().Marshal()
 				validators[0].WithdrawalCredentials = wc
@@ -279,7 +277,6 @@ func TestBatchProcessNewPendingDeposits(t *testing.T) {
 		sk, err := bls.RandKey()
 		require.NoError(t, err)
 		wc := make([]byte, 32)
-		wc[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
 		wc[31] = byte(0)
 		validDep := stateTesting.GeneratePendingDeposit(t, sk, params.BeaconConfig().MinActivationBalance, bytesutil.ToBytes32(wc), 0)
 		invalidDep := &eth.PendingDeposit{}
@@ -309,14 +306,12 @@ func TestProcessDepositRequests(t *testing.T) {
 
 	vals := st.Validators()
 	vals[0].PublicKey = sk.PublicKey().Marshal()
-	vals[0].WithdrawalCredentials[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
 	require.NoError(t, st.SetValidators(vals))
 	bals := st.Balances()
 	bals[0] = params.BeaconConfig().MinActivationBalance + 2000
 	require.NoError(t, st.SetBalances(bals))
 	require.NoError(t, st.SetPendingDeposits(make([]*eth.PendingDeposit, 0))) // reset pbd as the determinitstic state populates this already
 	withdrawalCred := make([]byte, 32)
-	withdrawalCred[0] = params.BeaconConfig().CompoundingWithdrawalPrefixByte
 	depositMessage := &eth.DepositMessage{
 		PublicKey:             sk.PublicKey().Marshal(),
 		Amount:                1000,
@@ -355,7 +350,6 @@ func stateWithActiveBalanceETH(t *testing.T, balETH uint64) state.BeaconState {
 	bals := make([]uint64, numVals)
 	for i := uint64(0); i < numVals; i++ {
 		wc := make([]byte, 32)
-		wc[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
 		wc[31] = byte(i)
 		vals[i] = &eth.Validator{
 			ActivationEpoch:       0,
@@ -391,7 +385,6 @@ func stateWithPendingDeposits(t *testing.T, balETH uint64, numDeposits, amount u
 		sk, err := bls.RandKey()
 		require.NoError(t, err)
 		wc := make([]byte, 32)
-		wc[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
 		wc[31] = byte(i)
 		validators[i].PublicKey = sk.PublicKey().Marshal()
 		validators[i].WithdrawalCredentials = wc
@@ -409,7 +402,6 @@ func TestApplyPendingDeposit_TopUp(t *testing.T) {
 	sk, err := bls.RandKey()
 	require.NoError(t, err)
 	wc := make([]byte, 32)
-	wc[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
 	wc[31] = byte(0)
 	validators[0].PublicKey = sk.PublicKey().Marshal()
 	validators[0].WithdrawalCredentials = wc
@@ -429,7 +421,6 @@ func TestApplyPendingDeposit_UnknownKey(t *testing.T) {
 	sk, err := bls.RandKey()
 	require.NoError(t, err)
 	wc := make([]byte, 32)
-	wc[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
 	wc[31] = byte(0)
 	dep := stateTesting.GeneratePendingDeposit(t, sk, params.BeaconConfig().MinActivationBalance, bytesutil.ToBytes32(wc), 0)
 	require.Equal(t, 0, len(st.Validators()))
@@ -447,7 +438,6 @@ func TestApplyPendingDeposit_InvalidSignature(t *testing.T) {
 	sk, err := bls.RandKey()
 	require.NoError(t, err)
 	wc := make([]byte, 32)
-	wc[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
 	wc[31] = byte(0)
 	dep := &eth.PendingDeposit{
 		PublicKey:             sk.PublicKey().Marshal(),

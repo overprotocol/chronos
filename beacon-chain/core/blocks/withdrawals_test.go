@@ -393,10 +393,8 @@ func TestProcessBlindWithdrawals(t *testing.T) {
 				validators[idx].ExitEpoch = epochInPast
 			}
 			st.Balances[idx] = withdrawalAmount(idx)
-			validators[idx].WithdrawalCredentials[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
 		}
 		for _, idx := range arguments.PendingPartialWithdrawalIndices {
-			validators[idx].WithdrawalCredentials[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
 			st.Balances[idx] = withdrawalAmount(idx)
 		}
 		st.Validators = validators
@@ -852,10 +850,8 @@ func TestProcessWithdrawals(t *testing.T) {
 			if err := st.UpdateBalancesAtIndex(idx, withdrawalAmount(idx)); err != nil {
 				return err
 			}
-			validators[idx].WithdrawalCredentials[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
 		}
 		for _, idx := range arguments.PendingPartialWithdrawalIndices {
-			validators[idx].WithdrawalCredentials[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
 			if err := st.UpdateBalancesAtIndex(idx, withdrawalAmount(idx)); err != nil {
 				return err
 			}

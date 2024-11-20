@@ -51,7 +51,6 @@ func TestProcessWithdrawRequests(t *testing.T) {
 					v, err := preSt.ValidatorAtIndex(0)
 					require.NoError(t, err)
 					prefix := make([]byte, 12)
-					prefix[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
 					v.WithdrawalCredentials = append(prefix, source...)
 					require.NoError(t, preSt.SetValidators([]*eth.Validator{v}))
 					return preSt
@@ -69,7 +68,6 @@ func TestProcessWithdrawRequests(t *testing.T) {
 				v, err := wantPostSt.ValidatorAtIndex(0)
 				require.NoError(t, err)
 				prefix := make([]byte, 12)
-				prefix[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
 				v.WithdrawalCredentials = append(prefix, source...)
 				v.ExitEpoch = 261
 				require.NoError(t, wantPostSt.SetValidators([]*eth.Validator{v}))
@@ -105,7 +103,6 @@ func TestProcessWithdrawRequests(t *testing.T) {
 					v, err := preSt.ValidatorAtIndex(0)
 					require.NoError(t, err)
 					prefix := make([]byte, 12)
-					prefix[0] = params.BeaconConfig().CompoundingWithdrawalPrefixByte
 					v.WithdrawalCredentials = append(prefix, source...)
 					require.NoError(t, preSt.SetValidators([]*eth.Validator{v}))
 					require.NoError(t, preSt.SetBalances([]uint64{params.BeaconConfig().MinActivationBalance + 200}))
@@ -129,7 +126,6 @@ func TestProcessWithdrawRequests(t *testing.T) {
 				v, err := wantPostSt.ValidatorAtIndex(0)
 				require.NoError(t, err)
 				prefix := make([]byte, 12)
-				prefix[0] = params.BeaconConfig().CompoundingWithdrawalPrefixByte
 				v.WithdrawalCredentials = append(prefix, source...)
 				require.NoError(t, wantPostSt.SetValidators([]*eth.Validator{v}))
 				bal, err := wantPostSt.BalanceAtIndex(0)
@@ -173,7 +169,6 @@ func TestProcessWithdrawRequests(t *testing.T) {
 					v, err := preSt.ValidatorAtIndex(0)
 					require.NoError(t, err)
 					prefix := make([]byte, 12)
-					prefix[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
 					v.WithdrawalCredentials = append(prefix, source...)
 					v.ExitEpoch = 1000
 					require.NoError(t, preSt.SetValidators([]*eth.Validator{v}))
@@ -192,7 +187,6 @@ func TestProcessWithdrawRequests(t *testing.T) {
 				v, err := wantPostSt.ValidatorAtIndex(0)
 				require.NoError(t, err)
 				prefix := make([]byte, 12)
-				prefix[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
 				v.WithdrawalCredentials = append(prefix, source...)
 				v.ExitEpoch = 1000
 				require.NoError(t, wantPostSt.SetValidators([]*eth.Validator{v}))
@@ -211,7 +205,6 @@ func TestProcessWithdrawRequests(t *testing.T) {
 					v, err := preSt.ValidatorAtIndex(0)
 					require.NoError(t, err)
 					prefix := make([]byte, 12)
-					prefix[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
 					v.WithdrawalCredentials = append(prefix, source...)
 					require.NoError(t, preSt.SetValidators([]*eth.Validator{v}))
 					return preSt
@@ -230,7 +223,6 @@ func TestProcessWithdrawRequests(t *testing.T) {
 				v, err := wantPostSt.ValidatorAtIndex(0)
 				require.NoError(t, err)
 				prefix := make([]byte, 12)
-				prefix[0] = params.BeaconConfig().ETH1AddressWithdrawalPrefixByte
 				v.WithdrawalCredentials = append(prefix, source...)
 				require.NoError(t, wantPostSt.SetValidators([]*eth.Validator{v}))
 				eee, err := got.EarliestExitEpoch()
