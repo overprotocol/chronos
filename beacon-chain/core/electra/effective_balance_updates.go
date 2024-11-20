@@ -47,8 +47,7 @@ func ProcessEffectiveBalanceUpdates(st state.BeaconState) error {
 		}
 		balance := bals[idx]
 
-		effectiveBalanceLimit := params.BeaconConfig().MinActivationBalance
-		effectiveBalanceLimit = params.BeaconConfig().MaxEffectiveBalanceAlpaca
+		effectiveBalanceLimit := params.BeaconConfig().MaxEffectiveBalanceAlpaca
 
 		if balance+downwardThreshold < val.EffectiveBalance() || val.EffectiveBalance()+upwardThreshold < balance {
 			effectiveBal := min(balance-balance%effBalanceInc, effectiveBalanceLimit)
