@@ -1,4 +1,4 @@
-load("@prysm//tools/go:def.bzl", "go_library", "go_test")
+load("@prysm//tools/go:def.bzl", "go_library")
 
 go_library(
     name = "go_default_library",
