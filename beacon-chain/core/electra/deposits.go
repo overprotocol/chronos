@@ -419,8 +419,7 @@ func AddValidatorToRegistry(beaconState state.BeaconState, pubKey []byte, withdr
 //	)
 //
 //	# [Modified in Electra:EIP7251]
-//	max_effective_balance = get_max_effective_balance(validator)
-//	validator.effective_balance = min(amount - amount % EFFECTIVE_BALANCE_INCREMENT, max_effective_balance)
+//	validator.effective_balance = min(amount - amount % EFFECTIVE_BALANCE_INCREMENT, MAX_EFFECTIVE_BALANCE_ALPACA)
 //	validator.principal_balance = amount
 //
 //	return validator
