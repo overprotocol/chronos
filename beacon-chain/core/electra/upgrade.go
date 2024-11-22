@@ -111,11 +111,6 @@ import (
 //	for index in pre_activation:
 //	    queue_entire_balance_and_reset_validator(post, ValidatorIndex(index))
 //
-//	# Ensure early adopters of compounding credentials go through the activation churn
-//	for index, validator in enumerate(post.validators):
-//	    if has_compounding_withdrawal_credential(validator):
-//	        queue_excess_active_balance(post, ValidatorIndex(index))
-//
 //	return post
 func UpgradeToElectra(beaconState state.BeaconState) (state.BeaconState, error) {
 	prevEpochParticipation, err := beaconState.PreviousEpochParticipation()
