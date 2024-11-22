@@ -4,8 +4,8 @@ go_library(
     name = "go_default_library",
     srcs = [
         "handlers.go",
-        "handlers_withdrawal.go",
         "handlers_deposit.go",
+        "handlers_withdrawal.go",
         "server.go",
     ],
     importpath = "github.com/prysmaticlabs/prysm/v5/beacon-chain/rpc/over",
@@ -36,9 +36,9 @@ go_library(
 go_test(
     name = "go_default_test",
     srcs = [
+        "handlers_deposit_test.go",
         "handlers_test.go",
         "handlers_withdrawal_test.go",
-        "handlers_deposit_test.go",
     ],
     embed = [":go_default_library"],
     deps = [
