@@ -594,7 +594,7 @@ func IsFullyWithdrawableValidator(val *ethpb.Validator, balance uint64, epoch pr
 		return false
 	}
 	withdrawableEpoch := GetWithdrawableEpoch(val.ExitEpoch, val.Slashed)
-	return withdrawableEpoch <= epoch && balance > 0
+	return withdrawableEpoch <= epoch
 }
 
 // IsPartiallyWithdrawableValidator returns whether the validator is able to perform a
