@@ -97,32 +97,35 @@ func ProcessDeposit(beaconState state.BeaconState, deposit *ethpb.Deposit, allSi
 // ApplyDeposit adds the incoming deposit as a pending deposit on the state
 //
 // Spec pseudocode definition:
-// def apply_deposit(
+// def apply_deposit(state: BeaconState,
 //
-//	state: BeaconState,
-//	pubkey: BLSPubkey,
-//	withdrawal_credentials: Bytes32,
-//	amount: uint64,
-//	signature: BLSSignature,
-//
-// ) -> None:
-//
+//	              pubkey: BLSPubkey,
+//	              withdrawal_credentials: Bytes32,
+//	              amount: uint64,
+//	              signature: BLSSignature) -> None:
 //	validator_pubkeys = [v.pubkey for v in state.validators]
 //	if pubkey not in validator_pubkeys:
 //	    # Verify the deposit signature (proof of possession) which is not checked by the deposit contract
 //	    if is_valid_deposit_signature(pubkey, withdrawal_credentials, amount, signature):
-//	        add_validator_to_registry(state, pubkey, withdrawal_credentials, amount)
+//	        add_validator_to_registry(state, pubkey, withdrawal_credentials, Gwei(0))  # [Modified in Electra:EIP7251]
+//	        # [New in Electra:EIP7251]
+//	        state.pending_deposits.append(PendingDeposit(
+//	            pubkey=pubkey,
+//	            withdrawal_credentials=withdrawal_credentials,
+//	            amount=amount,
+//	            signature=signature,
+//	            slot=GENESIS_SLOT,  # Use GENESIS_SLOT to distinguish from a pending deposit request
+//	        ))
 //	else:
 //	    # Increase balance by deposit amount
-//	    index = ValidatorIndex(validator_pubkeys.index(pubkey))
-//	    state.pending_balance_deposits.append(PendingBalanceDeposit(index=index, amount=amount))  # [Modified in Electra:EIP7251]
-//	    # Check if valid deposit switch to compounding credentials
-//	    if (
-//	        is_compounding_withdrawal_credential(withdrawal_credentials)
-//	        and has_eth1_withdrawal_credential(state.validators[index])
-//	        and is_valid_deposit_signature(pubkey, withdrawal_credentials, amount, signature)
-//	    ):
-//	        switch_to_compounding_validator(state, index)
+//	    # [Modified in Electra:EIP7251]
+//	    state.pending_deposits.append(PendingDeposit(
+//	        pubkey=pubkey,
+//	        withdrawal_credentials=withdrawal_credentials,
+//	        amount=amount,
+//	        signature=signature,
+//	        slot=GENESIS_SLOT  # Use GENESIS_SLOT to distinguish from a pending deposit request
+//	    ))
 func ApplyDeposit(beaconState state.BeaconState, data *ethpb.Deposit_Data, allSignaturesVerified bool) (state.BeaconState, error) {
 	pubKey := data.PublicKey
 	amount := data.Amount
