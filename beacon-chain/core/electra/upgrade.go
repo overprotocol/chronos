@@ -111,11 +111,6 @@ import (
 //	for index in pre_activation:
 //	    queue_entire_balance_and_reset_validator(post, ValidatorIndex(index))
 //
-//	# Ensure early adopters of compounding credentials go through the activation churn
-//	for index, validator in enumerate(post.validators):
-//	    if has_compounding_withdrawal_credential(validator):
-//	        queue_excess_active_balance(post, ValidatorIndex(index))
-//
 //	return post
 func UpgradeToElectra(beaconState state.BeaconState) (state.BeaconState, error) {
 	prevEpochParticipation, err := beaconState.PreviousEpochParticipation()
@@ -166,16 +161,12 @@ func UpgradeToElectra(beaconState state.BeaconState) (state.BeaconState, error) 
 	// [New in Electra:EIP7251]
 	earliestExitEpoch := time.CurrentEpoch(beaconState)
 	preActivationIndices := make([]primitives.ValidatorIndex, 0)
-	compoundWithdrawalIndices := make([]primitives.ValidatorIndex, 0)
 	if err = beaconState.ReadFromEveryValidator(func(index int, val state.ReadOnlyValidator) error {
 		if val.ExitEpoch() != params.BeaconConfig().FarFutureEpoch && val.ExitEpoch() > earliestExitEpoch {
 			earliestExitEpoch = val.ExitEpoch()
 		}
 		if val.ActivationEpoch() == params.BeaconConfig().FarFutureEpoch {
 			preActivationIndices = append(preActivationIndices, primitives.ValidatorIndex(index))
-		}
-		if helpers.HasCompoundingWithdrawalCredential(val) {
-			compoundWithdrawalIndices = append(compoundWithdrawalIndices, primitives.ValidatorIndex(index))
 		}
 		return nil
 	}); err != nil {
@@ -267,13 +258,6 @@ func UpgradeToElectra(beaconState state.BeaconState) (state.BeaconState, error) 
 	for _, index := range preActivationIndices {
 		if err := QueueEntireBalanceAndResetValidator(post, index); err != nil {
 			return nil, errors.Wrap(err, "failed to queue entire balance and reset validator")
-		}
-	}
-
-	// Ensure early adopters of compounding credentials go through the activation churn
-	for _, index := range compoundWithdrawalIndices {
-		if err := QueueExcessActiveBalance(post, index); err != nil {
-			return nil, errors.Wrap(err, "failed to queue excess active balance")
 		}
 	}
 

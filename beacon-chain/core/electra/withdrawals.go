@@ -51,7 +51,7 @@ import (
 //	is_correct_source_address = (
 //	    validator.withdrawal_credentials[12:] == withdrawal_request.source_address
 //	)
-//	if not (has_correct_credential and is_correct_source_address):
+//	if not is_correct_source_address:
 //	    return
 //	# Verify the validator is active
 //	if not is_active_validator(validator, get_current_epoch(state)):
@@ -74,8 +74,7 @@ import (
 //	has_sufficient_effective_balance = validator.effective_balance >= MIN_ACTIVATION_BALANCE
 //	has_excess_balance = state.balances[index] > MIN_ACTIVATION_BALANCE + pending_balance_to_withdraw
 //
-//	# Only allow partial withdrawals with compounding withdrawal credentials
-//	if has_compounding_withdrawal_credential(validator) and has_sufficient_effective_balance and has_excess_balance:
+//	if has_sufficient_effective_balance and has_excess_balance:
 //	    to_withdraw = min(
 //	        state.balances[index] - MIN_ACTIVATION_BALANCE - pending_balance_to_withdraw,
 //	        amount
@@ -116,9 +115,8 @@ func ProcessWithdrawalRequests(ctx context.Context, st state.BeaconState, wrs []
 			return nil, err
 		}
 		// Verify withdrawal credentials
-		hasCorrectCredential := helpers.HasExecutionWithdrawalCredentials(validator)
 		isCorrectSourceAddress := bytes.Equal(validator.WithdrawalCredentials[12:], wr.SourceAddress)
-		if !hasCorrectCredential || !isCorrectSourceAddress {
+		if !isCorrectSourceAddress {
 			log.Debugln("Skipping execution layer withdrawal request, wrong withdrawal credentials")
 			continue
 		}
@@ -164,7 +162,7 @@ func ProcessWithdrawalRequests(ctx context.Context, st state.BeaconState, wrs []
 		hasExcessBalance := vBal > params.BeaconConfig().MinActivationBalance+pendingBalanceToWithdraw
 
 		// Only allow partial withdrawals with compounding withdrawal credentials
-		if helpers.HasCompoundingWithdrawalCredential(validator) && hasSufficientEffectiveBalance && hasExcessBalance {
+		if hasSufficientEffectiveBalance && hasExcessBalance {
 			// Spec definition:
 			//  to_withdraw = min(
 			//	  state.balances[index] - MIN_ACTIVATION_BALANCE - pending_balance_to_withdraw,

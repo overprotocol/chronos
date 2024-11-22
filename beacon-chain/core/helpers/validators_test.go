@@ -1013,63 +1013,6 @@ func TestProposerIndexFromCheckpoint(t *testing.T) {
 	require.Equal(t, ids[5], id)
 }
 
-func TestHasETH1WithdrawalCredentials(t *testing.T) {
-	creds := []byte{0xFA, 0xCC}
-	v := &ethpb.Validator{WithdrawalCredentials: creds}
-	require.Equal(t, false, helpers.HasETH1WithdrawalCredential(v))
-	creds = []byte{params.BeaconConfig().ETH1AddressWithdrawalPrefixByte, 0xCC}
-	v = &ethpb.Validator{WithdrawalCredentials: creds}
-	require.Equal(t, true, helpers.HasETH1WithdrawalCredential(v))
-	// No Withdrawal cred
-	v = &ethpb.Validator{}
-	require.Equal(t, false, helpers.HasETH1WithdrawalCredential(v))
-}
-
-func TestHasCompoundingWithdrawalCredential(t *testing.T) {
-	tests := []struct {
-		name      string
-		validator *ethpb.Validator
-		want      bool
-	}{
-		{"Has compounding withdrawal credential",
-			&ethpb.Validator{WithdrawalCredentials: bytesutil.PadTo([]byte{params.BeaconConfig().CompoundingWithdrawalPrefixByte}, 32)},
-			true},
-		{"Does not have compounding withdrawal credential",
-			&ethpb.Validator{WithdrawalCredentials: bytesutil.PadTo([]byte{0x00}, 32)},
-			false},
-		{"Handles nil case", nil, false},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, helpers.HasCompoundingWithdrawalCredential(tt.validator))
-		})
-	}
-}
-
-func TestHasExecutionWithdrawalCredentials(t *testing.T) {
-	tests := []struct {
-		name      string
-		validator *ethpb.Validator
-		want      bool
-	}{
-		{"Has compounding withdrawal credential",
-			&ethpb.Validator{WithdrawalCredentials: bytesutil.PadTo([]byte{params.BeaconConfig().CompoundingWithdrawalPrefixByte}, 32)},
-			true},
-		{"Has eth1 withdrawal credential",
-			&ethpb.Validator{WithdrawalCredentials: bytesutil.PadTo([]byte{params.BeaconConfig().ETH1AddressWithdrawalPrefixByte}, 32)},
-			true},
-		{"Does not have compounding withdrawal credential or eth1 withdrawal credential",
-			&ethpb.Validator{WithdrawalCredentials: bytesutil.PadTo([]byte{0x00}, 32)},
-			false},
-		{"Handles nil case", nil, false},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, helpers.HasExecutionWithdrawalCredentials(tt.validator))
-		})
-	}
-}
-
 func TestIsFullyWithdrawableValidator(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -1283,37 +1226,6 @@ func TestIsSameWithdrawalCredentials(t *testing.T) {
 			assert.Equal(t, tt.want, helpers.IsSameWithdrawalCredentials(tt.a, tt.b))
 		})
 	}
-}
-
-func TestValidatorMaxEffectiveBalance(t *testing.T) {
-	tests := []struct {
-		name      string
-		validator *ethpb.Validator
-		want      uint64
-	}{
-		{
-			name:      "Compounding withdrawal credential",
-			validator: &ethpb.Validator{WithdrawalCredentials: []byte{params.BeaconConfig().CompoundingWithdrawalPrefixByte, 0xCC}},
-			want:      params.BeaconConfig().MaxEffectiveBalanceAlpaca,
-		},
-		{
-			name:      "Vanilla credentials",
-			validator: &ethpb.Validator{WithdrawalCredentials: []byte{params.BeaconConfig().ETH1AddressWithdrawalPrefixByte, 0xCC}},
-			want:      params.BeaconConfig().MinActivationBalance,
-		},
-		{
-			"Handles nil case",
-			nil,
-			params.BeaconConfig().MinActivationBalance,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, helpers.ValidatorMaxEffectiveBalance(tt.validator))
-		})
-	}
-	// Sanity check that MinActivationBalance equals (pre-electra) MaxEffectiveBalance
-	assert.Equal(t, params.BeaconConfig().MinActivationBalance, params.BeaconConfig().MaxEffectiveBalance)
 }
 
 func TestGetWithdrawableEpoch(t *testing.T) {

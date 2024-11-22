@@ -3,7 +3,6 @@ package electra
 import (
 	"fmt"
 
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
@@ -20,16 +19,12 @@ import (
 //	        HYSTERESIS_INCREMENT = uint64(EFFECTIVE_BALANCE_INCREMENT // HYSTERESIS_QUOTIENT)
 //	        DOWNWARD_THRESHOLD = HYSTERESIS_INCREMENT * HYSTERESIS_DOWNWARD_MULTIPLIER
 //	        UPWARD_THRESHOLD = HYSTERESIS_INCREMENT * HYSTERESIS_UPWARD_MULTIPLIER
-//	        EFFECTIVE_BALANCE_LIMIT = (
-//	            MAX_EFFECTIVE_BALANCE_EIP7251 if has_compounding_withdrawal_credential(validator)
-//	            else MIN_ACTIVATION_BALANCE
-//	        )
 //
 //	        if (
 //	            balance + DOWNWARD_THRESHOLD < validator.effective_balance
 //	            or validator.effective_balance + UPWARD_THRESHOLD < balance
 //	        ):
-//	            validator.effective_balance = min(balance - balance % EFFECTIVE_BALANCE_INCREMENT, EFFECTIVE_BALANCE_LIMIT)
+//	            validator.effective_balance = min(balance - balance % EFFECTIVE_BALANCE_INCREMENT, MAX_EFFECTIVE_BALANCE_ALPACA)
 func ProcessEffectiveBalanceUpdates(st state.BeaconState) error {
 	effBalanceInc := params.BeaconConfig().EffectiveBalanceIncrement
 	hysteresisInc := effBalanceInc / params.BeaconConfig().HysteresisQuotient
@@ -48,13 +43,8 @@ func ProcessEffectiveBalanceUpdates(st state.BeaconState) error {
 		}
 		balance := bals[idx]
 
-		effectiveBalanceLimit := params.BeaconConfig().MinActivationBalance
-		if helpers.HasCompoundingWithdrawalCredential(val) {
-			effectiveBalanceLimit = params.BeaconConfig().MaxEffectiveBalanceAlpaca
-		}
-
 		if balance+downwardThreshold < val.EffectiveBalance() || val.EffectiveBalance()+upwardThreshold < balance {
-			effectiveBal := min(balance-balance%effBalanceInc, effectiveBalanceLimit)
+			effectiveBal := min(balance-balance%effBalanceInc, params.BeaconConfig().MaxEffectiveBalanceAlpaca)
 			newVal = val.Copy()
 			newVal.EffectiveBalance = effectiveBal
 		}
