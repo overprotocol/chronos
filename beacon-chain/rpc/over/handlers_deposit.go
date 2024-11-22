@@ -37,6 +37,64 @@ const (
 	expectedFinalityDelay = primitives.Epoch(2)
 )
 
+// GetDepositPreEstimation returns the deposit estimation before deposit event occurs.
+// By iterating through the validators and pending deposit queue, it calculates the expected epoch that
+// the deposit will be processed.
+// For initial deposit, it also calculates the expected activation epoch.
+func (s *Server) GetDepositPreEstimation(w http.ResponseWriter, r *http.Request) {
+	ctx, span := trace.StartSpan(r.Context(), "over.GetDepositPreEstimation")
+	defer span.End()
+
+	// Parse state_id and replay to the state
+	stateId := r.PathValue("state_id")
+	if stateId == "" {
+		httputil.HandleError(w, "state_id is required in URL params", http.StatusBadRequest)
+		return
+	}
+	st, err := s.Stater.State(ctx, []byte(stateId))
+	if err != nil {
+		httputil.WriteError(w, handleWrapError(err, "could not retrieve state", http.StatusNotFound))
+		return
+	}
+
+	// Deposit estimation is only supported for Electra and later versions.
+	if st.Version() < version.Electra {
+		httputil.HandleError(w, "Deposit estimation is not supported for pre-Electra.", http.StatusBadRequest)
+		return
+	}
+
+	// Get metadata for response
+	isOptimistic, err := s.OptimisticModeFetcher.IsOptimistic(r.Context())
+	if err != nil {
+		httputil.WriteError(w, handleWrapError(err, "could not get optimistic mode info", http.StatusInternalServerError))
+		return
+	}
+	blockRoot, err := st.LatestBlockHeader().HashTreeRoot()
+	if err != nil {
+		httputil.WriteError(w, handleWrapError(err, "could not calculate root of latest block header", http.StatusInternalServerError))
+		return
+	}
+	isFinalized := s.FinalizationFetcher.IsFinalized(ctx, blockRoot)
+
+	_, lastEpoch, err := buildPendingDepositEstimations(st, nil, true, 0)
+	if err != nil {
+		httputil.WriteError(w, handleWrapError(err, "could not get expected epoch for pre-estimation", http.StatusBadRequest))
+		return
+	}
+	// New deposit is expected to be processed at lastEpoch + 1.
+	expectedEpoch := lastEpoch + 1
+	data := &structs.DepositPreEstimationContainer{
+		ExpectedEpoch:           uint64(expectedEpoch),
+		ExpectedActivationEpoch: uint64(getExpectedActivationEpoch(expectedEpoch)),
+	}
+
+	httputil.WriteJson(w, &structs.GetDepositPreEstimationResponse{
+		ExecutionOptimistic: isOptimistic,
+		Finalized:           isFinalized,
+		Data:                data,
+	})
+}
+
 // GetDepositEstimation returns the deposit estimation for a given pubkey.
 // By iterating through the validators and pending deposit queue, it calculates the expected epoch that
 // the deposit will be processed.
@@ -156,7 +214,7 @@ func (s *Server) GetDepositEstimation(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	pdes, err := buildPendingDepositEstimations(st, pubkey, !found /* initial */, searchLimit)
+	pdes, _, err := buildPendingDepositEstimations(st, pubkey, !found /* initial */, searchLimit)
 	if err != nil {
 		httputil.WriteError(w, handleWrapError(err, "could not build pending deposit estimations", http.StatusBadRequest))
 		return
@@ -171,40 +229,44 @@ func (s *Server) GetDepositEstimation(w http.ResponseWriter, r *http.Request) {
 }
 
 // buildPendingDepositEstimations iterates through the pending deposits and calculates the expected epoch.
-func buildPendingDepositEstimations(st state.BeaconState, pubkey []byte, initial bool, searchLimit int) ([]*structs.PendingDepositEstimationContainer, error) {
+func buildPendingDepositEstimations(st state.BeaconState, pubkeyFilter []byte, initial bool, searchLimit int) ([]*structs.PendingDepositEstimationContainer, primitives.Epoch, error) {
+	currentEpoch := slots.ToEpoch(st.Slot())
 	activeBalance, err := helpers.TotalActiveBalance(st)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not get total active balance")
+		return nil, currentEpoch, errors.Wrap(err, "could not get total active balance")
 	}
 	balanceChurnLimit := helpers.ActivationBalanceChurnLimit(primitives.Gwei(activeBalance))
 
 	pdes := make([]*structs.PendingDepositEstimationContainer, 0)
 	pds, err := st.PendingDeposits()
 	if err != nil {
-		return nil, errors.Wrap(err, "could not get pending deposits from state")
+		return nil, currentEpoch, errors.Wrap(err, "could not get pending deposits from state")
 	}
 
 	// Return early if there are no pending deposits
 	if len(pds) == 0 {
-		return pdes, nil
+		return pdes, currentEpoch + expectedFinalityDelay, nil
 	}
 
 	// Limit the number of pending deposits to search
+	// If searchLimit is 0, it will iterate through all pending deposits.
+	if searchLimit == 0 {
+		searchLimit = len(pds)
+	}
 	pds = pds[:min(len(pds), searchLimit)]
 
 	finalizedEpoch := st.FinalizedCheckpointEpoch()
 	finalizedSlot, err := slots.EpochStart(finalizedEpoch)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not get finalized slot")
+		return nil, currentEpoch, errors.Wrap(err, "could not get finalized slot")
 	}
 
 	depBalToConsume, err := st.DepositBalanceToConsume()
 	if err != nil {
-		return nil, errors.Wrap(err, "could not get deposit balance to consume")
+		return nil, currentEpoch, errors.Wrap(err, "could not get deposit balance to consume")
 	}
 	availableForProcessing := depBalToConsume + balanceChurnLimit
 
-	currentEpoch := slots.ToEpoch(st.Slot())
 	processedAmount := uint64(0)
 	depositCount := uint64(0)
 
@@ -241,7 +303,7 @@ func buildPendingDepositEstimations(st state.BeaconState, pubkey []byte, initial
 		if found {
 			val, err := st.ValidatorAtIndexReadOnly(index)
 			if err != nil {
-				return nil, errors.Wrap(err, "could not get validator")
+				return nil, currentEpoch, errors.Wrap(err, "could not get validator")
 			}
 			isValidatorExited = val.ExitEpoch() < params.BeaconConfig().FarFutureEpoch
 			withdrawableEpoch := helpers.GetWithdrawableEpoch(val.ExitEpoch(), val.Slashed())
@@ -271,7 +333,7 @@ func buildPendingDepositEstimations(st state.BeaconState, pubkey []byte, initial
 
 		// If the pending deposit has same pubkey as the one we are looking for
 		// append it to the response
-		if bytes.Equal(pd.PublicKey, pubkey) {
+		if pubkeyFilter != nil && bytes.Equal(pd.PublicKey, pubkeyFilter) {
 			pde := &structs.PendingDepositEstimationContainer{}
 			if initial {
 				pde.Type = "initial"
@@ -290,9 +352,7 @@ func buildPendingDepositEstimations(st state.BeaconState, pubkey []byte, initial
 				data.ExpectedEpoch = uint64(currentEpoch)
 			}
 			if initial && pd.Amount >= params.BeaconConfig().MinActivationBalance {
-				estimatedActivationEligibilityEpoch := currentEpoch + 1
-				estimatedEligibleEpochForActivation := estimatedActivationEligibilityEpoch + expectedFinalityDelay
-				data.ExpectedActivationEpoch = uint64(helpers.ActivationExitEpoch(estimatedEligibleEpochForActivation))
+				data.ExpectedActivationEpoch = uint64(getExpectedActivationEpoch(currentEpoch))
 			}
 			pde.Data = data
 
@@ -306,7 +366,15 @@ func buildPendingDepositEstimations(st state.BeaconState, pubkey []byte, initial
 		}
 	}
 
-	return pdes, nil
+	return pdes, currentEpoch, nil
+}
+
+// getExpectedActivationEpoch calculates the expected activation epoch for a given epoch
+// that the deposit will be processed.
+func getExpectedActivationEpoch(expectedEpoch primitives.Epoch) primitives.Epoch {
+	estimatedActivationEligibilityEpoch := expectedEpoch + 1
+	estimatedEligibleEpochForActivation := estimatedActivationEligibilityEpoch + expectedFinalityDelay
+	return helpers.ActivationExitEpoch(estimatedEligibleEpochForActivation)
 }
 
 func validatorFromROVal(val state.ReadOnlyValidator) *structs.Validator {

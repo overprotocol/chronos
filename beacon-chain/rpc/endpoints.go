@@ -1082,6 +1082,12 @@ func (s *Service) overEndpoints(stater lookup.Stater) []endpoint {
 			methods:  []string{http.MethodGet},
 		},
 		{
+			template: "/over/v1/beacon/states/{state_id}/deposit_estimation",
+			name:     namespace + ".GetDepositPreEstimation",
+			handler:  server.GetDepositPreEstimation,
+			methods:  []string{http.MethodGet},
+		},
+		{
 			template: "/over/v1/beacon/states/{state_id}/deposit_estimation/{pubkey}",
 			name:     namespace + ".GetDepositEstimation",
 			handler:  server.GetDepositEstimation,
