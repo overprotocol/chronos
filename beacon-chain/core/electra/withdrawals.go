@@ -24,11 +24,6 @@ import (
 //
 // Spec pseudocode definition:
 //
-// ProcessWithdrawalRequests processes the validator withdrawals from the provided execution payload
-// into the beacon state triggered by the execution layer.
-//
-// Spec pseudocode definition:
-//
 // def process_withdrawal_request(
 //
 //	state: BeaconState,
