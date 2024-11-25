@@ -65,6 +65,10 @@ func pendingSlashingForValIdx(valIdx ...uint64) *PendingAttesterSlashing {
 }
 
 func TestPool_InsertAttesterSlashing(t *testing.T) {
+	cfg := params.BeaconConfig().Copy()
+	cfg.MinValidatorWithdrawabilityDelay = 0 // For testing purposes
+	params.OverrideBeaconConfig(cfg)
+
 	type fields struct {
 		pending  []*PendingAttesterSlashing
 		included map[primitives.ValidatorIndex]bool

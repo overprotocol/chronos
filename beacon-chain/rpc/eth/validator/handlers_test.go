@@ -1294,6 +1294,10 @@ func TestGetAttesterDuties(t *testing.T) {
 }
 
 func TestGetProposerDuties(t *testing.T) {
+	cfg := params.BeaconConfig().Copy()
+	cfg.MinGenesisActiveValidatorCount = 16384
+	params.OverrideBeaconConfig(cfg)
+
 	helpers.ClearCache()
 
 	genesis := util.NewBeaconBlock()

@@ -189,6 +189,10 @@ func TestProcessBlockHeader_PreviousBlockRootNotSignedRoot(t *testing.T) {
 }
 
 func TestProcessBlockHeader_SlashedProposer(t *testing.T) {
+	cfg := params.BeaconConfig().Copy()
+	cfg.MinGenesisActiveValidatorCount = 16384
+	params.OverrideBeaconConfig(cfg)
+
 	validators := make([]*ethpb.Validator, params.BeaconConfig().MinGenesisActiveValidatorCount)
 	for i := 0; i < len(validators); i++ {
 		validators[i] = &ethpb.Validator{
