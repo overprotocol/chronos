@@ -21,6 +21,17 @@ type Reserves struct {
 	Reserves               string `json:"reserves"`
 }
 
+type GetDepositPreEstimationResponse struct {
+	Data                *DepositPreEstimationContainer `json:"data"`
+	ExecutionOptimistic bool                           `json:"execution_optimistic"`
+	Finalized           bool                           `json:"finalized"`
+}
+
+type DepositPreEstimationContainer struct {
+	ExpectedEpoch           uint64 `json:"expected_epoch"`
+	ExpectedActivationEpoch uint64 `json:"expected_activation_epoch"` // For initial deposits
+}
+
 type GetDepositEstimationResponse struct {
 	Data                *DepositEstimationContainer `json:"data"`
 	ExecutionOptimistic bool                        `json:"execution_optimistic"`

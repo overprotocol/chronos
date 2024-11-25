@@ -25,6 +25,108 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/testing/util"
 )
 
+func TestGetDepositPreEstimation(t *testing.T) {
+	_, privKeys := util.DeterministicGenesisStateElectra(t, 10)
+	sk1 := privKeys[0]
+
+	tests := []struct {
+		name     string
+		state    state.BeaconState
+		code     int
+		wantData *structs.DepositPreEstimationContainer
+		wantErr  string
+	}{
+		{
+			name: "[error] pre-electra is not supported",
+			state: func() state.BeaconState {
+				st, _ := util.DeterministicGenesisStateDeneb(t, 10)
+				return st
+			}(),
+			code:    http.StatusBadRequest,
+			wantErr: "Deposit estimation is not supported for pre-Electra.",
+		},
+		{
+			name: "deposit will be processed 2 epochs later in empty case",
+			state: func() state.BeaconState {
+				st, _ := util.DeterministicGenesisStateElectra(t, 10)
+				require.NoError(t, st.SetSlot(384)) // current epoch = 12
+				require.NoError(t, st.SetFinalizedCheckpoint(&ethpb.Checkpoint{
+					Epoch: 10,
+					Root:  []byte("finalized"),
+				}))
+				return st
+			}(),
+			code: http.StatusOK,
+			wantData: &structs.DepositPreEstimationContainer{
+				ExpectedEpoch:           15,
+				ExpectedActivationEpoch: 23,
+			},
+		},
+		{
+			name: "deposit will be processed much later if queue is not empty",
+			state: func() state.BeaconState {
+				st, _ := util.DeterministicGenesisStateElectra(t, 10)
+
+				pd := &ethpb.PendingDeposit{
+					PublicKey:             sk1.PublicKey().Marshal(),
+					WithdrawalCredentials: make([]byte, 32),
+					Amount:                4096_000_000_000, // 4096 OVER = activation balance churn limit
+					Slot:                  primitives.Slot(321),
+				}
+				pd, err := signedPendingDeposit(sk1, pd)
+				require.NoError(t, err)
+
+				require.NoError(t, st.AppendPendingDeposit(pd)) // this will be processed in epoch 13
+				require.NoError(t, st.AppendPendingDeposit(pd)) // this will be processed in epoch 14
+				require.NoError(t, st.AppendPendingDeposit(pd)) // this will be processed in epoch 15
+
+				require.NoError(t, st.SetSlot(384)) // current epoch = 12
+				require.NoError(t, st.SetFinalizedCheckpoint(&ethpb.Checkpoint{
+					Epoch: 10,
+					Root:  []byte("finalized"),
+				}))
+				return st
+			}(),
+			code: http.StatusOK,
+			wantData: &structs.DepositPreEstimationContainer{
+				ExpectedEpoch:           16,
+				ExpectedActivationEpoch: 24,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		chainService := &chainMock.ChainService{}
+		s := Server{
+			Stater: &testutil.MockStater{
+				BeaconState: tt.state,
+			},
+			HeadFetcher:           chainService,
+			OptimisticModeFetcher: chainService,
+			FinalizationFetcher:   chainService,
+		}
+
+		request := httptest.NewRequest(http.MethodGet,
+			"http://example.com/over/v1/beacon/states/{state_id}/deposit_estimation", nil)
+		request.SetPathValue("state_id", "head")
+		writer := httptest.NewRecorder()
+		writer.Body = &bytes.Buffer{}
+
+		s.GetDepositPreEstimation(writer, request)
+		assert.Equal(t, tt.code, writer.Code)
+		if tt.wantErr != "" {
+			require.StringContains(t, tt.wantErr, writer.Body.String())
+			continue
+		}
+
+		resp := &structs.GetDepositPreEstimationResponse{}
+		require.NoError(t, json.Unmarshal(writer.Body.Bytes(), resp))
+		if tt.wantData != nil {
+			require.DeepEqual(t, tt.wantData, resp.Data)
+		}
+	}
+}
+
 func TestGetDepositEstimation(t *testing.T) {
 	// initial deposit keypair
 	sk0, err := bls.RandKey()
