@@ -190,7 +190,7 @@ func TestProcessEpochParticipation_InactiveValidator(t *testing.T) {
 	require.DeepEqual(t, &precompute.Validator{
 		IsActiveCurrentEpoch:         false,
 		IsActivePrevEpoch:            false,
-		IsWithdrawableCurrentEpoch:   false,
+		IsWithdrawableCurrentEpoch:   true,
 		CurrentEpochEffectiveBalance: eb,
 		ActualBalance:                eb,
 	}, validators[0])
