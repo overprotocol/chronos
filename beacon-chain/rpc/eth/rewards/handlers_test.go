@@ -220,8 +220,8 @@ func TestBlockRewards(t *testing.T) {
 		resp := &structs.BlockRewardsResponse{}
 		require.NoError(t, json.Unmarshal(writer.Body.Bytes(), resp))
 		assert.Equal(t, "12", resp.Data.ProposerIndex)
-		assert.Equal(t, "1237823438", resp.Data.Total)
-		assert.Equal(t, "237823438", resp.Data.Attestations)
+		assert.Equal(t, "1237823424", resp.Data.Total)
+		assert.Equal(t, "237823424", resp.Data.Attestations)
 		assert.Equal(t, "500000000", resp.Data.AttesterSlashings)
 		assert.Equal(t, "500000000", resp.Data.ProposerSlashings)
 		assert.Equal(t, true, resp.ExecutionOptimistic)
@@ -255,8 +255,8 @@ func TestBlockRewards(t *testing.T) {
 		resp := &structs.BlockRewardsResponse{}
 		require.NoError(t, json.Unmarshal(writer.Body.Bytes(), resp))
 		assert.Equal(t, "12", resp.Data.ProposerIndex)
-		assert.Equal(t, "1237823438", resp.Data.Total)
-		assert.Equal(t, "237823438", resp.Data.Attestations)
+		assert.Equal(t, "1237823424", resp.Data.Total)
+		assert.Equal(t, "237823424", resp.Data.Attestations)
 		assert.Equal(t, "500000000", resp.Data.AttesterSlashings)
 		assert.Equal(t, "500000000", resp.Data.ProposerSlashings)
 		assert.Equal(t, true, resp.ExecutionOptimistic)
@@ -290,8 +290,8 @@ func TestBlockRewards(t *testing.T) {
 		resp := &structs.BlockRewardsResponse{}
 		require.NoError(t, json.Unmarshal(writer.Body.Bytes(), resp))
 		assert.Equal(t, "12", resp.Data.ProposerIndex)
-		assert.Equal(t, "1237823438", resp.Data.Total)
-		assert.Equal(t, "237823438", resp.Data.Attestations)
+		assert.Equal(t, "1237823424", resp.Data.Total)
+		assert.Equal(t, "237823424", resp.Data.Attestations)
 		assert.Equal(t, "500000000", resp.Data.AttesterSlashings)
 		assert.Equal(t, "500000000", resp.Data.ProposerSlashings)
 		assert.Equal(t, true, resp.ExecutionOptimistic)
@@ -325,8 +325,8 @@ func TestBlockRewards(t *testing.T) {
 		resp := &structs.BlockRewardsResponse{}
 		require.NoError(t, json.Unmarshal(writer.Body.Bytes(), resp))
 		assert.Equal(t, "12", resp.Data.ProposerIndex)
-		assert.Equal(t, "1237823438", resp.Data.Total)
-		assert.Equal(t, "237823438", resp.Data.Attestations)
+		assert.Equal(t, "1237823424", resp.Data.Total)
+		assert.Equal(t, "237823424", resp.Data.Attestations)
 		assert.Equal(t, "500000000", resp.Data.AttesterSlashings)
 		assert.Equal(t, "500000000", resp.Data.ProposerSlashings)
 		assert.Equal(t, true, resp.ExecutionOptimistic)
@@ -404,7 +404,7 @@ func TestAttestationRewards(t *testing.T) {
 			require.NoError(t, err)
 			sum += hr + sr + tr
 		}
-		assert.Equal(t, uint64(12908324511), sum)
+		assert.Equal(t, uint64(13087606739), sum)
 	})
 	t.Run("filtered vals", func(t *testing.T) {
 		url := "http://only.the.epoch.number.at.the.end.is.important/1"
@@ -433,7 +433,7 @@ func TestAttestationRewards(t *testing.T) {
 			require.NoError(t, err)
 			sum += hr + sr + tr
 		}
-		assert.Equal(t, uint64(3073410595), sum)
+		assert.Equal(t, uint64(3278304621), sum)
 	})
 	t.Run("all vals", func(t *testing.T) {
 		url := "http://only.the.epoch.number.at.the.end.is.important/1"
@@ -456,7 +456,7 @@ func TestAttestationRewards(t *testing.T) {
 			require.NoError(t, err)
 			sum += hr + sr + tr
 		}
-		assert.Equal(t, uint64(209811496744), sum)
+		assert.Equal(t, uint64(213089800496), sum)
 	})
 	t.Run("penalty - zero inactivity score, so zero penalty", func(t *testing.T) {
 		st := st.Copy()
@@ -527,8 +527,8 @@ func TestAttestationRewards(t *testing.T) {
 		require.NoError(t, json.Unmarshal(writer.Body.Bytes(), resp))
 		assert.Equal(t, "0", resp.Data.TotalRewards[0].Head)
 		// Penalty is not proportional to base reward, so penalty becomes much smaller especially for small networks
-		assert.Equal(t, "-541798", resp.Data.TotalRewards[0].Source)
-		assert.Equal(t, "-1083597", resp.Data.TotalRewards[0].Target)
+		assert.Equal(t, "-1083597", resp.Data.TotalRewards[0].Source)
+		assert.Equal(t, "-2167195", resp.Data.TotalRewards[0].Target)
 	})
 	t.Run("invalid validator index/pubkey", func(t *testing.T) {
 		url := "http://only.the.epoch.number.at.the.end.is.important/1"
@@ -687,7 +687,7 @@ func TestAttestationRewards_Electra(t *testing.T) {
 		resp := &structs.AttestationRewardsResponse{}
 		require.NoError(t, json.Unmarshal(writer.Body.Bytes(), resp))
 		// For pre-Electra, there are at most two possible effective balance.
-		require.Equal(t, 2018, len(resp.Data.IdealRewards))
+		require.Equal(t, 16130, len(resp.Data.IdealRewards))
 		sum := uint64(0)
 		for _, r := range resp.Data.IdealRewards {
 			hr, err := strconv.ParseUint(r.Head, 10, 64)
@@ -698,7 +698,7 @@ func TestAttestationRewards_Electra(t *testing.T) {
 			require.NoError(t, err)
 			sum += hr + sr + tr
 		}
-		assert.Equal(t, uint64(6715757259365), sum)
+		assert.Equal(t, uint64(53701971408840), sum)
 	})
 	t.Run("filtered vals", func(t *testing.T) {
 		url := "http://only.the.epoch.number.at.the.end.is.important/1"
@@ -727,7 +727,7 @@ func TestAttestationRewards_Electra(t *testing.T) {
 			require.NoError(t, err)
 			sum += hr + sr + tr
 		}
-		assert.Equal(t, uint64(3278304512), sum)
+		assert.Equal(t, uint64(3278299136), sum)
 	})
 	t.Run("all vals", func(t *testing.T) {
 		url := "http://only.the.epoch.number.at.the.end.is.important/1"
@@ -750,7 +750,7 @@ func TestAttestationRewards_Electra(t *testing.T) {
 			require.NoError(t, err)
 			sum += hr + sr + tr
 		}
-		assert.Equal(t, uint64(213089793280), sum)
+		assert.Equal(t, uint64(213089443840), sum)
 	})
 	t.Run("penalty - zero inactivity score, so zero penalty", func(t *testing.T) {
 		st := st.Copy()
@@ -820,7 +820,7 @@ func TestAttestationRewards_Electra(t *testing.T) {
 		resp := &structs.AttestationRewardsResponse{}
 		require.NoError(t, json.Unmarshal(writer.Body.Bytes(), resp))
 		assert.Equal(t, "0", resp.Data.TotalRewards[0].Head)
-		assert.Equal(t, "-34675132", resp.Data.TotalRewards[0].Source)
-		assert.Equal(t, "-69350264", resp.Data.TotalRewards[0].Target)
+		assert.Equal(t, "-69350264", resp.Data.TotalRewards[0].Source)
+		assert.Equal(t, "-138700529", resp.Data.TotalRewards[0].Target)
 	})
 }

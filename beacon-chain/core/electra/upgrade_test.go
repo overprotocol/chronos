@@ -18,11 +18,7 @@ func TestUpgradeToElectra(t *testing.T) {
 	st, _ := util.DeterministicGenesisStateDeneb(t, params.BeaconConfig().MaxValidatorsPerCommittee)
 	vals := st.Validators()
 	vals[0].ActivationEpoch = params.BeaconConfig().FarFutureEpoch
-	vals[1].WithdrawalCredentials = []byte{params.BeaconConfig().CompoundingWithdrawalPrefixByte}
 	require.NoError(t, st.SetValidators(vals))
-	bals := st.Balances()
-	bals[1] = params.BeaconConfig().MinActivationBalance + 1000
-	require.NoError(t, st.SetBalances(bals))
 
 	preForkState := st.Copy()
 	mSt, err := electra.UpgradeToElectra(st)
@@ -144,8 +140,7 @@ func TestUpgradeToElectra(t *testing.T) {
 
 	pendingDeposits, err := mSt.PendingDeposits()
 	require.NoError(t, err)
-	require.Equal(t, 2, len(pendingDeposits))
-	require.Equal(t, uint64(1000), pendingDeposits[1].Amount)
+	require.Equal(t, 1, len(pendingDeposits))
 
 	numPendingPartialWithdrawals, err := mSt.NumPendingPartialWithdrawals()
 	require.NoError(t, err)

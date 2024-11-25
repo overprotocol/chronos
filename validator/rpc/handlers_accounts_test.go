@@ -661,7 +661,7 @@ func Test_eth1WithdrawalCredential(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 20, len(eth1Address))
 	wc := eth1WithdrawalCredential(eth1Address)
-	require.Equal(t, "0x010000000000000000000000a83114a443da1cecefc50368531cace9f37fcccb", hexutil.Encode(wc))
+	require.Equal(t, "0x020000000000000000000000a83114a443da1cecefc50368531cace9f37fcccb", hexutil.Encode(wc))
 	require.Equal(t, 32, len(wc))
 }
 

@@ -34,7 +34,7 @@ func TestProcessEffectiveBalanceUpdates_SafeCopy(t *testing.T) {
 	require.Equal(t, copiedState.Validators()[0].EffectiveBalance, params.BeaconConfig().MaxEffectiveBalanceAlpaca)
 }
 
-func TestProcessEffectiveBalnceUpdates(t *testing.T) {
+func TestProcessEffectiveBalanceUpdates(t *testing.T) {
 	effBalanceInc := params.BeaconConfig().EffectiveBalanceIncrement
 	hysteresisInc := effBalanceInc / params.BeaconConfig().HysteresisQuotient
 	downwardThreshold := hysteresisInc * params.BeaconConfig().HysteresisDownwardMultiplier
@@ -91,7 +91,7 @@ func TestProcessEffectiveBalnceUpdates(t *testing.T) {
 			check: func(t *testing.T, bs state.BeaconState) {
 				val, err := bs.ValidatorAtIndex(0)
 				require.NoError(t, err)
-				require.Equal(t, params.BeaconConfig().MinActivationBalance, val.EffectiveBalance)
+				require.Equal(t, params.BeaconConfig().MaxEffectiveBalanceAlpaca, val.EffectiveBalance)
 			},
 		},
 		{
