@@ -1384,6 +1384,8 @@ func TestServer_GetValidatorQueue_PendingActivation(t *testing.T) {
 }
 
 func TestServer_GetValidatorQueue_ExitedValidatorLeavesQueue(t *testing.T) {
+	t.Skip("As WithdrawableEpoch is removed, this test is no longer valid")
+
 	validators := []*ethpb.Validator{
 		{
 			ActivationEpoch: 0,
