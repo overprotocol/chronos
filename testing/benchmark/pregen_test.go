@@ -12,11 +12,13 @@ func TestPreGenFullBlock(t *testing.T) {
 }
 
 func TestPreGenState1Epoch(t *testing.T) {
+	t.Skip("Skipping test: ssz file must be generated again")
 	_, err := PreGenState1Epoch()
 	require.NoError(t, err)
 }
 
 func TestPreGenstateFullEpochs(t *testing.T) {
+	t.Skip("Skipping test: ssz file must be generated again")
 	_, err := PreGenstateFullEpochs()
 	require.NoError(t, err)
 }

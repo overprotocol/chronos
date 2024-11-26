@@ -25,6 +25,10 @@ func proposerSlashingForValIdx(valIdx primitives.ValidatorIndex) *ethpb.Proposer
 }
 
 func TestPool_InsertProposerSlashing(t *testing.T) {
+	cfg := params.BeaconConfig().Copy()
+	cfg.MinValidatorWithdrawabilityDelay = 0 // For testing purposes
+	params.OverrideBeaconConfig(cfg)
+
 	type fields struct {
 		wantedErr string
 		pending   []*ethpb.ProposerSlashing
@@ -47,6 +51,7 @@ func TestPool_InsertProposerSlashing(t *testing.T) {
 	// We mark the following validators with some preconditions.
 	exitedVal, err := beaconState.ValidatorAtIndex(primitives.ValidatorIndex(2))
 	require.NoError(t, err)
+	exitedVal.ExitEpoch = 0
 	futureExitedVal, err := beaconState.ValidatorAtIndex(primitives.ValidatorIndex(4))
 	require.NoError(t, err)
 	slashedVal, err := beaconState.ValidatorAtIndex(primitives.ValidatorIndex(5))

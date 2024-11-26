@@ -195,6 +195,8 @@ func TestImportExport_FilterKeys(t *testing.T) {
 	// We compare the metadata fields from import to export.
 	require.Equal(t, wanted.Metadata, eipStandard.Metadata)
 	require.Equal(t, len(rawKeys), len(eipStandard.Data))
+
+	t.Log("TestImportExport_FilterKeys succeeded")
 }
 
 // TestImportInterchangeData_OK tests that we can import and export slashing protection data
@@ -418,4 +420,6 @@ func TestStore_ImportInterchangeData_BadFormat_PreventsDBWrites(t *testing.T) {
 			"Imported proposal signing root is different than the empty default",
 		)
 	}
+
+	t.Log("TestStore_ImportInterchangeData_BadFormat_PreventsDBWrites (round_trip_test.go) passed")
 }

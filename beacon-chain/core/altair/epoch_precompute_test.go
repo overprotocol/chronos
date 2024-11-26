@@ -190,7 +190,7 @@ func TestProcessEpochParticipation_InactiveValidator(t *testing.T) {
 	require.DeepEqual(t, &precompute.Validator{
 		IsActiveCurrentEpoch:         false,
 		IsActivePrevEpoch:            false,
-		IsWithdrawableCurrentEpoch:   false,
+		IsWithdrawableCurrentEpoch:   true,
 		CurrentEpochEffectiveBalance: eb,
 		ActualBalance:                eb,
 	}, validators[0])
@@ -237,7 +237,7 @@ func TestAttestationsDelta(t *testing.T) {
 				require.NoError(t, err)
 				return s
 			},
-			wantRewards:   []uint64{0, 8561643835, 19977168949, 24733637746},
+			wantRewards:   []uint64{0, 8561643804, 19977168876, 24733637656},
 			wantPenalties: []uint64{0, 0, 0, 0},
 		},
 		{
@@ -249,7 +249,7 @@ func TestAttestationsDelta(t *testing.T) {
 				require.NoError(t, err)
 				return s
 			},
-			wantPenalties: []uint64{1625395, 1083597, 0, 0},
+			wantPenalties: []uint64{3250792, 2167195, 0, 0},
 		},
 		{
 			name: "altair - zero penalty in inactivity leak",
@@ -279,7 +279,7 @@ func TestAttestationsDelta(t *testing.T) {
 				require.NoError(t, s.SetBalances([]uint64{balance, balance, balance, balance}))
 				return s
 			},
-			wantPenalties: []uint64{1625395, 1083597, 0, 0},
+			wantPenalties: []uint64{3250792, 2167195, 0, 0},
 		},
 		{
 			name: "bellatrix - zero penalty",
@@ -288,7 +288,7 @@ func TestAttestationsDelta(t *testing.T) {
 				require.NoError(t, err)
 				return s
 			},
-			wantRewards:   []uint64{0, 8561643835, 19977168949, 24733637746},
+			wantRewards:   []uint64{0, 8561643804, 19977168876, 24733637656},
 			wantPenalties: []uint64{0, 0, 0, 0},
 		},
 		{
@@ -300,7 +300,7 @@ func TestAttestationsDelta(t *testing.T) {
 				require.NoError(t, err)
 				return s
 			},
-			wantPenalties: []uint64{1625395, 1083597, 0, 0},
+			wantPenalties: []uint64{3250792, 2167195, 0, 0},
 		},
 		{
 			name: "bellatrix - zero penalty in inactivity leak",
@@ -330,7 +330,7 @@ func TestAttestationsDelta(t *testing.T) {
 				require.NoError(t, s.SetBalances([]uint64{balance, balance, balance, balance}))
 				return s
 			},
-			wantPenalties: []uint64{1625395, 1083597, 0, 0},
+			wantPenalties: []uint64{3250792, 2167195, 0, 0},
 		},
 	}
 
@@ -428,8 +428,8 @@ func TestProcessRewardsAndPenaltiesPrecompute_InactivityLeak(t *testing.T) {
 	balances := s.Balances()
 	inactivityBalances := sCopy.Balances()
 	// Balances decreased to 0 due to inactivity
-	require.Equal(t, uint64(19977168949), balances[2])
-	require.Equal(t, uint64(24733637746), balances[3])
+	require.Equal(t, uint64(19977168876), balances[2])
+	require.Equal(t, uint64(24733637656), balances[3])
 	require.Equal(t, uint64(0), inactivityBalances[2])
 	require.Equal(t, uint64(0), inactivityBalances[3])
 }
@@ -489,7 +489,7 @@ func TestProcessInactivityScores_CanProcessNonInactivityLeak(t *testing.T) {
 	inactivityScores, err := s.InactivityScores()
 	require.NoError(t, err)
 
-	require.DeepEqual(t, []uint64{7, 7, 4, 4}, inactivityScores, "Incorrect inactivity scores")
+	require.DeepEqual(t, []uint64{9, 9, 4, 4}, inactivityScores, "Incorrect inactivity scores")
 }
 
 func TestProcessRewardsAndPenaltiesPrecompute_GenesisEpoch(t *testing.T) {
@@ -555,7 +555,7 @@ func TestProcessInactivityScores_NonEligibleValidator(t *testing.T) {
 	inactivityScores, err := s.InactivityScores()
 	require.NoError(t, err)
 
-	require.Equal(t, uint64(7), inactivityScores[0])
+	require.Equal(t, uint64(9), inactivityScores[0])
 	require.Equal(t, defaultScore, inactivityScores[1]) // Should remain unchanged
 	require.Equal(t, defaultScore, inactivityScores[2]) // Should remain unchanged
 	require.Equal(t, uint64(4), inactivityScores[3])

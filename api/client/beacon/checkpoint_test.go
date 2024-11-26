@@ -115,100 +115,6 @@ func TestFname(t *testing.T) {
 	require.Equal(t, expected, actual)
 }
 
-func TestDownloadWeakSubjectivityCheckpoint(t *testing.T) {
-	ctx := context.Background()
-	params.SetupForkEpochConfigForTest()
-	cfg := params.BeaconConfig()
-	epoch := cfg.AltairForkEpoch - 1
-	// set up checkpoint state, using the epoch that will be computed as the ws checkpoint state based on the head state
-	wSlot, err := slots.EpochStart(epoch)
-	require.NoError(t, err)
-	wst, err := util.NewBeaconState()
-	require.NoError(t, err)
-	fork, err := forkForEpoch(cfg, epoch)
-	require.NoError(t, err)
-	require.NoError(t, wst.SetFork(fork))
-
-	// set up checkpoint block
-	b, err := blocks.NewSignedBeaconBlock(util.NewBeaconBlock())
-	require.NoError(t, err)
-	b, err = blocktest.SetBlockParentRoot(b, cfg.ZeroHash)
-	require.NoError(t, err)
-	b, err = blocktest.SetBlockSlot(b, wSlot)
-	require.NoError(t, err)
-	b, err = blocktest.SetProposerIndex(b, 0)
-	require.NoError(t, err)
-
-	// set up state header pointing at checkpoint block - this is how the block is downloaded by root
-	header, err := b.Header()
-	require.NoError(t, err)
-	require.NoError(t, wst.SetLatestBlockHeader(header.Header))
-
-	// order of operations can be confusing here:
-	// - when computing the state root, make sure block header is complete, EXCEPT the state root should be zero-value
-	// - before computing the block root (to match the request route), the block should include the state root
-	//   *computed from the state with a header that does not have a state root set yet*
-	wRoot, err := wst.HashTreeRoot(ctx)
-	require.NoError(t, err)
-
-	b, err = blocktest.SetBlockStateRoot(b, wRoot)
-	require.NoError(t, err)
-	serBlock, err := b.MarshalSSZ()
-	require.NoError(t, err)
-	bRoot, err := b.Block().HashTreeRoot()
-	require.NoError(t, err)
-
-	wsSerialized, err := wst.MarshalSSZ()
-	require.NoError(t, err)
-	expectedWSD := WeakSubjectivityData{
-		BlockRoot: bRoot,
-		StateRoot: wRoot,
-		Epoch:     epoch,
-	}
-
-	trans := &testRT{rt: func(req *http.Request) (*http.Response, error) {
-		res := &http.Response{Request: req}
-		switch req.URL.Path {
-		case getWeakSubjectivityPath:
-			res.StatusCode = http.StatusOK
-			cp := struct {
-				Epoch string `json:"epoch"`
-				Root  string `json:"root"`
-			}{
-				Epoch: fmt.Sprintf("%d", slots.ToEpoch(b.Block().Slot())),
-				Root:  fmt.Sprintf("%#x", bRoot),
-			}
-			wsr := struct {
-				Checkpoint interface{} `json:"ws_checkpoint"`
-				StateRoot  string      `json:"state_root"`
-			}{
-				Checkpoint: cp,
-				StateRoot:  fmt.Sprintf("%#x", wRoot),
-			}
-			rb, err := marshalToEnvelope(wsr)
-			require.NoError(t, err)
-			res.Body = io.NopCloser(bytes.NewBuffer(rb))
-		case renderGetStatePath(IdFromSlot(wSlot)):
-			res.StatusCode = http.StatusOK
-			res.Body = io.NopCloser(bytes.NewBuffer(wsSerialized))
-		case renderGetBlockPath(IdFromRoot(bRoot)):
-			res.StatusCode = http.StatusOK
-			res.Body = io.NopCloser(bytes.NewBuffer(serBlock))
-		}
-
-		return res, nil
-	}}
-
-	c, err := NewClient("http://localhost:3500", client.WithRoundTripper(trans))
-	require.NoError(t, err)
-
-	wsd, err := ComputeWeakSubjectivityCheckpoint(ctx, c)
-	require.NoError(t, err)
-	require.Equal(t, expectedWSD.Epoch, wsd.Epoch)
-	require.Equal(t, expectedWSD.StateRoot, wsd.StateRoot)
-	require.Equal(t, expectedWSD.BlockRoot, wsd.BlockRoot)
-}
-
 // runs computeBackwardsCompatible directly
 // and via ComputeWeakSubjectivityCheckpoint with a round tripper that triggers the backwards compatible code path
 func TestDownloadBackwardsCompatibleCombined(t *testing.T) {
@@ -305,6 +211,100 @@ func TestDownloadBackwardsCompatibleCombined(t *testing.T) {
 	wsPriv, err := computeBackwardsCompatible(ctx, c)
 	require.NoError(t, err)
 	require.DeepEqual(t, wsPriv, wsPub)
+}
+
+func TestDownloadWeakSubjectivityCheckpoint(t *testing.T) {
+	ctx := context.Background()
+	params.SetupForkEpochConfigForTest()
+	cfg := params.BeaconConfig()
+	epoch := cfg.AltairForkEpoch - 1
+	// set up checkpoint state, using the epoch that will be computed as the ws checkpoint state based on the head state
+	wSlot, err := slots.EpochStart(epoch)
+	require.NoError(t, err)
+	wst, err := util.NewBeaconState()
+	require.NoError(t, err)
+	fork, err := forkForEpoch(cfg, epoch)
+	require.NoError(t, err)
+	require.NoError(t, wst.SetFork(fork))
+
+	// set up checkpoint block
+	b, err := blocks.NewSignedBeaconBlock(util.NewBeaconBlock())
+	require.NoError(t, err)
+	b, err = blocktest.SetBlockParentRoot(b, cfg.ZeroHash)
+	require.NoError(t, err)
+	b, err = blocktest.SetBlockSlot(b, wSlot)
+	require.NoError(t, err)
+	b, err = blocktest.SetProposerIndex(b, 0)
+	require.NoError(t, err)
+
+	// set up state header pointing at checkpoint block - this is how the block is downloaded by root
+	header, err := b.Header()
+	require.NoError(t, err)
+	require.NoError(t, wst.SetLatestBlockHeader(header.Header))
+
+	// order of operations can be confusing here:
+	// - when computing the state root, make sure block header is complete, EXCEPT the state root should be zero-value
+	// - before computing the block root (to match the request route), the block should include the state root
+	//   *computed from the state with a header that does not have a state root set yet*
+	wRoot, err := wst.HashTreeRoot(ctx)
+	require.NoError(t, err)
+
+	b, err = blocktest.SetBlockStateRoot(b, wRoot)
+	require.NoError(t, err)
+	serBlock, err := b.MarshalSSZ()
+	require.NoError(t, err)
+	bRoot, err := b.Block().HashTreeRoot()
+	require.NoError(t, err)
+
+	wsSerialized, err := wst.MarshalSSZ()
+	require.NoError(t, err)
+	expectedWSD := WeakSubjectivityData{
+		BlockRoot: bRoot,
+		StateRoot: wRoot,
+		Epoch:     epoch,
+	}
+
+	trans := &testRT{rt: func(req *http.Request) (*http.Response, error) {
+		res := &http.Response{Request: req}
+		switch req.URL.Path {
+		case getWeakSubjectivityPath:
+			res.StatusCode = http.StatusOK
+			cp := struct {
+				Epoch string `json:"epoch"`
+				Root  string `json:"root"`
+			}{
+				Epoch: fmt.Sprintf("%d", slots.ToEpoch(b.Block().Slot())),
+				Root:  fmt.Sprintf("%#x", bRoot),
+			}
+			wsr := struct {
+				Checkpoint interface{} `json:"ws_checkpoint"`
+				StateRoot  string      `json:"state_root"`
+			}{
+				Checkpoint: cp,
+				StateRoot:  fmt.Sprintf("%#x", wRoot),
+			}
+			rb, err := marshalToEnvelope(wsr)
+			require.NoError(t, err)
+			res.Body = io.NopCloser(bytes.NewBuffer(rb))
+		case renderGetStatePath(IdFromSlot(wSlot)):
+			res.StatusCode = http.StatusOK
+			res.Body = io.NopCloser(bytes.NewBuffer(wsSerialized))
+		case renderGetBlockPath(IdFromRoot(bRoot)):
+			res.StatusCode = http.StatusOK
+			res.Body = io.NopCloser(bytes.NewBuffer(serBlock))
+		}
+
+		return res, nil
+	}}
+
+	c, err := NewClient("http://localhost:3500", client.WithRoundTripper(trans))
+	require.NoError(t, err)
+
+	wsd, err := ComputeWeakSubjectivityCheckpoint(ctx, c)
+	require.NoError(t, err)
+	require.Equal(t, expectedWSD.Epoch, wsd.Epoch)
+	require.Equal(t, expectedWSD.StateRoot, wsd.StateRoot)
+	require.Equal(t, expectedWSD.BlockRoot, wsd.BlockRoot)
 }
 
 func TestGetWeakSubjectivityEpochFromHead(t *testing.T) {

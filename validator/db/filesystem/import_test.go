@@ -91,6 +91,8 @@ func TestStore_ImportInterchangeData_BadFormat_PreventsDBWrites(t *testing.T) {
 			"Imported proposal signing root is different than the empty default",
 		)
 	}
+
+	t.Log("TestStore_ImportInterchangeData_BadFormat_PreventsDBWrites (filesystem/import_test.go) passed")
 }
 
 func TestStore_ImportInterchangeData_OK(t *testing.T) {

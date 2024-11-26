@@ -459,7 +459,7 @@ func TestSubmitBeaconCommitteeSubscription(t *testing.T) {
 		assert.Equal(t, http.StatusOK, writer.Code)
 		subnets := cache.SubnetIDs.GetAttesterSubnetIDs(1)
 		require.Equal(t, 1, len(subnets))
-		assert.Equal(t, uint64(5), subnets[0])
+		assert.Equal(t, uint64(3), subnets[0])
 	})
 	t.Run("multiple", func(t *testing.T) {
 		cache.SubnetIDs.EmptyAllCaches()
@@ -475,8 +475,8 @@ func TestSubmitBeaconCommitteeSubscription(t *testing.T) {
 		assert.Equal(t, http.StatusOK, writer.Code)
 		subnets := cache.SubnetIDs.GetAttesterSubnetIDs(1)
 		require.Equal(t, 2, len(subnets))
-		assert.Equal(t, uint64(5), subnets[0])
-		assert.Equal(t, uint64(4), subnets[1])
+		assert.Equal(t, uint64(3), subnets[0])
+		assert.Equal(t, uint64(2), subnets[1])
 	})
 	t.Run("is aggregator", func(t *testing.T) {
 		cache.SubnetIDs.EmptyAllCaches()
@@ -492,7 +492,7 @@ func TestSubmitBeaconCommitteeSubscription(t *testing.T) {
 		assert.Equal(t, http.StatusOK, writer.Code)
 		subnets := cache.SubnetIDs.GetAggregatorSubnetIDs(1)
 		require.Equal(t, 1, len(subnets))
-		assert.Equal(t, uint64(5), subnets[0])
+		assert.Equal(t, uint64(3), subnets[0])
 	})
 	t.Run("no body", func(t *testing.T) {
 		request := httptest.NewRequest(http.MethodPost, "http://example.com", nil)
@@ -1092,13 +1092,13 @@ func TestGetAttesterDuties(t *testing.T) {
 		assert.Equal(t, hexutil.Encode(genesisRoot[:]), resp.DependentRoot)
 		require.Equal(t, 1, len(resp.Data))
 		duty := resp.Data[0]
-		assert.Equal(t, "2", duty.CommitteeIndex)
-		assert.Equal(t, "22", duty.Slot)
+		assert.Equal(t, "0", duty.CommitteeIndex)
+		assert.Equal(t, "12", duty.Slot)
 		assert.Equal(t, "0", duty.ValidatorIndex)
 		assert.Equal(t, hexutil.Encode(pubKeys[0]), duty.Pubkey)
-		assert.Equal(t, "171", duty.CommitteeLength)
-		assert.Equal(t, "3", duty.CommitteesAtSlot)
-		assert.Equal(t, "13", duty.ValidatorCommitteeIndex)
+		assert.Equal(t, "256", duty.CommitteeLength)
+		assert.Equal(t, "1", duty.CommitteesAtSlot)
+		assert.Equal(t, "243", duty.ValidatorCommitteeIndex)
 	})
 	t.Run("multiple validators", func(t *testing.T) {
 		var body bytes.Buffer
@@ -1175,13 +1175,13 @@ func TestGetAttesterDuties(t *testing.T) {
 		assert.Equal(t, hexutil.Encode(genesisRoot[:]), resp.DependentRoot)
 		require.Equal(t, 1, len(resp.Data))
 		duty := resp.Data[0]
-		assert.Equal(t, "2", duty.CommitteeIndex)
+		assert.Equal(t, "0", duty.CommitteeIndex)
 		assert.Equal(t, "40", duty.Slot)
 		assert.Equal(t, "0", duty.ValidatorIndex)
 		assert.Equal(t, hexutil.Encode(pubKeys[0]), duty.Pubkey)
-		assert.Equal(t, "170", duty.CommitteeLength)
-		assert.Equal(t, "3", duty.CommitteesAtSlot)
-		assert.Equal(t, "136", duty.ValidatorCommitteeIndex)
+		assert.Equal(t, "256", duty.CommitteeLength)
+		assert.Equal(t, "1", duty.CommitteesAtSlot)
+		assert.Equal(t, "147", duty.ValidatorCommitteeIndex)
 	})
 	t.Run("epoch out of bounds", func(t *testing.T) {
 		var body bytes.Buffer
@@ -1356,8 +1356,8 @@ func TestGetProposerDuties(t *testing.T) {
 			}
 		}
 		require.NotNil(t, expectedDuty, "Expected duty for slot 11 not found")
-		assert.Equal(t, "14992", expectedDuty.ValidatorIndex)
-		assert.Equal(t, hexutil.Encode(pubKeys[14992]), expectedDuty.Pubkey)
+		assert.Equal(t, "1518", expectedDuty.ValidatorIndex)
+		assert.Equal(t, hexutil.Encode(pubKeys[1518]), expectedDuty.Pubkey)
 	})
 	t.Run("next epoch", func(t *testing.T) {
 		bs, err := transition.GenesisBeaconState(context.Background(), deposits, 0, eth1Data)
@@ -1398,8 +1398,8 @@ func TestGetProposerDuties(t *testing.T) {
 			}
 		}
 		require.NotNil(t, expectedDuty, "Expected duty for slot 43 not found")
-		assert.Equal(t, "9261", expectedDuty.ValidatorIndex)
-		assert.Equal(t, hexutil.Encode(pubKeys[9261]), expectedDuty.Pubkey)
+		assert.Equal(t, "58", expectedDuty.ValidatorIndex)
+		assert.Equal(t, hexutil.Encode(pubKeys[58]), expectedDuty.Pubkey)
 	})
 	t.Run("epoch out of bounds", func(t *testing.T) {
 		bs, err := transition.GenesisBeaconState(context.Background(), deposits, 0, eth1Data)

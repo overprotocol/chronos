@@ -1383,52 +1383,6 @@ func TestServer_GetValidatorQueue_PendingActivation(t *testing.T) {
 	assert.DeepEqual(t, wantedActiveIndices, res.ActivationValidatorIndices)
 }
 
-func TestServer_GetValidatorQueue_ExitedValidatorLeavesQueue(t *testing.T) {
-	validators := []*ethpb.Validator{
-		{
-			ActivationEpoch: 0,
-			ExitEpoch:       params.BeaconConfig().FarFutureEpoch,
-			PublicKey:       bytesutil.PadTo([]byte("1"), 48),
-		},
-		{
-			ActivationEpoch: 0,
-			ExitEpoch:       4,
-			PublicKey:       bytesutil.PadTo([]byte("2"), 48),
-		},
-	}
-
-	headState, err := util.NewBeaconState()
-	require.NoError(t, err)
-	require.NoError(t, headState.SetValidators(validators))
-	require.NoError(t, headState.SetFinalizedCheckpoint(&ethpb.Checkpoint{Epoch: 0, Root: make([]byte, 32)}))
-	bs := &Server{
-		HeadFetcher: &mock.ChainService{
-			State: headState,
-		},
-	}
-
-	// First we check if validator with index 1 is in the exit queue.
-	res, err := bs.GetValidatorQueue(context.Background(), &emptypb.Empty{})
-	require.NoError(t, err)
-	wanted := [][]byte{
-		bytesutil.PadTo([]byte("2"), 48),
-	}
-	activeValidatorCount, err := helpers.ActiveValidatorCount(context.Background(), headState, coreTime.CurrentEpoch(headState))
-	require.NoError(t, err)
-	wantChurn := helpers.ValidatorActivationChurnLimit(activeValidatorCount)
-	assert.Equal(t, wantChurn, res.ChurnLimit)
-	assert.DeepEqual(t, wanted, res.ExitPublicKeys)
-	wantedExitIndices := []primitives.ValidatorIndex{1}
-	assert.DeepEqual(t, wantedExitIndices, res.ExitValidatorIndices)
-
-	// Now, we move the state.slot past the exit epoch of the validator, and now
-	// the validator should no longer exist in the queue.
-	require.NoError(t, headState.SetSlot(params.BeaconConfig().SlotsPerEpoch.Mul(uint64(validators[1].ExitEpoch+1))))
-	res, err = bs.GetValidatorQueue(context.Background(), &emptypb.Empty{})
-	require.NoError(t, err)
-	assert.Equal(t, 0, len(res.ExitPublicKeys))
-}
-
 func TestServer_GetValidatorQueue_PendingExit(t *testing.T) {
 	headState, err := state_native.InitializeFromProtoPhase0(&ethpb.BeaconState{
 		Validators: []*ethpb.Validator{

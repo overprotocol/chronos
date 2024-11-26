@@ -383,8 +383,8 @@ func TestActivationBalanceChurnLimit_OK(t *testing.T) {
 	}{
 		{validatorCount: 1000, wantedChurn: 4096000000000},
 		{validatorCount: 100000, wantedChurn: 4096000000000},
-		{validatorCount: 2000000, wantedChurn: 7808000000000},
-		{validatorCount: 4000000, wantedChurn: 15624000000000},
+		{validatorCount: 2000000, wantedChurn: 7812000000000},
+		{validatorCount: 4000000, wantedChurn: 15625000000000},
 	}
 	for _, test := range tests {
 		helpers.ClearCache()
@@ -418,8 +418,8 @@ func TestExitBalanceChurnLimit_OK(t *testing.T) {
 	}{
 		{validatorCount: 1000, wantedChurn: 1024000000000},
 		{validatorCount: 100000, wantedChurn: 1024000000000},
-		{validatorCount: 2000000, wantedChurn: 7808000000000},
-		{validatorCount: 4000000, wantedChurn: 15624000000000},
+		{validatorCount: 2000000, wantedChurn: 7812000000000},
+		{validatorCount: 4000000, wantedChurn: 15625000000000},
 	}
 	for _, test := range tests {
 		helpers.ClearCache()

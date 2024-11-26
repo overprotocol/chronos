@@ -356,8 +356,6 @@ func TestRefreshRemoteKeysFromFileChangesWithRetry_maxRetryReached(t *testing.T)
 }
 
 func TestKeymanager_Sign(t *testing.T) {
-	t.Skip("Remote web3 signer is not used, skipping test")
-
 	client := &MockClient{
 		Signature: "0xb3baa751d0a9132cfe93e4e3d5ff9075111100e3789dca219ade5a24d27e19d16b3353149da1833e9b691bb38634e8dc04469be7032132906c927d7e1a49b414730612877bc6b2810c8f202daf793d1ab0d6b5cb21d52f9e52e883859887a5d9",
 	}
@@ -366,10 +364,17 @@ func TestKeymanager_Sign(t *testing.T) {
 	if err != nil {
 		fmt.Printf("error: %v", err)
 	}
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Header().Set("Content-Type", "application/json")
+		err = json.NewEncoder(w).Encode([]string{"0xa2b5aaad9c6efefe7bb9b1243a043404f3362937cfb6b31833929833173f476630ea2cfeb0d9ddf15f97ca8685948820"})
+		require.NoError(t, err)
+	}))
+	defer srv.Close()
 	config := &SetupConfig{
 		BaseEndpoint:          "http://example.com",
 		GenesisValidatorsRoot: root,
-		PublicKeysURL:         "http://example2.com/api/v1/eth2/publicKeys",
+		PublicKeysURL:         srv.URL + "/api/v1/eth2/publicKeys",
 	}
 	km, err := NewKeymanager(ctx, config)
 	if err != nil {

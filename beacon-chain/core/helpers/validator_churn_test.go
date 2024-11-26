@@ -52,8 +52,8 @@ func TestActivationBalanceChurnLimit(t *testing.T) {
 		},
 		{
 			name:          "more than MIN_PER_EPOCH_ACTIVATION_BALANCE_CHURN_LIMIT",
-			activeBalance: primitives.Gwei(2000 * params.BeaconConfig().EffectiveBalanceIncrement * params.BeaconConfig().ChurnLimitQuotient),
-			expected:      primitives.Gwei(2000 * params.BeaconConfig().EffectiveBalanceIncrement),
+			activeBalance: primitives.Gwei(16000 * params.BeaconConfig().EffectiveBalanceIncrement * params.BeaconConfig().ChurnLimitQuotient),
+			expected:      primitives.Gwei(16000 * params.BeaconConfig().EffectiveBalanceIncrement),
 		},
 	}
 

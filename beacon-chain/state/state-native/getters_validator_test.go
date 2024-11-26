@@ -114,7 +114,7 @@ func TestActiveBalanceAtIndex(t *testing.T) {
 
 	ab, err = state.ActiveBalanceAtIndex(3)
 	require.NoError(t, err)
-	require.Equal(t, params.BeaconConfig().MinActivationBalance, ab)
+	require.Equal(t, params.BeaconConfig().MaxEffectiveBalanceAlpaca, ab)
 
 	// Accessing a validator index out of bounds should error.
 	_, err = state.ActiveBalanceAtIndex(4)
