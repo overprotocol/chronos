@@ -189,10 +189,6 @@ func TestProcessBlockHeader_PreviousBlockRootNotSignedRoot(t *testing.T) {
 }
 
 func TestProcessBlockHeader_SlashedProposer(t *testing.T) {
-	cfg := params.BeaconConfig().Copy()
-	cfg.MinGenesisActiveValidatorCount = 16384
-	params.OverrideBeaconConfig(cfg)
-
 	validators := make([]*ethpb.Validator, params.BeaconConfig().MinGenesisActiveValidatorCount)
 	for i := 0; i < len(validators); i++ {
 		validators[i] = &ethpb.Validator{
@@ -219,7 +215,7 @@ func TestProcessBlockHeader_SlashedProposer(t *testing.T) {
 	blockSig, err := signing.ComputeDomainAndSign(state, currentEpoch, &sszBytes, params.BeaconConfig().DomainBeaconProposer, priv)
 	require.NoError(t, err)
 
-	validators[12683].PublicKey = priv.PublicKey().Marshal()
+	validators[6341].PublicKey = priv.PublicKey().Marshal()
 	pID, err := helpers.BeaconProposerIndex(context.Background(), state)
 	require.NoError(t, err)
 	block := util.NewBeaconBlock()

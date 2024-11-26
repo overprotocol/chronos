@@ -1294,10 +1294,6 @@ func TestGetAttesterDuties(t *testing.T) {
 }
 
 func TestGetProposerDuties(t *testing.T) {
-	cfg := params.BeaconConfig().Copy()
-	cfg.MinGenesisActiveValidatorCount = 16384
-	params.OverrideBeaconConfig(cfg)
-
 	helpers.ClearCache()
 
 	genesis := util.NewBeaconBlock()
@@ -1360,8 +1356,8 @@ func TestGetProposerDuties(t *testing.T) {
 			}
 		}
 		require.NotNil(t, expectedDuty, "Expected duty for slot 11 not found")
-		assert.Equal(t, "14992", expectedDuty.ValidatorIndex)
-		assert.Equal(t, hexutil.Encode(pubKeys[14992]), expectedDuty.Pubkey)
+		assert.Equal(t, "1518", expectedDuty.ValidatorIndex)
+		assert.Equal(t, hexutil.Encode(pubKeys[1518]), expectedDuty.Pubkey)
 	})
 	t.Run("next epoch", func(t *testing.T) {
 		bs, err := transition.GenesisBeaconState(context.Background(), deposits, 0, eth1Data)
@@ -1402,8 +1398,8 @@ func TestGetProposerDuties(t *testing.T) {
 			}
 		}
 		require.NotNil(t, expectedDuty, "Expected duty for slot 43 not found")
-		assert.Equal(t, "9261", expectedDuty.ValidatorIndex)
-		assert.Equal(t, hexutil.Encode(pubKeys[9261]), expectedDuty.Pubkey)
+		assert.Equal(t, "58", expectedDuty.ValidatorIndex)
+		assert.Equal(t, hexutil.Encode(pubKeys[58]), expectedDuty.Pubkey)
 	})
 	t.Run("epoch out of bounds", func(t *testing.T) {
 		bs, err := transition.GenesisBeaconState(context.Background(), deposits, 0, eth1Data)
