@@ -16,32 +16,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Free unused disk space
+      - name: Debug (disk 1)
         shell: bash
         run: |
-          # dh - disk usage
           df -h
 
-          # delete packages
-          sudo apt-get remove -y '^dotnet-.*'
-          sudo apt-get remove -y '^llvm-.*'
-          sudo apt-get remove -y '^temurin-.*'
-          sudo apt-get remove -y '^mysql-server-core-.*'
-          sudo apt-get remove -y '^postgresql-.*'
-          sudo apt-get remove -y azure-cli google-chrome-stable google-cloud-cli firefox powershell microsoft-edge-stable mono-devel
-          sudo apt-get autoremove -y
-          sudo apt-get clean
+          # List 100 largest packages
+          echo "Listing 100 largest packages"
+          dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
 
-          # delete directories
-          sudo rm -rf /usr/share/dotnet/
-          sudo rm -rf /usr/share/swift
-          sudo rm -rf /usr/share/miniconda
-          sudo rm -rf /usr/local/graalvm/
-          sudo rm -rf /usr/local/.ghcup/
-          sudo rm -rf /usr/local/share/powershell
-          sudo rm -rf /usr/local/share/chromium
-          sudo rm -rf /usr/local/lib/android
-          sudo rm -rf /usr/local/lib/node_modules
+          # List 100 largest directories
+          echo "Listing 100 largest directories"
+          sudo du -ah /usr | sort -h | tail -n 100
 
       - uses: "google-github-actions/auth@v2"
         with:
@@ -57,6 +43,19 @@ jobs:
       - name: Git config
         run: |
           git config --global --add safe.directory /__w/chronos/chronos
+
+      - name: Debug (disk 2)
+        shell: bash
+        run: |
+          df -h
+
+          # List 100 largest packages
+          echo "Listing 100 largest packages"
+          dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
+
+          # List 100 largest directories
+          echo "Listing 100 largest directories"
+          sudo du -ah /usr | sort -h | tail -n 100
 
       - name: Run unit tests
         run: |
