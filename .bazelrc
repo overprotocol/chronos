@@ -68,6 +68,6 @@ build:unit-test --show_progress_rate_limit=5 # Rate limiting stdout
 build:unit-test --verbose_failures # For debug purpose
 build:unit-test --announce_rc # Print running environment
 build:unit-test --curses=no --color=no
-build:unit-test --test_outputs=errors
+build:unit-test --test_output=errors
 build:unit-test --jobs=4 # For performance
-build:unit-test --flaky_test_attempts # Some tests are flaky
+build:unit-test --flaky_test_attempts=5 # Some tests are flaky
