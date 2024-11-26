@@ -18,6 +18,7 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/cache"
 	"github.com/prysmaticlabs/prysm/v5/cmd/beacon-chain/flags"
 	"github.com/prysmaticlabs/prysm/v5/config/features"
+	"github.com/prysmaticlabs/prysm/v5/config/params"
 	ecdsaprysm "github.com/prysmaticlabs/prysm/v5/crypto/ecdsa"
 	"github.com/prysmaticlabs/prysm/v5/time/slots"
 )
@@ -181,7 +182,7 @@ func (s *Service) listenForNewNodes() {
 			if !features.Get().EnableDiscoveryReboot {
 				continue
 			}
-			if !s.isBelowOutboundPeerThreshold() {
+			if !s.isBelowMinimumSyncPeers() {
 				// Reset counter if we are beyond the threshold
 				thresholdCount = 0
 				continue
@@ -189,7 +190,7 @@ func (s *Service) listenForNewNodes() {
 			thresholdCount++
 			// Reboot listener if connectivity drops
 			if thresholdCount > 5 {
-				log.WithField("outboundConnectionCount", len(s.peers.OutboundConnected())).Warn("Rebooting discovery listener, reached threshold.")
+				log.WithField("connectionCount", len(s.peers.Connected())).Warn("Rebooting discovery listener, reached threshold.")
 				if err := s.dv5Listener.RebootListener(); err != nil {
 					log.WithError(err).Error("Could not reboot listener")
 					continue
@@ -496,6 +497,18 @@ func (s *Service) isBelowOutboundPeerThreshold() bool {
 	outBoundThreshold := outboundFloor / 2
 	outBoundCount := len(s.Peers().OutboundConnected())
 	return outBoundCount < outBoundThreshold
+}
+
+// isBelowMinimumSyncPeers checks if the number of peers that we are connected to
+// is below the minimum number of peers required for syncing.
+// required is from waitForMinimumPeers.
+func (s *Service) isBelowMinimumSyncPeers() bool {
+	required := params.BeaconConfig().MaxPeersToSync
+	if flags.Get().MinimumSyncPeers < required {
+		required = flags.Get().MinimumSyncPeers
+	}
+	connectedPeers := len(s.Peers().Connected())
+	return connectedPeers < required
 }
 
 func (s *Service) wantedPeerDials() int {

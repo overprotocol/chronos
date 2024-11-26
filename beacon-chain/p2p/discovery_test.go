@@ -27,6 +27,7 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/p2p/peers/scorers"
 	testp2p "github.com/prysmaticlabs/prysm/v5/beacon-chain/p2p/testing"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/startup"
+	"github.com/prysmaticlabs/prysm/v5/cmd/beacon-chain/flags"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/wrapper"
 	leakybucket "github.com/prysmaticlabs/prysm/v5/container/leaky-bucket"
@@ -409,6 +410,47 @@ func TestOutboundPeerThreshold(t *testing.T) {
 	}
 
 	require.Equal(t, false, s.isBelowOutboundPeerThreshold(), "still at outbound peer threshold")
+}
+
+func TestIsBelowMinimumSyncPeers(t *testing.T) {
+	resetFlags := flags.Get()
+	flags.Init(&flags.GlobalFlags{
+		MinimumSyncPeers: 3,
+	})
+	defer func() {
+		flags.Init(resetFlags)
+	}()
+
+	fakePeer := testp2p.NewTestP2P(t)
+	s := &Service{
+		cfg:       &Config{MaxPeers: 30},
+		ipLimiter: leakybucket.NewCollector(ipLimit, ipBurst, 1*time.Second, false),
+		peers: peers.NewStatus(context.Background(), &peers.StatusConfig{
+			PeerLimit:    30,
+			ScorerParams: &scorers.Config{},
+		}),
+		host: fakePeer.BHost,
+	}
+
+	for i := 0; i < 2; i++ {
+		_ = addPeer(t, s.peers, peerdata.PeerConnectionState(ethpb.ConnectionState_CONNECTED), true)
+	}
+
+	require.Equal(t, true, s.isBelowMinimumSyncPeers(), "not at minimums sync peer threshold")
+
+	// Adding a peer with a connection state of CONNECTING will not count towards the minimum sync peers
+	for i := 0; i < 2; i++ {
+		_ = addPeer(t, s.peers, peerdata.PeerConnectionState(ethpb.ConnectionState_CONNECTING), true)
+
+	}
+
+	require.Equal(t, true, s.isBelowMinimumSyncPeers(), "not at minimums sync peer threshold")
+
+	for i := 0; i < 3; i++ {
+		_ = addPeer(t, s.peers, peerdata.PeerConnectionState(ethpb.ConnectionState_CONNECTED), true)
+	}
+
+	require.Equal(t, false, s.isBelowMinimumSyncPeers(), "still at minimums sync peer threshold")
 }
 
 func TestUDPMultiAddress(t *testing.T) {
