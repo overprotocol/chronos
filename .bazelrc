@@ -61,3 +61,13 @@ build:remote-cache --remote_cache=https://storage.googleapis.com/chronos-bazel-c
 build:remote-cache --remote_download_minimal
 build:remote-cache --remote_build_event_upload=minimal
 build:remote-cache --google_default_credentials
+
+# Unit tests for Github Action
+build:unit-test --nostamp # For better cache performance
+build:unit-test --show_progress_rate_limit=5 # Rate limiting stdout
+build:unit-test --verbose_failures # For debug purpose
+build:unit-test --announce_rc # Print running environment
+build:unit-test --curses=no --color=no
+build:unit-test --test_outputs=errors
+build:unit-test --jobs=4 # For performance
+build:unit-test --flaky_test_attempts # Some tests are flaky
