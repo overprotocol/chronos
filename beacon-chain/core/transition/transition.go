@@ -299,7 +299,7 @@ func ProcessSlotsCore(ctx context.Context, span trace.Span, state state.BeaconSt
 func ProcessEpoch(ctx context.Context, state state.BeaconState) (state.BeaconState, error) {
 	var err error
 	if time.CanProcessEpoch(state) {
-		if state.Version() == version.Electra {
+		if state.Version() == version.Alpaca {
 			if err = electra.ProcessEpoch(ctx, state); err != nil {
 				return nil, errors.Wrap(err, fmt.Sprintf("could not process %s epoch", version.String(state.Version())))
 			}
@@ -420,7 +420,7 @@ func VerifyOperationLengths(_ context.Context, state state.BeaconState, b interf
 		return nil, errors.New("nil eth1data in state")
 	}
 
-	if state.Version() < version.Electra {
+	if state.Version() < version.Alpaca {
 		// Deneb specs
 		//  # Verify that outstanding deposits are processed up to the maximum number of deposits
 		//    assert len(body.deposits) == min(MAX_DEPOSITS, state.eth1_data.deposit_count - state.eth1_deposit_index)

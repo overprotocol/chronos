@@ -191,7 +191,7 @@ func verifyExitConditions(st state.ReadOnlyBeaconState, validator state.ReadOnly
 		)
 	}
 
-	if st.Version() >= version.Electra {
+	if st.Version() >= version.Alpaca {
 		// Only exit validator if it has no pending withdrawals in the queue.
 		ok, err := st.HasPendingBalanceToWithdraw(exit.ValidatorIndex)
 		if err != nil {

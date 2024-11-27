@@ -73,7 +73,7 @@ func TestUpgradeToElectra(t *testing.T) {
 	f := mSt.Fork()
 	require.DeepSSZEqual(t, &ethpb.Fork{
 		PreviousVersion: st.Fork().CurrentVersion,
-		CurrentVersion:  params.BeaconConfig().ElectraForkVersion,
+		CurrentVersion:  params.BeaconConfig().AlpacaForkVersion,
 		Epoch:           time.CurrentEpoch(st),
 	}, f)
 

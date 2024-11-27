@@ -1083,7 +1083,7 @@ func TestProcessWithdrawals(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.Args.Name, func(t *testing.T) {
-			for _, fork := range []int{version.Capella, version.Electra} {
+			for _, fork := range []int{version.Capella, version.Alpaca} {
 				t.Run(version.String(fork), func(t *testing.T) {
 					saved := params.BeaconConfig().MaxValidatorsPerWithdrawalsSweep
 					params.BeaconConfig().MaxValidatorsPerWithdrawalsSweep = maxSweep
@@ -1112,7 +1112,7 @@ func TestProcessWithdrawals(t *testing.T) {
 						require.NoError(t, err)
 						p, err = consensusblocks.WrappedExecutionPayloadCapella(&enginev1.ExecutionPayloadCapella{Withdrawals: test.Args.Withdrawals})
 						require.NoError(t, err)
-					case version.Electra:
+					case version.Alpaca:
 						spb := &ethpb.BeaconStateElectra{
 							Slot:                         slot,
 							NextWithdrawalValidatorIndex: test.Args.NextWithdrawalValidatorIndex,

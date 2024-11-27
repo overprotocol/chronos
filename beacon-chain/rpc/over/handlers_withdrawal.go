@@ -45,7 +45,7 @@ func (s *Server) GetWithdrawalEstimation(w http.ResponseWriter, r *http.Request)
 	}
 
 	// Partial withdrawal estimation is only supported for Electra and later versions.
-	if st.Version() < version.Electra {
+	if st.Version() < version.Alpaca {
 		httputil.HandleError(w, "Deposit estimation is not supported for pre-Electra.", http.StatusBadRequest)
 		return
 	}

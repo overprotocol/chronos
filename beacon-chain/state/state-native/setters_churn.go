@@ -34,7 +34,7 @@ import (
 //
 //	    return state.earliest_exit_epoch
 func (b *BeaconState) ExitEpochAndUpdateChurn(exitBalance primitives.Gwei) (primitives.Epoch, error) {
-	if b.version < version.Electra {
+	if b.version < version.Alpaca {
 		return 0, errNotSupported("ExitEpochAndUpdateChurn", b.version)
 	}
 

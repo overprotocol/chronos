@@ -29,7 +29,7 @@ import (
 // Monkey patching tests with this function is the simplest workaround in these cases.
 func HackElectraMaxuint(t *testing.T) func() {
 	bc := params.MainnetConfig().Copy()
-	bc.ElectraForkEpoch = math.MaxUint32
+	bc.AlpacaForkEpoch = math.MaxUint32
 	undo, err := params.SetActiveWithUndo(bc)
 	require.NoError(t, err)
 	return func() {

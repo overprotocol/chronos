@@ -665,9 +665,9 @@ func InitializeFromProtoUnsafeElectra(st *ethpb.BeaconStateElectra) (state.Beaco
 		return nil, errors.New("received nil state")
 	}
 
-	fieldCount := params.BeaconConfig().BeaconStateElectraFieldCount
+	fieldCount := params.BeaconConfig().BeaconStateAlpacaFieldCount
 	b := &BeaconState{
-		version:                           version.Electra,
+		version:                           version.Alpaca,
 		genesisTime:                       st.GenesisTime,
 		genesisValidatorsRoot:             bytesutil.ToBytes32(st.GenesisValidatorsRoot),
 		slot:                              st.Slot,
@@ -787,8 +787,8 @@ func (b *BeaconState) Copy() state.BeaconState {
 		fieldCount = params.BeaconConfig().BeaconStateCapellaFieldCount
 	case version.Deneb:
 		fieldCount = params.BeaconConfig().BeaconStateDenebFieldCount
-	case version.Electra:
-		fieldCount = params.BeaconConfig().BeaconStateElectraFieldCount
+	case version.Alpaca:
+		fieldCount = params.BeaconConfig().BeaconStateAlpacaFieldCount
 	}
 
 	dst := &BeaconState{
@@ -878,7 +878,7 @@ func (b *BeaconState) Copy() state.BeaconState {
 			dst.sharedFieldReferences = make(map[types.FieldIndex]*stateutil.Reference, experimentalStateCapellaSharedFieldRefCount)
 		case version.Deneb:
 			dst.sharedFieldReferences = make(map[types.FieldIndex]*stateutil.Reference, experimentalStateDenebSharedFieldRefCount)
-		case version.Electra:
+		case version.Alpaca:
 			dst.sharedFieldReferences = make(map[types.FieldIndex]*stateutil.Reference, experimentalStateElectraSharedFieldRefCount)
 		}
 	} else {
@@ -893,7 +893,7 @@ func (b *BeaconState) Copy() state.BeaconState {
 			dst.sharedFieldReferences = make(map[types.FieldIndex]*stateutil.Reference, capellaSharedFieldRefCount)
 		case version.Deneb:
 			dst.sharedFieldReferences = make(map[types.FieldIndex]*stateutil.Reference, denebSharedFieldRefCount)
-		case version.Electra:
+		case version.Alpaca:
 			dst.sharedFieldReferences = make(map[types.FieldIndex]*stateutil.Reference, electraSharedFieldRefCount)
 		}
 	}
@@ -987,8 +987,8 @@ func (b *BeaconState) initializeMerkleLayers(ctx context.Context) error {
 		b.dirtyFields = make(map[types.FieldIndex]bool, params.BeaconConfig().BeaconStateCapellaFieldCount)
 	case version.Deneb:
 		b.dirtyFields = make(map[types.FieldIndex]bool, params.BeaconConfig().BeaconStateDenebFieldCount)
-	case version.Electra:
-		b.dirtyFields = make(map[types.FieldIndex]bool, params.BeaconConfig().BeaconStateElectraFieldCount)
+	case version.Alpaca:
+		b.dirtyFields = make(map[types.FieldIndex]bool, params.BeaconConfig().BeaconStateAlpacaFieldCount)
 	default:
 		return fmt.Errorf("unknown state version (%s) when computing dirty fields in merklization", version.String(b.version))
 	}

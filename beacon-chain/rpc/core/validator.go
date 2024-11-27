@@ -372,7 +372,7 @@ func (s *Service) SubmitSignedAggregateSelectionProof(
 
 	if logrus.GetLevel() >= logrus.DebugLevel {
 		var fields logrus.Fields
-		if agg.Version() >= version.Electra {
+		if agg.Version() >= version.Alpaca {
 			fields = logrus.Fields{
 				"slot":             data.Slot,
 				"committeeCount":   att.CommitteeBitsVal().Count(),
@@ -414,7 +414,7 @@ func (s *Service) GetAttestationData(
 	}
 
 	committeeIndex := primitives.CommitteeIndex(0)
-	if slots.ToEpoch(req.Slot) < params.BeaconConfig().ElectraForkEpoch {
+	if slots.ToEpoch(req.Slot) < params.BeaconConfig().AlpacaForkEpoch {
 		committeeIndex = req.CommitteeIndex
 	}
 

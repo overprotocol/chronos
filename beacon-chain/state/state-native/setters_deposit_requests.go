@@ -7,7 +7,7 @@ import (
 
 // SetDepositRequestsStartIndex for the beacon state. Updates the DepositRequestsStartIndex
 func (b *BeaconState) SetDepositRequestsStartIndex(index uint64) error {
-	if b.version < version.Electra {
+	if b.version < version.Alpaca {
 		return errNotSupported("SetDepositRequestsStartIndex", b.version)
 	}
 

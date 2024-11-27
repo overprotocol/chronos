@@ -322,7 +322,7 @@ func (s *Server) GetAttesterSlashingsV2(w http.ResponseWriter, r *http.Request) 
 	var attStructs []interface{}
 	sourceSlashings := s.SlashingsPool.PendingAttesterSlashings(ctx, headState, true /* return unlimited slashings */)
 	for _, slashing := range sourceSlashings {
-		if slashing.Version() >= version.Electra {
+		if slashing.Version() >= version.Alpaca {
 			a, ok := slashing.(*eth.AttesterSlashingElectra)
 			if !ok {
 				httputil.HandleError(w, fmt.Sprintf("Unable to convert electra slashing of type %T to an Electra slashing", slashing), http.StatusInternalServerError)
@@ -393,7 +393,7 @@ func (s *Server) SubmitAttesterSlashingsV2(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if v >= version.Electra {
+	if v >= version.Alpaca {
 		var req structs.AttesterSlashingElectra
 		err := json.NewDecoder(r.Body).Decode(&req)
 		switch {

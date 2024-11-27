@@ -47,13 +47,13 @@ func (vs *Server) packAttestations(ctx context.Context, latestState state.Beacon
 	atts = append(atts, uAtts...)
 
 	// Checking the state's version here will give the wrong result if the last slot of Deneb is missed.
-	// The head state will still be in Deneb while we are trying to build an Electra block.
-	postElectra := slots.ToEpoch(blkSlot) >= params.BeaconConfig().ElectraForkEpoch
+	// The head state will still be in Deneb while we are trying to build an Alpaca block.
+	postAlpaca := slots.ToEpoch(blkSlot) >= params.BeaconConfig().AlpacaForkEpoch
 
 	versionAtts := make([]ethpb.Att, 0, len(atts))
-	if postElectra {
+	if postAlpaca {
 		for _, a := range atts {
-			if a.Version() == version.Electra {
+			if a.Version() == version.Alpaca {
 				versionAtts = append(versionAtts, a)
 			}
 		}
@@ -90,7 +90,7 @@ func (vs *Server) packAttestations(ctx context.Context, latestState state.Beacon
 	}
 
 	var attsForInclusion proposerAtts
-	if postElectra {
+	if postAlpaca {
 		// TODO: hack for Electra devnet-1, take only one aggregate per ID
 		// (which essentially means one aggregate for an attestation_data+committee combination
 		topAggregates := make([]ethpb.Att, 0)

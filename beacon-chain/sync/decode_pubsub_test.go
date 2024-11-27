@@ -127,7 +127,7 @@ func TestExtractDataType(t *testing.T) {
 	require.NoError(t, err)
 	denebDigest, err := signing.ComputeForkDigest(params.BeaconConfig().DenebForkVersion, params.BeaconConfig().ZeroHash[:])
 	require.NoError(t, err)
-	electraDigest, err := signing.ComputeForkDigest(params.BeaconConfig().ElectraForkVersion, params.BeaconConfig().ZeroHash[:])
+	electraDigest, err := signing.ComputeForkDigest(params.BeaconConfig().AlpacaForkVersion, params.BeaconConfig().ZeroHash[:])
 	require.NoError(t, err)
 
 	type args struct {

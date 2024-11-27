@@ -551,7 +551,7 @@ func (s *Server) currentPayloadAttributes(ctx context.Context) (lazyReader, erro
 			SuggestedFeeRecipient: hexutil.Encode(feeRecipient),
 			Withdrawals:           structs.WithdrawalsFromConsensus(withdrawals),
 		}
-	case version.Deneb, version.Electra:
+	case version.Deneb, version.Alpaca:
 		withdrawals, _, _, err := headState.ExpectedWithdrawals()
 		if err != nil {
 			return nil, errors.Wrap(err, "could not get head state expected withdrawals")

@@ -86,8 +86,8 @@ func FromForkVersion(cv [fieldparams.VersionLength]byte) (*VersionedUnmarshaler,
 		fork = version.Capella
 	case bytesutil.ToBytes4(cfg.DenebForkVersion):
 		fork = version.Deneb
-	case bytesutil.ToBytes4(cfg.ElectraForkVersion):
-		fork = version.Electra
+	case bytesutil.ToBytes4(cfg.AlpacaForkVersion):
+		fork = version.Alpaca
 	default:
 		return nil, errors.Wrapf(ErrForkNotFound, "version=%#x", cv)
 	}
@@ -153,7 +153,7 @@ func (cf *VersionedUnmarshaler) UnmarshalBeaconState(marshaled []byte) (s state.
 		if err != nil {
 			return nil, errors.Wrapf(err, "failed to init state trie from state, detected fork=%s", forkName)
 		}
-	case version.Electra:
+	case version.Alpaca:
 		st := &ethpb.BeaconStateElectra{}
 		err = st.UnmarshalSSZ(marshaled)
 		if err != nil {
@@ -211,7 +211,7 @@ func (cf *VersionedUnmarshaler) UnmarshalBeaconBlock(marshaled []byte) (interfac
 		blk = &ethpb.SignedBeaconBlockCapella{}
 	case version.Deneb:
 		blk = &ethpb.SignedBeaconBlockDeneb{}
-	case version.Electra:
+	case version.Alpaca:
 		blk = &ethpb.SignedBeaconBlockElectra{}
 	default:
 		forkName := version.String(cf.Fork)
@@ -248,7 +248,7 @@ func (cf *VersionedUnmarshaler) UnmarshalBlindedBeaconBlock(marshaled []byte) (i
 		blk = &ethpb.SignedBlindedBeaconBlockCapella{}
 	case version.Deneb:
 		blk = &ethpb.SignedBlindedBeaconBlockDeneb{}
-	case version.Electra:
+	case version.Alpaca:
 		blk = &ethpb.SignedBlindedBeaconBlockElectra{}
 	default:
 		forkName := version.String(cf.Fork)

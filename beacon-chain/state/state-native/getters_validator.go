@@ -452,7 +452,7 @@ func (b *BeaconState) inactivityScoreAtIndex(idx primitives.ValidatorIndex) (uin
 //	def get_active_balance(state: BeaconState, validator_index: ValidatorIndex) -> Gwei:
 //		return min(state.balances[validator_index], MAX_EFFECTIVE_BALANCE_ELECTRA)
 func (b *BeaconState) ActiveBalanceAtIndex(i primitives.ValidatorIndex) (uint64, error) {
-	if b.version < version.Electra {
+	if b.version < version.Alpaca {
 		return 0, errNotSupported("ActiveBalanceAtIndex", b.version)
 	}
 
@@ -475,7 +475,7 @@ func (b *BeaconState) ActiveBalanceAtIndex(i primitives.ValidatorIndex) (uint64,
 //	    return sum(
 //	        withdrawal.amount for withdrawal in state.pending_partial_withdrawals if withdrawal.index == validator_index)
 func (b *BeaconState) PendingBalanceToWithdraw(idx primitives.ValidatorIndex) (uint64, error) {
-	if b.version < version.Electra {
+	if b.version < version.Alpaca {
 		return 0, errNotSupported("PendingBalanceToWithdraw", b.version)
 	}
 
@@ -496,7 +496,7 @@ func (b *BeaconState) PendingBalanceToWithdraw(idx primitives.ValidatorIndex) (u
 }
 
 func (b *BeaconState) HasPendingBalanceToWithdraw(idx primitives.ValidatorIndex) (bool, error) {
-	if b.version < version.Electra {
+	if b.version < version.Alpaca {
 		return false, errNotSupported("HasPendingBalanceToWithdraw", b.version)
 	}
 

@@ -49,7 +49,7 @@ func ConvertToIndexed(ctx context.Context, attestation ethpb.Att, committees ...
 		return attIndices[i] < attIndices[j]
 	})
 
-	if attestation.Version() >= version.Electra {
+	if attestation.Version() >= version.Alpaca {
 		return &ethpb.IndexedAttestationElectra{
 			Data:             attestation.GetData(),
 			Signature:        attestation.GetSignature(),
@@ -92,7 +92,7 @@ func AttestingIndices(att ethpb.Att, committees ...[]primitives.ValidatorIndex) 
 
 	aggBits := att.GetAggregationBits()
 
-	if att.Version() < version.Electra {
+	if att.Version() < version.Alpaca {
 		return attestingIndicesPhase0(aggBits, committees[0])
 	}
 
@@ -195,7 +195,7 @@ func IsValidAttestationIndices(ctx context.Context, indexedAttestation ethpb.Ind
 	if len(indices) == 0 {
 		return errors.New("expected non-empty attesting indices")
 	}
-	if indexedAttestation.Version() < version.Electra {
+	if indexedAttestation.Version() < version.Alpaca {
 		maxLength := params.BeaconConfig().MaxValidatorsPerCommittee
 		if uint64(len(indices)) > maxLength {
 			return fmt.Errorf("validator indices count exceeds MAX_VALIDATORS_PER_COMMITTEE, %d > %d", len(indices), maxLength)

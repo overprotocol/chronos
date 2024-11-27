@@ -7,7 +7,7 @@ import (
 
 // ExitBalanceToConsume is used for returning the ExitBalanceToConsume as part of eip 7251
 func (b *BeaconState) ExitBalanceToConsume() (primitives.Gwei, error) {
-	if b.version < version.Electra {
+	if b.version < version.Alpaca {
 		return 0, errNotSupported("ExitBalanceToConsume", b.version)
 	}
 	b.lock.RLock()
@@ -18,7 +18,7 @@ func (b *BeaconState) ExitBalanceToConsume() (primitives.Gwei, error) {
 
 // EarliestExitEpoch is used for returning the EarliestExitEpoch as part of eip 7251
 func (b *BeaconState) EarliestExitEpoch() (primitives.Epoch, error) {
-	if b.version < version.Electra {
+	if b.version < version.Alpaca {
 		return 0, errNotSupported("EarliestExitEpoch", b.version)
 	}
 	b.lock.RLock()

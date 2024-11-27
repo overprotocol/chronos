@@ -135,7 +135,7 @@ func GenerateAttestations(bState state.BeaconState, privs []bls.SecretKey, numTo
 				return nil, err
 			}
 			headState = genState
-		case version.Electra:
+		case version.Alpaca:
 			pbState, err := state_native.ProtobufBeaconStateElectra(bState.ToProto())
 			if err != nil {
 				return nil, err
@@ -218,7 +218,7 @@ func GenerateAttestations(bState state.BeaconState, privs []bls.SecretKey, numTo
 		}
 
 		ci := c
-		if bState.Version() >= version.Electra {
+		if bState.Version() >= version.Alpaca {
 			// committee index must be 0 post-Electra
 			ci = 0
 		}
@@ -254,7 +254,7 @@ func GenerateAttestations(bState state.BeaconState, privs []bls.SecretKey, numTo
 			}
 
 			var att ethpb.Att
-			if bState.Version() >= version.Electra {
+			if bState.Version() >= version.Alpaca {
 				cb := primitives.NewAttestationCommitteeBits()
 				cb.SetBitAt(uint64(c), true)
 				att = &ethpb.AttestationElectra{

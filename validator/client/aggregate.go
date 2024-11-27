@@ -80,7 +80,7 @@ func (v *validator) SubmitAggregateAndProof(ctx context.Context, slot primitives
 	// https://github.com/ethereum/consensus-specs/blob/v0.9.3/specs/validator/0_beacon-chain-validator.md#broadcast-aggregate
 	v.waitToSlotTwoThirds(ctx, slot)
 
-	postElectra := slots.ToEpoch(slot) >= params.BeaconConfig().ElectraForkEpoch
+	postAlpaca := slots.ToEpoch(slot) >= params.BeaconConfig().AlpacaForkEpoch
 
 	aggSelectionRequest := &ethpb.AggregateSelectionRequest{
 		Slot:           slot,
@@ -89,7 +89,7 @@ func (v *validator) SubmitAggregateAndProof(ctx context.Context, slot primitives
 		SlotSignature:  slotSig,
 	}
 	var agg ethpb.AggregateAttAndProof
-	if postElectra {
+	if postAlpaca {
 		res, err := v.validatorClient.SubmitAggregateSelectionProofElectra(ctx, aggSelectionRequest, duty.ValidatorIndex, uint64(len(duty.Committee)))
 		if err != nil {
 			v.handleSubmitAggSelectionProofError(err, slot, fmtKey)
@@ -111,7 +111,7 @@ func (v *validator) SubmitAggregateAndProof(ctx context.Context, slot primitives
 		return
 	}
 
-	if postElectra {
+	if postAlpaca {
 		msg, ok := agg.(*ethpb.AggregateAttestationAndProofElectra)
 		if !ok {
 			log.Errorf("Message is not %T", &ethpb.AggregateAttestationAndProofElectra{})
@@ -248,7 +248,7 @@ func (v *validator) aggregateAndProofSig(ctx context.Context, pubKey [fieldparam
 		SignatureDomain: d.SignatureDomain,
 		SigningSlot:     slot,
 	}
-	if agg.Version() >= version.Electra {
+	if agg.Version() >= version.Alpaca {
 		aggregate, ok := agg.(*ethpb.AggregateAttestationAndProofElectra)
 		if !ok {
 			return nil, fmt.Errorf("wrong aggregate type (expected %T, got %T)", &ethpb.AggregateAttestationAndProofElectra{}, agg)

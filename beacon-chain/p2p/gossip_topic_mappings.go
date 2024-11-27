@@ -27,7 +27,7 @@ var gossipTopicMappings = map[string]func() proto.Message{
 func GossipTopicMappings(topic string, epoch primitives.Epoch) proto.Message {
 	switch topic {
 	case BlockSubnetTopicFormat:
-		if epoch >= params.BeaconConfig().ElectraForkEpoch {
+		if epoch >= params.BeaconConfig().AlpacaForkEpoch {
 			return &ethpb.SignedBeaconBlockElectra{}
 		}
 		if epoch >= params.BeaconConfig().DenebForkEpoch {
@@ -44,17 +44,17 @@ func GossipTopicMappings(topic string, epoch primitives.Epoch) proto.Message {
 		}
 		return gossipMessage(topic)
 	case AttestationSubnetTopicFormat:
-		if epoch >= params.BeaconConfig().ElectraForkEpoch {
+		if epoch >= params.BeaconConfig().AlpacaForkEpoch {
 			return &ethpb.AttestationElectra{}
 		}
 		return gossipMessage(topic)
 	case AttesterSlashingSubnetTopicFormat:
-		if epoch >= params.BeaconConfig().ElectraForkEpoch {
+		if epoch >= params.BeaconConfig().AlpacaForkEpoch {
 			return &ethpb.AttesterSlashingElectra{}
 		}
 		return gossipMessage(topic)
 	case AggregateAndProofSubnetTopicFormat:
-		if epoch >= params.BeaconConfig().ElectraForkEpoch {
+		if epoch >= params.BeaconConfig().AlpacaForkEpoch {
 			return &ethpb.SignedAggregateAttestationAndProofElectra{}
 		}
 		return gossipMessage(topic)

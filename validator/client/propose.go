@@ -142,7 +142,7 @@ func (v *validator) ProposeBlock(ctx context.Context, slot primitives.Slot, pubK
 				log.WithError(err).Error("Failed to build generic signed block")
 				return
 			}
-		case version.Electra:
+		case version.Alpaca:
 			genericSignedBlock, err = buildGenericSignedBlockElectraWithBlobs(pb, b)
 			if err != nil {
 				log.WithError(err).Error("Failed to build generic signed block")

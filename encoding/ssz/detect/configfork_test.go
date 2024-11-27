@@ -58,7 +58,7 @@ func TestByState(t *testing.T) {
 	require.NoError(t, err)
 	denebSlot, err := slots.EpochStart(bc.DenebForkEpoch)
 	require.NoError(t, err)
-	electraSlot, err := slots.EpochStart(bc.ElectraForkEpoch)
+	alpacaSlot, err := slots.EpochStart(bc.AlpacaForkEpoch)
 	require.NoError(t, err)
 	cases := []struct {
 		name        string
@@ -97,10 +97,10 @@ func TestByState(t *testing.T) {
 			forkversion: bytesutil.ToBytes4(bc.DenebForkVersion),
 		},
 		{
-			name:        "electra",
-			version:     version.Electra,
-			slot:        electraSlot,
-			forkversion: bytesutil.ToBytes4(bc.ElectraForkVersion),
+			name:        "alpaca",
+			version:     version.Alpaca,
+			slot:        alpacaSlot,
+			forkversion: bytesutil.ToBytes4(bc.AlpacaForkVersion),
 		},
 	}
 	for _, c := range cases {
@@ -134,7 +134,7 @@ func stateForVersion(v int) (state.BeaconState, error) {
 		return util.NewBeaconStateCapella()
 	case version.Deneb:
 		return util.NewBeaconStateDeneb()
-	case version.Electra:
+	case version.Alpaca:
 		return util.NewBeaconStateElectra()
 	default:
 		return nil, fmt.Errorf("unrecognized version %d", v)
@@ -155,7 +155,7 @@ func TestUnmarshalState(t *testing.T) {
 	require.NoError(t, err)
 	denebSlot, err := slots.EpochStart(bc.DenebForkEpoch)
 	require.NoError(t, err)
-	electraSlot, err := slots.EpochStart(bc.ElectraForkEpoch)
+	alpacaSlot, err := slots.EpochStart(bc.AlpacaForkEpoch)
 	require.NoError(t, err)
 	cases := []struct {
 		name        string
@@ -194,10 +194,10 @@ func TestUnmarshalState(t *testing.T) {
 			forkversion: bytesutil.ToBytes4(bc.DenebForkVersion),
 		},
 		{
-			name:        "electra",
-			version:     version.Electra,
-			slot:        electraSlot,
-			forkversion: bytesutil.ToBytes4(bc.ElectraForkVersion),
+			name:        "alpaca",
+			version:     version.Alpaca,
+			slot:        alpacaSlot,
+			forkversion: bytesutil.ToBytes4(bc.AlpacaForkVersion),
 		},
 	}
 	for _, c := range cases {
@@ -235,7 +235,7 @@ func TestDetectAndUnmarshalBlock(t *testing.T) {
 	require.NoError(t, err)
 	denebS, err := slots.EpochStart(params.BeaconConfig().DenebForkEpoch)
 	require.NoError(t, err)
-	electraS, err := slots.EpochStart(params.BeaconConfig().ElectraForkEpoch)
+	alpacaS, err := slots.EpochStart(params.BeaconConfig().AlpacaForkEpoch)
 	require.NoError(t, err)
 	cases := []struct {
 		b         func(*testing.T, primitives.Slot) interfaces.ReadOnlySignedBeaconBlock
@@ -283,9 +283,9 @@ func TestDetectAndUnmarshalBlock(t *testing.T) {
 			slot: denebS,
 		},
 		{
-			name: "first slot of electra",
+			name: "first slot of alpaca",
 			b:    signedTestBlockElectra,
-			slot: electraS,
+			slot: alpacaS,
 		},
 		{
 			name:      "bellatrix block in altair slot",
@@ -332,7 +332,7 @@ func TestUnmarshalBlock(t *testing.T) {
 	bellav := bytesutil.ToBytes4(params.BeaconConfig().BellatrixForkVersion)
 	capellaV := bytesutil.ToBytes4(params.BeaconConfig().CapellaForkVersion)
 	denebV := bytesutil.ToBytes4(params.BeaconConfig().DenebForkVersion)
-	electraV := bytesutil.ToBytes4(params.BeaconConfig().ElectraForkVersion)
+	electraV := bytesutil.ToBytes4(params.BeaconConfig().AlpacaForkVersion)
 	altairS, err := slots.EpochStart(params.BeaconConfig().AltairForkEpoch)
 	require.NoError(t, err)
 	bellaS, err := slots.EpochStart(params.BeaconConfig().BellatrixForkEpoch)
@@ -341,7 +341,7 @@ func TestUnmarshalBlock(t *testing.T) {
 	require.NoError(t, err)
 	denebS, err := slots.EpochStart(params.BeaconConfig().DenebForkEpoch)
 	require.NoError(t, err)
-	electraS, err := slots.EpochStart(params.BeaconConfig().ElectraForkEpoch)
+	alpacaS, err := slots.EpochStart(params.BeaconConfig().AlpacaForkEpoch)
 	require.NoError(t, err)
 	cases := []struct {
 		b       func(*testing.T, primitives.Slot) interfaces.ReadOnlySignedBeaconBlock
@@ -398,10 +398,10 @@ func TestUnmarshalBlock(t *testing.T) {
 			slot:    denebS,
 		},
 		{
-			name:    "first slot of electra",
+			name:    "first slot of alpaca",
 			b:       signedTestBlockElectra,
 			version: electraV,
-			slot:    electraS,
+			slot:    alpacaS,
 		},
 		{
 			name:    "bellatrix block in altair slot",
@@ -456,7 +456,7 @@ func TestUnmarshalBlindedBlock(t *testing.T) {
 	bellav := bytesutil.ToBytes4(params.BeaconConfig().BellatrixForkVersion)
 	capellaV := bytesutil.ToBytes4(params.BeaconConfig().CapellaForkVersion)
 	denebV := bytesutil.ToBytes4(params.BeaconConfig().DenebForkVersion)
-	electraV := bytesutil.ToBytes4(params.BeaconConfig().ElectraForkVersion)
+	electraV := bytesutil.ToBytes4(params.BeaconConfig().AlpacaForkVersion)
 	altairS, err := slots.EpochStart(params.BeaconConfig().AltairForkEpoch)
 	require.NoError(t, err)
 	bellaS, err := slots.EpochStart(params.BeaconConfig().BellatrixForkEpoch)
@@ -465,7 +465,7 @@ func TestUnmarshalBlindedBlock(t *testing.T) {
 	require.NoError(t, err)
 	denebS, err := slots.EpochStart(params.BeaconConfig().DenebForkEpoch)
 	require.NoError(t, err)
-	electraS, err := slots.EpochStart(params.BeaconConfig().ElectraForkEpoch)
+	alpacaS, err := slots.EpochStart(params.BeaconConfig().AlpacaForkEpoch)
 	require.NoError(t, err)
 	cases := []struct {
 		b       func(*testing.T, primitives.Slot) interfaces.ReadOnlySignedBeaconBlock
@@ -532,7 +532,7 @@ func TestUnmarshalBlindedBlock(t *testing.T) {
 			name:    "first slot of electra",
 			b:       signedTestBlindedBlockElectra,
 			version: electraV,
-			slot:    electraS,
+			slot:    alpacaS,
 		},
 		{
 			name:    "genesis block in altair slot",
