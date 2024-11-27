@@ -458,7 +458,7 @@ message BlindedBeaconBlockBodyDeneb {
   // Execution payload header: the embedded execution payload of the block [Modified in Deneb]
   ethereum.engine.v1.ExecutionPayloadHeaderDeneb execution_payload_header = 9;
 
-  repeated bytes blob_kzg_commitments = 11 [(ethereum.eth.ext.ssz_size) = "?,48", (ethereum.eth.ext.ssz_max)  = "max_blob_commitments.size"];
+  repeated bytes blob_kzg_commitments = 10 [(ethereum.eth.ext.ssz_size) = "?,48", (ethereum.eth.ext.ssz_max)  = "max_blob_commitments.size"];
 }
 
 message BeaconBlockBodyDeneb {
@@ -495,7 +495,7 @@ message BeaconBlockBodyDeneb {
   ethereum.engine.v1.ExecutionPayloadDeneb execution_payload = 9;
 
   // At most MAX_BLOB_COMMITMENTS_PER_BLOCK. New in Deneb network upgrade.
-  repeated bytes blob_kzg_commitments = 11 [(ethereum.eth.ext.ssz_size) = "?,48", (ethereum.eth.ext.ssz_max)  = "max_blob_commitments.size"];
+  repeated bytes blob_kzg_commitments = 10 [(ethereum.eth.ext.ssz_size) = "?,48", (ethereum.eth.ext.ssz_max)  = "max_blob_commitments.size"];
 }
 
 message SignedBeaconBlockContentsDeneb {

@@ -531,7 +531,7 @@ message BeaconBlockBodyDeneb {
     // Execution payload from the execution chain. New in Bellatrix network upgrade.
     ethereum.engine.v1.ExecutionPayloadDeneb execution_payload = 9;
 
-    repeated bytes blob_kzg_commitments = 11 [(ethereum.eth.ext.ssz_size) = "?,48", (ethereum.eth.ext.ssz_max)  = "max_blob_commitments.size"];
+    repeated bytes blob_kzg_commitments = 10 [(ethereum.eth.ext.ssz_size) = "?,48", (ethereum.eth.ext.ssz_max)  = "max_blob_commitments.size"];
 }
 
 message SignedBeaconBlockCapella {
@@ -701,7 +701,7 @@ message BlindedBeaconBlockBodyDeneb {
     // Execution payload header from the execution chain. New in Bellatrix network upgrade to accommodate MEV interaction.
     ethereum.engine.v1.ExecutionPayloadHeaderDeneb execution_payload_header = 9;
 
-    repeated bytes blob_kzg_commitments = 11 [(ethereum.eth.ext.ssz_size) = "?,48", (ethereum.eth.ext.ssz_max)  = "max_blob_commitments.size"];
+    repeated bytes blob_kzg_commitments = 10 [(ethereum.eth.ext.ssz_size) = "?,48", (ethereum.eth.ext.ssz_max)  = "max_blob_commitments.size"];
 }
 
 message SignedBeaconBlockContentsElectra {
@@ -773,9 +773,9 @@ message BeaconBlockBodyElectra {
     // Execution payload from the execution chain. New in Bellatrix network upgrade.
     ethereum.engine.v1.ExecutionPayloadDeneb execution_payload = 9;
 
-    repeated bytes blob_kzg_commitments = 11 [(ethereum.eth.ext.ssz_size) = "?,48", (ethereum.eth.ext.ssz_max)  = "max_blob_commitments.size"];
+    repeated bytes blob_kzg_commitments = 10 [(ethereum.eth.ext.ssz_size) = "?,48", (ethereum.eth.ext.ssz_max)  = "max_blob_commitments.size"];
 
-    ethereum.engine.v1.ExecutionRequests execution_requests = 12;
+    ethereum.engine.v1.ExecutionRequests execution_requests = 11;
 }
 
 message SignedBlindedBeaconBlockElectra {
@@ -832,9 +832,9 @@ message BlindedBeaconBlockBodyElectra {
     // Execution payload header from the execution chain. New in Bellatrix network upgrade to accommodate MEV interaction.
     ethereum.engine.v1.ExecutionPayloadHeaderDeneb execution_payload_header = 9;
 
-    repeated bytes blob_kzg_commitments = 11 [(ethereum.eth.ext.ssz_size) = "?,48", (ethereum.eth.ext.ssz_max)  = "max_blob_commitments.size"];
+    repeated bytes blob_kzg_commitments = 10 [(ethereum.eth.ext.ssz_size) = "?,48", (ethereum.eth.ext.ssz_max)  = "max_blob_commitments.size"];
 
-    ethereum.engine.v1.ExecutionRequests execution_requests = 12;
+    ethereum.engine.v1.ExecutionRequests execution_requests = 11;
 }
 
 message ValidatorRegistrationV1 {
