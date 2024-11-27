@@ -39,3 +39,6 @@ jobs:
             --config=unit-test \
             -- \
             //beacon-chain/...
+
+      - name: Run df -h
+        run: df -h
