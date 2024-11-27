@@ -602,16 +602,6 @@ func (s *Service) beaconEndpoints(
 			methods: []string{http.MethodGet},
 		},
 		{
-			template: "/eth/v1/beacon/pool/bls_to_execution_changes",
-			name:     namespace + ".SubmitBLSToExecutionChanges",
-			middleware: []middleware.Middleware{
-				middleware.ContentTypeHandler([]string{api.JsonMediaType}),
-				middleware.AcceptHeaderHandler([]string{api.JsonMediaType}),
-			},
-			handler: server.SubmitBLSToExecutionChanges,
-			methods: []string{http.MethodPost},
-		},
-		{
 			template: "/eth/v1/beacon/pool/attester_slashings",
 			name:     namespace + ".GetAttesterSlashings",
 			middleware: []middleware.Middleware{

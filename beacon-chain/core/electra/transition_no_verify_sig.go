@@ -11,10 +11,9 @@ import (
 )
 
 var (
-	ProcessBLSToExecutionChanges = blocks.ProcessBLSToExecutionChanges
-	ProcessVoluntaryExits        = blocks.ProcessVoluntaryExits
-	ProcessAttesterSlashings     = blocks.ProcessAttesterSlashings
-	ProcessProposerSlashings     = blocks.ProcessProposerSlashings
+	ProcessVoluntaryExits    = blocks.ProcessVoluntaryExits
+	ProcessAttesterSlashings = blocks.ProcessAttesterSlashings
+	ProcessProposerSlashings = blocks.ProcessProposerSlashings
 )
 
 // ProcessOperations
@@ -39,7 +38,6 @@ var (
 //      for_ops(body.attestations, process_attestation)  # [Modified in Electra:EIP7549]
 //      for_ops(body.deposits, process_deposit)  # [Modified in Electra:EIP7251]
 //      for_ops(body.voluntary_exits, process_voluntary_exit)  # [Modified in Electra:EIP7251]
-//      for_ops(body.bls_to_execution_changes, process_bls_to_execution_change)
 //      for_ops(body.execution_payload.deposit_requests, process_deposit_request)  # [New in Electra:EIP6110]
 //      # [New in Electra:EIP7002:EIP7251]
 //      for_ops(body.execution_payload.withdrawal_requests, process_withdrawal_request)
@@ -69,10 +67,6 @@ func ProcessOperations(
 	st, err = ProcessVoluntaryExits(ctx, st, bb.VoluntaryExits())
 	if err != nil {
 		return nil, errors.Wrap(err, "could not process voluntary exits")
-	}
-	st, err = ProcessBLSToExecutionChanges(st, block)
-	if err != nil {
-		return nil, errors.Wrap(err, "could not process bls-to-execution changes")
 	}
 	// new in electra
 	requests, err := bb.ExecutionRequests()
