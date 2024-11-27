@@ -29,8 +29,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/time/slots"
 )
 
-const broadcastBLSChangesRateLimit = 128
-
 // ListAttestations retrieves attestations known by the node but
 // not necessarily incorporated into any block. Allows filtering by committee index or slot.
 func (s *Server) ListAttestations(w http.ResponseWriter, r *http.Request) {
@@ -263,34 +261,6 @@ func (s *Server) SubmitVoluntaryExit(w http.ResponseWriter, r *http.Request) {
 		httputil.HandleError(w, "Could not broadcast exit: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
-}
-
-// broadcastBLSBatch broadcasts the first `broadcastBLSChangesRateLimit` messages from the slice pointed to by ptr.
-// It validates the messages again because they could have been invalidated by being included in blocks since the last validation.
-// It removes the messages from the slice and modifies it in place.
-func (s *Server) broadcastBLSBatch(ctx context.Context, ptr *[]*eth.SignedBLSToExecutionChange) {
-	limit := broadcastBLSChangesRateLimit
-	if len(*ptr) < broadcastBLSChangesRateLimit {
-		limit = len(*ptr)
-	}
-	st, err := s.ChainInfoFetcher.HeadStateReadOnly(ctx)
-	if err != nil {
-		log.WithError(err).Error("could not get head state")
-		return
-	}
-	for _, ch := range (*ptr)[:limit] {
-		if ch != nil {
-			_, err := blocks.ValidateBLSToExecutionChange(st, ch)
-			if err != nil {
-				log.WithError(err).Error("could not validate BLS to execution change")
-				continue
-			}
-			if err := s.Broadcaster.Broadcast(ctx, ch); err != nil {
-				log.WithError(err).Error("could not broadcast BLS to execution changes.")
-			}
-		}
-	}
-	*ptr = (*ptr)[limit:]
 }
 
 // ListBLSToExecutionChanges retrieves BLS to execution changes known by the node but not necessarily incorporated into any block

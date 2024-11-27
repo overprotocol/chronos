@@ -14,7 +14,6 @@ go_library(
     deps = [
         "//api/client:go_default_library",
         "//api/client/beacon/iface:go_default_library",
-        "//api/server:go_default_library",
         "//api/server/structs:go_default_library",
         "//beacon-chain/core/helpers:go_default_library",
         "//beacon-chain/state:go_default_library",
