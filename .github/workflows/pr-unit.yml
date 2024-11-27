@@ -6,43 +6,38 @@ on:
   pull_request:
 
 jobs:
-  beacon-chain-tests:
+  unit-tests:
     uses: ./.github/workflows/_run-test.yml
+    strategy:
+      matrix:
+        test-target:
+          [
+            "//api/...",
+            "//async/...",
+            "//beacon-chain/...",
+            "//build/...",
+            "//cache/...",
+            "//cmd/...",
+            "//config/...",
+            "//consensus-types/...",
+            "//container/...",
+            "//contracts/...",
+            "//crypto/...",
+            "//encoding/...",
+            "//io/...",
+            "//math/...",
+            "//monitoring/...",
+            "//network/...",
+            "//proto/...",
+            "//runtime/...",
+            "//testing/...",
+            "//third_party/...",
+            "//time/...",
+            "//tools/...",
+            "//validator/...",
+          ]
     with:
-      test-target: "//beacon-chain/..."
-    permissions:
-      id-token: write
-      contents: read
-    secrets:
-      GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-
-  validator-tests:
-    uses: ./.github/workflows/_run-test.yml
-    with:
-      test-target: "//validator/..."
-    permissions:
-      id-token: write
-      contents: read
-    secrets:
-      GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-
-  tools-tests:
-    uses: ./.github/workflows/_run-test.yml
-    with:
-      test-target: "//tools/..."
-    permissions:
-      id-token: write
-      contents: read
-    secrets:
-      GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-
-  other-tests:
-    uses: ./.github/workflows/_run-test.yml
-    with:
-      test-target: "//... -//beacon-chain/... -//validator/... -//tools/..."
+      test-target: ${{ matrix.test-target }}
     permissions:
       id-token: write
       contents: read
