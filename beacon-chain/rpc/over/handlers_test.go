@@ -3,6 +3,7 @@ package over
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"math"
 	"net/http"
 	"net/http/httptest"
@@ -357,6 +358,117 @@ func TestGetReserves(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, e.Code)
 		assert.StringContains(t, "state_id is required in URL params", e.Message)
 	})
+}
+
+func TestGetExitQueueEpoch(t *testing.T) {
+	tests := []struct {
+		name        string
+		state       state.BeaconState
+		exitBalance uint64
+		code        int
+		want        uint64
+		wantErr     string
+	}{
+		{
+			name: "error: no exit balance in post-electra",
+			state: func() state.BeaconState {
+				st, _ := util.DeterministicGenesisStateElectra(t, 10)
+				return st
+			}(),
+			code:    http.StatusBadRequest,
+			wantErr: "exit_balance is required for post-electra in query params",
+		},
+		{
+			name: "pre-electra: no exiting validators",
+			state: func() state.BeaconState {
+				st, _ := util.DeterministicGenesisStateDeneb(t, 10)
+				return st
+			}(),
+			exitBalance: params.BeaconConfig().MaxEffectiveBalance,
+			code:        http.StatusOK,
+			want:        5,
+		},
+		{
+			name: "pre-electra: many exiting validators",
+			state: func() state.BeaconState {
+				st, _ := util.DeterministicGenesisStateDeneb(t, 50)
+				for i := 10; i < 50; i++ {
+					val, err := st.ValidatorAtIndex(primitives.ValidatorIndex(i))
+					require.NoError(t, err)
+					val.ExitEpoch = 5
+					require.NoError(t, st.UpdateValidatorAtIndex(primitives.ValidatorIndex(i), val))
+				}
+				return st
+			}(),
+			exitBalance: params.BeaconConfig().MaxEffectiveBalance,
+			code:        http.StatusOK,
+			want:        6, // exitQueueEpoch is incremented by one.
+		},
+		{
+			name: "post-electra: no exiting validators",
+			state: func() state.BeaconState {
+				st, _ := util.DeterministicGenesisStateElectra(t, 10)
+				return st
+			}(),
+			exitBalance: params.BeaconConfig().MaxEffectiveBalance,
+			code:        http.StatusOK,
+			want:        5,
+		},
+		{
+			name: "post-electra: many exiting validators",
+			state: func() state.BeaconState {
+				st, _ := util.DeterministicGenesisStateElectra(t, 50)
+				for i := 10; i < 50; i++ {
+					val, err := st.ValidatorAtIndex(primitives.ValidatorIndex(i))
+					require.NoError(t, err)
+					val.ExitEpoch = 5
+					require.NoError(t, st.UpdateValidatorAtIndex(primitives.ValidatorIndex(i), val))
+				}
+				return st
+			}(),
+			exitBalance: params.BeaconConfig().MaxEffectiveBalanceAlpaca,
+			code:        http.StatusOK,
+			want:        20, // exitQueueEpoch increased a lot
+		},
+	}
+
+	for _, tt := range tests {
+		chainService := &chainMock.ChainService{}
+		s := Server{
+			Stater: &testutil.MockStater{
+				BeaconState: tt.state,
+			},
+			HeadFetcher:           chainService,
+			OptimisticModeFetcher: chainService,
+			FinalizationFetcher:   chainService,
+		}
+
+		var request *http.Request
+		if tt.exitBalance == 0 {
+			request = httptest.NewRequest(http.MethodGet,
+				"http://example.com/over/v1/beacon/states/{state_id}/exit/queue_epoch", nil)
+		} else {
+			request = httptest.NewRequest(http.MethodGet,
+				fmt.Sprintf("http://example.com/over/v1/beacon/states/{state_id}/exit/queue_epoch?exit_balance=%d", tt.exitBalance), nil)
+		}
+
+		request.SetPathValue("state_id", "head")
+		writer := httptest.NewRecorder()
+		writer.Body = &bytes.Buffer{}
+
+		s.GetExitQueueEpoch(writer, request)
+		assert.Equal(t, tt.code, writer.Code)
+		if tt.wantErr != "" {
+			require.StringContains(t, tt.wantErr, writer.Body.String())
+			continue
+		}
+
+		resp := &structs.GetExitQueueEpochResponse{}
+		require.NoError(t, json.Unmarshal(writer.Body.Bytes(), resp))
+		if tt.want != 0 {
+			require.Equal(t, tt.want, resp.Data.ExitQueueEpoch)
+		}
+	}
 }
 
 func Test_decodeValidatorId(t *testing.T) {

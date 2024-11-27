@@ -126,6 +126,7 @@ func Test_endpoints(t *testing.T) {
 		"/over/v1/beacon/states/{state_id}/deposit_estimation":                   {http.MethodGet},
 		"/over/v1/beacon/states/{state_id}/deposit_estimation/{pubkey}":          {http.MethodGet},
 		"/over/v1/beacon/states/{state_id}/withdrawal_estimation/{validator_id}": {http.MethodGet},
+		"/over/v1/beacon/states/{state_id}/exit/queue_epoch":                     {http.MethodGet},
 	}
 
 	overNodeRoutes := map[string][]string{

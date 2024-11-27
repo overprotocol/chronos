@@ -79,3 +79,13 @@ type PendingPartialWithdrawalContainer struct {
 	Amount        uint64 `json:"amount"`
 	ExpectedEpoch uint64 `json:"expected_epoch"`
 }
+
+type GetExitQueueEpochResponse struct {
+	Data                *ExitQueueEpochContainer `json:"data"`
+	ExecutionOptimistic bool                     `json:"execution_optimistic"`
+	Finalized           bool                     `json:"finalized"`
+}
+
+type ExitQueueEpochContainer struct {
+	ExitQueueEpoch uint64 `json:"exit_queue_epoch"`
+}

@@ -1089,6 +1089,12 @@ func (s *Service) overEndpoints(stater lookup.Stater) []endpoint {
 			handler:  server.GetWithdrawalEstimation,
 			methods:  []string{http.MethodGet},
 		},
+		{
+			template: "/over/v1/beacon/states/{state_id}/exit/queue_epoch",
+			name:     namespace + ".GetExitQueueEpoch",
+			handler:  server.GetExitQueueEpoch,
+			methods:  []string{http.MethodGet},
+		},
 	}
 }
 
