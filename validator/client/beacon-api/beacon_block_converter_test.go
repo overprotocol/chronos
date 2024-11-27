@@ -455,15 +455,6 @@ func TestGetBeaconBlockConverter_CapellaError(t *testing.T) {
 				return beaconBlock
 			},
 		},
-		{
-			name:                 "bad bls execution changes",
-			expectedErrorMessage: "failed to get bls to execution changes",
-			generateData: func() *structs.BeaconBlockCapella {
-				beaconBlock := testhelpers.GenerateJsonCapellaBeaconBlock()
-				beaconBlock.Body.BLSToExecutionChanges[0] = nil
-				return beaconBlock
-			},
-		},
 	}
 
 	for _, testCase := range testCases {

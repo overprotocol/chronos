@@ -163,16 +163,15 @@ func (body *BeaconBlockBodyCapella) Copy() *BeaconBlockBodyCapella {
 		return nil
 	}
 	return &BeaconBlockBodyCapella{
-		RandaoReveal:          bytesutil.SafeCopyBytes(body.RandaoReveal),
-		Eth1Data:              body.Eth1Data.Copy(),
-		Graffiti:              bytesutil.SafeCopyBytes(body.Graffiti),
-		ProposerSlashings:     CopySlice(body.ProposerSlashings),
-		AttesterSlashings:     CopySlice(body.AttesterSlashings),
-		Attestations:          CopySlice(body.Attestations),
-		Deposits:              CopySlice(body.Deposits),
-		VoluntaryExits:        CopySlice(body.VoluntaryExits),
-		ExecutionPayload:      body.ExecutionPayload.Copy(),
-		BlsToExecutionChanges: CopySlice(body.BlsToExecutionChanges),
+		RandaoReveal:      bytesutil.SafeCopyBytes(body.RandaoReveal),
+		Eth1Data:          body.Eth1Data.Copy(),
+		Graffiti:          bytesutil.SafeCopyBytes(body.Graffiti),
+		ProposerSlashings: CopySlice(body.ProposerSlashings),
+		AttesterSlashings: CopySlice(body.AttesterSlashings),
+		Attestations:      CopySlice(body.Attestations),
+		Deposits:          CopySlice(body.Deposits),
+		VoluntaryExits:    CopySlice(body.VoluntaryExits),
+		ExecutionPayload:  body.ExecutionPayload.Copy(),
 	}
 }
 
@@ -216,7 +215,6 @@ func (body *BlindedBeaconBlockBodyCapella) Copy() *BlindedBeaconBlockBodyCapella
 		Deposits:               CopySlice(body.Deposits),
 		VoluntaryExits:         CopySlice(body.VoluntaryExits),
 		ExecutionPayloadHeader: body.ExecutionPayloadHeader.Copy(),
-		BlsToExecutionChanges:  CopySlice(body.BlsToExecutionChanges),
 	}
 }
 
@@ -260,7 +258,6 @@ func (body *BlindedBeaconBlockBodyDeneb) Copy() *BlindedBeaconBlockBodyDeneb {
 		Deposits:               CopySlice(body.Deposits),
 		VoluntaryExits:         CopySlice(body.VoluntaryExits),
 		ExecutionPayloadHeader: body.ExecutionPayloadHeader.Copy(),
-		BlsToExecutionChanges:  CopySlice(body.BlsToExecutionChanges),
 		BlobKzgCommitments:     CopyBlobKZGs(body.BlobKzgCommitments),
 	}
 }
@@ -305,7 +302,6 @@ func (body *BlindedBeaconBlockBodyElectra) Copy() *BlindedBeaconBlockBodyElectra
 		Deposits:               CopySlice(body.Deposits),
 		VoluntaryExits:         CopySlice(body.VoluntaryExits),
 		ExecutionPayloadHeader: body.ExecutionPayloadHeader.Copy(),
-		BlsToExecutionChanges:  CopySlice(body.BlsToExecutionChanges),
 		BlobKzgCommitments:     CopyBlobKZGs(body.BlobKzgCommitments),
 		ExecutionRequests:      CopyExecutionRequests(body.ExecutionRequests),
 	}
@@ -410,17 +406,16 @@ func (body *BeaconBlockBodyDeneb) Copy() *BeaconBlockBodyDeneb {
 		return nil
 	}
 	return &BeaconBlockBodyDeneb{
-		RandaoReveal:          bytesutil.SafeCopyBytes(body.RandaoReveal),
-		Eth1Data:              body.Eth1Data.Copy(),
-		Graffiti:              bytesutil.SafeCopyBytes(body.Graffiti),
-		ProposerSlashings:     CopySlice(body.ProposerSlashings),
-		AttesterSlashings:     CopySlice(body.AttesterSlashings),
-		Attestations:          CopySlice(body.Attestations),
-		Deposits:              CopySlice(body.Deposits),
-		VoluntaryExits:        CopySlice(body.VoluntaryExits),
-		ExecutionPayload:      body.ExecutionPayload.Copy(),
-		BlsToExecutionChanges: CopySlice(body.BlsToExecutionChanges),
-		BlobKzgCommitments:    CopyBlobKZGs(body.BlobKzgCommitments),
+		RandaoReveal:       bytesutil.SafeCopyBytes(body.RandaoReveal),
+		Eth1Data:           body.Eth1Data.Copy(),
+		Graffiti:           bytesutil.SafeCopyBytes(body.Graffiti),
+		ProposerSlashings:  CopySlice(body.ProposerSlashings),
+		AttesterSlashings:  CopySlice(body.AttesterSlashings),
+		Attestations:       CopySlice(body.Attestations),
+		Deposits:           CopySlice(body.Deposits),
+		VoluntaryExits:     CopySlice(body.VoluntaryExits),
+		ExecutionPayload:   body.ExecutionPayload.Copy(),
+		BlobKzgCommitments: CopyBlobKZGs(body.BlobKzgCommitments),
 	}
 }
 
@@ -455,18 +450,17 @@ func (body *BeaconBlockBodyElectra) Copy() *BeaconBlockBodyElectra {
 		return nil
 	}
 	return &BeaconBlockBodyElectra{
-		RandaoReveal:          bytesutil.SafeCopyBytes(body.RandaoReveal),
-		Eth1Data:              body.Eth1Data.Copy(),
-		Graffiti:              bytesutil.SafeCopyBytes(body.Graffiti),
-		ProposerSlashings:     CopySlice(body.ProposerSlashings),
-		AttesterSlashings:     CopySlice(body.AttesterSlashings),
-		Attestations:          CopySlice(body.Attestations),
-		Deposits:              CopySlice(body.Deposits),
-		VoluntaryExits:        CopySlice(body.VoluntaryExits),
-		ExecutionPayload:      body.ExecutionPayload.Copy(),
-		BlsToExecutionChanges: CopySlice(body.BlsToExecutionChanges),
-		BlobKzgCommitments:    CopyBlobKZGs(body.BlobKzgCommitments),
-		ExecutionRequests:     CopyExecutionRequests(body.ExecutionRequests),
+		RandaoReveal:       bytesutil.SafeCopyBytes(body.RandaoReveal),
+		Eth1Data:           body.Eth1Data.Copy(),
+		Graffiti:           bytesutil.SafeCopyBytes(body.Graffiti),
+		ProposerSlashings:  CopySlice(body.ProposerSlashings),
+		AttesterSlashings:  CopySlice(body.AttesterSlashings),
+		Attestations:       CopySlice(body.Attestations),
+		Deposits:           CopySlice(body.Deposits),
+		VoluntaryExits:     CopySlice(body.VoluntaryExits),
+		ExecutionPayload:   body.ExecutionPayload.Copy(),
+		BlobKzgCommitments: CopyBlobKZGs(body.BlobKzgCommitments),
+		ExecutionRequests:  CopyExecutionRequests(body.ExecutionRequests),
 	}
 }
 
@@ -564,29 +558,6 @@ func (exit *VoluntaryExit) Copy() *VoluntaryExit {
 	return &VoluntaryExit{
 		Epoch:          exit.Epoch,
 		ValidatorIndex: exit.ValidatorIndex,
-	}
-}
-
-// Copy --
-func (change *SignedBLSToExecutionChange) Copy() *SignedBLSToExecutionChange {
-	if change == nil {
-		return nil
-	}
-	return &SignedBLSToExecutionChange{
-		Message:   change.Message.Copy(),
-		Signature: bytesutil.SafeCopyBytes(change.Signature),
-	}
-}
-
-// Copy --
-func (change *BLSToExecutionChange) Copy() *BLSToExecutionChange {
-	if change == nil {
-		return nil
-	}
-	return &BLSToExecutionChange{
-		ValidatorIndex:     change.ValidatorIndex,
-		FromBlsPubkey:      bytesutil.SafeCopyBytes(change.FromBlsPubkey),
-		ToExecutionAddress: bytesutil.SafeCopyBytes(change.ToExecutionAddress),
 	}
 }
 

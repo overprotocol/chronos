@@ -66,7 +66,6 @@ type ReadOnlyBeaconBlockBody interface {
 	HashTreeRoot() ([field_params.RootLength]byte, error)
 	Proto() (proto.Message, error)
 	Execution() (ExecutionData, error)
-	BLSToExecutionChanges() ([]*ethpb.SignedBLSToExecutionChange, error)
 	BlobKzgCommitments() ([][]byte, error)
 	ExecutionRequests() (*enginev1.ExecutionRequests, error)
 }
@@ -74,7 +73,6 @@ type ReadOnlyBeaconBlockBody interface {
 type SignedBeaconBlock interface {
 	ReadOnlySignedBeaconBlock
 	SetExecution(ExecutionData) error
-	SetBLSToExecutionChanges([]*ethpb.SignedBLSToExecutionChange) error
 	SetBlobKzgCommitments(c [][]byte) error
 	SetVoluntaryExits([]*ethpb.SignedVoluntaryExit)
 	SetDeposits([]*ethpb.Deposit)

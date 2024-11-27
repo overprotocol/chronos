@@ -18,23 +18,6 @@ func jsonifyTransactions(transactions [][]byte) []string {
 	return jsonTransactions
 }
 
-func jsonifyBlsToExecutionChanges(blsToExecutionChanges []*ethpb.SignedBLSToExecutionChange) []*structs.SignedBLSToExecutionChange {
-	jsonBlsToExecutionChanges := make([]*structs.SignedBLSToExecutionChange, len(blsToExecutionChanges))
-	for index, signedBlsToExecutionChange := range blsToExecutionChanges {
-		blsToExecutionChangeJson := &structs.BLSToExecutionChange{
-			ValidatorIndex:     uint64ToString(signedBlsToExecutionChange.Message.ValidatorIndex),
-			FromBLSPubkey:      hexutil.Encode(signedBlsToExecutionChange.Message.FromBlsPubkey),
-			ToExecutionAddress: hexutil.Encode(signedBlsToExecutionChange.Message.ToExecutionAddress),
-		}
-		signedJson := &structs.SignedBLSToExecutionChange{
-			Message:   blsToExecutionChangeJson,
-			Signature: hexutil.Encode(signedBlsToExecutionChange.Signature),
-		}
-		jsonBlsToExecutionChanges[index] = signedJson
-	}
-	return jsonBlsToExecutionChanges
-}
-
 func jsonifyEth1Data(eth1Data *ethpb.Eth1Data) *structs.Eth1Data {
 	return &structs.Eth1Data{
 		BlockHash:    hexutil.Encode(eth1Data.BlockHash),

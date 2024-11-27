@@ -156,10 +156,6 @@ type Randao struct {
 	Randao string `json:"randao"`
 }
 
-type BLSToExecutionChangesPoolResponse struct {
-	Data []*SignedBLSToExecutionChange `json:"data"`
-}
-
 type GetAttesterSlashingsResponse struct {
 	Version string          `json:"version,omitempty"`
 	Data    json.RawMessage `json:"data"` // Accepts both `[]*AttesterSlashing` and `[]*AttesterSlashingElectra` types

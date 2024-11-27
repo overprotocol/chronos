@@ -263,22 +263,6 @@ func (s *Server) SubmitVoluntaryExit(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// ListBLSToExecutionChanges retrieves BLS to execution changes known by the node but not necessarily incorporated into any block
-func (s *Server) ListBLSToExecutionChanges(w http.ResponseWriter, r *http.Request) {
-	_, span := trace.StartSpan(r.Context(), "beacon.ListBLSToExecutionChanges")
-	defer span.End()
-
-	sourceChanges, err := s.BLSChangesPool.PendingBLSToExecChanges()
-	if err != nil {
-		httputil.HandleError(w, fmt.Sprintf("Could not get BLS to execution changes: %v", err), http.StatusInternalServerError)
-		return
-	}
-
-	httputil.WriteJson(w, &structs.BLSToExecutionChangesPoolResponse{
-		Data: structs.SignedBLSChangesFromConsensus(sourceChanges),
-	})
-}
-
 // GetAttesterSlashings retrieves attester slashings known by the node but
 // not necessarily incorporated into any block.
 func (s *Server) GetAttesterSlashings(w http.ResponseWriter, r *http.Request) {

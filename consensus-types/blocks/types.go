@@ -52,7 +52,6 @@ type BeaconBlockBody struct {
 	voluntaryExits           []*eth.SignedVoluntaryExit
 	executionPayload         interfaces.ExecutionData
 	executionPayloadHeader   interfaces.ExecutionData
-	blsToExecutionChanges    []*eth.SignedBLSToExecutionChange
 	blobKzgCommitments       [][]byte
 	executionRequests        *enginev1.ExecutionRequests
 }

@@ -56,10 +56,6 @@ func TestSubTopicHandler_CRUD(t *testing.T) {
 	h.addTopic(topic, new(pubsub.Subscription))
 	assert.Equal(t, true, h.topicExists(topic))
 
-	topic = fmt.Sprintf(p2p.BlsToExecutionChangeSubnetTopicFormat, digest) + enc.ProtocolSuffix()
-	h.addTopic(topic, new(pubsub.Subscription))
-	assert.Equal(t, true, h.topicExists(topic))
-
 	assert.Equal(t, 6, len(h.allTopics()))
 
 	// Remove multiple topics
@@ -84,10 +80,6 @@ func TestSubTopicHandler_CRUD(t *testing.T) {
 	assert.Equal(t, false, h.topicExists(topic))
 
 	topic = fmt.Sprintf(p2p.AggregateAndProofSubnetTopicFormat, digest) + enc.ProtocolSuffix()
-	h.removeTopic(topic)
-	assert.Equal(t, false, h.topicExists(topic))
-
-	topic = fmt.Sprintf(p2p.BlsToExecutionChangeSubnetTopicFormat, digest) + enc.ProtocolSuffix()
 	h.removeTopic(topic)
 	assert.Equal(t, false, h.topicExists(topic))
 

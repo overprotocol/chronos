@@ -937,40 +937,6 @@ func (e *Eth1Data) MarshalJSON() ([]byte, error) {
 	})
 }
 
-// SignedBLSToExecutionChange is a field in Beacon Block Body for capella and above.
-type SignedBLSToExecutionChange struct {
-	*eth.SignedBLSToExecutionChange
-}
-
-// MarshalJSON returns a JSON byte array representation of SignedBLSToExecutionChange.
-func (ch *SignedBLSToExecutionChange) MarshalJSON() ([]byte, error) {
-	return json.Marshal(struct {
-		Message   *BLSToExecutionChange `json:"message"`
-		Signature hexutil.Bytes         `json:"signature"`
-	}{
-		Signature: ch.Signature,
-		Message:   &BLSToExecutionChange{ch.Message},
-	})
-}
-
-// BLSToExecutionChange is a field in SignedBLSToExecutionChange.
-type BLSToExecutionChange struct {
-	*eth.BLSToExecutionChange
-}
-
-// MarshalJSON returns a JSON byte array representation of BLSToExecutionChange.
-func (ch *BLSToExecutionChange) MarshalJSON() ([]byte, error) {
-	return json.Marshal(struct {
-		ValidatorIndex     string        `json:"validator_index"`
-		FromBlsPubkey      hexutil.Bytes `json:"from_bls_pubkey"`
-		ToExecutionAddress hexutil.Bytes `json:"to_execution_address"`
-	}{
-		ValidatorIndex:     fmt.Sprintf("%d", ch.ValidatorIndex),
-		FromBlsPubkey:      ch.FromBlsPubkey,
-		ToExecutionAddress: ch.ToExecutionAddress,
-	})
-}
-
 // ExecHeaderResponseDeneb is the header response for builder API /eth/v1/builder/header/{slot}/{parent_hash}/{pubkey}.
 type ExecHeaderResponseDeneb struct {
 	Data struct {
