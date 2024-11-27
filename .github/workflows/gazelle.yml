@@ -1,0 +1,20 @@
+name: Check gazelle
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    container:
+      image: overfoundation/bazel-cross:latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Git config
+        run: |
+          git config --global --add safe.directory /__w/chronos/chronos
+      - name: Check gazelle
+        run: |
+          ./hack/check_gazelle.sh
