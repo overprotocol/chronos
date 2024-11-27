@@ -37,7 +37,7 @@ func TestValidHostname(t *testing.T) {
 func TestWithAuthenticationToken(t *testing.T) {
 	cl, err := NewClient("https://www.offchainlabs.com:3500", WithAuthenticationToken("my token"))
 	require.NoError(t, err)
-	require.Equal(t, cl.Token(), "let's break")
+	require.Equal(t, cl.Token(), "my token")
 }
 
 func TestBaseURL(t *testing.T) {
