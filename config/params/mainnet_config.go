@@ -76,7 +76,7 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	MaxRewardAdjustmentFactors:      [11]uint64{1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000},
 
 	// Gwei value constants.
-	MinDepositAmount:          64 * 1e9,
+	MinDepositAmount:          32 * 1e9,
 	MaxEffectiveBalance:       256 * 1e9,
 	EffectiveBalanceIncrement: 1 * 1e9,
 	MaxTokenSupply:            1000000000 * 1e9,
