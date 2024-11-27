@@ -17,10 +17,32 @@ jobs:
       GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
       GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
 
+  validator-tests:
+    uses: ./.github/workflows/_run-test.yml
+    with:
+      test-target: "//validator/..."
+    permissions:
+      id-token: write
+      contents: read
+    secrets:
+      GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+
+  tools-tests:
+    uses: ./.github/workflows/_run-test.yml
+    with:
+      test-target: "//tools/..."
+    permissions:
+      id-token: write
+      contents: read
+    secrets:
+      GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+
   other-tests:
     uses: ./.github/workflows/_run-test.yml
     with:
-      test-target: "//... -//beacon-chain/..."
+      test-target: "//... -//beacon-chain/... -//validator/... -//tools/..."
     permissions:
       id-token: write
       contents: read
