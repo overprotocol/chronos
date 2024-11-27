@@ -15,7 +15,6 @@ go_library(
         "proposer_attestations_electra.go",
         "proposer_bellatrix.go",
         "proposer_builder.go",
-        "proposer_capella.go",
         "proposer_deneb.go",
         "proposer_deposits.go",
         "proposer_empty_block.go",

@@ -413,7 +413,7 @@ func TestServer_GetBeaconBlock_Capella(t *testing.T) {
 	}
 
 	copiedState := beaconState.Copy()
-	copiedState, err = transition.ProcessSlots(ctx, copiedState, capellaSlot+1)
+	_, err = transition.ProcessSlots(ctx, copiedState, capellaSlot+1)
 	require.NoError(t, err)
 
 	_, err = proposerServer.GetBeaconBlock(ctx, req)
@@ -530,7 +530,7 @@ func TestServer_GetBeaconBlock_Deneb(t *testing.T) {
 	}
 
 	copiedState := beaconState.Copy()
-	copiedState, err = transition.ProcessSlots(ctx, copiedState, denebSlot+1)
+	_, err = transition.ProcessSlots(ctx, copiedState, denebSlot+1)
 	require.NoError(t, err)
 
 	got, err := proposerServer.GetBeaconBlock(ctx, req)
