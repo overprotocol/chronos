@@ -239,7 +239,7 @@ func (s *Server) GetExitQueueEpoch(w http.ResponseWriter, r *http.Request) {
 
 	// Parse exit_balance from URL params
 	rawExitBalance := r.URL.Query().Get("exit_balance")
-	if st.Version() >= version.Electra && rawExitBalance == "" {
+	if st.Version() >= version.Alpaca && rawExitBalance == "" {
 		httputil.HandleError(w, "exit_balance is required for post-electra in query params", http.StatusBadRequest)
 		return
 	}
@@ -262,7 +262,7 @@ func (s *Server) GetExitQueueEpoch(w http.ResponseWriter, r *http.Request) {
 	var exitQueueEpoch primitives.Epoch
 	var churn uint64
 	// code is originated from InitiatorValidatorExit (beacon-chain/core/validators/validator.go)
-	if copiedSt.Version() < version.Electra {
+	if copiedSt.Version() < version.Alpaca {
 		exitQueueEpoch, churn = validators.MaxExitEpochAndChurn(copiedSt)
 		exitableEpoch := helpers.ActivationExitEpoch(time.CurrentEpoch(copiedSt))
 		if exitableEpoch > exitQueueEpoch {
@@ -290,7 +290,7 @@ func (s *Server) GetExitQueueEpoch(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		exitQueueEpoch, err = copiedSt.ExitEpochAndUpdateChurn(primitives.Gwei(exitBalance))
+		exitQueueEpoch, err = calculateExitEpochForAlpaca(st, primitives.Gwei(exitBalance))
 		if err != nil {
 			httputil.WriteError(w, handleWrapError(err, "could not update exit epoch and churn", http.StatusInternalServerError))
 			return
@@ -376,4 +376,43 @@ func append0x(input string) string {
 
 func has0xPrefix(input string) bool {
 	return len(input) >= 2 && input[0] == '0' && (input[1] == 'x' || input[1] == 'X')
+}
+
+// calculateExitEpochForAlpaca calculates exit queue epoch for post-alpaca state.
+// This function has same logic with ExitEpochAndUpdateChurn in beacon-chain/state/state-native/setters_churn.go,
+// but it doesn't mutate the state.
+func calculateExitEpochForAlpaca(st state.ReadOnlyBeaconState, exitBalance primitives.Gwei) (primitives.Epoch, error) {
+	if st.Version() < version.Alpaca {
+		return 0, errors.New("exit epoch calculation is not supported for pre-alpaca states")
+	}
+
+	activeBal, err := helpers.TotalActiveBalance(st)
+	if err != nil {
+		return 0, err
+	}
+	earliestExitEpochFromState, err := st.EarliestExitEpoch()
+	if err != nil {
+		return 0, err
+	}
+	exitBalanceToConsumeFroState, err := st.ExitBalanceToConsume()
+	if err != nil {
+		return 0, err
+	}
+	earliestExitEpoch := max(earliestExitEpochFromState, helpers.ActivationExitEpoch(slots.ToEpoch(st.Slot())))
+	perEpochChurn := helpers.ExitBalanceChurnLimit(primitives.Gwei(activeBal)) // Guaranteed to be non-zero.
+
+	var exitBalanceToConsume primitives.Gwei
+	if earliestExitEpochFromState < earliestExitEpoch {
+		exitBalanceToConsume = perEpochChurn
+	} else {
+		exitBalanceToConsume = exitBalanceToConsumeFroState
+	}
+
+	if exitBalance > exitBalanceToConsume {
+		balanceToProcess := exitBalance - exitBalanceToConsume
+		additionalEpochs := primitives.Epoch((balanceToProcess-1)/perEpochChurn + 1)
+		earliestExitEpoch += additionalEpochs
+	}
+
+	return earliestExitEpoch, nil
 }
