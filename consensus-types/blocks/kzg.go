@@ -206,7 +206,7 @@ func topLevelRoots(body interfaces.ReadOnlyBeaconBlockBody) ([][]byte, error) {
 	}
 	copy(layer[8], root[:])
 
-	// KZG commitments is not needed. skip index 10
+	// KZG commitments is not needed. skip index 9
 
 	// Execution requests
 	if body.Version() >= version.Electra {
