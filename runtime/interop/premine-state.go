@@ -472,7 +472,6 @@ func (s *PremineGenesisConfig) setLatestBlockHeader(g state.BeaconState) error {
 				Transactions:  make([][]byte, 0),
 				Withdrawals:   make([]*enginev1.Withdrawal, 0),
 			},
-			BlsToExecutionChanges: make([]*ethpb.SignedBLSToExecutionChange, 0),
 		}
 	case version.Deneb:
 		body = &ethpb.BeaconBlockBodyDeneb{
@@ -495,8 +494,7 @@ func (s *PremineGenesisConfig) setLatestBlockHeader(g state.BeaconState) error {
 				Transactions:  make([][]byte, 0),
 				Withdrawals:   make([]*enginev1.Withdrawal, 0),
 			},
-			BlsToExecutionChanges: make([]*ethpb.SignedBLSToExecutionChange, 0),
-			BlobKzgCommitments:    make([][]byte, 0),
+			BlobKzgCommitments: make([][]byte, 0),
 		}
 	case version.Alpaca:
 		body = &ethpb.BeaconBlockBodyElectra{
@@ -519,8 +517,7 @@ func (s *PremineGenesisConfig) setLatestBlockHeader(g state.BeaconState) error {
 				Transactions:  make([][]byte, 0),
 				Withdrawals:   make([]*enginev1.Withdrawal, 0),
 			},
-			BlsToExecutionChanges: make([]*ethpb.SignedBLSToExecutionChange, 0),
-			BlobKzgCommitments:    make([][]byte, 0),
+			BlobKzgCommitments: make([][]byte, 0),
 			ExecutionRequests: &enginev1.ExecutionRequests{
 				Deposits:    make([]*enginev1.DepositRequest, 0),
 				Withdrawals: make([]*enginev1.WithdrawalRequest, 0),

@@ -359,11 +359,6 @@ func (c beaconApiBeaconBlockConverter) ConvertRESTCapellaBlockToProto(block *str
 		return nil, errors.Wrap(err, "failed to get withdrawals")
 	}
 
-	blsToExecutionChanges, err := convertBlsToExecutionChangesToProto(block.Body.BLSToExecutionChanges)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get bls to execution changes")
-	}
-
 	return &ethpb.BeaconBlockCapella{
 		Slot:          bellatrixBlock.Slot,
 		ProposerIndex: bellatrixBlock.ProposerIndex,
@@ -395,7 +390,6 @@ func (c beaconApiBeaconBlockConverter) ConvertRESTCapellaBlockToProto(block *str
 				Transactions:  bellatrixBlock.Body.ExecutionPayload.Transactions,
 				Withdrawals:   withdrawals,
 			},
-			BlsToExecutionChanges: blsToExecutionChanges,
 		},
 	}, nil
 }

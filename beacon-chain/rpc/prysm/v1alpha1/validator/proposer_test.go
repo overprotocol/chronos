@@ -25,7 +25,6 @@ import (
 	mockExecution "github.com/prysmaticlabs/prysm/v5/beacon-chain/execution/testing"
 	doublylinkedtree "github.com/prysmaticlabs/prysm/v5/beacon-chain/forkchoice/doubly-linked-tree"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/attestations"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/blstoexec"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/slashings"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/voluntaryexits"
 	mockp2p "github.com/prysmaticlabs/prysm/v5/beacon-chain/p2p/testing"
@@ -414,16 +413,11 @@ func TestServer_GetBeaconBlock_Capella(t *testing.T) {
 	}
 
 	copiedState := beaconState.Copy()
-	copiedState, err = transition.ProcessSlots(ctx, copiedState, capellaSlot+1)
+	_, err = transition.ProcessSlots(ctx, copiedState, capellaSlot+1)
 	require.NoError(t, err)
-	change, err := util.GenerateBLSToExecutionChange(copiedState, privKeys[1], 0)
-	require.NoError(t, err)
-	proposerServer.BLSChangesPool.InsertBLSToExecChange(change)
 
-	got, err := proposerServer.GetBeaconBlock(ctx, req)
+	_, err = proposerServer.GetBeaconBlock(ctx, req)
 	require.NoError(t, err)
-	require.Equal(t, 1, len(got.GetCapella().Body.BlsToExecutionChanges))
-	require.DeepEqual(t, change, got.GetCapella().Body.BlsToExecutionChanges[0])
 }
 
 func TestServer_GetBeaconBlock_Deneb(t *testing.T) {
@@ -536,11 +530,8 @@ func TestServer_GetBeaconBlock_Deneb(t *testing.T) {
 	}
 
 	copiedState := beaconState.Copy()
-	copiedState, err = transition.ProcessSlots(ctx, copiedState, denebSlot+1)
+	_, err = transition.ProcessSlots(ctx, copiedState, denebSlot+1)
 	require.NoError(t, err)
-	change, err := util.GenerateBLSToExecutionChange(copiedState, privKeys[1], 0)
-	require.NoError(t, err)
-	proposerServer.BLSChangesPool.InsertBLSToExecChange(change)
 
 	got, err := proposerServer.GetBeaconBlock(ctx, req)
 	require.NoError(t, err)
@@ -712,7 +703,6 @@ func getProposerServer(db db.HeadAccessDatabase, headState state.BeaconState, he
 		PayloadIDCache:         cache.NewPayloadIDCache(),
 		TrackedValidatorsCache: cache.NewTrackedValidatorsCache(),
 		BeaconDB:               db,
-		BLSChangesPool:         blstoexec.NewPool(),
 		BlockBuilder:           &builderTest.MockBuilderService{HasConfigured: true},
 	}
 }

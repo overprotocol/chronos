@@ -24,48 +24,6 @@ func TestBeaconBlockJsonHelpers_JsonifyTransactions(t *testing.T) {
 	assert.DeepEqual(t, expectedResult, result)
 }
 
-func TestBeaconBlockJsonHelpers_JsonifyBlsToExecutionChanges(t *testing.T) {
-	input := []*ethpb.SignedBLSToExecutionChange{
-		{
-			Message: &ethpb.BLSToExecutionChange{
-				ValidatorIndex:     1,
-				FromBlsPubkey:      []byte{2},
-				ToExecutionAddress: []byte{3},
-			},
-			Signature: []byte{7},
-		},
-		{
-			Message: &ethpb.BLSToExecutionChange{
-				ValidatorIndex:     4,
-				FromBlsPubkey:      []byte{5},
-				ToExecutionAddress: []byte{6},
-			},
-			Signature: []byte{8},
-		},
-	}
-
-	expectedResult := []*structs.SignedBLSToExecutionChange{
-		{
-			Message: &structs.BLSToExecutionChange{
-				ValidatorIndex:     "1",
-				FromBLSPubkey:      hexutil.Encode([]byte{2}),
-				ToExecutionAddress: hexutil.Encode([]byte{3}),
-			},
-			Signature: hexutil.Encode([]byte{7}),
-		},
-		{
-			Message: &structs.BLSToExecutionChange{
-				ValidatorIndex:     "4",
-				FromBLSPubkey:      hexutil.Encode([]byte{5}),
-				ToExecutionAddress: hexutil.Encode([]byte{6}),
-			},
-			Signature: hexutil.Encode([]byte{8}),
-		},
-	}
-
-	assert.DeepEqual(t, expectedResult, structs.SignedBLSChangesFromConsensus(input))
-}
-
 func TestBeaconBlockJsonHelpers_JsonifyEth1Data(t *testing.T) {
 	input := &ethpb.Eth1Data{
 		DepositRoot:  []byte{1},

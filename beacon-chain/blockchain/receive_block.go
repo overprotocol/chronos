@@ -376,11 +376,6 @@ func (s *Service) prunePostBlockOperationPools(ctx context.Context, blk interfac
 		s.cfg.ExitPool.MarkIncluded(e)
 	}
 
-	// Mark block BLS changes as seen so we don't include same ones in future blocks.
-	if err := s.markIncludedBlockBLSToExecChanges(blk.Block()); err != nil {
-		return errors.Wrap(err, "could not process BLSToExecutionChanges")
-	}
-
 	// Mark slashings as seen so we don't include same ones in future blocks.
 	for _, as := range blk.Block().Body().AttesterSlashings() {
 		s.cfg.SlashingPool.MarkIncludedAttesterSlashing(as)
@@ -389,20 +384,6 @@ func (s *Service) prunePostBlockOperationPools(ctx context.Context, blk interfac
 		s.cfg.SlashingPool.MarkIncludedProposerSlashing(ps)
 	}
 
-	return nil
-}
-
-func (s *Service) markIncludedBlockBLSToExecChanges(headBlock interfaces.ReadOnlyBeaconBlock) error {
-	if headBlock.Version() < version.Capella {
-		return nil
-	}
-	changes, err := headBlock.Body().BLSToExecutionChanges()
-	if err != nil {
-		return errors.Wrap(err, "could not get BLSToExecutionChanges")
-	}
-	for _, change := range changes {
-		s.cfg.BLSToExecPool.MarkIncluded(change)
-	}
 	return nil
 }
 

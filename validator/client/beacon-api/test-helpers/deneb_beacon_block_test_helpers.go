@@ -249,24 +249,6 @@ func GenerateProtoDenebBeaconBlockContents() *ethpb.BeaconBlockContentsDeneb {
 					BlobGasUsed:   135,
 					ExcessBlobGas: 136,
 				},
-				BlsToExecutionChanges: []*ethpb.SignedBLSToExecutionChange{
-					{
-						Message: &ethpb.BLSToExecutionChange{
-							ValidatorIndex:     137,
-							FromBlsPubkey:      FillByteSlice(48, 138),
-							ToExecutionAddress: FillByteSlice(20, 139),
-						},
-						Signature: FillByteSlice(96, 140),
-					},
-					{
-						Message: &ethpb.BLSToExecutionChange{
-							ValidatorIndex:     141,
-							FromBlsPubkey:      FillByteSlice(48, 142),
-							ToExecutionAddress: FillByteSlice(20, 143),
-						},
-						Signature: FillByteSlice(96, 144),
-					},
-				},
 				BlobKzgCommitments: [][]byte{FillByteSlice(48, 145), FillByteSlice(48, 146)},
 			},
 		},
@@ -499,24 +481,6 @@ func GenerateProtoBlindedDenebBeaconBlock() *ethpb.BlindedBeaconBlockDeneb {
 				WithdrawalsRoot:  FillByteSlice(32, 126),
 				BlobGasUsed:      127,
 				ExcessBlobGas:    128,
-			},
-			BlsToExecutionChanges: []*ethpb.SignedBLSToExecutionChange{
-				{
-					Message: &ethpb.BLSToExecutionChange{
-						ValidatorIndex:     129,
-						FromBlsPubkey:      FillByteSlice(48, 130),
-						ToExecutionAddress: FillByteSlice(20, 131),
-					},
-					Signature: FillByteSlice(96, 132),
-				},
-				{
-					Message: &ethpb.BLSToExecutionChange{
-						ValidatorIndex:     133,
-						FromBlsPubkey:      FillByteSlice(48, 134),
-						ToExecutionAddress: FillByteSlice(20, 135),
-					},
-					Signature: FillByteSlice(96, 136),
-				},
 			},
 			BlobKzgCommitments: [][]byte{FillByteSlice(48, 137), FillByteSlice(48, 138)},
 		},
@@ -765,24 +729,6 @@ func GenerateJsonDenebBeaconBlockContents() *structs.BeaconBlockContentsDeneb {
 					BlobGasUsed:   "135",
 					ExcessBlobGas: "136",
 				},
-				BLSToExecutionChanges: []*structs.SignedBLSToExecutionChange{
-					{
-						Message: &structs.BLSToExecutionChange{
-							ValidatorIndex:     "137",
-							FromBLSPubkey:      FillEncodedByteSlice(48, 138),
-							ToExecutionAddress: FillEncodedByteSlice(20, 139),
-						},
-						Signature: FillEncodedByteSlice(96, 140),
-					},
-					{
-						Message: &structs.BLSToExecutionChange{
-							ValidatorIndex:     "141",
-							FromBLSPubkey:      FillEncodedByteSlice(48, 142),
-							ToExecutionAddress: FillEncodedByteSlice(20, 143),
-						},
-						Signature: FillEncodedByteSlice(96, 144),
-					},
-				},
 				BlobKzgCommitments: []string{FillEncodedByteSlice(48, 145), FillEncodedByteSlice(48, 146)},
 			},
 		},
@@ -1015,24 +961,6 @@ func GenerateJsonBlindedDenebBeaconBlock() *structs.BlindedBeaconBlockDeneb {
 				WithdrawalsRoot:  FillEncodedByteSlice(32, 126),
 				BlobGasUsed:      "127",
 				ExcessBlobGas:    "128",
-			},
-			BLSToExecutionChanges: []*structs.SignedBLSToExecutionChange{
-				{
-					Message: &structs.BLSToExecutionChange{
-						ValidatorIndex:     "129",
-						FromBLSPubkey:      FillEncodedByteSlice(48, 130),
-						ToExecutionAddress: FillEncodedByteSlice(20, 131),
-					},
-					Signature: FillEncodedByteSlice(96, 132),
-				},
-				{
-					Message: &structs.BLSToExecutionChange{
-						ValidatorIndex:     "133",
-						FromBLSPubkey:      FillEncodedByteSlice(48, 134),
-						ToExecutionAddress: FillEncodedByteSlice(20, 135),
-					},
-					Signature: FillEncodedByteSlice(96, 136),
-				},
 			},
 			BlobKzgCommitments: []string{FillEncodedByteSlice(48, 137), FillEncodedByteSlice(48, 138)},
 		},

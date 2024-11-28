@@ -145,16 +145,6 @@ func (b *SignedBeaconBlock) SetExecution(e interfaces.ExecutionData) error {
 	return nil
 }
 
-// SetBLSToExecutionChanges sets the BLS to execution changes in the block.
-// This function is not thread safe, it is only used during block creation.
-func (b *SignedBeaconBlock) SetBLSToExecutionChanges(blsToExecutionChanges []*eth.SignedBLSToExecutionChange) error {
-	if b.version < version.Capella {
-		return consensus_types.ErrNotSupported("BLSToExecutionChanges", b.version)
-	}
-	b.block.body.blsToExecutionChanges = blsToExecutionChanges
-	return nil
-}
-
 // SetBlobKzgCommitments sets the blob kzg commitments in the block.
 func (b *SignedBeaconBlock) SetBlobKzgCommitments(c [][]byte) error {
 	if b.version < version.Deneb {
