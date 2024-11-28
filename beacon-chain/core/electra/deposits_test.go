@@ -440,8 +440,8 @@ func TestProcessDeposit_Electra_Simple(t *testing.T) {
 		Balances:   balances,
 		Eth1Data:   eth1Data,
 		Fork: &eth.Fork{
-			PreviousVersion: params.BeaconConfig().ElectraForkVersion,
-			CurrentVersion:  params.BeaconConfig().ElectraForkVersion,
+			PreviousVersion: params.BeaconConfig().AlpacaForkVersion,
+			CurrentVersion:  params.BeaconConfig().AlpacaForkVersion,
 		},
 	})
 	require.NoError(t, err)
@@ -553,7 +553,7 @@ func stateWithActiveBalanceETH(t testing.TB, balETH uint64) state.BeaconState {
 		Validators: vals,
 		Balances:   bals,
 		Fork: &eth.Fork{
-			CurrentVersion: params.BeaconConfig().ElectraForkVersion,
+			CurrentVersion: params.BeaconConfig().AlpacaForkVersion,
 		},
 	})
 	require.NoError(t, err)

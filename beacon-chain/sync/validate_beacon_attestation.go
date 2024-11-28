@@ -120,7 +120,7 @@ func (s *Service) validateCommitteeIndexBeaconAttestation(ctx context.Context, p
 	blockRoot := bytesutil.ToBytes32(data.BeaconBlockRoot)
 	if !s.hasBlockAndState(ctx, blockRoot) {
 		// A node doesn't have the block, it'll request from peer while saving the pending attestation to a queue.
-		if att.Version() >= version.Electra {
+		if att.Version() >= version.Alpaca {
 			a, ok := att.(*eth.AttestationElectra)
 			// This will never fail in practice because we asserted the version
 			if !ok {
@@ -244,7 +244,7 @@ func (s *Service) validateCommitteeIndexAndCount(
 }
 
 func (s *Service) validateCommitteeIndex(ctx context.Context, a eth.Att) (primitives.CommitteeIndex, pubsub.ValidationResult, error) {
-	if a.Version() >= version.Electra {
+	if a.Version() >= version.Alpaca {
 		return validateCommitteeIndexElectra(ctx, a)
 	}
 	return a.GetData().CommitteeIndex, pubsub.ValidationAccept, nil

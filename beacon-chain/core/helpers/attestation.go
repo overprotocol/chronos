@@ -92,7 +92,7 @@ func IsAggregated(attestation ethpb.Att) bool {
 //
 //	return uint64((committees_since_epoch_start + committee_index) % ATTESTATION_SUBNET_COUNT)
 func ComputeSubnetForAttestation(activeValCount uint64, att ethpb.Att) uint64 {
-	if att.Version() >= version.Electra {
+	if att.Version() >= version.Alpaca {
 		committeeIndex := 0
 		committeeIndices := att.CommitteeBitsVal().BitIndices()
 		if len(committeeIndices) > 0 {

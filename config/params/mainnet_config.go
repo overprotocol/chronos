@@ -29,8 +29,8 @@ const (
 	mainnetCapellaForkEpoch = 10 // epoch 10
 	// Deneb Fork Epoch for mainnet config.
 	mainnetDenebForkEpoch = math.MaxUint64 // not activated
-	// Electra Fork Epoch for mainnet config
-	mainnetElectraForkEpoch = math.MaxUint64 // Far future / to be defined
+	// Alpaca Fork Epoch for mainnet config
+	mainnetAlpacaForkEpoch = math.MaxUint64 // Far future / to be defined
 )
 
 var mainnetNetworkConfig = &NetworkConfig{
@@ -76,7 +76,7 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	MaxRewardAdjustmentFactors:      [11]uint64{1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000},
 
 	// Gwei value constants.
-	MinDepositAmount:          64 * 1e9,
+	MinDepositAmount:          32 * 1e9,
 	MaxEffectiveBalance:       256 * 1e9,
 	EffectiveBalanceIncrement: 1 * 1e9,
 	MaxTokenSupply:            1000000000 * 1e9,
@@ -182,7 +182,7 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	BeaconStateBellatrixFieldCount: 23,
 	BeaconStateCapellaFieldCount:   26,
 	BeaconStateDenebFieldCount:     26,
-	BeaconStateElectraFieldCount:   32,
+	BeaconStateAlpacaFieldCount:    32,
 
 	// Slasher related values.
 	WeakSubjectivityPeriod:          54000,
@@ -203,8 +203,8 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	CapellaForkEpoch:     mainnetCapellaForkEpoch,
 	DenebForkVersion:     []byte{0x04, 0x00, 0x00, 0x18},
 	DenebForkEpoch:       mainnetDenebForkEpoch,
-	ElectraForkVersion:   []byte{0x05, 0x00, 0x00, 0x18},
-	ElectraForkEpoch:     mainnetElectraForkEpoch,
+	AlpacaForkVersion:    []byte{0x05, 0x00, 0x00, 0x18},
+	AlpacaForkEpoch:      mainnetAlpacaForkEpoch,
 
 	// New values introduced in Altair hard fork 1.
 	// Participation flag indices.
@@ -315,19 +315,19 @@ func FillTestVersions(c *BeaconChainConfig, b byte) {
 	c.BellatrixForkVersion = make([]byte, fieldparams.VersionLength)
 	c.CapellaForkVersion = make([]byte, fieldparams.VersionLength)
 	c.DenebForkVersion = make([]byte, fieldparams.VersionLength)
-	c.ElectraForkVersion = make([]byte, fieldparams.VersionLength)
+	c.AlpacaForkVersion = make([]byte, fieldparams.VersionLength)
 
 	c.GenesisForkVersion[fieldparams.VersionLength-1] = b
 	c.AltairForkVersion[fieldparams.VersionLength-1] = b
 	c.BellatrixForkVersion[fieldparams.VersionLength-1] = b
 	c.CapellaForkVersion[fieldparams.VersionLength-1] = b
 	c.DenebForkVersion[fieldparams.VersionLength-1] = b
-	c.ElectraForkVersion[fieldparams.VersionLength-1] = b
+	c.AlpacaForkVersion[fieldparams.VersionLength-1] = b
 
 	c.GenesisForkVersion[0] = 0
 	c.AltairForkVersion[0] = 1
 	c.BellatrixForkVersion[0] = 2
 	c.CapellaForkVersion[0] = 3
 	c.DenebForkVersion[0] = 4
-	c.ElectraForkVersion[0] = 5
+	c.AlpacaForkVersion[0] = 5
 }

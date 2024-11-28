@@ -159,7 +159,7 @@ func sendVerifiedBlocks(stream ethpb.BeaconNodeValidator_StreamBlocksAltairServe
 			return nil
 		}
 		b.Block = &ethpb.StreamBlocksResponse_DenebBlock{DenebBlock: phBlk}
-	case version.Electra:
+	case version.Alpaca:
 		pb, err := data.SignedBlock.Proto()
 		if err != nil {
 			return errors.Wrap(err, "could not get protobuf block")

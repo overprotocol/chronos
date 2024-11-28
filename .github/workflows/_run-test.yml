@@ -1,0 +1,51 @@
+name: Run Bazel Tests
+
+on:
+  workflow_call:
+    inputs:
+      test-target:
+        required: true
+        type: string
+        description: "Bazel test target(s)"
+    secrets:
+      GCP_SERVICE_ACCOUNT:
+        required: true
+      GCP_WORKLOAD_IDENTITY_PROVIDER:
+        required: true
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    container:
+      image: overfoundation/bazel-cross:latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: "google-github-actions/auth@v2"
+        with:
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          create_credentials_file: true
+
+      - name: "Set up Cloud SDK"
+        uses: "google-github-actions/setup-gcloud@v2"
+        with:
+          version: ">= 390.0.0"
+
+      - name: Git config
+        run: |
+          git config --global --add safe.directory /__w/chronos/chronos
+
+      - name: Run tests
+        run: |
+          bazel test \
+            --config=remote-cache \
+            --config=unit-test \
+            -- \
+            ${{ inputs.test-target }}
+
+      - name: Run df -h
+        run: df -h

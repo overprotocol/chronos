@@ -39,8 +39,8 @@ func ComputeFieldRootsWithHasher(ctx context.Context, state *BeaconState) ([][]b
 		fieldRoots = make([][]byte, params.BeaconConfig().BeaconStateCapellaFieldCount)
 	case version.Deneb:
 		fieldRoots = make([][]byte, params.BeaconConfig().BeaconStateDenebFieldCount)
-	case version.Electra:
-		fieldRoots = make([][]byte, params.BeaconConfig().BeaconStateElectraFieldCount)
+	case version.Alpaca:
+		fieldRoots = make([][]byte, params.BeaconConfig().BeaconStateAlpacaFieldCount)
 	default:
 		return nil, fmt.Errorf("unknown state version %s", version.String(state.version))
 	}
@@ -247,7 +247,7 @@ func ComputeFieldRootsWithHasher(ctx context.Context, state *BeaconState) ([][]b
 		fieldRoots[types.HistoricalSummaries.RealPosition()] = historicalSummaryRoot[:]
 	}
 
-	if state.version >= version.Electra {
+	if state.version >= version.Alpaca {
 		// DepositRequestsStartIndex root.
 		drsiRoot := ssz.Uint64Root(state.depositRequestsStartIndex)
 		fieldRoots[types.DepositRequestsStartIndex.RealPosition()] = drsiRoot[:]

@@ -68,7 +68,7 @@ func (b *SignedBeaconBlock) SetProposerSlashings(p []*eth.ProposerSlashing) {
 // SetAttesterSlashings sets the attester slashings in the block.
 // This function is not thread safe, it is only used during block creation.
 func (b *SignedBeaconBlock) SetAttesterSlashings(slashings []eth.AttSlashing) error {
-	if b.version < version.Electra {
+	if b.version < version.Alpaca {
 		blockSlashings := make([]*eth.AttesterSlashing, 0, len(slashings))
 		for _, slashing := range slashings {
 			s, ok := slashing.(*eth.AttesterSlashing)
@@ -95,7 +95,7 @@ func (b *SignedBeaconBlock) SetAttesterSlashings(slashings []eth.AttSlashing) er
 // SetAttestations sets the attestations in the block.
 // This function is not thread safe, it is only used during block creation.
 func (b *SignedBeaconBlock) SetAttestations(atts []eth.Att) error {
-	if b.version < version.Electra {
+	if b.version < version.Alpaca {
 		blockAtts := make([]*eth.Attestation, 0, len(atts))
 		for _, att := range atts {
 			a, ok := att.(*eth.Attestation)
@@ -156,7 +156,7 @@ func (b *SignedBeaconBlock) SetBlobKzgCommitments(c [][]byte) error {
 
 // SetExecutionRequests sets the execution requests in the block.
 func (b *SignedBeaconBlock) SetExecutionRequests(req *enginev1.ExecutionRequests) error {
-	if b.version < version.Electra {
+	if b.version < version.Alpaca {
 		return consensus_types.ErrNotSupported("SetExecutionRequests", b.version)
 	}
 	b.block.body.executionRequests = req

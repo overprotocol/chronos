@@ -68,8 +68,8 @@ func main() {
 		fork = version.Capella
 	case bytesutil.ToBytes4(OldBeaconConfig.DenebForkVersion):
 		fork = version.Deneb
-	case bytesutil.ToBytes4(OldBeaconConfig.ElectraForkVersion):
-		fork = version.Electra
+	case bytesutil.ToBytes4(OldBeaconConfig.AlpacaForkVersion):
+		fork = version.Alpaca
 
 	default:
 		panic("unknown fork version")
@@ -262,7 +262,7 @@ func main() {
 			panic(err)
 		}
 
-	case version.Electra:
+	case version.Alpaca:
 		st := &ethpb.BeaconStateOldElectra{}
 		err = st.UnmarshalSSZ(oldSSZ)
 		if err != nil {

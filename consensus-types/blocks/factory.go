@@ -220,7 +220,7 @@ func BuildSignedBeaconBlock(blk interfaces.ReadOnlyBeaconBlock, signature []byte
 			return nil, errIncorrectBlockVersion
 		}
 		return NewSignedBeaconBlock(&eth.SignedBeaconBlockDeneb{Block: pb, Signature: signature})
-	case version.Electra:
+	case version.Alpaca:
 		if blk.IsBlinded() {
 			pb, ok := pb.(*eth.BlindedBeaconBlockElectra)
 			if !ok {
@@ -454,7 +454,7 @@ func BuildSignedBeaconBlockFromExecutionPayload(blk interfaces.ReadOnlySignedBea
 			},
 			Signature: sig[:],
 		}
-	case version.Electra:
+	case version.Alpaca:
 		p, ok := payload.(*enginev1.ExecutionPayloadElectra)
 		if !ok {
 			return nil, errors.New("payload not of Electra type")

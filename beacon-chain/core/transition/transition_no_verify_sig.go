@@ -253,7 +253,7 @@ func ProcessOperationsNoVerifyAttsSigs(
 		if err != nil {
 			return nil, err
 		}
-	} else if beaconBlock.Version() < version.Electra {
+	} else if beaconBlock.Version() < version.Alpaca {
 		state, err = altairOperations(ctx, state, beaconBlock)
 		if err != nil {
 			return nil, err

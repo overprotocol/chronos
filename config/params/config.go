@@ -122,7 +122,7 @@ type BeaconChainConfig struct {
 	MaxAttesterSlashings             uint64 `yaml:"MAX_ATTESTER_SLASHINGS" spec:"true"`        // MaxAttesterSlashings defines the maximum number of casper FFG slashings possible in a block.
 	MaxAttesterSlashingsAlpaca       uint64 `yaml:"MAX_ATTESTER_SLASHINGS_ALPACA" spec:"true"` // MaxAttesterSlashingsAlpaca defines the maximum number of casper FFG slashings possible in a block post Alpaca hard fork.
 	MaxAttestations                  uint64 `yaml:"MAX_ATTESTATIONS" spec:"true"`              // MaxAttestations defines the maximum allowed attestations in a beacon block.
-	MaxAttestationsAlpaca            uint64 `yaml:"MAX_ATTESTATIONS_ALPACA" spec:"true"`       // MaxAttestationsAlpaca defines the maximum allowed attestations in a beacon block post Electra hard fork.
+	MaxAttestationsAlpaca            uint64 `yaml:"MAX_ATTESTATIONS_ALPACA" spec:"true"`       // MaxAttestationsAlpaca defines the maximum allowed attestations in a beacon block post Alpaca hard fork.
 	MaxDeposits                      uint64 `yaml:"MAX_DEPOSITS" spec:"true"`                  // MaxDeposits defines the maximum number of validator deposits in a block.
 	MaxDepositsAlpaca                uint64 `yaml:"MAX_DEPOSITS_ALPACA" spec:"true"`           // MaxDepositsAlpaca defines the maximum number of validator deposits in a block.
 	MaxVoluntaryExits                uint64 `yaml:"MAX_VOLUNTARY_EXITS" spec:"true"`           // MaxVoluntaryExits defines the maximum number of validator exits in a block.
@@ -160,7 +160,7 @@ type BeaconChainConfig struct {
 	BeaconStateBellatrixFieldCount int             // BeaconStateBellatrixFieldCount defines how many fields are in beacon state post upgrade to Bellatrix.
 	BeaconStateCapellaFieldCount   int             // BeaconStateCapellaFieldCount defines how many fields are in beacon state post upgrade to Capella.
 	BeaconStateDenebFieldCount     int             // BeaconStateDenebFieldCount defines how many fields are in beacon state post upgrade to Deneb.
-	BeaconStateElectraFieldCount   int             // BeaconStateElectraFieldCount defines how many fields are in beacon state post upgrade to Electra.
+	BeaconStateAlpacaFieldCount    int             // BeaconStateAlpacaFieldCount defines how many fields are in beacon state post upgrade to Alpaca.
 
 	// Slasher constants.
 	WeakSubjectivityPeriod    primitives.Epoch // WeakSubjectivityPeriod defines the time period expressed in number of epochs were proof of stake network should validate block headers and attestations for slashable events.
@@ -179,8 +179,8 @@ type BeaconChainConfig struct {
 	CapellaForkEpoch     primitives.Epoch `yaml:"CAPELLA_FORK_EPOCH" spec:"true"`     // CapellaForkEpoch is used to represent the assigned fork epoch for capella.
 	DenebForkVersion     []byte           `yaml:"DENEB_FORK_VERSION" spec:"true"`     // DenebForkVersion is used to represent the fork version for deneb.
 	DenebForkEpoch       primitives.Epoch `yaml:"DENEB_FORK_EPOCH" spec:"true"`       // DenebForkEpoch is used to represent the assigned fork epoch for deneb.
-	ElectraForkVersion   []byte           `yaml:"ELECTRA_FORK_VERSION" spec:"true"`   // ElectraForkVersion is used to represent the fork version for deneb.
-	ElectraForkEpoch     primitives.Epoch `yaml:"ELECTRA_FORK_EPOCH" spec:"true"`     // ElectraForkEpoch is used to represent the assigned fork epoch for deneb.
+	AlpacaForkVersion    []byte           `yaml:"ALPACA_FORK_VERSION" spec:"true"`    // AlpacaForkVersion is used to represent the fork version for alpaca.
+	AlpacaForkEpoch      primitives.Epoch `yaml:"ALPACA_FORK_EPOCH" spec:"true"`      // AlpacaForkEpoch is used to represent the assigned fork epoch for alpaca.
 
 	ForkVersionSchedule map[[fieldparams.VersionLength]byte]primitives.Epoch // Schedule of fork epochs by version.
 	ForkVersionNames    map[[fieldparams.VersionLength]byte]string           // Human-readable names of fork versions.
@@ -236,7 +236,7 @@ type BeaconChainConfig struct {
 	MaxRequestBlobSidecars           uint64           `yaml:"MAX_REQUEST_BLOB_SIDECARS" spec:"true"`             // MaxRequestBlobSidecars is the maximum number of blobs to request in a single request.
 	MaxRequestBlocksDeneb            uint64           `yaml:"MAX_REQUEST_BLOCKS_DENEB" spec:"true"`              // MaxRequestBlocksDeneb is the maximum number of blocks in a single request after the deneb epoch.
 
-	// Values introduce in Electra upgrade
+	// Values introduce in Alpaca upgrade
 	DataColumnSidecarSubnetCount           uint64 `yaml:"DATA_COLUMN_SIDECAR_SUBNET_COUNT" spec:"true"`             // DataColumnSidecarSubnetCount is the number of data column sidecar subnets used in the gossipsub protocol
 	MinPerEpochActivationBalanceChurnLimit uint64 `yaml:"MIN_PER_EPOCH_ACTIVATION_BALANCE_CHURN_LIMIT" spec:"true"` // MinPerEpochActivationBalanceChurnLimit represents the minimum balance of activation churn.
 	MinPerEpochChurnLimitAlpaca            uint64 `yaml:"MIN_PER_EPOCH_CHURN_LIMIT_ALPACA" spec:"true"`             // MinPerEpochChurnLimitAlpaca is the minimum amount of churn allotted for validator rotations for alpaca.
@@ -292,7 +292,7 @@ func configForkSchedule(b *BeaconChainConfig) map[[fieldparams.VersionLength]byt
 	fvs[bytesutil.ToBytes4(b.BellatrixForkVersion)] = b.BellatrixForkEpoch
 	fvs[bytesutil.ToBytes4(b.CapellaForkVersion)] = b.CapellaForkEpoch
 	fvs[bytesutil.ToBytes4(b.DenebForkVersion)] = b.DenebForkEpoch
-	fvs[bytesutil.ToBytes4(b.ElectraForkVersion)] = b.ElectraForkEpoch
+	fvs[bytesutil.ToBytes4(b.AlpacaForkVersion)] = b.AlpacaForkEpoch
 	return fvs
 }
 
@@ -314,7 +314,7 @@ func ConfigForkVersions(b *BeaconChainConfig) map[[fieldparams.VersionLength]byt
 		bytesutil.ToBytes4(b.BellatrixForkVersion): version.Bellatrix,
 		bytesutil.ToBytes4(b.CapellaForkVersion):   version.Capella,
 		bytesutil.ToBytes4(b.DenebForkVersion):     version.Deneb,
-		bytesutil.ToBytes4(b.ElectraForkVersion):   version.Electra,
+		bytesutil.ToBytes4(b.AlpacaForkVersion):    version.Alpaca,
 	}
 }
 
@@ -358,8 +358,8 @@ func (b *BeaconChainConfig) InitializeDolphinDepositPlan() {
 
 // InitializeInactivityValues initializes INACTIVITY_SCORE_PENALTY_THRESHOLD and INACTIVITY_LEAK_BAILOUT_SCORE_THRESHOLD.
 func (b *BeaconChainConfig) InitializeInactivityValues() {
-	b.InactivityScorePenaltyThreshold = 225 * b.InactivityScoreBias
-	b.InactivityLeakBailoutScoreThreshold = b.InactivityScorePenaltyThreshold + (b.InactivityPenaltyDuration * b.InactivityScoreBias) // 2*1575 +
+	b.InactivityScorePenaltyThreshold = 225 * b.InactivityScoreBias                                                                   // 900
+	b.InactivityLeakBailoutScoreThreshold = b.InactivityScorePenaltyThreshold + (b.InactivityPenaltyDuration * b.InactivityScoreBias) // 900 + (1575 * 4) = 900 + 6300 = 7200
 }
 
 // TtfbTimeoutDuration returns the time duration of the timeout.

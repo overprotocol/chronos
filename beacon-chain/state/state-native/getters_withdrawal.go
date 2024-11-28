@@ -115,7 +115,7 @@ func (b *BeaconState) ExpectedWithdrawals() ([]*enginev1.Withdrawal, uint64, uin
 
 	// Electra partial withdrawals functionality.
 	var partialWithdrawalsCount uint64
-	if b.version >= version.Electra {
+	if b.version >= version.Alpaca {
 		for _, w := range b.pendingPartialWithdrawals {
 			if w.WithdrawableEpoch > epoch || len(withdrawals) >= int(params.BeaconConfig().MaxPendingPartialsPerWithdrawalsSweep) {
 				break
@@ -188,7 +188,7 @@ func (b *BeaconState) ExpectedWithdrawals() ([]*enginev1.Withdrawal, uint64, uin
 }
 
 func (b *BeaconState) PendingPartialWithdrawals() ([]*ethpb.PendingPartialWithdrawal, error) {
-	if b.version < version.Electra {
+	if b.version < version.Alpaca {
 		return nil, errNotSupported("PendingPartialWithdrawals", b.version)
 	}
 	b.lock.RLock()
@@ -201,7 +201,7 @@ func (b *BeaconState) pendingPartialWithdrawalsVal() []*ethpb.PendingPartialWith
 }
 
 func (b *BeaconState) NumPendingPartialWithdrawals() (uint64, error) {
-	if b.version < version.Electra {
+	if b.version < version.Alpaca {
 		return 0, errNotSupported("NumPendingPartialWithdrawals", b.version)
 	}
 	return uint64(len(b.pendingPartialWithdrawals)), nil

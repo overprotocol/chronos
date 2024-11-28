@@ -72,7 +72,7 @@ func InitiateValidatorExit(ctx context.Context, s state.BeaconState, idx primiti
 	}
 
 	// Compute exit queue epoch.
-	if s.Version() < version.Electra {
+	if s.Version() < version.Alpaca {
 		// Relevant spec code from deneb:
 		//
 		//	exit_epochs = [v.exit_epoch for v in state.validators if v.exit_epoch != FAR_FUTURE_EPOCH]

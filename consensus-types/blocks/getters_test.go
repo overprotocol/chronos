@@ -371,7 +371,7 @@ func Test_BeaconBlockBody_Attestations(t *testing.T) {
 func Test_BeaconBlockBody_ElectraAttestations(t *testing.T) {
 	bb := &SignedBeaconBlock{
 		block: &BeaconBlock{body: &BeaconBlockBody{
-			version: version.Electra,
+			version: version.Alpaca,
 			attestationsElectra: []*eth.AttestationElectra{{
 				Signature: []byte("electra"),
 			}},

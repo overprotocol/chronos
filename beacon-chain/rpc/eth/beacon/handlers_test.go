@@ -292,7 +292,7 @@ func TestGetBlockV2(t *testing.T) {
 		require.Equal(t, http.StatusOK, writer.Code)
 		resp := &structs.GetBlockV2Response{}
 		require.NoError(t, json.Unmarshal(writer.Body.Bytes(), resp))
-		assert.Equal(t, version.String(version.Electra), resp.Version)
+		assert.Equal(t, version.String(version.Alpaca), resp.Version)
 		sbb := &structs.SignedBeaconBlockElectra{Message: &structs.BeaconBlockElectra{}}
 		require.NoError(t, json.Unmarshal(resp.Data.Message, sbb.Message))
 		sbb.Signature = resp.Data.Signature
@@ -511,7 +511,7 @@ func TestGetBlockSSZV2(t *testing.T) {
 
 		s.GetBlockV2(writer, request)
 		require.Equal(t, http.StatusOK, writer.Code)
-		assert.Equal(t, version.String(version.Electra), writer.Header().Get(api.VersionHeader))
+		assert.Equal(t, version.String(version.Alpaca), writer.Header().Get(api.VersionHeader))
 		sszExpected, err := b.MarshalSSZ()
 		require.NoError(t, err)
 		assert.DeepEqual(t, sszExpected, writer.Body.Bytes())
@@ -710,7 +710,7 @@ func TestGetBlockAttestations(t *testing.T) {
 	})
 
 	t.Run("V2", func(t *testing.T) {
-		t.Run("ok-pre-electra", func(t *testing.T) {
+		t.Run("ok-pre-alpaca", func(t *testing.T) {
 			mockChainService := &chainMock.ChainService{
 				FinalizedRoots: map[[32]byte]bool{},
 			}
@@ -744,7 +744,7 @@ func TestGetBlockAttestations(t *testing.T) {
 			assert.DeepEqual(t, b.Block.Body.Attestations, atts)
 			assert.Equal(t, "phase0", resp.Version)
 		})
-		t.Run("ok-post-electra", func(t *testing.T) {
+		t.Run("ok-post-alpaca", func(t *testing.T) {
 			mockChainService := &chainMock.ChainService{
 				FinalizedRoots: map[[32]byte]bool{},
 			}
@@ -779,7 +779,7 @@ func TestGetBlockAttestations(t *testing.T) {
 			}
 
 			assert.DeepEqual(t, eb.Block.Body.Attestations, atts)
-			assert.Equal(t, "electra", resp.Version)
+			assert.Equal(t, "alpaca", resp.Version)
 		})
 		t.Run("execution-optimistic", func(t *testing.T) {
 			r, err := bsb.Block().HashTreeRoot()
@@ -1025,7 +1025,7 @@ func TestGetBlindedBlock(t *testing.T) {
 		require.Equal(t, http.StatusOK, writer.Code)
 		resp := &structs.GetBlockV2Response{}
 		require.NoError(t, json.Unmarshal(writer.Body.Bytes(), resp))
-		assert.Equal(t, version.String(version.Electra), resp.Version)
+		assert.Equal(t, version.String(version.Alpaca), resp.Version)
 		sbb := &structs.SignedBlindedBeaconBlockElectra{Message: &structs.BlindedBeaconBlockElectra{}}
 		require.NoError(t, json.Unmarshal(resp.Data.Message, sbb.Message))
 		sbb.Signature = resp.Data.Signature
@@ -1379,7 +1379,7 @@ func TestPublishBlock(t *testing.T) {
 			SyncChecker:             &mockSync.Sync{IsSyncing: false},
 		}
 		request := httptest.NewRequest(http.MethodPost, "http://foo.example", bytes.NewReader([]byte(rpctesting.ElectraBlockContents)))
-		request.Header.Set(api.VersionHeader, version.String(version.Electra))
+		request.Header.Set(api.VersionHeader, version.String(version.Alpaca))
 		writer := httptest.NewRecorder()
 		writer.Body = &bytes.Buffer{}
 		server.PublishBlock(writer, request)
@@ -1588,7 +1588,7 @@ func TestPublishBlockSSZ(t *testing.T) {
 		require.NoError(t, err)
 		request := httptest.NewRequest(http.MethodPost, "http://foo.example", bytes.NewReader(ssz))
 		request.Header.Set("Content-Type", api.OctetStreamMediaType)
-		request.Header.Set(api.VersionHeader, version.String(version.Electra))
+		request.Header.Set(api.VersionHeader, version.String(version.Alpaca))
 		writer := httptest.NewRecorder()
 		writer.Body = &bytes.Buffer{}
 		server.PublishBlock(writer, request)
@@ -1791,7 +1791,7 @@ func TestPublishBlindedBlock(t *testing.T) {
 		}
 
 		request := httptest.NewRequest(http.MethodPost, "http://foo.example", bytes.NewReader([]byte(rpctesting.BlindedElectraBlock)))
-		request.Header.Set(api.VersionHeader, version.String(version.Electra))
+		request.Header.Set(api.VersionHeader, version.String(version.Alpaca))
 		writer := httptest.NewRecorder()
 		writer.Body = &bytes.Buffer{}
 		server.PublishBlindedBlock(writer, request)
@@ -2001,7 +2001,7 @@ func TestPublishBlindedBlockSSZ(t *testing.T) {
 		require.NoError(t, err)
 		request := httptest.NewRequest(http.MethodPost, "http://foo.example", bytes.NewReader(ssz))
 		request.Header.Set("Content-Type", api.OctetStreamMediaType)
-		request.Header.Set(api.VersionHeader, version.String(version.Electra))
+		request.Header.Set(api.VersionHeader, version.String(version.Alpaca))
 		writer := httptest.NewRecorder()
 		writer.Body = &bytes.Buffer{}
 		server.PublishBlindedBlock(writer, request)
@@ -2196,7 +2196,7 @@ func TestPublishBlockV2(t *testing.T) {
 		}
 
 		request := httptest.NewRequest(http.MethodPost, "http://foo.example", bytes.NewReader([]byte(rpctesting.ElectraBlockContents)))
-		request.Header.Set(api.VersionHeader, version.String(version.Electra))
+		request.Header.Set(api.VersionHeader, version.String(version.Alpaca))
 		writer := httptest.NewRecorder()
 		writer.Body = &bytes.Buffer{}
 		server.PublishBlockV2(writer, request)
@@ -2418,7 +2418,7 @@ func TestPublishBlockV2SSZ(t *testing.T) {
 		require.NoError(t, err)
 		request := httptest.NewRequest(http.MethodPost, "http://foo.example", bytes.NewReader(ssz))
 		request.Header.Set("Content-Type", api.OctetStreamMediaType)
-		request.Header.Set(api.VersionHeader, version.String(version.Electra))
+		request.Header.Set(api.VersionHeader, version.String(version.Alpaca))
 		writer := httptest.NewRecorder()
 		writer.Body = &bytes.Buffer{}
 		server.PublishBlockV2(writer, request)
@@ -2634,7 +2634,7 @@ func TestPublishBlindedBlockV2(t *testing.T) {
 		}
 
 		request := httptest.NewRequest(http.MethodPost, "http://foo.example", bytes.NewReader([]byte(rpctesting.BlindedElectraBlock)))
-		request.Header.Set(api.VersionHeader, version.String(version.Electra))
+		request.Header.Set(api.VersionHeader, version.String(version.Alpaca))
 		writer := httptest.NewRecorder()
 		writer.Body = &bytes.Buffer{}
 		server.PublishBlindedBlockV2(writer, request)
@@ -2856,7 +2856,7 @@ func TestPublishBlindedBlockV2SSZ(t *testing.T) {
 		require.NoError(t, err)
 		request := httptest.NewRequest(http.MethodPost, "http://foo.example", bytes.NewReader(ssz))
 		request.Header.Set("Content-Type", api.OctetStreamMediaType)
-		request.Header.Set(api.VersionHeader, version.String(version.Electra))
+		request.Header.Set(api.VersionHeader, version.String(version.Alpaca))
 		writer := httptest.NewRecorder()
 		writer.Body = &bytes.Buffer{}
 		server.PublishBlindedBlock(writer, request)

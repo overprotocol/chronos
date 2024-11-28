@@ -50,7 +50,7 @@ func NewId(att ethpb.Att, source IdSource) (Id, error) {
 			return Id{}, err
 		}
 		h := dataHash
-		if att.Version() >= version.Electra {
+		if att.Version() >= version.Alpaca {
 			committeeIndices := att.CommitteeBitsVal().BitIndices()
 			if len(committeeIndices) == 0 {
 				return Id{}, errors.New("no committee bits are set")

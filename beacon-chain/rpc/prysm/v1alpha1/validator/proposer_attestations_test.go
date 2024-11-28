@@ -650,10 +650,10 @@ func Test_packAttestations(t *testing.T) {
 		require.Equal(t, 1, len(atts))
 		assert.DeepEqual(t, phase0Att, atts[0])
 	})
-	t.Run("Electra", func(t *testing.T) {
+	t.Run("Alpaca", func(t *testing.T) {
 		params.SetupTestConfigCleanup(t)
 		cfg := params.BeaconConfig().Copy()
-		cfg.ElectraForkEpoch = 1
+		cfg.AlpacaForkEpoch = 1
 		params.OverrideBeaconConfig(cfg)
 
 		st, _ := util.DeterministicGenesisStateElectra(t, 64)
@@ -664,10 +664,10 @@ func Test_packAttestations(t *testing.T) {
 		require.Equal(t, 1, len(atts))
 		assert.DeepEqual(t, electraAtt, atts[0])
 	})
-	t.Run("Electra block with Deneb state", func(t *testing.T) {
+	t.Run("Alpaca block with Deneb state", func(t *testing.T) {
 		params.SetupTestConfigCleanup(t)
 		cfg := params.BeaconConfig().Copy()
-		cfg.ElectraForkEpoch = 1
+		cfg.AlpacaForkEpoch = 1
 		params.OverrideBeaconConfig(cfg)
 
 		st, _ := util.DeterministicGenesisStateDeneb(t, 64)

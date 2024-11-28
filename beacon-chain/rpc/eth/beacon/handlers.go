@@ -236,7 +236,7 @@ func (s *Server) GetBlockAttestationsV2(w http.ResponseWriter, r *http.Request) 
 
 	v := blk.Block().Version()
 	var attStructs []interface{}
-	if v >= version.Electra {
+	if v >= version.Alpaca {
 		for _, att := range consensusAtts {
 			a, ok := att.(*eth.AttestationElectra)
 			if !ok {
@@ -352,7 +352,7 @@ func (s *Server) publishBlindedBlockSSZ(ctx context.Context, w http.ResponseWrit
 		httputil.HandleError(w, api.VersionHeader+" header is required", http.StatusBadRequest)
 	}
 	switch versionHeader {
-	case version.String(version.Electra):
+	case version.String(version.Alpaca):
 		electraBlock := &eth.SignedBlindedBeaconBlockElectra{}
 		if err = electraBlock.UnmarshalSSZ(body); err == nil {
 			genericBlock := &eth.GenericSignedBeaconBlock{
@@ -467,7 +467,7 @@ func (s *Server) publishBlindedBlock(ctx context.Context, w http.ResponseWriter,
 	var consensusBlock *eth.GenericSignedBeaconBlock
 
 	switch versionHeader {
-	case version.String(version.Electra):
+	case version.String(version.Alpaca):
 		var electraBlock *structs.SignedBlindedBeaconBlockElectra
 		if err = unmarshalStrict(body, &electraBlock); err == nil {
 			consensusBlock, err = electraBlock.ToGeneric()
@@ -611,7 +611,7 @@ func (s *Server) publishBlockSSZ(ctx context.Context, w http.ResponseWriter, r *
 		return
 	}
 	switch versionHeader {
-	case version.String(version.Electra):
+	case version.String(version.Alpaca):
 		electraBlock := &eth.SignedBeaconBlockContentsElectra{}
 		if err = electraBlock.UnmarshalSSZ(body); err == nil {
 			genericBlock := &eth.GenericSignedBeaconBlock{
@@ -747,7 +747,7 @@ func (s *Server) publishBlock(ctx context.Context, w http.ResponseWriter, r *htt
 	var consensusBlock *eth.GenericSignedBeaconBlock
 
 	switch versionHeader {
-	case version.String(version.Electra):
+	case version.String(version.Alpaca):
 		var electraBlockContents *structs.SignedBeaconBlockContentsElectra
 		if err = unmarshalStrict(body, &electraBlockContents); err == nil {
 			consensusBlock, err = electraBlockContents.ToGeneric()

@@ -164,7 +164,7 @@ func (b *BeaconState) ToProtoUnsafe() interface{} {
 			NextWithdrawalValidatorIndex: b.nextWithdrawalValidatorIndex,
 			HistoricalSummaries:          b.historicalSummaries,
 		}
-	case version.Electra:
+	case version.Alpaca:
 		return &ethpb.BeaconStateElectra{
 			GenesisTime:                  b.genesisTime,
 			GenesisValidatorsRoot:        gvrCopy[:],
@@ -357,7 +357,7 @@ func (b *BeaconState) ToProto() interface{} {
 			NextWithdrawalValidatorIndex: b.nextWithdrawalValidatorIndex,
 			HistoricalSummaries:          b.historicalSummariesVal(),
 		}
-	case version.Electra:
+	case version.Alpaca:
 		return &ethpb.BeaconStateElectra{
 			GenesisTime:                  b.genesisTime,
 			GenesisValidatorsRoot:        gvrCopy[:],

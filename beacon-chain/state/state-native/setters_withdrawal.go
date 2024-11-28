@@ -43,7 +43,7 @@ func (b *BeaconState) SetNextWithdrawalValidatorIndex(i primitives.ValidatorInde
 // value to the end of the pending partial withdrawals slice in the state. This method requires
 // access to the Lock on the state and only applies in electra or later.
 func (b *BeaconState) AppendPendingPartialWithdrawal(ppw *eth.PendingPartialWithdrawal) error {
-	if b.version < version.Electra {
+	if b.version < version.Alpaca {
 		return errNotSupported("AppendPendingPartialWithdrawal", b.version)
 	}
 
@@ -66,7 +66,7 @@ func (b *BeaconState) AppendPendingPartialWithdrawal(ppw *eth.PendingPartialWith
 
 // DequeuePartialWithdrawals removes the partial withdrawals from the beginning of the partial withdrawals list.
 func (b *BeaconState) DequeuePartialWithdrawals(n uint64) error {
-	if b.version < version.Electra {
+	if b.version < version.Alpaca {
 		return errNotSupported("DequeuePartialWithdrawals", b.version)
 	}
 

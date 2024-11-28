@@ -676,7 +676,7 @@ func TestGetAttesterSlashings(t *testing.T) {
 		require.DeepEqual(t, slashing1PreElectra, ss[0])
 		require.DeepEqual(t, slashing2PreElectra, ss[1])
 	})
-	t.Run("V2-post-electra", func(t *testing.T) {
+	t.Run("V2-post-alpaca", func(t *testing.T) {
 		bs, err := util.NewBeaconStateElectra()
 		require.NoError(t, err)
 
@@ -695,7 +695,7 @@ func TestGetAttesterSlashings(t *testing.T) {
 		require.NoError(t, json.Unmarshal(writer.Body.Bytes(), resp))
 		require.NotNil(t, resp)
 		require.NotNil(t, resp.Data)
-		assert.Equal(t, "electra", resp.Version)
+		assert.Equal(t, "alpaca", resp.Version)
 
 		// Unmarshal resp.Data into a slice of slashings
 		var slashings []*structs.AttesterSlashingElectra
@@ -707,7 +707,7 @@ func TestGetAttesterSlashings(t *testing.T) {
 		require.DeepEqual(t, slashing1PostElectra, ss[0])
 		require.DeepEqual(t, slashing2PostElectra, ss[1])
 	})
-	t.Run("V2-pre-electra", func(t *testing.T) {
+	t.Run("V2-pre-alpaca", func(t *testing.T) {
 		bs, err := util.NewBeaconState()
 		require.NoError(t, err)
 
@@ -1043,7 +1043,7 @@ func TestSubmitAttesterSlashings(t *testing.T) {
 			_, err = body.Write(b)
 			require.NoError(t, err)
 			request := httptest.NewRequest(http.MethodPost, "http://example.com/beacon/pool/attester_electras", &body)
-			request.Header.Set(api.VersionHeader, version.String(version.Electra))
+			request.Header.Set(api.VersionHeader, version.String(version.Alpaca))
 			writer := httptest.NewRecorder()
 			writer.Body = &bytes.Buffer{}
 
@@ -1107,7 +1107,7 @@ func TestSubmitAttesterSlashings(t *testing.T) {
 			_, err = body.Write(b)
 			require.NoError(t, err)
 			request := httptest.NewRequest(http.MethodPost, "http://example.com/beacon/pool/attester_slashings", &body)
-			request.Header.Set(api.VersionHeader, version.String(version.Electra))
+			request.Header.Set(api.VersionHeader, version.String(version.Alpaca))
 			writer := httptest.NewRecorder()
 			writer.Body = &bytes.Buffer{}
 
@@ -1137,7 +1137,7 @@ func TestSubmitAttesterSlashings(t *testing.T) {
 		_, err = body.WriteString(invalidAttesterSlashing)
 		require.NoError(t, err)
 		request := httptest.NewRequest(http.MethodPost, "http://example.com/beacon/pool/attester_slashings", &body)
-		request.Header.Set(api.VersionHeader, version.String(version.Electra))
+		request.Header.Set(api.VersionHeader, version.String(version.Alpaca))
 		writer := httptest.NewRecorder()
 		writer.Body = &bytes.Buffer{}
 

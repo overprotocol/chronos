@@ -129,7 +129,7 @@ func (b *SignedBeaconBlock) Proto() (proto.Message, error) { // nolint:gocognit
 			Block:     block,
 			Signature: b.signature[:],
 		}, nil
-	case version.Electra:
+	case version.Alpaca:
 		if b.IsBlinded() {
 			var block *eth.BlindedBeaconBlockElectra
 			if blockMessage != nil {
@@ -304,7 +304,7 @@ func (b *BeaconBlock) Proto() (proto.Message, error) { // nolint:gocognit
 			StateRoot:     b.stateRoot[:],
 			Body:          body,
 		}, nil
-	case version.Electra:
+	case version.Alpaca:
 		if b.IsBlinded() {
 			var body *eth.BlindedBeaconBlockBodyElectra
 			if bodyMessage != nil {
@@ -497,7 +497,7 @@ func (b *BeaconBlockBody) Proto() (proto.Message, error) {
 			ExecutionPayload:   p,
 			BlobKzgCommitments: b.blobKzgCommitments,
 		}, nil
-	case version.Electra:
+	case version.Alpaca:
 		if b.IsBlinded() {
 			var ph *enginev1.ExecutionPayloadHeaderElectra
 			var ok bool
@@ -643,7 +643,7 @@ func initSignedBlockFromProtoElectra(pb *eth.SignedBeaconBlockElectra) (*SignedB
 		return nil, err
 	}
 	b := &SignedBeaconBlock{
-		version:   version.Electra,
+		version:   version.Alpaca,
 		block:     block,
 		signature: bytesutil.ToBytes96(pb.Signature),
 	}
@@ -711,7 +711,7 @@ func initBlindedSignedBlockFromProtoElectra(pb *eth.SignedBlindedBeaconBlockElec
 		return nil, err
 	}
 	b := &SignedBeaconBlock{
-		version:   version.Electra,
+		version:   version.Alpaca,
 		block:     block,
 		signature: bytesutil.ToBytes96(pb.Signature),
 	}
@@ -848,7 +848,7 @@ func initBlockFromProtoElectra(pb *eth.BeaconBlockElectra) (*BeaconBlock, error)
 		return nil, err
 	}
 	b := &BeaconBlock{
-		version:       version.Electra,
+		version:       version.Alpaca,
 		slot:          pb.Slot,
 		proposerIndex: pb.ProposerIndex,
 		parentRoot:    bytesutil.ToBytes32(pb.ParentRoot),
@@ -908,7 +908,7 @@ func initBlindedBlockFromProtoElectra(pb *eth.BlindedBeaconBlockElectra) (*Beaco
 		return nil, err
 	}
 	b := &BeaconBlock{
-		version:       version.Electra,
+		version:       version.Alpaca,
 		slot:          pb.Slot,
 		proposerIndex: pb.ProposerIndex,
 		parentRoot:    bytesutil.ToBytes32(pb.ParentRoot),
@@ -1123,7 +1123,7 @@ func initBlockBodyFromProtoElectra(pb *eth.BeaconBlockBodyElectra) (*BeaconBlock
 		er = &enginev1.ExecutionRequests{}
 	}
 	b := &BeaconBlockBody{
-		version:                  version.Electra,
+		version:                  version.Alpaca,
 		randaoReveal:             bytesutil.ToBytes96(pb.RandaoReveal),
 		eth1Data:                 pb.Eth1Data,
 		graffiti:                 bytesutil.ToBytes32(pb.Graffiti),
@@ -1154,7 +1154,7 @@ func initBlindedBlockBodyFromProtoElectra(pb *eth.BlindedBeaconBlockBodyElectra)
 		er = &enginev1.ExecutionRequests{}
 	}
 	b := &BeaconBlockBody{
-		version:                  version.Electra,
+		version:                  version.Alpaca,
 		randaoReveal:             bytesutil.ToBytes96(pb.RandaoReveal),
 		eth1Data:                 pb.Eth1Data,
 		graffiti:                 bytesutil.ToBytes32(pb.Graffiti),

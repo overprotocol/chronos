@@ -631,7 +631,7 @@ func TestAttestationRewards(t *testing.T) {
 func TestAttestationRewards_Electra(t *testing.T) {
 	params.SetupTestConfigCleanup(t)
 	cfg := params.BeaconConfig()
-	cfg.ElectraForkEpoch = 1
+	cfg.AlpacaForkEpoch = 1
 	params.OverrideBeaconConfig(cfg)
 	helpers.ClearCache()
 
