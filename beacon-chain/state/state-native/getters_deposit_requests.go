@@ -6,7 +6,7 @@ import (
 
 // DepositRequestsStartIndex is used for returning the deposit receipts start index which is used for eip6110
 func (b *BeaconState) DepositRequestsStartIndex() (uint64, error) {
-	if b.version < version.Electra {
+	if b.version < version.Alpaca {
 		return 0, errNotSupported("DepositRequestsStartIndex", b.version)
 	}
 	b.lock.RLock()

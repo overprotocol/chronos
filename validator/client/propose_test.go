@@ -650,8 +650,8 @@ func testProposeBlock(t *testing.T, graffiti []byte) {
 			},
 		},
 		{
-			name:    "electra block",
-			version: version.Electra,
+			name:    "alpaca block",
+			version: version.Alpaca,
 			block: &ethpb.GenericBeaconBlock{
 				Block: &ethpb.GenericBeaconBlock_Electra{
 					Electra: func() *ethpb.BeaconBlockContentsElectra {

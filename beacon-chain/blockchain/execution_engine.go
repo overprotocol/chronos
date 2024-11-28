@@ -227,7 +227,7 @@ func (s *Service) notifyNewPayload(ctx context.Context, preStateVersion int,
 		prh := common.Hash(blk.Block().ParentRoot())
 		parentRoot = &prh
 	}
-	if blk.Version() >= version.Electra {
+	if blk.Version() >= version.Alpaca {
 		requests, err = blk.Block().Body().ExecutionRequests()
 		if err != nil {
 			return false, errors.Wrap(err, "could not get execution requests")
@@ -328,7 +328,7 @@ func (s *Service) getPayloadAttribute(ctx context.Context, st state.BeaconState,
 
 	var attr payloadattribute.Attributer
 	switch st.Version() {
-	case version.Deneb, version.Electra:
+	case version.Deneb, version.Alpaca:
 		withdrawals, _, _, err := st.ExpectedWithdrawals()
 		if err != nil {
 			log.WithError(err).Error("Could not get expected withdrawals to get payload attribute")

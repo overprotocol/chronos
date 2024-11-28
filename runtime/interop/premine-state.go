@@ -66,7 +66,7 @@ func NewPreminedGenesis(ctx context.Context, t, nvals, pCreds uint64, version in
 
 func (s *PremineGenesisConfig) prepare(ctx context.Context) (state.BeaconState, error) {
 	switch s.Version {
-	case version.Phase0, version.Altair, version.Bellatrix, version.Capella, version.Deneb, version.Electra:
+	case version.Phase0, version.Altair, version.Bellatrix, version.Capella, version.Deneb, version.Alpaca:
 	default:
 		return nil, errors.Wrapf(errUnsupportedVersion, "version=%s", version.String(s.Version))
 	}
@@ -155,7 +155,7 @@ func (s *PremineGenesisConfig) empty() (state.BeaconState, error) {
 		if err != nil {
 			return nil, err
 		}
-	case version.Electra:
+	case version.Alpaca:
 		e, err = state_native.InitializeFromProtoElectra(&ethpb.BeaconStateElectra{})
 		if err != nil {
 			return nil, err
@@ -338,8 +338,8 @@ func (s *PremineGenesisConfig) setFork(g state.BeaconState) error {
 		pv, cv = params.BeaconConfig().BellatrixForkVersion, params.BeaconConfig().CapellaForkVersion
 	case version.Deneb:
 		pv, cv = params.BeaconConfig().CapellaForkVersion, params.BeaconConfig().DenebForkVersion
-	case version.Electra:
-		pv, cv = params.BeaconConfig().ElectraForkVersion, params.BeaconConfig().ElectraForkVersion
+	case version.Alpaca:
+		pv, cv = params.BeaconConfig().AlpacaForkVersion, params.BeaconConfig().AlpacaForkVersion
 	default:
 		return errUnsupportedVersion
 	}
@@ -498,7 +498,7 @@ func (s *PremineGenesisConfig) setLatestBlockHeader(g state.BeaconState) error {
 			BlsToExecutionChanges: make([]*ethpb.SignedBLSToExecutionChange, 0),
 			BlobKzgCommitments:    make([][]byte, 0),
 		}
-	case version.Electra:
+	case version.Alpaca:
 		body = &ethpb.BeaconBlockBodyElectra{
 			RandaoReveal: make([]byte, 96),
 			Eth1Data: &ethpb.Eth1Data{
@@ -642,7 +642,7 @@ func (s *PremineGenesisConfig) setExecutionPayload(g state.BeaconState) error {
 		if err != nil {
 			return err
 		}
-	case version.Electra:
+	case version.Alpaca:
 		payload := &enginev1.ExecutionPayloadElectra{
 			ParentHash:    gb.ParentHash().Bytes(),
 			FeeRecipient:  gb.Coinbase().Bytes(),

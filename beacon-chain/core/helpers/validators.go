@@ -395,7 +395,7 @@ func ComputeProposerIndex(bState state.ReadOnlyBeaconState, activeIndices []prim
 		effectiveBal := v.EffectiveBalance()
 
 		maxEB := params.BeaconConfig().MaxEffectiveBalance
-		if bState.Version() >= version.Electra {
+		if bState.Version() >= version.Alpaca {
 			maxEB = params.BeaconConfig().MaxEffectiveBalanceAlpaca
 		}
 
@@ -419,7 +419,7 @@ func ComputeProposerIndex(bState state.ReadOnlyBeaconState, activeIndices []prim
 //	        and validator.effective_balance >= MIN_ACTIVATION_BALANCE  # [Modified in Electra:EIP7251]
 //	    )
 func IsEligibleForActivationQueue(validator state.ReadOnlyValidator, currentEpoch primitives.Epoch) bool {
-	if currentEpoch >= params.BeaconConfig().ElectraForkEpoch {
+	if currentEpoch >= params.BeaconConfig().AlpacaForkEpoch {
 		return isEligibleForActivationQueueElectra(validator.ActivationEligibilityEpoch(), validator.EffectiveBalance())
 	}
 	return isEligibleForActivationQueue(validator.ActivationEligibilityEpoch(), validator.EffectiveBalance())

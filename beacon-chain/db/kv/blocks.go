@@ -852,7 +852,7 @@ func encodeBlock(blk interfaces.ReadOnlySignedBeaconBlock) ([]byte, error) {
 
 func keyForBlock(blk interfaces.ReadOnlySignedBeaconBlock) ([]byte, error) {
 	switch blk.Version() {
-	case version.Electra:
+	case version.Alpaca:
 		if blk.IsBlinded() {
 			return electraBlindKey, nil
 		}

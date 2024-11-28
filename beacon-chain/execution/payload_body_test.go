@@ -73,7 +73,7 @@ func denebSlot(t *testing.T) primitives.Slot {
 }
 
 func electraSlot(t *testing.T) primitives.Slot {
-	s, err := slots.EpochStart(params.BeaconConfig().ElectraForkEpoch)
+	s, err := slots.EpochStart(params.BeaconConfig().AlpacaForkEpoch)
 	require.NoError(t, err)
 	return s
 }

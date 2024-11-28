@@ -178,7 +178,7 @@ func (a *PendingAttestation) GetCommitteeIndex() (primitives.CommitteeIndex, err
 
 // Version --
 func (a *AttestationElectra) Version() int {
-	return version.Electra
+	return version.Alpaca
 }
 
 // Clone --
@@ -229,7 +229,7 @@ func (a *IndexedAttestation) Version() int {
 
 // Version --
 func (a *IndexedAttestationElectra) Version() int {
-	return version.Electra
+	return version.Alpaca
 }
 
 // Copy --
@@ -281,7 +281,7 @@ func (a *AttesterSlashing) SecondAttestation() IndexedAtt {
 
 // Version --
 func (a *AttesterSlashingElectra) Version() int {
-	return version.Electra
+	return version.Alpaca
 }
 
 // FirstAttestation --
@@ -327,7 +327,7 @@ func (a *AggregateAttestationAndProof) AggregateVal() Att {
 
 // Version --
 func (a *AggregateAttestationAndProofElectra) Version() int {
-	return version.Electra
+	return version.Alpaca
 }
 
 // AggregateVal --
@@ -347,7 +347,7 @@ func (a *SignedAggregateAttestationAndProof) AggregateAttestationAndProof() Aggr
 
 // Version --
 func (a *SignedAggregateAttestationAndProofElectra) Version() int {
-	return version.Electra
+	return version.Alpaca
 }
 
 // AggregateAttestationAndProof --

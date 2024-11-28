@@ -157,7 +157,7 @@ func topLevelRoots(body interfaces.ReadOnlyBeaconBlockBody) ([][]byte, error) {
 	// Attester slashings
 	as := body.AttesterSlashings()
 	bodyVersion := body.Version()
-	if bodyVersion < version.Electra {
+	if bodyVersion < version.Alpaca {
 		root, err = ssz.MerkleizeListSSZ(as, params.BeaconConfig().MaxAttesterSlashings)
 	} else {
 		root, err = ssz.MerkleizeListSSZ(as, params.BeaconConfig().MaxAttesterSlashingsAlpaca)
@@ -169,7 +169,7 @@ func topLevelRoots(body interfaces.ReadOnlyBeaconBlockBody) ([][]byte, error) {
 
 	// Attestations
 	att := body.Attestations()
-	if bodyVersion < version.Electra {
+	if bodyVersion < version.Alpaca {
 		root, err = ssz.MerkleizeListSSZ(att, params.BeaconConfig().MaxAttestations)
 	} else {
 		root, err = ssz.MerkleizeListSSZ(att, params.BeaconConfig().MaxAttestationsAlpaca)
@@ -220,7 +220,7 @@ func topLevelRoots(body interfaces.ReadOnlyBeaconBlockBody) ([][]byte, error) {
 	// KZG commitments is not needed. skip index 10
 
 	// Execution requests
-	if body.Version() >= version.Electra {
+	if body.Version() >= version.Alpaca {
 		er, err := body.ExecutionRequests()
 		if err != nil {
 			return nil, err

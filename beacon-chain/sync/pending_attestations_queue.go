@@ -211,7 +211,7 @@ func attsAreEqual(a, b ethpb.SignedAggregateAttAndProof) bool {
 		return false
 	}
 
-	if a.Version() >= version.Electra {
+	if a.Version() >= version.Alpaca {
 		if !bytes.Equal(aAggregate.CommitteeBitsVal().Bytes(), bAggregate.CommitteeBitsVal().Bytes()) {
 			return false
 		}

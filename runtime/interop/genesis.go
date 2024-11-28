@@ -107,12 +107,12 @@ func GethCancunTime(genesisTime uint64, cfg *clparams.BeaconChainConfig) *uint64
 	return cancunTime
 }
 
-// GethPragueTime calculates the absolute time of the prague (aka electra) fork block
+// GethPragueTime calculates the absolute time of the prague (aka alpaca) fork block
 // by adding the relative time of the capella the fork epoch to the given genesis timestamp.
 func GethPragueTime(genesisTime uint64, cfg *clparams.BeaconChainConfig) *uint64 {
 	var pragueTime *uint64
-	if cfg.ElectraForkEpoch != math.MaxUint64 {
-		startSlot, err := slots.EpochStart(cfg.ElectraForkEpoch)
+	if cfg.AlpacaForkEpoch != math.MaxUint64 {
+		startSlot, err := slots.EpochStart(cfg.AlpacaForkEpoch)
 		if err == nil {
 			startTime := slots.StartTime(genesisTime, startSlot)
 			newTime := uint64(startTime.Unix())

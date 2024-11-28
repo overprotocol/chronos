@@ -547,14 +547,14 @@ func TestServer_GetBeaconBlock_Deneb(t *testing.T) {
 	require.DeepEqual(t, got.GetDeneb().Block.Body.BlobKzgCommitments, kc)
 }
 
-func TestServer_GetBeaconBlock_Electra(t *testing.T) {
+func TestServer_GetBeaconBlock_Alpaca(t *testing.T) {
 	db := dbutil.SetupDB(t)
 	ctx := context.Background()
 	transition.SkipSlotCache.Disable()
 
 	params.SetupTestConfigCleanup(t)
 	cfg := params.BeaconConfig().Copy()
-	cfg.ElectraForkEpoch = 5
+	cfg.AlpacaForkEpoch = 5
 	cfg.DenebForkEpoch = 4
 	cfg.CapellaForkEpoch = 3
 	cfg.BellatrixForkEpoch = 2
@@ -573,7 +573,7 @@ func TestServer_GetBeaconBlock_Electra(t *testing.T) {
 	require.NoError(t, db.SaveState(ctx, beaconState, parentRoot), "Could not save genesis state")
 	require.NoError(t, db.SaveHeadBlockRoot(ctx, parentRoot), "Could not save genesis state")
 
-	electraSlot, err := slots.EpochStart(params.BeaconConfig().ElectraForkEpoch)
+	alpacaSlot, err := slots.EpochStart(params.BeaconConfig().AlpacaForkEpoch)
 	require.NoError(t, err)
 
 	dr := []*enginev1.DepositRequest{{
@@ -592,7 +592,7 @@ func TestServer_GetBeaconBlock_Electra(t *testing.T) {
 	}
 	blk := &ethpb.SignedBeaconBlockElectra{
 		Block: &ethpb.BeaconBlockElectra{
-			Slot:       electraSlot + 1,
+			Slot:       alpacaSlot + 1,
 			ParentRoot: parentRoot[:],
 			StateRoot:  genesis.Block.StateRoot,
 			Body: &ethpb.BeaconBlockBodyElectra{
@@ -625,7 +625,7 @@ func TestServer_GetBeaconBlock_Electra(t *testing.T) {
 
 	random, err := helpers.RandaoMix(beaconState, slots.ToEpoch(beaconState.Slot()))
 	require.NoError(t, err)
-	timeStamp, err := slots.ToTime(beaconState.GenesisTime(), electraSlot+1)
+	timeStamp, err := slots.ToTime(beaconState.GenesisTime(), alpacaSlot+1)
 	require.NoError(t, err)
 	payload := &enginev1.ExecutionPayloadElectra{
 		Timestamp:     uint64(timeStamp.Unix()),
@@ -652,7 +652,7 @@ func TestServer_GetBeaconBlock_Electra(t *testing.T) {
 	graffiti := bytesutil.ToBytes32([]byte("eth2"))
 	require.NoError(t, err)
 	req := &ethpb.BlockRequest{
-		Slot:         electraSlot + 1,
+		Slot:         alpacaSlot + 1,
 		RandaoReveal: randaoReveal,
 		Graffiti:     graffiti[:],
 	}

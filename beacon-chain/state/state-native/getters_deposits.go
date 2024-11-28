@@ -10,7 +10,7 @@ import (
 // deposit balance to consume field. This method requires access to the RLock on the state and only
 // applies in electra or later.
 func (b *BeaconState) DepositBalanceToConsume() (primitives.Gwei, error) {
-	if b.version < version.Electra {
+	if b.version < version.Alpaca {
 		return 0, errNotSupported("DepositBalanceToConsume", b.version)
 	}
 	b.lock.RLock()
@@ -22,7 +22,7 @@ func (b *BeaconState) DepositBalanceToConsume() (primitives.Gwei, error) {
 // the pending balance deposit slice. This method requires access to the RLock on the state and
 // only applies in electra or later.
 func (b *BeaconState) PendingDeposits() ([]*ethpb.PendingDeposit, error) {
-	if b.version < version.Electra {
+	if b.version < version.Alpaca {
 		return nil, errNotSupported("PendingDeposits", b.version)
 	}
 	b.lock.RLock()

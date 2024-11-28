@@ -230,7 +230,7 @@ func (s *Service) ForkchoiceUpdated(
 		if err != nil {
 			return nil, nil, handleRPCError(err)
 		}
-	case version.Deneb, version.Electra:
+	case version.Deneb, version.Alpaca:
 		a, err := attrs.PbV3()
 		if err != nil {
 			return nil, nil, err
@@ -264,7 +264,7 @@ func (s *Service) ForkchoiceUpdated(
 
 func getPayloadMethodAndMessage(slot primitives.Slot) (string, proto.Message) {
 	pe := slots.ToEpoch(slot)
-	if pe >= params.BeaconConfig().ElectraForkEpoch {
+	if pe >= params.BeaconConfig().AlpacaForkEpoch {
 		return GetPayloadMethodV4, &pb.ExecutionBundleElectra{}
 	}
 	if pe >= params.BeaconConfig().DenebForkEpoch {
@@ -565,7 +565,7 @@ func fullPayloadFromPayloadBody(
 			Transactions:  pb.RecastHexutilByteSlice(body.Transactions),
 			Withdrawals:   body.Withdrawals,
 		}) // We can't get the block value and don't care about the block value for this instance
-	case version.Deneb, version.Electra:
+	case version.Deneb, version.Alpaca:
 		ebg, err := header.ExcessBlobGas()
 		if err != nil {
 			return nil, errors.Wrap(err, "unable to extract ExcessBlobGas attribute from execution payload header")
@@ -716,7 +716,7 @@ func buildEmptyExecutionPayload(v int) (proto.Message, error) {
 			Transactions:  make([][]byte, 0),
 			Withdrawals:   make([]*pb.Withdrawal, 0),
 		}, nil
-	case version.Deneb, version.Electra:
+	case version.Deneb, version.Alpaca:
 		return &pb.ExecutionPayloadDeneb{
 			ParentHash:    make([]byte, fieldparams.RootLength),
 			FeeRecipient:  make([]byte, fieldparams.FeeRecipientLength),

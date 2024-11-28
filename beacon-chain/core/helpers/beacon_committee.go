@@ -62,7 +62,7 @@ func SlotCommitteeCount(activeValidatorCount uint64) uint64 {
 // AttestationCommittees returns beacon state committees that reflect attestation's committee indices.
 func AttestationCommittees(ctx context.Context, st state.ReadOnlyBeaconState, att ethpb.Att) ([][]primitives.ValidatorIndex, error) {
 	var committees [][]primitives.ValidatorIndex
-	if att.Version() >= version.Electra {
+	if att.Version() >= version.Alpaca {
 		committeeIndices := att.CommitteeBitsVal().BitIndices()
 		committees = make([][]primitives.ValidatorIndex, len(committeeIndices))
 		for i, ci := range committeeIndices {
