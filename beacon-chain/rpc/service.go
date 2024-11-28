@@ -315,7 +315,6 @@ func NewService(ctx context.Context, cfg *Config) *Service {
 		coreService,
 		ch,
 		s.cfg.CloseHandler,
-		s.cfg.AuthTokenPath,
 	)
 	for _, e := range endpoints {
 		for i := range e.methods {

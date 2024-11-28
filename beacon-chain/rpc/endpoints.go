@@ -60,7 +60,6 @@ func (s *Service) endpoints(
 	coreService *core.Service,
 	ch *stategen.CanonicalHistory,
 	closeHandler *closehandler.CloseHandler,
-	authTokenPath string,
 ) []endpoint {
 	endpoints := make([]endpoint, 0)
 	endpoints = append(endpoints, s.rewardsEndpoints(blocker, stater, rewardFetcher)...)
@@ -82,7 +81,7 @@ func (s *Service) endpoints(
 		endpoints = append(endpoints, s.debugEndpoints(stater)...)
 	}
 	if enableOverNode {
-		endpoints = append(endpoints, s.overNodeEndpoints(closeHandler, authTokenPath)...)
+		endpoints = append(endpoints, s.overNodeEndpoints(closeHandler)...)
 	}
 	return endpoints
 }
@@ -1083,12 +1082,12 @@ func (s *Service) overEndpoints(stater lookup.Stater) []endpoint {
 	}
 }
 
-func (s *Service) overNodeEndpoints(handler *closehandler.CloseHandler, authTokenPath string) []endpoint {
+func (s *Service) overNodeEndpoints(handler *closehandler.CloseHandler) []endpoint {
 	server := &overnode.Server{
 		CloseHandler: handler,
 	}
 
-	authToken, err := getAuthToken(authTokenPath)
+	authToken, err := getAuthToken(s.cfg.AuthTokenPath)
 	if err != nil {
 		log.WithError(err).Warnf("Failed to get auth token, /over-node/close endpoint will not be enabled")
 		return []endpoint{}

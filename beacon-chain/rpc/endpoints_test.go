@@ -2,10 +2,13 @@ package rpc
 
 import (
 	"net/http"
+	"path/filepath"
 	"slices"
 	"testing"
 
+	"github.com/prysmaticlabs/prysm/v5/api"
 	"github.com/prysmaticlabs/prysm/v5/testing/assert"
+	"github.com/prysmaticlabs/prysm/v5/testing/require"
 	"golang.org/x/exp/maps"
 )
 
@@ -131,9 +134,11 @@ func Test_endpoints(t *testing.T) {
 		"/over-node/close": {http.MethodPost},
 	}
 
-	s := &Service{cfg: &Config{}}
+	s := &Service{cfg: &Config{
+		AuthTokenPath: filepath.Join(t.TempDir(), "auth_token"),
+	}}
 
-	endpoints := s.endpoints(true, true, nil, nil, nil, nil, nil, nil, nil, "")
+	endpoints := s.endpoints(true, true, nil, nil, nil, nil, nil, nil, nil)
 	actualRoutes := make(map[string][]string, len(endpoints))
 	for _, e := range endpoints {
 		if _, ok := actualRoutes[e.template]; ok {
@@ -142,9 +147,57 @@ func Test_endpoints(t *testing.T) {
 			actualRoutes[e.template] = e.methods
 		}
 	}
-	expectedRoutes := combineMaps(beaconRoutes, builderRoutes, configRoutes, debugRoutes, eventsRoutes, nodeRoutes, validatorRoutes, rewardsRoutes, blobRoutes, prysmValidatorRoutes, prysmNodeRoutes, prysmBeaconRoutes, overNodeRoutes, overRoutes)
+	expectedRoutes := combineMaps(beaconRoutes, builderRoutes, configRoutes, debugRoutes, eventsRoutes, nodeRoutes, validatorRoutes, rewardsRoutes, blobRoutes, prysmValidatorRoutes, prysmNodeRoutes, prysmBeaconRoutes, overRoutes, overNodeRoutes)
 
 	assert.Equal(t, true, maps.EqualFunc(expectedRoutes, actualRoutes, func(actualMethods []string, expectedMethods []string) bool {
 		return slices.Equal(expectedMethods, actualMethods)
 	}))
+}
+
+func Test_overNodeRoutes(t *testing.T) {
+	tests := []struct {
+		name          string
+		authTokenPath string
+		prepare       func(authTokenPath string) error
+		expectedCount int
+	}{
+		{
+			name:          "No auth token path is provided",
+			authTokenPath: "",
+			prepare:       nil,
+			expectedCount: 0,
+		},
+		{
+			name:          "Auth token path is provided (empty)",
+			authTokenPath: filepath.Join(t.TempDir(), "auth_token"),
+			prepare:       nil, // No preparation needed for an empty file
+			expectedCount: 1,
+		},
+		{
+			name:          "Auth token path is provided (non-empty)",
+			authTokenPath: filepath.Join(t.TempDir(), "auth_token"),
+			prepare: func(authTokenPath string) error {
+				token, err := api.GenerateRandomHexString()
+				if err != nil {
+					return err
+				}
+				return saveAuthToken(authTokenPath, token)
+			},
+			expectedCount: 1,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.prepare != nil {
+				require.NoError(t, tt.prepare(tt.authTokenPath))
+			}
+
+			s := &Service{cfg: &Config{
+				AuthTokenPath: tt.authTokenPath,
+			}}
+			endpoints := s.overNodeEndpoints(nil)
+			require.Equal(t, tt.expectedCount, len(endpoints))
+		})
+	}
 }
