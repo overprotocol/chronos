@@ -95,7 +95,7 @@ func CanUpgradeToDeneb(slot primitives.Slot) bool {
 // If state.slot % SLOTS_PER_EPOCH == 0 and compute_epoch_at_slot(state.slot) == ELECTRA_FORK_EPOCH
 func CanUpgradeToElectra(slot primitives.Slot) bool {
 	epochStart := slots.IsEpochStart(slot)
-	electraEpoch := slots.ToEpoch(slot) == params.BeaconConfig().ElectraForkEpoch
+	electraEpoch := slots.ToEpoch(slot) == params.BeaconConfig().AlpacaForkEpoch
 	return epochStart && electraEpoch
 }
 

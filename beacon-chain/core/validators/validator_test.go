@@ -258,7 +258,7 @@ func TestSlashValidator_Electra(t *testing.T) {
 	require.NoError(t, err)
 	slashedState, err := validators.SlashValidator(context.Background(), state, slashedIdx)
 	require.NoError(t, err, "Could not slash validator")
-	require.Equal(t, true, slashedState.Version() == version.Electra)
+	require.Equal(t, true, slashedState.Version() == version.Alpaca)
 
 	v, err := state.ValidatorAtIndex(slashedIdx)
 	require.NoError(t, err)

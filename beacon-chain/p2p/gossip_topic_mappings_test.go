@@ -29,18 +29,18 @@ func TestGossipTopicMappings_CorrectType(t *testing.T) {
 	bellatrixForkEpoch := primitives.Epoch(200)
 	capellaForkEpoch := primitives.Epoch(300)
 	denebForkEpoch := primitives.Epoch(400)
-	electraForkEpoch := primitives.Epoch(500)
+	alpacaForkEpoch := primitives.Epoch(500)
 
 	bCfg.AltairForkEpoch = altairForkEpoch
 	bCfg.BellatrixForkEpoch = bellatrixForkEpoch
 	bCfg.CapellaForkEpoch = capellaForkEpoch
 	bCfg.DenebForkEpoch = denebForkEpoch
-	bCfg.ElectraForkEpoch = electraForkEpoch
+	bCfg.AlpacaForkEpoch = alpacaForkEpoch
 	bCfg.ForkVersionSchedule[bytesutil.ToBytes4(bCfg.AltairForkVersion)] = primitives.Epoch(100)
 	bCfg.ForkVersionSchedule[bytesutil.ToBytes4(bCfg.BellatrixForkVersion)] = primitives.Epoch(200)
 	bCfg.ForkVersionSchedule[bytesutil.ToBytes4(bCfg.CapellaForkVersion)] = primitives.Epoch(300)
 	bCfg.ForkVersionSchedule[bytesutil.ToBytes4(bCfg.DenebForkVersion)] = primitives.Epoch(400)
-	bCfg.ForkVersionSchedule[bytesutil.ToBytes4(bCfg.ElectraForkVersion)] = primitives.Epoch(500)
+	bCfg.ForkVersionSchedule[bytesutil.ToBytes4(bCfg.AlpacaForkVersion)] = primitives.Epoch(500)
 	params.OverrideBeaconConfig(bCfg)
 
 	// Phase 0
@@ -113,17 +113,17 @@ func TestGossipTopicMappings_CorrectType(t *testing.T) {
 	_, ok = pMessage.(*ethpb.SignedAggregateAttestationAndProof)
 	assert.Equal(t, true, ok)
 
-	// Electra Fork
-	pMessage = GossipTopicMappings(BlockSubnetTopicFormat, electraForkEpoch)
+	// Alpaca Fork
+	pMessage = GossipTopicMappings(BlockSubnetTopicFormat, alpacaForkEpoch)
 	_, ok = pMessage.(*ethpb.SignedBeaconBlockElectra)
 	assert.Equal(t, true, ok)
-	pMessage = GossipTopicMappings(AttestationSubnetTopicFormat, electraForkEpoch)
+	pMessage = GossipTopicMappings(AttestationSubnetTopicFormat, alpacaForkEpoch)
 	_, ok = pMessage.(*ethpb.AttestationElectra)
 	assert.Equal(t, true, ok)
-	pMessage = GossipTopicMappings(AttesterSlashingSubnetTopicFormat, electraForkEpoch)
+	pMessage = GossipTopicMappings(AttesterSlashingSubnetTopicFormat, alpacaForkEpoch)
 	_, ok = pMessage.(*ethpb.AttesterSlashingElectra)
 	assert.Equal(t, true, ok)
-	pMessage = GossipTopicMappings(AggregateAndProofSubnetTopicFormat, electraForkEpoch)
+	pMessage = GossipTopicMappings(AggregateAndProofSubnetTopicFormat, alpacaForkEpoch)
 	_, ok = pMessage.(*ethpb.SignedAggregateAttestationAndProofElectra)
 	assert.Equal(t, true, ok)
 }

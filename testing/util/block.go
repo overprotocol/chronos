@@ -291,7 +291,7 @@ func GenerateAttesterSlashingForValidator(
 ) (ethpb.AttSlashing, error) {
 	currentEpoch := time.CurrentEpoch(bState)
 
-	if bState.Version() >= version.Electra {
+	if bState.Version() >= version.Alpaca {
 		att1 := &ethpb.IndexedAttestationElectra{
 			Data: &ethpb.AttestationData{
 				Slot:            bState.Slot(),

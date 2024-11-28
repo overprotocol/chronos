@@ -95,10 +95,10 @@ func (v *validator) SubmitAttestation(ctx context.Context, slot primitives.Slot,
 		return
 	}
 
-	postElectra := slots.ToEpoch(slot) >= params.BeaconConfig().ElectraForkEpoch
+	postAlpaca := slots.ToEpoch(slot) >= params.BeaconConfig().AlpacaForkEpoch
 
 	var indexedAtt ethpb.IndexedAtt
-	if postElectra {
+	if postAlpaca {
 		indexedAtt = &ethpb.IndexedAttestationElectra{
 			AttestingIndices: []uint64{uint64(duty.ValidatorIndex)},
 			Data:             data,
@@ -158,7 +158,7 @@ func (v *validator) SubmitAttestation(ctx context.Context, slot primitives.Slot,
 	committeeBits := primitives.NewAttestationCommitteeBits()
 
 	var attResp *ethpb.AttestResponse
-	if postElectra {
+	if postAlpaca {
 		attestation := &ethpb.AttestationElectra{
 			Data:            data,
 			AggregationBits: aggregationBitfield,
@@ -201,7 +201,7 @@ func (v *validator) SubmitAttestation(ctx context.Context, slot primitives.Slot,
 		trace.Int64Attribute("targetEpoch", int64(data.Target.Epoch)),
 		trace.StringAttribute("aggregationBitfield", fmt.Sprintf("%#x", aggregationBitfield)),
 	)
-	if postElectra {
+	if postAlpaca {
 		span.SetAttributes(trace.StringAttribute("committeeBitfield", fmt.Sprintf("%#x", committeeBits)))
 	} else {
 		span.SetAttributes(trace.Int64Attribute("committeeIndex", int64(data.CommitteeIndex)))

@@ -153,8 +153,8 @@ func TestReplayBlocks_ThroughFutureForkBoundaries(t *testing.T) {
 	bCfg.ForkVersionSchedule[bytesutil.ToBytes4(bCfg.CapellaForkVersion)] = 3
 	bCfg.DenebForkEpoch = 4
 	bCfg.ForkVersionSchedule[bytesutil.ToBytes4(bCfg.DenebForkVersion)] = 4
-	bCfg.ElectraForkEpoch = 5
-	bCfg.ForkVersionSchedule[bytesutil.ToBytes4(bCfg.ElectraForkVersion)] = 5
+	bCfg.AlpacaForkEpoch = 5
+	bCfg.ForkVersionSchedule[bytesutil.ToBytes4(bCfg.AlpacaForkVersion)] = 5
 	params.OverrideBeaconConfig(bCfg)
 
 	beaconState, _ := util.DeterministicGenesisState(t, 32)
@@ -195,15 +195,15 @@ func TestReplayBlocks_ThroughFutureForkBoundaries(t *testing.T) {
 	newState, err = service.replayBlocks(context.Background(), newState, []interfaces.ReadOnlySignedBeaconBlock{}, targetSlot)
 	require.NoError(t, err)
 
-	// Verify state is version Electra.
-	assert.Equal(t, version.Electra, newState.Version())
+	// Verify state is version Alpaca.
+	assert.Equal(t, version.Alpaca, newState.Version())
 }
 
-func TestReplayBlocks_ProcessEpoch_Electra(t *testing.T) {
+func TestReplayBlocks_ProcessEpoch_Alpaca(t *testing.T) {
 	params.SetupTestConfigCleanup(t)
 	bCfg := params.BeaconConfig().Copy()
-	bCfg.ElectraForkEpoch = 1
-	bCfg.ForkVersionSchedule[bytesutil.ToBytes4(bCfg.ElectraForkVersion)] = 1
+	bCfg.AlpacaForkEpoch = 1
+	bCfg.ForkVersionSchedule[bytesutil.ToBytes4(bCfg.AlpacaForkVersion)] = 1
 	params.OverrideBeaconConfig(bCfg)
 
 	beaconState, _ := util.DeterministicGenesisStateElectra(t, 1)
@@ -242,14 +242,14 @@ func TestReplayBlocks_ProcessEpoch_Electra(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	assert.Equal(t, version.Electra, beaconState.Version())
+	assert.Equal(t, version.Alpaca, beaconState.Version())
 	require.Equal(t, params.BeaconConfig().MinActivationBalance, beaconState.Balances()[0])
 	service := New(testDB.SetupDB(t), doublylinkedtree.New())
 	targetSlot := (params.BeaconConfig().SlotsPerEpoch * 2) - 1
 	newState, err := service.replayBlocks(context.Background(), beaconState, []interfaces.ReadOnlySignedBeaconBlock{}, targetSlot)
 	require.NoError(t, err)
 
-	require.Equal(t, version.Electra, newState.Version())
+	require.Equal(t, version.Alpaca, newState.Version())
 	res, err := newState.DepositBalanceToConsume()
 	require.NoError(t, err)
 	require.Equal(t, primitives.Gwei(0), res)

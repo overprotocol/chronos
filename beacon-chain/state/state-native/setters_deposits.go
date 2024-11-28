@@ -12,7 +12,7 @@ import (
 // balance deposit object on to the state. This method requires access to the Lock on the state and
 // only applies in electra or later.
 func (b *BeaconState) AppendPendingDeposit(pd *ethpb.PendingDeposit) error {
-	if b.version < version.Electra {
+	if b.version < version.Alpaca {
 		return errNotSupported("AppendPendingDeposit", b.version)
 	}
 	b.lock.Lock()
@@ -32,7 +32,7 @@ func (b *BeaconState) AppendPendingDeposit(pd *ethpb.PendingDeposit) error {
 // balance deposit slice with the provided value. This method requires access to the Lock on the
 // state and only applies in electra or later.
 func (b *BeaconState) SetPendingDeposits(val []*ethpb.PendingDeposit) error {
-	if b.version < version.Electra {
+	if b.version < version.Alpaca {
 		return errNotSupported("SetPendingDeposits", b.version)
 	}
 	b.lock.Lock()
@@ -52,7 +52,7 @@ func (b *BeaconState) SetPendingDeposits(val []*ethpb.PendingDeposit) error {
 // to consume value to the given value. This method requires access to the Lock on the state and
 // only applies in electra or later.
 func (b *BeaconState) SetDepositBalanceToConsume(dbtc primitives.Gwei) error {
-	if b.version < version.Electra {
+	if b.version < version.Alpaca {
 		return errNotSupported("SetDepositBalanceToConsume", b.version)
 	}
 	b.lock.Lock()

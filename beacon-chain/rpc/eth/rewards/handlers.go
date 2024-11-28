@@ -181,7 +181,7 @@ func idealAttRewards(
 ) ([]structs.IdealAttestationReward, bool) {
 	increment := params.BeaconConfig().EffectiveBalanceIncrement / 1e9
 	var maxEffectiveBalance, minIdealBalance uint64
-	if st.Version() < version.Electra {
+	if st.Version() < version.Alpaca {
 		maxEffectiveBalance = params.BeaconConfig().MinActivationBalance / 1e9
 		// Due to bail out and new penalty mechanism, validator will be exited
 		// before touching few downstairs.

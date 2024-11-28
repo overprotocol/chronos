@@ -201,7 +201,7 @@ func ProcessWithdrawals(st state.BeaconState, executionData interfaces.Execution
 		}
 	}
 
-	if st.Version() >= version.Electra {
+	if st.Version() >= version.Alpaca {
 		if err := st.DequeuePartialWithdrawals(partialWithdrawalsCount); err != nil {
 			return nil, fmt.Errorf("unable to dequeue partial withdrawals from state: %w", err)
 		}

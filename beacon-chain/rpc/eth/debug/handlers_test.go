@@ -190,7 +190,7 @@ func TestGetBeaconStateV2(t *testing.T) {
 		require.Equal(t, http.StatusOK, writer.Code)
 		resp := &structs.GetBeaconStateV2Response{}
 		require.NoError(t, json.Unmarshal(writer.Body.Bytes(), resp))
-		assert.Equal(t, version.String(version.Electra), resp.Version)
+		assert.Equal(t, version.String(version.Alpaca), resp.Version)
 		st := &structs.BeaconStateElectra{}
 		require.NoError(t, json.Unmarshal(resp.Data, st))
 		assert.Equal(t, "123", st.Slot)

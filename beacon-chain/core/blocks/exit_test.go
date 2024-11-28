@@ -136,9 +136,9 @@ func TestProcessVoluntaryExits_AppliesCorrectStatus(t *testing.T) {
 
 func TestVerifyExitAndSignature(t *testing.T) {
 	params.SetupForkEpochConfigForTest()
-	// Remove after electra fork epoch is defined.
+	// Remove after alpaca fork epoch is defined.
 	cfg := params.BeaconConfig()
-	cfg.ElectraForkEpoch = cfg.DenebForkEpoch * 2
+	cfg.AlpacaForkEpoch = cfg.DenebForkEpoch * 2
 	params.SetActiveTestCleanup(t, cfg)
 	// End remove section.
 	denebSlot, err := slots.EpochStart(params.BeaconConfig().DenebForkEpoch)
@@ -286,8 +286,8 @@ func TestVerifyExitAndSignature(t *testing.T) {
 			setup: func() (*ethpb.Validator, *ethpb.SignedVoluntaryExit, state.ReadOnlyBeaconState, error) {
 				fork := &ethpb.Fork{
 					PreviousVersion: params.BeaconConfig().DenebForkVersion,
-					CurrentVersion:  params.BeaconConfig().ElectraForkVersion,
-					Epoch:           params.BeaconConfig().ElectraForkEpoch,
+					CurrentVersion:  params.BeaconConfig().AlpacaForkVersion,
+					Epoch:           params.BeaconConfig().AlpacaForkEpoch,
 				}
 				signedExit := &ethpb.SignedVoluntaryExit{
 					Exit: &ethpb.VoluntaryExit{
@@ -295,13 +295,13 @@ func TestVerifyExitAndSignature(t *testing.T) {
 						ValidatorIndex: 0,
 					},
 				}
-				electraSlot, err := slots.EpochStart(params.BeaconConfig().ElectraForkEpoch)
+				alpacaSlot, err := slots.EpochStart(params.BeaconConfig().AlpacaForkEpoch)
 				require.NoError(t, err)
 				bs, keys := util.DeterministicGenesisState(t, 1)
 				bs, err = state_native.InitializeFromProtoUnsafeElectra(&ethpb.BeaconStateElectra{
 					GenesisValidatorsRoot: bs.GenesisValidatorsRoot(),
 					Fork:                  fork,
-					Slot:                  electraSlot,
+					Slot:                  alpacaSlot,
 					Validators:            bs.Validators(),
 				})
 				if err != nil {

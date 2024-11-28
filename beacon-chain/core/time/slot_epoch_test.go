@@ -337,7 +337,7 @@ func TestCanUpgradeToDeneb(t *testing.T) {
 func TestCanUpgradeToElectra(t *testing.T) {
 	params.SetupTestConfigCleanup(t)
 	bc := params.BeaconConfig()
-	bc.ElectraForkEpoch = 5
+	bc.AlpacaForkEpoch = 5
 	params.OverrideBeaconConfig(bc)
 	tests := []struct {
 		name string
@@ -350,13 +350,13 @@ func TestCanUpgradeToElectra(t *testing.T) {
 			want: false,
 		},
 		{
-			name: "not electra epoch",
+			name: "not alpaca epoch",
 			slot: params.BeaconConfig().SlotsPerEpoch,
 			want: false,
 		},
 		{
-			name: "electra epoch",
-			slot: primitives.Slot(params.BeaconConfig().ElectraForkEpoch) * params.BeaconConfig().SlotsPerEpoch,
+			name: "alpaca epoch",
+			slot: primitives.Slot(params.BeaconConfig().AlpacaForkEpoch) * params.BeaconConfig().SlotsPerEpoch,
 			want: true,
 		},
 	}

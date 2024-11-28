@@ -465,7 +465,7 @@ func TestServer_ListAttestations_Pagination_DefaultPageSize(t *testing.T) {
 func TestServer_ListAttestationsElectra(t *testing.T) {
 	params.SetupTestConfigCleanup(t)
 	cfg := params.BeaconConfig()
-	cfg.ElectraForkEpoch = 0
+	cfg.AlpacaForkEpoch = 0
 	params.OverrideBeaconConfig(cfg)
 
 	db := dbTest.SetupDB(t)
@@ -508,7 +508,7 @@ func TestServer_ListAttestationsElectra(t *testing.T) {
 
 	res, err := bs.ListAttestationsElectra(ctx, &ethpb.ListAttestationsRequest{
 		QueryFilter: &ethpb.ListAttestationsRequest_Epoch{
-			Epoch: params.BeaconConfig().ElectraForkEpoch,
+			Epoch: params.BeaconConfig().AlpacaForkEpoch,
 		},
 	})
 	require.NoError(t, err)
@@ -742,7 +742,7 @@ func TestServer_ListIndexedAttestations_OldEpoch(t *testing.T) {
 func TestServer_ListIndexedAttestationsElectra(t *testing.T) {
 	params.SetupTestConfigCleanup(t)
 	cfg := params.BeaconConfig()
-	cfg.ElectraForkEpoch = 0
+	cfg.AlpacaForkEpoch = 0
 	params.OverrideBeaconConfig(cfg)
 
 	db := dbTest.SetupDB(t)

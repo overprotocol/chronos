@@ -69,7 +69,7 @@ func (bs *Server) ListAttestations(
 			return nil, status.Errorf(codes.Internal, "Could not fetch attestations: %v", err)
 		}
 	case *ethpb.ListAttestationsRequest_Epoch:
-		if q.Epoch >= params.BeaconConfig().ElectraForkEpoch {
+		if q.Epoch >= params.BeaconConfig().AlpacaForkEpoch {
 			return &ethpb.ListAttestationsResponse{
 				Attestations:  make([]*ethpb.Attestation, 0),
 				TotalSize:     int32(0),
@@ -132,7 +132,7 @@ func (bs *Server) ListAttestationsElectra(ctx context.Context, req *ethpb.ListAt
 			NextPageToken: strconv.Itoa(0),
 		}, nil
 	case *ethpb.ListAttestationsRequest_Epoch:
-		if q.Epoch < params.BeaconConfig().ElectraForkEpoch {
+		if q.Epoch < params.BeaconConfig().AlpacaForkEpoch {
 			return &ethpb.ListAttestationsElectraResponse{
 				Attestations:  make([]*ethpb.AttestationElectra, 0),
 				TotalSize:     int32(0),
@@ -192,7 +192,7 @@ func (bs *Server) ListIndexedAttestations(
 			return nil, status.Errorf(codes.Internal, "Could not fetch attestations: %v", err)
 		}
 	case *ethpb.ListIndexedAttestationsRequest_Epoch:
-		if q.Epoch >= params.BeaconConfig().ElectraForkEpoch {
+		if q.Epoch >= params.BeaconConfig().AlpacaForkEpoch {
 			return &ethpb.ListIndexedAttestationsResponse{
 				IndexedAttestations: make([]*ethpb.IndexedAttestation, 0),
 				TotalSize:           int32(0),
@@ -254,7 +254,7 @@ func (bs *Server) ListIndexedAttestationsElectra(
 			NextPageToken:       strconv.Itoa(0),
 		}, nil
 	case *ethpb.ListIndexedAttestationsRequest_Epoch:
-		if q.Epoch < params.BeaconConfig().ElectraForkEpoch {
+		if q.Epoch < params.BeaconConfig().AlpacaForkEpoch {
 			return &ethpb.ListIndexedAttestationsElectraResponse{
 				IndexedAttestations: make([]*ethpb.IndexedAttestationElectra, 0),
 				TotalSize:           int32(0),

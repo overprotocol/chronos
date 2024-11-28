@@ -110,7 +110,7 @@ func VerifyAttestationNoVerifySignature(
 
 	var indexedAtt ethpb.IndexedAtt
 
-	if att.Version() >= version.Electra {
+	if att.Version() >= version.Alpaca {
 		if att.GetData().CommitteeIndex != 0 {
 			return errors.New("committee index must be 0 post-Electra")
 		}

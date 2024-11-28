@@ -41,7 +41,7 @@ func ComputeBlockBodyFieldRoots(ctx context.Context, blockBody *BeaconBlockBody)
 		fieldRoots = make([][]byte, 10)
 	case version.Deneb:
 		fieldRoots = make([][]byte, 11)
-	case version.Electra:
+	case version.Alpaca:
 		fieldRoots = make([][]byte, 12)
 	default:
 		return nil, fmt.Errorf("unknown block body version %s", version.String(blockBody.version))
@@ -82,7 +82,7 @@ func ComputeBlockBodyFieldRoots(ctx context.Context, blockBody *BeaconBlockBody)
 	// Attester slashings
 	as := blockBody.AttesterSlashings()
 	bodyVersion := blockBody.Version()
-	if bodyVersion < version.Electra {
+	if bodyVersion < version.Alpaca {
 		root, err = ssz.MerkleizeListSSZ(as, params.BeaconConfig().MaxAttesterSlashings)
 	} else {
 		root, err = ssz.MerkleizeListSSZ(as, params.BeaconConfig().MaxAttesterSlashingsAlpaca)
@@ -94,7 +94,7 @@ func ComputeBlockBodyFieldRoots(ctx context.Context, blockBody *BeaconBlockBody)
 
 	// Attestations
 	att := blockBody.Attestations()
-	if bodyVersion < version.Electra {
+	if bodyVersion < version.Alpaca {
 		root, err = ssz.MerkleizeListSSZ(att, params.BeaconConfig().MaxAttestations)
 	} else {
 		root, err = ssz.MerkleizeListSSZ(att, params.BeaconConfig().MaxAttestationsAlpaca)
@@ -166,7 +166,7 @@ func ComputeBlockBodyFieldRoots(ctx context.Context, blockBody *BeaconBlockBody)
 		copy(fieldRoots[10], root[:])
 	}
 
-	if blockBody.version >= version.Electra {
+	if blockBody.version >= version.Alpaca {
 		// Execution Requests
 		er, err := blockBody.ExecutionRequests()
 		if err != nil {

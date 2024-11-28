@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/d4l3k/messagediff"
 	"github.com/prysmaticlabs/go-bitfield"
 	"github.com/prysmaticlabs/prysm/v5/async/event"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/signing"
@@ -26,7 +27,6 @@ import (
 	prysmTime "github.com/prysmaticlabs/prysm/v5/time"
 	logTest "github.com/sirupsen/logrus/hooks/test"
 	"go.uber.org/mock/gomock"
-	"gopkg.in/d4l3k/messagediff.v1"
 )
 
 func TestRequestAttestation_ValidatorDutiesRequestFailure(t *testing.T) {
@@ -182,11 +182,11 @@ func TestAttestToBlockHead_AttestsCorrectly(t *testing.T) {
 		})
 	}
 	for _, isSlashingProtectionMinimal := range [...]bool{false, true} {
-		t.Run(fmt.Sprintf("Electra (SlashingProtectionMinimal:%v)", isSlashingProtectionMinimal), func(t *testing.T) {
-			electraForkEpoch := uint64(1)
+		t.Run(fmt.Sprintf("Alpaca (SlashingProtectionMinimal:%v)", isSlashingProtectionMinimal), func(t *testing.T) {
+			alpacaForkEpoch := uint64(1)
 			params.SetupTestConfigCleanup(t)
 			cfg := params.BeaconConfig().Copy()
-			cfg.ElectraForkEpoch = primitives.Epoch(electraForkEpoch)
+			cfg.AlpacaForkEpoch = primitives.Epoch(alpacaForkEpoch)
 			params.OverrideBeaconConfig(cfg)
 
 			validator, m, validatorKey, finish := setup(t, isSlashingProtectionMinimal)
@@ -230,7 +230,7 @@ func TestAttestToBlockHead_AttestsCorrectly(t *testing.T) {
 				generatedAttestation = att
 			}).Return(&ethpb.AttestResponse{}, nil /* error */)
 
-			validator.SubmitAttestation(context.Background(), params.BeaconConfig().SlotsPerEpoch.Mul(electraForkEpoch), pubKey)
+			validator.SubmitAttestation(context.Background(), params.BeaconConfig().SlotsPerEpoch.Mul(alpacaForkEpoch), pubKey)
 
 			aggregationBitfield := bitfield.NewBitlist(uint64(len(committee)))
 			aggregationBitfield.SetBitAt(4, true)

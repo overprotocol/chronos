@@ -9,6 +9,6 @@ import (
 )
 
 func TestNewInvalidCastError(t *testing.T) {
-	err := NewInvalidCastError(version.Phase0, version.Electra)
+	err := NewInvalidCastError(version.Phase0, version.Alpaca)
 	require.Equal(t, true, errors.Is(err, ErrInvalidCast))
 }

@@ -192,7 +192,7 @@ func (s *Service) processAttestations(ctx context.Context, disparity time.Durati
 
 		if err := s.receiveAttestationNoPubsub(ctx, a, disparity); err != nil {
 			var fields logrus.Fields
-			if a.Version() >= version.Electra {
+			if a.Version() >= version.Alpaca {
 				fields = logrus.Fields{
 					"slot":             a.GetData().Slot,
 					"committeeCount":   a.CommitteeBitsVal().Count(),

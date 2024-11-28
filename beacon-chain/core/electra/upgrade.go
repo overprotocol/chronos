@@ -188,7 +188,7 @@ func UpgradeToElectra(beaconState state.BeaconState) (state.BeaconState, error) 
 		Slot:                  beaconState.Slot(),
 		Fork: &ethpb.Fork{
 			PreviousVersion: beaconState.Fork().CurrentVersion,
-			CurrentVersion:  params.BeaconConfig().ElectraForkVersion,
+			CurrentVersion:  params.BeaconConfig().AlpacaForkVersion,
 			Epoch:           time.CurrentEpoch(beaconState),
 		},
 		LatestBlockHeader:           beaconState.LatestBlockHeader(),

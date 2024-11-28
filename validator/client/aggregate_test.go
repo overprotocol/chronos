@@ -133,11 +133,11 @@ func TestSubmitAggregateAndProof_Ok(t *testing.T) {
 		})
 	}
 	for _, isSlashingProtectionMinimal := range [...]bool{false, true} {
-		t.Run(fmt.Sprintf("Electra (SlashingProtectionMinimal:%v)", isSlashingProtectionMinimal), func(t *testing.T) {
-			electraForkEpoch := uint64(1)
+		t.Run(fmt.Sprintf("Alpaca (SlashingProtectionMinimal:%v)", isSlashingProtectionMinimal), func(t *testing.T) {
+			alpacaForkEpoch := uint64(1)
 			params.SetupTestConfigCleanup(t)
 			cfg := params.BeaconConfig().Copy()
-			cfg.ElectraForkEpoch = primitives.Epoch(electraForkEpoch)
+			cfg.AlpacaForkEpoch = primitives.Epoch(alpacaForkEpoch)
 			params.OverrideBeaconConfig(cfg)
 
 			validator, m, validatorKey, finish := setup(t, isSlashingProtectionMinimal)
@@ -182,7 +182,7 @@ func TestSubmitAggregateAndProof_Ok(t *testing.T) {
 				gomock.AssignableToTypeOf(&ethpb.SignedAggregateSubmitElectraRequest{}),
 			).Return(&ethpb.SignedAggregateSubmitResponse{AttestationDataRoot: make([]byte, 32)}, nil)
 
-			validator.SubmitAggregateAndProof(context.Background(), params.BeaconConfig().SlotsPerEpoch.Mul(electraForkEpoch), pubKey)
+			validator.SubmitAggregateAndProof(context.Background(), params.BeaconConfig().SlotsPerEpoch.Mul(alpacaForkEpoch), pubKey)
 		})
 	}
 }
@@ -315,10 +315,10 @@ func TestAggregateAndProofSignature_CanSignValidSignature(t *testing.T) {
 	}
 	for _, isSlashingProtectionMinimal := range [...]bool{false, true} {
 		t.Run(fmt.Sprintf("Electra (SlashingProtectionMinimal:%v)", isSlashingProtectionMinimal), func(t *testing.T) {
-			electraForkEpoch := uint64(1)
+			alpacaForkEpoch := uint64(1)
 			params.SetupTestConfigCleanup(t)
 			cfg := params.BeaconConfig().Copy()
-			cfg.ElectraForkEpoch = primitives.Epoch(electraForkEpoch)
+			cfg.AlpacaForkEpoch = primitives.Epoch(alpacaForkEpoch)
 			params.OverrideBeaconConfig(cfg)
 
 			validator, m, validatorKey, finish := setup(t, isSlashingProtectionMinimal)
@@ -338,7 +338,7 @@ func TestAggregateAndProofSignature_CanSignValidSignature(t *testing.T) {
 				}),
 				SelectionProof: make([]byte, 96),
 			}
-			sig, err := validator.aggregateAndProofSig(context.Background(), pubKey, agg, params.BeaconConfig().SlotsPerEpoch.Mul(electraForkEpoch) /* slot */)
+			sig, err := validator.aggregateAndProofSig(context.Background(), pubKey, agg, params.BeaconConfig().SlotsPerEpoch.Mul(alpacaForkEpoch) /* slot */)
 			require.NoError(t, err)
 			_, err = bls.SignatureFromBytes(sig)
 			require.NoError(t, err)

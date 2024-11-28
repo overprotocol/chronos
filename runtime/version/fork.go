@@ -8,7 +8,7 @@ const (
 	Bellatrix
 	Capella
 	Deneb
-	Electra
+	Alpaca
 )
 
 var versionToString = map[int]string{
@@ -17,7 +17,7 @@ var versionToString = map[int]string{
 	Bellatrix: "bellatrix",
 	Capella:   "capella",
 	Deneb:     "deneb",
-	Electra:   "electra",
+	Alpaca:    "alpaca",
 }
 
 // stringToVersion and allVersions are populated in init()

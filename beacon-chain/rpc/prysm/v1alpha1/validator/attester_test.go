@@ -478,7 +478,7 @@ func TestGetAttestationData_SucceedsInFirstEpoch(t *testing.T) {
 func TestGetAttestationData_CommitteeIndexIsZeroPostElectra(t *testing.T) {
 	params.SetupTestConfigCleanup(t)
 	cfg := params.BeaconConfig().Copy()
-	cfg.ElectraForkEpoch = 0
+	cfg.AlpacaForkEpoch = 0
 	params.OverrideBeaconConfig(cfg)
 
 	block := util.NewBeaconBlock()

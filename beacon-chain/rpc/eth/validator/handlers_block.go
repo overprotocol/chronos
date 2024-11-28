@@ -289,13 +289,13 @@ func (s *Server) produceBlockV3(ctx context.Context, w http.ResponseWriter, r *h
 	}
 	blindedElectraBlockContents, ok := v1alpha1resp.Block.(*eth.GenericBeaconBlock_BlindedElectra)
 	if ok {
-		w.Header().Set(api.VersionHeader, version.String(version.Electra))
+		w.Header().Set(api.VersionHeader, version.String(version.Alpaca))
 		handleProduceBlindedElectraV3(w, isSSZ, blindedElectraBlockContents, v1alpha1resp.PayloadValue, consensusBlockValue)
 		return
 	}
 	electraBlockContents, ok := v1alpha1resp.Block.(*eth.GenericBeaconBlock_Electra)
 	if ok {
-		w.Header().Set(api.VersionHeader, version.String(version.Electra))
+		w.Header().Set(api.VersionHeader, version.String(version.Alpaca))
 		handleProduceElectraV3(w, isSSZ, electraBlockContents, v1alpha1resp.PayloadValue, consensusBlockValue)
 		return
 	}
@@ -627,7 +627,7 @@ func handleProduceBlindedElectraV3(
 		return
 	}
 	httputil.WriteJson(w, &structs.ProduceBlockV3Response{
-		Version:                 version.String(version.Electra),
+		Version:                 version.String(version.Alpaca),
 		ExecutionPayloadBlinded: true,
 		ExecutionPayloadValue:   executionPayloadValue,
 		ConsensusBlockValue:     consensusPayloadValue,
@@ -663,7 +663,7 @@ func handleProduceElectraV3(
 		return
 	}
 	httputil.WriteJson(w, &structs.ProduceBlockV3Response{
-		Version:                 version.String(version.Electra),
+		Version:                 version.String(version.Alpaca),
 		ExecutionPayloadBlinded: false,
 		ExecutionPayloadValue:   executionPayloadValue, // mev not available at this point
 		ConsensusBlockValue:     consensusBlockValue,
