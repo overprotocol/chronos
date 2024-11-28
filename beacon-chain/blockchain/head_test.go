@@ -459,7 +459,6 @@ func TestSaveOrphanedAtts_CanFilter(t *testing.T) {
 
 	require.NoError(t, service.saveOrphanedOperations(ctx, r2, r4))
 	require.Equal(t, 1, service.cfg.AttPool.AggregatedAttestationCount())
-	require.NoError(t, err)
 }
 
 func TestSaveOrphanedAtts_DoublyLinkedTrie(t *testing.T) {
