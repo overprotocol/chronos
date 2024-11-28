@@ -9,7 +9,7 @@ func UseDolphinNetworkConfig() {
 	cfg := BeaconNetworkConfig().Copy()
 	cfg.BootstrapNodes = []string{
 		// Dolphin testnet boot nodes
-		"enr:-LG4QGaXDTDc5_-AvUXuWxoYlT2Ce9dSlLi4Kx0Wzv7PFBSFWqRubay-w-IY5lay30YpEbP6_yNQtXa1QcrRD1PSdYqGAZFLTRaKh2F0dG5ldHOIAAAAAAAAAACCaWSCdjSCaXCEgMdLF4RvdmVykNBNsU8AAAAY__________-Jc2VjcDI1NmsxoQOr1euFU8IZdyGo8jbIzJD0Z8VcRnt9xrIF-aOrRvQjPYN1ZHCCyyA",
+		"enr:-LG4QARHcutpnwGL1ZLHhRL6ewUXmvnUoB7ChwFwaBTw55tZeli1OWQoS2e_u8NIN86aWJMZZX-jyPXZf8p8CNhZD_GGAZNxCueXh2F0dG5ldHOIAAAAAAAAAACCaWSCdjSCaXCEp6xX3IRvdmVykNBNsU8AAAAY__________-Jc2VjcDI1NmsxoQI6QDS1wv6ednnpG2hfN70eU_dwJyFotF6xmxsmAJQ5yYN1ZHCCyyA",
 	}
 	OverrideBeaconNetworkConfig(cfg)
 }
