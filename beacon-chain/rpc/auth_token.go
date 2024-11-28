@@ -74,7 +74,6 @@ func readAuthTokenFile(r io.Reader) (string, error) {
 		token = strings.TrimSpace(lines[0])
 	default:
 		return "", errors.New("Auth token file format has multiple lines, please update the auth token to a single line that is a 256 bit hex string")
-
 	}
 
 	if err := api.ValidateAuthToken(token); err != nil {
