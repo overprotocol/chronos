@@ -127,7 +127,7 @@ func TestExtractDataType(t *testing.T) {
 	require.NoError(t, err)
 	denebDigest, err := signing.ComputeForkDigest(params.BeaconConfig().DenebForkVersion, params.BeaconConfig().ZeroHash[:])
 	require.NoError(t, err)
-	electraDigest, err := signing.ComputeForkDigest(params.BeaconConfig().AlpacaForkVersion, params.BeaconConfig().ZeroHash[:])
+	alpacaDigest, err := signing.ComputeForkDigest(params.BeaconConfig().AlpacaForkVersion, params.BeaconConfig().ZeroHash[:])
 	require.NoError(t, err)
 
 	type args struct {
@@ -263,9 +263,9 @@ func TestExtractDataType(t *testing.T) {
 			wantErr:       false,
 		},
 		{
-			name: "electra fork version",
+			name: "alpaca fork version",
 			args: args{
-				digest: electraDigest[:],
+				digest: alpacaDigest[:],
 				chain:  &mock.ChainService{ValidatorsRoot: [32]byte{}},
 			},
 			wantBlock: func() interfaces.ReadOnlySignedBeaconBlock {

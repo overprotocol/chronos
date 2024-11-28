@@ -295,13 +295,13 @@ func TestVerifyExitAndSignature(t *testing.T) {
 						ValidatorIndex: 0,
 					},
 				}
-				electraSlot, err := slots.EpochStart(params.BeaconConfig().AlpacaForkEpoch)
+				alpacaSlot, err := slots.EpochStart(params.BeaconConfig().AlpacaForkEpoch)
 				require.NoError(t, err)
 				bs, keys := util.DeterministicGenesisState(t, 1)
 				bs, err = state_native.InitializeFromProtoUnsafeElectra(&ethpb.BeaconStateElectra{
 					GenesisValidatorsRoot: bs.GenesisValidatorsRoot(),
 					Fork:                  fork,
-					Slot:                  electraSlot,
+					Slot:                  alpacaSlot,
 					Validators:            bs.Validators(),
 				})
 				if err != nil {
