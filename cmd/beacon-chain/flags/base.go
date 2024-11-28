@@ -3,8 +3,10 @@
 package flags
 
 import (
+	"path/filepath"
 	"strings"
 
+	"github.com/prysmaticlabs/prysm/v5/api"
 	"github.com/prysmaticlabs/prysm/v5/cmd"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/urfave/cli/v2"
@@ -300,5 +302,12 @@ var (
 		Name:  "slasher-datadir",
 		Usage: "Directory for the slasher database",
 		Value: cmd.DefaultDataDir(),
+	}
+
+	// AuthTokenPathFlag defines the path to the auth token used to secure the validator api.
+	AuthTokenPathFlag = &cli.StringFlag{
+		Name:  "auth-token-file",
+		Usage: "Path to auth token file used for OverScape API.",
+		Value: filepath.Join(cmd.DefaultDataDir(), api.AuthTokenFileName),
 	}
 )

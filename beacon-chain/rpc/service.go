@@ -139,6 +139,7 @@ type Config struct {
 	TrackedValidatorsCache        *cache.TrackedValidatorsCache
 	PayloadIDCache                *cache.PayloadIDCache
 	CloseHandler                  *closehandler.CloseHandler
+	AuthTokenPath                 string
 }
 
 // NewService instantiates a new RPC service instance that will
@@ -304,7 +305,18 @@ func NewService(ctx context.Context, cfg *Config) *Service {
 		CoreService:                 coreService,
 	}
 
-	endpoints := s.endpoints(s.cfg.EnableDebugRPCEndpoints, s.cfg.EnableOverNodeRPCEndpoints, blocker, stater, rewardFetcher, validatorServer, coreService, ch, s.cfg.CloseHandler)
+	endpoints := s.endpoints(
+		s.cfg.EnableDebugRPCEndpoints,
+		s.cfg.EnableOverNodeRPCEndpoints,
+		blocker,
+		stater,
+		rewardFetcher,
+		validatorServer,
+		coreService,
+		ch,
+		s.cfg.CloseHandler,
+		s.cfg.AuthTokenPath,
+	)
 	for _, e := range endpoints {
 		for i := range e.methods {
 			s.cfg.Router.HandleFunc(

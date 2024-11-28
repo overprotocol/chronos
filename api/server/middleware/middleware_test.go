@@ -202,3 +202,55 @@ func TestAcceptHeaderHandler(t *testing.T) {
 		})
 	}
 }
+
+func TestAuthTokenHandler(t *testing.T) {
+	nextHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, err := w.Write([]byte("next handler"))
+		require.NoError(t, err)
+	})
+
+	authToken := "cool-token"
+	handler := AuthTokenHandler(authToken)(nextHandler)
+
+	tests := []struct {
+		name               string
+		authToken          string
+		expectedStatusCode int
+	}{
+		{
+			name:               "Valid auth token",
+			authToken:          "cool-token",
+			expectedStatusCode: http.StatusOK,
+		},
+		{
+			name:               "No auth token",
+			expectedStatusCode: http.StatusUnauthorized,
+		},
+		{
+			name:               "Invalid token format",
+			authToken:          "Bearer Bearer cool-token",
+			expectedStatusCode: http.StatusBadRequest,
+		},
+		{
+			name:               "Invalid token",
+			authToken:          "invalid-token",
+			expectedStatusCode: http.StatusForbidden,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			req := httptest.NewRequest("GET", "/", nil)
+			if tt.authToken != "" {
+				req.Header.Set("Authorization", "Bearer "+tt.authToken)
+			}
+			rr := httptest.NewRecorder()
+
+			handler.ServeHTTP(rr, req)
+
+			if status := rr.Code; status != tt.expectedStatusCode {
+				t.Errorf("handler returned wrong status code: got %v want %v", status, tt.expectedStatusCode)
+			}
+		})
+	}
+}

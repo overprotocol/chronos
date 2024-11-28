@@ -112,6 +112,33 @@ func AcceptHeaderHandler(serverAcceptedTypes []string) Middleware {
 	}
 }
 
+// AuthTokenHandler checks if the request has a valid token
+func AuthTokenHandler(authToken string) Middleware {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			reqToken := r.Header.Get("Authorization")
+			fmt.Println("reqToken: ", reqToken)
+			if reqToken == "" {
+				http.Error(w, "unauthorized: no Authorization header passed. Please use an Authorization header with the jwt created in the beacon chain data directory", http.StatusUnauthorized)
+				return
+			}
+			tokenParts := strings.Split(reqToken, "Bearer ")
+			if len(tokenParts) != 2 {
+				http.Error(w, "Invalid token format", http.StatusBadRequest)
+				return
+			}
+
+			token := tokenParts[1]
+			if strings.TrimSpace(token) != authToken || strings.TrimSpace(authToken) == "" {
+				http.Error(w, "Forbidden: token value is invalid", http.StatusForbidden)
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		})
+	}
+}
+
 func MiddlewareChain(h http.Handler, mw []Middleware) http.Handler {
 	if len(mw) < 1 {
 		return h

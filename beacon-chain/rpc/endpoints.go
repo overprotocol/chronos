@@ -60,6 +60,7 @@ func (s *Service) endpoints(
 	coreService *core.Service,
 	ch *stategen.CanonicalHistory,
 	closeHandler *closehandler.CloseHandler,
+	authTokenPath string,
 ) []endpoint {
 	endpoints := make([]endpoint, 0)
 	endpoints = append(endpoints, s.rewardsEndpoints(blocker, stater, rewardFetcher)...)
@@ -81,7 +82,7 @@ func (s *Service) endpoints(
 		endpoints = append(endpoints, s.debugEndpoints(stater)...)
 	}
 	if enableOverNode {
-		endpoints = append(endpoints, s.overNodeEndpoints(closeHandler)...)
+		endpoints = append(endpoints, s.overNodeEndpoints(closeHandler, authTokenPath)...)
 	}
 	return endpoints
 }
@@ -1082,9 +1083,15 @@ func (s *Service) overEndpoints(stater lookup.Stater) []endpoint {
 	}
 }
 
-func (s *Service) overNodeEndpoints(handler *closehandler.CloseHandler) []endpoint {
+func (s *Service) overNodeEndpoints(handler *closehandler.CloseHandler, authTokenPath string) []endpoint {
 	server := &overnode.Server{
 		CloseHandler: handler,
+	}
+
+	authToken, err := getAuthToken(authTokenPath)
+	if err != nil {
+		log.WithError(err).Warnf("Failed to get auth token, /over-node/close endpoint will not be enabled")
+		return []endpoint{}
 	}
 
 	const namespace = "over-node"
@@ -1093,7 +1100,15 @@ func (s *Service) overNodeEndpoints(handler *closehandler.CloseHandler) []endpoi
 			template: "/over-node/close",
 			name:     namespace + ".Close",
 			handler:  server.CloseClient,
-			methods:  []string{http.MethodPost},
+			middleware: []middleware.Middleware{
+				middleware.AuthTokenHandler(authToken),
+			},
+			methods: []string{http.MethodPost},
 		},
 	}
+}
+
+// TODO: implement this
+func getAuthToken(authTokenPath string) (string, error) {
+	return "", nil
 }
