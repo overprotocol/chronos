@@ -133,7 +133,7 @@ func Test_endpoints(t *testing.T) {
 
 	s := &Service{cfg: &Config{}}
 
-	endpoints := s.endpoints(true, true, nil, nil, nil, nil, nil, nil, nil)
+	endpoints := s.endpoints(true, true, nil, nil, nil, nil, nil, nil, nil, "")
 	actualRoutes := make(map[string][]string, len(endpoints))
 	for _, e := range endpoints {
 		if _, ok := actualRoutes[e.template]; ok {
