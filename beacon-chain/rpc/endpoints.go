@@ -1054,12 +1054,6 @@ func (s *Service) overEndpoints(stater lookup.Stater) []endpoint {
 	// TODO: API endpoints can be standardized
 	return []endpoint{
 		{
-			template: "/chronos/validator/estimated_activation/{validator_id}",
-			name:     namespace + ".EstimatedActivation",
-			handler:  server.EstimatedActivation,
-			methods:  []string{http.MethodGet, http.MethodPost},
-		},
-		{
 			template: "/chronos/states/epoch_reward/{epoch}",
 			name:     namespace + ".GetEpochReward",
 			handler:  server.GetEpochReward,

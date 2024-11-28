@@ -120,7 +120,6 @@ func Test_endpoints(t *testing.T) {
 	}
 
 	overRoutes := map[string][]string{
-		"/chronos/validator/estimated_activation/{validator_id}":                 {http.MethodGet, http.MethodPost},
 		"/chronos/states/epoch_reward/{epoch}":                                   {http.MethodGet},
 		"/over/v1/beacon/states/{state_id}/reserves":                             {http.MethodGet},
 		"/over/v1/beacon/states/{state_id}/deposit_estimation":                   {http.MethodGet},
