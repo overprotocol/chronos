@@ -348,6 +348,7 @@ func TestChurnLimit_OK(t *testing.T) {
 	}{
 		{validatorCount: 1000, wantedChurn: 4},
 		{validatorCount: 100000, wantedChurn: 4},
+		{validatorCount: 327680, wantedChurn: 5},
 		{validatorCount: 1000000, wantedChurn: 15 /* validatorCount/churnLimitQuotient */},
 		{validatorCount: 2000000, wantedChurn: 30 /* validatorCount/churnLimitQuotient */},
 	}
@@ -382,7 +383,8 @@ func TestActivationBalanceChurnLimit_OK(t *testing.T) {
 		wantedChurn    uint64
 	}{
 		{validatorCount: 1000, wantedChurn: 4096000000000},
-		{validatorCount: 100000, wantedChurn: 4096000000000},
+		{validatorCount: 1048831, wantedChurn: 4096000000000},
+		{validatorCount: 1048832, wantedChurn: 4097000000000},
 		{validatorCount: 2000000, wantedChurn: 7812000000000},
 		{validatorCount: 4000000, wantedChurn: 15625000000000},
 	}
@@ -417,7 +419,8 @@ func TestExitBalanceChurnLimit_OK(t *testing.T) {
 		wantedChurn    uint64
 	}{
 		{validatorCount: 1000, wantedChurn: 1024000000000},
-		{validatorCount: 100000, wantedChurn: 1024000000000},
+		{validatorCount: 262144, wantedChurn: 1024000000000},
+		{validatorCount: 262400, wantedChurn: 1025000000000},
 		{validatorCount: 2000000, wantedChurn: 7812000000000},
 		{validatorCount: 4000000, wantedChurn: 15625000000000},
 	}
