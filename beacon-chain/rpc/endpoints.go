@@ -1107,8 +1107,3 @@ func (s *Service) overNodeEndpoints(handler *closehandler.CloseHandler, authToke
 		},
 	}
 }
-
-// TODO: implement this
-func getAuthToken(authTokenPath string) (string, error) {
-	return "", nil
-}
