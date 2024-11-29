@@ -307,6 +307,6 @@ var (
 	AuthTokenPathFlag = &cli.StringFlag{
 		Name: "auth-token-file",
 		Usage: "Path to auth token file used for OverScape API. " +
-			"Set this flag to enable the close API for OverNode.",
+			"Set this flag to enable the close API for OverScape.",
 	}
 )

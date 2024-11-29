@@ -145,6 +145,7 @@ var appHelpFlagGroups = []flagGroup{
 			backfill.BackfillWorkerCount,
 			backfill.BackfillBatchSize,
 			backfill.BackfillOldestSlot,
+			flags.AuthTokenPathFlag,
 		},
 	},
 	{

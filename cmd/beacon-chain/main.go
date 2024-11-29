@@ -158,6 +158,7 @@ var appFlags = []cli.Flag{
 	bflags.BackfillBatchSize,
 	bflags.BackfillWorkerCount,
 	bflags.BackfillOldestSlot,
+	flags.AuthTokenPathFlag,
 }
 
 func init() {
