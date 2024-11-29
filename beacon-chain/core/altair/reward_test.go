@@ -195,7 +195,7 @@ func Test_BaseRewardPerIncrement(t *testing.T) {
 			errString:     "",
 		},
 		{
-			name:          "active balance is 256eth * 1m validators",
+			name:          "active balance is 256eth * 1b validators",
 			epoch:         primitives.Epoch(0),
 			activeBalance: params.BeaconConfig().MaxEffectiveBalance * 1e9,
 			want:          15,
