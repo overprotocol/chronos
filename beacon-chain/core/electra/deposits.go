@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/pkg/errors"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/blocks"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/signing"
@@ -16,9 +17,31 @@ import (
 	enginev1 "github.com/prysmaticlabs/prysm/v5/proto/engine/v1"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	"github.com/prysmaticlabs/prysm/v5/runtime/version"
+	"github.com/prysmaticlabs/prysm/v5/time"
 	"github.com/prysmaticlabs/prysm/v5/time/slots"
 	log "github.com/sirupsen/logrus"
 )
+
+var (
+	processDepositRequestsDuration = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "electra_process_deposit_requests_duration_seconds",
+		Help: "Duration of ProcessDepositRequests function in seconds",
+	})
+	processPendingDepositsDuration = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "electra_process_pending_deposits_duration_seconds",
+		Help: "Duration of ProcessPendingDeposits function in seconds",
+	})
+	processPendingDepositCnt = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "electra_process_pending_deposits_cnt",
+		Help: "Number of processed pending deposits",
+	})
+)
+
+func init() {
+	prometheus.MustRegister(processDepositRequestsDuration)
+	prometheus.MustRegister(processPendingDepositsDuration)
+	prometheus.MustRegister(processPendingDepositCnt)
+}
 
 // ProcessDeposits is one of the operations performed on each processed
 // beacon block to verify queued validators from the Ethereum 1.0 Deposit Contract
@@ -251,6 +274,13 @@ func ProcessPendingDeposits(ctx context.Context, st state.BeaconState, activeBal
 	_, span := trace.StartSpan(ctx, "electra.ProcessPendingDeposits")
 	defer span.End()
 
+	startTime := time.Now()
+	defer func() {
+		duration := time.Since(startTime)
+		processPendingDepositsDuration.Set(duration.Seconds())
+		log.Printf("ProcessPendingDeposits executed in %s", duration)
+	}()
+
 	if st == nil || st.IsNil() {
 		return errors.New("nil state")
 	}
@@ -336,6 +366,9 @@ func ProcessPendingDeposits(ctx context.Context, st state.BeaconState, activeBal
 	if err = batchProcessNewPendingDeposits(ctx, st, pendingDepositsToBatchVerify); err != nil {
 		return errors.Wrap(err, "could not process pending deposits with new public keys")
 	}
+
+	// Add metric fore nextDepositIndex value
+	processPendingDepositCnt.Set(float64(nextDepositIndex))
 
 	// Combined operation:
 	// - state.pending_deposits = state.pending_deposits[next_deposit_index:]
@@ -514,8 +547,16 @@ func GetValidatorFromDeposit(pubKey []byte, withdrawalCredentials []byte, amount
 
 // ProcessDepositRequests is a function as part of electra to process execution layer deposits
 func ProcessDepositRequests(ctx context.Context, beaconState state.BeaconState, requests []*enginev1.DepositRequest) (state.BeaconState, error) {
+	log.Infof("Processing %d deposit requests", len(requests))
 	_, span := trace.StartSpan(ctx, "electra.ProcessDepositRequests")
 	defer span.End()
+
+	startTime := time.Now()
+	defer func() {
+		duration := time.Since(startTime)
+		processDepositRequestsDuration.Set(duration.Seconds())
+		log.Printf("ProcessDepositRequests executed in %s", duration)
+	}()
 
 	if len(requests) == 0 {
 		return beaconState, nil

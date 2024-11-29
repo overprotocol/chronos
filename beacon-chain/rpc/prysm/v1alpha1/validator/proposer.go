@@ -11,6 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	emptypb "github.com/golang/protobuf/ptypes/empty"
 	"github.com/pkg/errors"
+	"github.com/prometheus/client_golang/prometheus"
 	builderapi "github.com/prysmaticlabs/prysm/v5/api/client/builder"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/blockchain"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/builder"
@@ -37,6 +38,17 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+var (
+	processV3Duration = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "get_beacon_block_v3_duration",
+		Help: "Duration of processing ProduceBlockV3 request",
+	})
+)
+
+func init() {
+	prometheus.MustRegister(processV3Duration)
+}
+
 // eth1DataNotification is a latch to stop flooding logs with the same warning.
 var eth1DataNotification bool
 
@@ -53,6 +65,12 @@ func (vs *Server) GetBeaconBlock(ctx context.Context, req *ethpb.BlockRequest) (
 	span.SetAttributes(trace.Int64Attribute("slot", int64(req.Slot)))
 
 	t, err := slots.ToTime(uint64(vs.TimeFetcher.GenesisTime().Unix()), req.Slot)
+
+	defer func() {
+		duration := time.Since(t)
+		processV3Duration.Set(duration.Seconds())
+	}()
+
 	if err != nil {
 		log.WithError(err).Error("Could not convert slot to time")
 	}
