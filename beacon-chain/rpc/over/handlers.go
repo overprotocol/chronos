@@ -394,7 +394,7 @@ func calculateExitEpochForAlpaca(st state.ReadOnlyBeaconState, exitBalance primi
 	if err != nil {
 		return 0, err
 	}
-	exitBalanceToConsumeFroState, err := st.ExitBalanceToConsume()
+	exitBalanceToConsumeFromState, err := st.ExitBalanceToConsume()
 	if err != nil {
 		return 0, err
 	}
@@ -405,7 +405,7 @@ func calculateExitEpochForAlpaca(st state.ReadOnlyBeaconState, exitBalance primi
 	if earliestExitEpochFromState < earliestExitEpoch {
 		exitBalanceToConsume = perEpochChurn
 	} else {
-		exitBalanceToConsume = exitBalanceToConsumeFroState
+		exitBalanceToConsume = exitBalanceToConsumeFromState
 	}
 
 	if exitBalance > exitBalanceToConsume {
