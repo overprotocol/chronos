@@ -118,7 +118,6 @@ func TestGetSpec(t *testing.T) {
 	config.TerminalTotalDifficulty = "63"
 	config.DefaultFeeRecipient = common.HexToAddress("DefaultFeeRecipient")
 	config.MaxWithdrawalsPerPayload = 65
-	config.MaxBlsToExecutionChanges = 66
 	config.MaxValidatorsPerWithdrawalsSweep = 67
 	config.ChurnLimitBias = 68
 	config.IssuanceRate = [11]uint64{69, 69, 69, 69, 69, 69, 69, 69, 69, 69, 69}
@@ -199,7 +198,7 @@ func TestGetSpec(t *testing.T) {
 	data, ok := resp.Data.(map[string]interface{})
 	require.Equal(t, true, ok)
 
-	assert.Equal(t, 159, len(data))
+	assert.Equal(t, 157, len(data))
 	for k, v := range data {
 		t.Run(k, func(t *testing.T) {
 			switch k {
@@ -371,8 +370,6 @@ func TestGetSpec(t *testing.T) {
 				assert.Equal(t, "0x30303037", v)
 			case "DOMAIN_APPLICATION_MASK":
 				assert.Equal(t, "0x31303030", v)
-			case "DOMAIN_BLS_TO_EXECUTION_CHANGE":
-				assert.Equal(t, "0x0a000000", v)
 			case "DOMAIN_APPLICATION_BUILDER":
 				assert.Equal(t, "0x00000001", v)
 			case "DOMAIN_BLOB_SIDECAR":
@@ -397,8 +394,6 @@ func TestGetSpec(t *testing.T) {
 				assert.Equal(t, "3", v)
 			case "MAX_WITHDRAWALS_PER_PAYLOAD":
 				assert.Equal(t, "65", v)
-			case "MAX_BLS_TO_EXECUTION_CHANGES":
-				assert.Equal(t, "66", v)
 			case "MAX_VALIDATORS_PER_WITHDRAWALS_SWEEP":
 				assert.Equal(t, "67", v)
 			case "REORG_MAX_EPOCHS_SINCE_FINALIZATION":

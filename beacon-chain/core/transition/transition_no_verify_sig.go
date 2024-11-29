@@ -201,17 +201,6 @@ func ProcessBlockNoVerifyAnySig(
 	set := bls.NewSet()
 	set.Join(bSet).Join(rSet).Join(aSet)
 
-	if blk.Version() >= version.Capella {
-		changes, err := signed.Block().Body().BLSToExecutionChanges()
-		if err != nil {
-			return nil, nil, errors.Wrap(err, "could not get BLSToExecutionChanges")
-		}
-		cSet, err := b.BLSChangesSignatureBatch(st, changes)
-		if err != nil {
-			return nil, nil, errors.Wrap(err, "could not get BLSToExecutionChanges signatures")
-		}
-		set.Join(cSet)
-	}
 	return set, st, nil
 }
 
@@ -241,7 +230,6 @@ func ProcessBlockNoVerifyAnySig(
 //	    for_ops(body.attestations, process_attestation)  # [Modified in Electra:EIP7549]
 //	    for_ops(body.deposits, process_deposit)  # [Modified in Electra:EIP7251]
 //	    for_ops(body.voluntary_exits, process_voluntary_exit)  # [Modified in Electra:EIP7251]
-//	    for_ops(body.bls_to_execution_changes, process_bls_to_execution_change)
 //	    # [New in Electra:EIP7002:EIP7251]
 //	    for_ops(body.execution_payload.withdrawal_requests, process_execution_layer_withdrawal_request)
 //	    for_ops(body.execution_payload.deposit_requests, process_deposit_requests)  # [New in Electra:EIP6110]
@@ -384,11 +372,7 @@ func altairOperations(
 	if _, err := altair.ProcessDeposits(ctx, st, beaconBlock.Body().Deposits()); err != nil {
 		return nil, errors.Wrap(err, "could not process altair deposit")
 	}
-	st, err = b.ProcessVoluntaryExits(ctx, st, beaconBlock.Body().VoluntaryExits())
-	if err != nil {
-		return nil, errors.Wrap(err, "could not process voluntary exits")
-	}
-	return b.ProcessBLSToExecutionChanges(st, beaconBlock)
+	return b.ProcessVoluntaryExits(ctx, st, beaconBlock.Body().VoluntaryExits())
 }
 
 // This calls phase 0 block operations.

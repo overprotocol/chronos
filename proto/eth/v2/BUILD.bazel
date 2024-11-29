@@ -38,7 +38,6 @@ ssz_gen_marshal(
         "//proto/eth/v1:go_default_library",
     ],
     objs = [
-        "BlsToExecutionChange",
         "SignedBeaconBlockAltair",
         "SignedBeaconBlockBellatrix",
         "SignedBlindedBeaconBlockBellatrix",
@@ -46,8 +45,6 @@ ssz_gen_marshal(
         "SignedBlindedBeaconBlockCapella",
         "SignedBeaconBlockDeneb",
         "SignedBlindedBeaconBlockDeneb",
-        "BlsToExecutionChange",
-        "SignedBlsToExecutionChange",
         "SignedBeaconBlockContentsDeneb",
         "BeaconBlockContentsDeneb",
         "BlobIdentifier",
@@ -89,7 +86,6 @@ ssz_proto_files(
     srcs = [
         "beacon_block.proto",
         "validator.proto",
-        "withdrawals.proto",
     ],
     config = select({
         "//conditions:default": "mainnet",

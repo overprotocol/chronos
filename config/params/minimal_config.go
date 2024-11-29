@@ -66,7 +66,6 @@ func MinimalSpecConfig() *BeaconChainConfig {
 	minimalConfig.MaxDeposits = 16
 	minimalConfig.MaxVoluntaryExits = 16
 	minimalConfig.MaxWithdrawalsPerPayload = 4
-	minimalConfig.MaxBlsToExecutionChanges = 16
 	minimalConfig.MaxValidatorsPerWithdrawalsSweep = 16
 
 	// Signature domains

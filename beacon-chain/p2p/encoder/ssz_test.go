@@ -115,8 +115,6 @@ type MetaDataV1Creator struct{}
 type BlobSidecarsByRangeRequestCreator struct{}
 type DepositSnapshotCreator struct{}
 type ValidatorCreator struct{}
-type BLSToExecutionChangeCreator struct{}
-type SignedBLSToExecutionChangeCreator struct{}
 
 func (AttestationCreator) Create() MarshalerProtoMessage        { return &ethpb.Attestation{} }
 func (AttestationElectraCreator) Create() MarshalerProtoMessage { return &ethpb.AttestationElectra{} }
@@ -281,12 +279,6 @@ func (BlobSidecarsByRangeRequestCreator) Create() MarshalerProtoMessage {
 }
 func (DepositSnapshotCreator) Create() MarshalerProtoMessage { return &ethpb.DepositSnapshot{} }
 func (ValidatorCreator) Create() MarshalerProtoMessage       { return &ethpb.Validator{} }
-func (BLSToExecutionChangeCreator) Create() MarshalerProtoMessage {
-	return &ethpb.BLSToExecutionChange{}
-}
-func (SignedBLSToExecutionChangeCreator) Create() MarshalerProtoMessage {
-	return &ethpb.SignedBLSToExecutionChange{}
-}
 
 var creators = []MarshalerProtoCreator{
 	AttestationCreator{},
@@ -371,8 +363,6 @@ var creators = []MarshalerProtoCreator{
 	BlobSidecarsByRangeRequestCreator{},
 	DepositSnapshotCreator{},
 	ValidatorCreator{},
-	BLSToExecutionChangeCreator{},
-	SignedBLSToExecutionChangeCreator{},
 }
 
 func assertProtoMessagesEqual(t *testing.T, decoded, msg proto.Message) {

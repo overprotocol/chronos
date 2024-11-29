@@ -18,9 +18,6 @@ const (
 	// ExitReceived is sent after an voluntary exit object has been received from the outside world (eg in RPC or sync)
 	ExitReceived
 
-	// BLSToExecutionChangeReceived is sent after a BLS to execution change object has been received from gossip or rpc.
-	BLSToExecutionChangeReceived
-
 	// BlobSidecarReceived is sent after a blob sidecar is received from gossip or rpc.
 	BlobSidecarReceived = 6
 
@@ -47,11 +44,6 @@ type AggregatedAttReceivedData struct {
 type ExitReceivedData struct {
 	// Exit is the voluntary exit object.
 	Exit *ethpb.SignedVoluntaryExit
-}
-
-// BLSToExecutionChangeReceivedData is the data sent with BLSToExecutionChangeReceived events.
-type BLSToExecutionChangeReceivedData struct {
-	Change *ethpb.SignedBLSToExecutionChange
 }
 
 // BlobSidecarReceivedData is the data sent with BlobSidecarReceived events.

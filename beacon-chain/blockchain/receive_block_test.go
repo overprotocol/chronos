@@ -336,54 +336,6 @@ func TestHandleCaches_DisablingLargeSize(t *testing.T) {
 	assert.LogsContain(t, hook, "Reducing committee cache size")
 }
 
-func TestHandleBlockBLSToExecutionChanges(t *testing.T) {
-	service, tr := minimalTestService(t)
-	pool := tr.blsPool
-
-	t.Run("pre Capella block", func(t *testing.T) {
-		body := &ethpb.BeaconBlockBodyBellatrix{}
-		pbb := &ethpb.BeaconBlockBellatrix{
-			Body: body,
-		}
-		blk, err := blocks.NewBeaconBlock(pbb)
-		require.NoError(t, err)
-		require.NoError(t, service.markIncludedBlockBLSToExecChanges(blk))
-	})
-
-	t.Run("Post Capella no changes", func(t *testing.T) {
-		body := &ethpb.BeaconBlockBodyCapella{}
-		pbb := &ethpb.BeaconBlockCapella{
-			Body: body,
-		}
-		blk, err := blocks.NewBeaconBlock(pbb)
-		require.NoError(t, err)
-		require.NoError(t, service.markIncludedBlockBLSToExecChanges(blk))
-	})
-
-	t.Run("Post Capella some changes", func(t *testing.T) {
-		idx := primitives.ValidatorIndex(123)
-		change := &ethpb.BLSToExecutionChange{
-			ValidatorIndex: idx,
-		}
-		signedChange := &ethpb.SignedBLSToExecutionChange{
-			Message: change,
-		}
-		body := &ethpb.BeaconBlockBodyCapella{
-			BlsToExecutionChanges: []*ethpb.SignedBLSToExecutionChange{signedChange},
-		}
-		pbb := &ethpb.BeaconBlockCapella{
-			Body: body,
-		}
-		blk, err := blocks.NewBeaconBlock(pbb)
-		require.NoError(t, err)
-
-		pool.InsertBLSToExecChange(signedChange)
-		require.Equal(t, true, pool.ValidatorExists(idx))
-		require.NoError(t, service.markIncludedBlockBLSToExecChanges(blk))
-		require.Equal(t, false, pool.ValidatorExists(idx))
-	})
-}
-
 func Test_sendNewFinalizedEvent(t *testing.T) {
 	s, _ := minimalTestService(t)
 	notifier := &blockchainTesting.MockStateNotifier{RecordEvents: true}

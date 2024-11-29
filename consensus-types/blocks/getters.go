@@ -178,7 +178,6 @@ func (b *SignedBeaconBlock) ToBlinded() (interfaces.ReadOnlySignedBeaconBlock, e
 						Deposits:               b.block.body.deposits,
 						VoluntaryExits:         b.block.body.voluntaryExits,
 						ExecutionPayloadHeader: header,
-						BlsToExecutionChanges:  b.block.body.blsToExecutionChanges,
 						BlobKzgCommitments:     b.block.body.blobKzgCommitments,
 						ExecutionRequests:      b.block.body.executionRequests,
 					},
@@ -236,7 +235,6 @@ func (b *SignedBeaconBlock) ToBlinded() (interfaces.ReadOnlySignedBeaconBlock, e
 						Deposits:               b.block.body.deposits,
 						VoluntaryExits:         b.block.body.voluntaryExits,
 						ExecutionPayloadHeader: header,
-						BlsToExecutionChanges:  b.block.body.blsToExecutionChanges,
 					},
 				},
 				Signature: b.signature[:],
@@ -263,7 +261,6 @@ func (b *SignedBeaconBlock) ToBlinded() (interfaces.ReadOnlySignedBeaconBlock, e
 						Deposits:               b.block.body.deposits,
 						VoluntaryExits:         b.block.body.voluntaryExits,
 						ExecutionPayloadHeader: header,
-						BlsToExecutionChanges:  b.block.body.blsToExecutionChanges,
 						BlobKzgCommitments:     b.block.body.blobKzgCommitments,
 					},
 				},
@@ -1080,13 +1077,6 @@ func (b *BeaconBlockBody) Execution() (interfaces.ExecutionData, error) {
 		}
 		return b.executionPayload, nil
 	}
-}
-
-func (b *BeaconBlockBody) BLSToExecutionChanges() ([]*eth.SignedBLSToExecutionChange, error) {
-	if b.version < version.Capella {
-		return nil, consensus_types.ErrNotSupported("BLSToExecutionChanges", b.version)
-	}
-	return b.blsToExecutionChanges, nil
 }
 
 // BlobKzgCommitments returns the blob kzg commitments in the block.

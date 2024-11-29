@@ -246,24 +246,6 @@ func GenerateProtoCapellaBeaconBlock() *ethpb.BeaconBlockCapella {
 					},
 				},
 			},
-			BlsToExecutionChanges: []*ethpb.SignedBLSToExecutionChange{
-				{
-					Message: &ethpb.BLSToExecutionChange{
-						ValidatorIndex:     135,
-						FromBlsPubkey:      FillByteSlice(48, 136),
-						ToExecutionAddress: FillByteSlice(20, 137),
-					},
-					Signature: FillByteSlice(96, 138),
-				},
-				{
-					Message: &ethpb.BLSToExecutionChange{
-						ValidatorIndex:     139,
-						FromBlsPubkey:      FillByteSlice(48, 140),
-						ToExecutionAddress: FillByteSlice(20, 141),
-					},
-					Signature: FillByteSlice(96, 142),
-				},
-			},
 		},
 	}
 }
@@ -490,24 +472,6 @@ func GenerateProtoBlindedCapellaBeaconBlock() *ethpb.BlindedBeaconBlockCapella {
 				BlockHash:        FillByteSlice(32, 124),
 				TransactionsRoot: FillByteSlice(32, 125),
 				WithdrawalsRoot:  FillByteSlice(32, 126),
-			},
-			BlsToExecutionChanges: []*ethpb.SignedBLSToExecutionChange{
-				{
-					Message: &ethpb.BLSToExecutionChange{
-						ValidatorIndex:     135,
-						FromBlsPubkey:      FillByteSlice(48, 136),
-						ToExecutionAddress: FillByteSlice(20, 137),
-					},
-					Signature: FillByteSlice(96, 138),
-				},
-				{
-					Message: &ethpb.BLSToExecutionChange{
-						ValidatorIndex:     139,
-						FromBlsPubkey:      FillByteSlice(48, 140),
-						ToExecutionAddress: FillByteSlice(20, 141),
-					},
-					Signature: FillByteSlice(96, 142),
-				},
 			},
 		},
 	}
@@ -752,24 +716,6 @@ func GenerateJsonCapellaBeaconBlock() *structs.BeaconBlockCapella {
 					},
 				},
 			},
-			BLSToExecutionChanges: []*structs.SignedBLSToExecutionChange{
-				{
-					Message: &structs.BLSToExecutionChange{
-						ValidatorIndex:     "135",
-						FromBLSPubkey:      FillEncodedByteSlice(48, 136),
-						ToExecutionAddress: FillEncodedByteSlice(20, 137),
-					},
-					Signature: FillEncodedByteSlice(96, 138),
-				},
-				{
-					Message: &structs.BLSToExecutionChange{
-						ValidatorIndex:     "139",
-						FromBLSPubkey:      FillEncodedByteSlice(48, 140),
-						ToExecutionAddress: FillEncodedByteSlice(20, 141),
-					},
-					Signature: FillEncodedByteSlice(96, 142),
-				},
-			},
 		},
 	}
 }
@@ -996,24 +942,6 @@ func GenerateJsonBlindedCapellaBeaconBlock() *structs.BlindedBeaconBlockCapella 
 				BlockHash:        FillEncodedByteSlice(32, 124),
 				TransactionsRoot: FillEncodedByteSlice(32, 125),
 				WithdrawalsRoot:  FillEncodedByteSlice(32, 126),
-			},
-			BLSToExecutionChanges: []*structs.SignedBLSToExecutionChange{
-				{
-					Message: &structs.BLSToExecutionChange{
-						ValidatorIndex:     "135",
-						FromBLSPubkey:      FillEncodedByteSlice(48, 136),
-						ToExecutionAddress: FillEncodedByteSlice(20, 137),
-					},
-					Signature: FillEncodedByteSlice(96, 138),
-				},
-				{
-					Message: &structs.BLSToExecutionChange{
-						ValidatorIndex:     "139",
-						FromBLSPubkey:      FillEncodedByteSlice(48, 140),
-						ToExecutionAddress: FillEncodedByteSlice(20, 141),
-					},
-					Signature: FillEncodedByteSlice(96, 142),
-				},
 			},
 		},
 	}

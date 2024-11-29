@@ -1001,83 +1001,6 @@ func TestBeaconBlockProtoHelpers_ConvertWithdrawalsToProto(t *testing.T) {
 	}
 }
 
-func TestBeaconBlockProtoHelpers_ConvertBlsToExecutionChangesToProto(t *testing.T) {
-	testCases := []struct {
-		name                 string
-		generateInput        func() []*structs.SignedBLSToExecutionChange
-		expectedResult       []*ethpb.SignedBLSToExecutionChange
-		expectedErrorMessage string
-	}{
-		{
-			name:                 "nil bls to execution change",
-			expectedErrorMessage: "bls to execution change at index `0` is nil",
-			generateInput: func() []*structs.SignedBLSToExecutionChange {
-				input := generateBlsToExecutionChanges()
-				input[0] = nil
-				return input
-			},
-		},
-		{
-			name:                 "nil bls to execution change message",
-			expectedErrorMessage: "bls to execution change message at index `0` is nil",
-			generateInput: func() []*structs.SignedBLSToExecutionChange {
-				input := generateBlsToExecutionChanges()
-				input[0].Message = nil
-				return input
-			},
-		},
-		{
-			name:                 "bad validator index",
-			expectedErrorMessage: "failed to decode validator index `foo`",
-			generateInput: func() []*structs.SignedBLSToExecutionChange {
-				input := generateBlsToExecutionChanges()
-				input[0].Message.ValidatorIndex = "foo"
-				return input
-			},
-		},
-		{
-			name:                 "bad from bls pubkey",
-			expectedErrorMessage: "failed to decode bls pubkey `bar`",
-			generateInput: func() []*structs.SignedBLSToExecutionChange {
-				input := generateBlsToExecutionChanges()
-				input[0].Message.FromBLSPubkey = "bar"
-				return input
-			},
-		},
-		{
-			name:                 "bad to execution address",
-			expectedErrorMessage: "failed to decode execution address `foo`",
-			generateInput: func() []*structs.SignedBLSToExecutionChange {
-				input := generateBlsToExecutionChanges()
-				input[0].Message.ToExecutionAddress = "foo"
-				return input
-			},
-		},
-		{
-			name:                 "bad signature",
-			expectedErrorMessage: "failed to decode signature `bar`",
-			generateInput: func() []*structs.SignedBLSToExecutionChange {
-				input := generateBlsToExecutionChanges()
-				input[0].Signature = "bar"
-				return input
-			},
-		},
-	}
-
-	for _, testCase := range testCases {
-		t.Run(testCase.name, func(t *testing.T) {
-			result, err := convertBlsToExecutionChangesToProto(testCase.generateInput())
-
-			if testCase.expectedResult != nil {
-				require.NoError(t, err)
-				assert.DeepEqual(t, testCase.expectedResult, result)
-			} else if testCase.expectedErrorMessage != "" {
-				assert.ErrorContains(t, testCase.expectedErrorMessage, err)
-			}
-		})
-	}
-}
-
 func generateProposerSlashings() []*structs.ProposerSlashing {
 	return []*structs.ProposerSlashing{
 		{
@@ -1360,27 +1283,6 @@ func generateWithdrawals() []*structs.Withdrawal {
 			ValidatorIndex:   "6",
 			ExecutionAddress: hexutil.Encode([]byte{7}),
 			Amount:           "8",
-		},
-	}
-}
-
-func generateBlsToExecutionChanges() []*structs.SignedBLSToExecutionChange {
-	return []*structs.SignedBLSToExecutionChange{
-		{
-			Message: &structs.BLSToExecutionChange{
-				ValidatorIndex:     "1",
-				FromBLSPubkey:      hexutil.Encode([]byte{2}),
-				ToExecutionAddress: hexutil.Encode([]byte{3}),
-			},
-			Signature: hexutil.Encode([]byte{4}),
-		},
-		{
-			Message: &structs.BLSToExecutionChange{
-				ValidatorIndex:     "5",
-				FromBLSPubkey:      hexutil.Encode([]byte{6}),
-				ToExecutionAddress: hexutil.Encode([]byte{7}),
-			},
-			Signature: hexutil.Encode([]byte{8}),
 		},
 	}
 }

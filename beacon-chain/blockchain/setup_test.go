@@ -17,7 +17,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/forkchoice"
 	doublylinkedtree "github.com/prysmaticlabs/prysm/v5/beacon-chain/forkchoice/doubly-linked-tree"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/attestations"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/blstoexec"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/p2p"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/startup"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state/stategen"
@@ -60,9 +59,6 @@ func (mb *mockBroadcaster) BroadcastBlob(_ context.Context, _ uint64, _ *ethpb.B
 	return nil
 }
 
-func (mb *mockBroadcaster) BroadcastBLSChanges(_ context.Context, _ []*ethpb.SignedBLSToExecutionChange) {
-}
-
 var _ p2p.Broadcaster = (*mockBroadcaster)(nil)
 
 type testServiceRequirements struct {
@@ -74,7 +70,6 @@ type testServiceRequirements struct {
 	cs      *startup.ClockSynchronizer
 	attPool attestations.Pool
 	attSrv  *attestations.Service
-	blsPool *blstoexec.Pool
 	dc      *depositsnapshot.Cache
 }
 
@@ -89,7 +84,6 @@ func minimalTestService(t *testing.T, opts ...Option) (*Service, *testServiceReq
 	attPool := attestations.NewPool()
 	attSrv, err := attestations.NewService(ctx, &attestations.Config{Pool: attPool})
 	require.NoError(t, err)
-	blsPool := blstoexec.NewPool()
 	dc, err := depositsnapshot.New()
 	require.NoError(t, err)
 	req := &testServiceRequirements{
@@ -101,7 +95,6 @@ func minimalTestService(t *testing.T, opts ...Option) (*Service, *testServiceReq
 		cs:      cs,
 		attPool: attPool,
 		attSrv:  attSrv,
-		blsPool: blsPool,
 		dc:      dc,
 	}
 	defOpts := []Option{WithDatabase(req.db),
@@ -111,7 +104,6 @@ func minimalTestService(t *testing.T, opts ...Option) (*Service, *testServiceReq
 		WithClockSynchronizer(req.cs),
 		WithAttestationPool(req.attPool),
 		WithAttestationService(req.attSrv),
-		WithBLSToExecPool(req.blsPool),
 		WithDepositCache(dc),
 		WithTrackedValidatorsCache(cache.NewTrackedValidatorsCache()),
 		WithBlobStorage(filesystem.NewEphemeralBlobStorage(t)),

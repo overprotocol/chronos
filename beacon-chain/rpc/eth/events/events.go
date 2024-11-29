@@ -46,8 +46,6 @@ const (
 	FinalizedCheckpointTopic = "finalized_checkpoint"
 	// ChainReorgTopic represents a chain reorganization event topic.
 	ChainReorgTopic = "chain_reorg"
-	// BLSToExecutionChangeTopic represents a new received BLS to execution change event topic.
-	BLSToExecutionChangeTopic = "bls_to_execution_change"
 	// PayloadAttributesTopic represents a new payload attributes for execution payload building event topic.
 	PayloadAttributesTopic = "payload_attributes"
 	// BlobSidecarTopic represents a new blob sidecar event topic
@@ -78,13 +76,12 @@ type StreamingResponseWriter interface {
 type lazyReader func() io.Reader
 
 var opsFeedEventTopics = map[feed.EventType]string{
-	operation.AggregatedAttReceived:        AttestationTopic,
-	operation.UnaggregatedAttReceived:      AttestationTopic,
-	operation.ExitReceived:                 VoluntaryExitTopic,
-	operation.BLSToExecutionChangeReceived: BLSToExecutionChangeTopic,
-	operation.BlobSidecarReceived:          BlobSidecarTopic,
-	operation.AttesterSlashingReceived:     AttesterSlashingTopic,
-	operation.ProposerSlashingReceived:     ProposerSlashingTopic,
+	operation.AggregatedAttReceived:    AttestationTopic,
+	operation.UnaggregatedAttReceived:  AttestationTopic,
+	operation.ExitReceived:             VoluntaryExitTopic,
+	operation.BlobSidecarReceived:      BlobSidecarTopic,
+	operation.AttesterSlashingReceived: AttesterSlashingTopic,
+	operation.ProposerSlashingReceived: ProposerSlashingTopic,
 }
 
 var stateFeedEventTopics = map[feed.EventType]string{
@@ -360,8 +357,6 @@ func topicForEvent(event *feed.Event) string {
 		return AttestationTopic
 	case *operation.ExitReceivedData:
 		return VoluntaryExitTopic
-	case *operation.BLSToExecutionChangeReceivedData:
-		return BLSToExecutionChangeTopic
 	case *operation.BlobSidecarReceivedData:
 		return BlobSidecarTopic
 	case *operation.AttesterSlashingReceivedData:
@@ -432,10 +427,6 @@ func (s *Server) lazyReaderForEvent(ctx context.Context, event *feed.Event, topi
 	case *operation.ExitReceivedData:
 		return func() io.Reader {
 			return jsonMarshalReader(eventName, structs.SignedExitFromConsensus(v.Exit))
-		}, nil
-	case *operation.BLSToExecutionChangeReceivedData:
-		return func() io.Reader {
-			return jsonMarshalReader(eventName, structs.SignedBLSChangeFromConsensus(v.Change))
 		}, nil
 	case *operation.BlobSidecarReceivedData:
 		return func() io.Reader {

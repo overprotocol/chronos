@@ -97,7 +97,6 @@ ssz_bellatrix_objs = [
 ]
 
 ssz_capella_objs = [
-    "BLSToExecutionChange",
     "BeaconBlockBodyCapella",
     "BeaconBlockCapella",
     "BeaconStateCapella",
@@ -106,7 +105,6 @@ ssz_capella_objs = [
     "BlindedBeaconBlockCapella",
     "BuilderBidCapella",
     "HistoricalSummary",
-    "SignedBLSToExecutionChange",
     "SignedBeaconBlockCapella",
     "SignedBlindedBeaconBlockCapella",
     "Withdrawal",
@@ -325,7 +323,6 @@ ssz_proto_files(
         "beacon_block.proto",
         "beacon_state.proto",
         "blobs.proto",
-        "withdrawals.proto",
     ],
     config = select({
         "//conditions:default": "mainnet",

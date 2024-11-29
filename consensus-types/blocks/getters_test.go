@@ -395,15 +395,6 @@ func Test_BeaconBlockBody_VoluntaryExits(t *testing.T) {
 	assert.DeepSSZEqual(t, ve, bb.Block().Body().VoluntaryExits())
 }
 
-func Test_BeaconBlockBody_BLSToExecutionChanges(t *testing.T) {
-	changes := []*eth.SignedBLSToExecutionChange{{Message: &eth.BLSToExecutionChange{ToExecutionAddress: []byte("address")}}}
-	bb := &SignedBeaconBlock{version: version.Capella, block: &BeaconBlock{body: &BeaconBlockBody{version: version.Capella}}}
-	require.NoError(t, bb.SetBLSToExecutionChanges(changes))
-	result, err := bb.Block().Body().BLSToExecutionChanges()
-	require.NoError(t, err)
-	assert.DeepSSZEqual(t, result, changes)
-}
-
 func Test_BeaconBlockBody_Execution(t *testing.T) {
 	execution := &pb.ExecutionPayload{BlockNumber: 1}
 	e, err := WrappedExecutionPayload(execution)

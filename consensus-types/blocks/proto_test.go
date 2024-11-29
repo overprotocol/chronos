@@ -26,7 +26,6 @@ type fields struct {
 	execPayloadHeaderCapella *enginev1.ExecutionPayloadHeaderCapella
 	execPayloadDeneb         *enginev1.ExecutionPayloadDeneb
 	execPayloadHeaderDeneb   *enginev1.ExecutionPayloadHeaderDeneb
-	blsToExecutionChanges    []*eth.SignedBLSToExecutionChange
 	kzgCommitments           [][]byte
 }
 
@@ -1163,14 +1162,13 @@ func bodyPbCapella() *eth.BeaconBlockBodyCapella {
 			DepositCount: 128,
 			BlockHash:    f.root[:],
 		},
-		Graffiti:              f.root[:],
-		ProposerSlashings:     f.proposerSlashings,
-		AttesterSlashings:     f.attesterSlashings,
-		Attestations:          f.atts,
-		Deposits:              f.deposits,
-		VoluntaryExits:        f.voluntaryExits,
-		ExecutionPayload:      f.execPayloadCapella,
-		BlsToExecutionChanges: f.blsToExecutionChanges,
+		Graffiti:          f.root[:],
+		ProposerSlashings: f.proposerSlashings,
+		AttesterSlashings: f.attesterSlashings,
+		Attestations:      f.atts,
+		Deposits:          f.deposits,
+		VoluntaryExits:    f.voluntaryExits,
+		ExecutionPayload:  f.execPayloadCapella,
 	}
 }
 
@@ -1190,7 +1188,6 @@ func bodyPbBlindedCapella() *eth.BlindedBeaconBlockBodyCapella {
 		Deposits:               f.deposits,
 		VoluntaryExits:         f.voluntaryExits,
 		ExecutionPayloadHeader: f.execPayloadHeaderCapella,
-		BlsToExecutionChanges:  f.blsToExecutionChanges,
 	}
 }
 
@@ -1203,15 +1200,14 @@ func bodyPbDeneb() *eth.BeaconBlockBodyDeneb {
 			DepositCount: 128,
 			BlockHash:    f.root[:],
 		},
-		Graffiti:              f.root[:],
-		ProposerSlashings:     f.proposerSlashings,
-		AttesterSlashings:     f.attesterSlashings,
-		Attestations:          f.atts,
-		Deposits:              f.deposits,
-		VoluntaryExits:        f.voluntaryExits,
-		ExecutionPayload:      f.execPayloadDeneb,
-		BlsToExecutionChanges: f.blsToExecutionChanges,
-		BlobKzgCommitments:    f.kzgCommitments,
+		Graffiti:           f.root[:],
+		ProposerSlashings:  f.proposerSlashings,
+		AttesterSlashings:  f.attesterSlashings,
+		Attestations:       f.atts,
+		Deposits:           f.deposits,
+		VoluntaryExits:     f.voluntaryExits,
+		ExecutionPayload:   f.execPayloadDeneb,
+		BlobKzgCommitments: f.kzgCommitments,
 	}
 }
 
@@ -1231,7 +1227,6 @@ func bodyPbBlindedDeneb() *eth.BlindedBeaconBlockBodyDeneb {
 		Deposits:               f.deposits,
 		VoluntaryExits:         f.voluntaryExits,
 		ExecutionPayloadHeader: f.execPayloadHeaderDeneb,
-		BlsToExecutionChanges:  f.blsToExecutionChanges,
 		BlobKzgCommitments:     f.kzgCommitments,
 	}
 }
@@ -1330,14 +1325,13 @@ func bodyCapella(t *testing.T) *BeaconBlockBody {
 			DepositCount: 128,
 			BlockHash:    f.root[:],
 		},
-		graffiti:              f.root,
-		proposerSlashings:     f.proposerSlashings,
-		attesterSlashings:     f.attesterSlashings,
-		attestations:          f.atts,
-		deposits:              f.deposits,
-		voluntaryExits:        f.voluntaryExits,
-		executionPayload:      p,
-		blsToExecutionChanges: f.blsToExecutionChanges,
+		graffiti:          f.root,
+		proposerSlashings: f.proposerSlashings,
+		attesterSlashings: f.attesterSlashings,
+		attestations:      f.atts,
+		deposits:          f.deposits,
+		voluntaryExits:    f.voluntaryExits,
+		executionPayload:  p,
 	}
 }
 
@@ -1360,7 +1354,6 @@ func bodyBlindedCapella(t *testing.T) *BeaconBlockBody {
 		deposits:               f.deposits,
 		voluntaryExits:         f.voluntaryExits,
 		executionPayloadHeader: ph,
-		blsToExecutionChanges:  f.blsToExecutionChanges,
 	}
 }
 
@@ -1376,15 +1369,14 @@ func bodyDeneb(t *testing.T) *BeaconBlockBody {
 			DepositCount: 128,
 			BlockHash:    f.root[:],
 		},
-		graffiti:              f.root,
-		proposerSlashings:     f.proposerSlashings,
-		attesterSlashings:     f.attesterSlashings,
-		attestations:          f.atts,
-		deposits:              f.deposits,
-		voluntaryExits:        f.voluntaryExits,
-		executionPayload:      p,
-		blsToExecutionChanges: f.blsToExecutionChanges,
-		blobKzgCommitments:    f.kzgCommitments,
+		graffiti:           f.root,
+		proposerSlashings:  f.proposerSlashings,
+		attesterSlashings:  f.attesterSlashings,
+		attestations:       f.atts,
+		deposits:           f.deposits,
+		voluntaryExits:     f.voluntaryExits,
+		executionPayload:   p,
+		blobKzgCommitments: f.kzgCommitments,
 	}
 }
 
@@ -1407,7 +1399,6 @@ func bodyBlindedDeneb(t *testing.T) *BeaconBlockBody {
 		deposits:               f.deposits,
 		voluntaryExits:         f.voluntaryExits,
 		executionPayloadHeader: ph,
-		blsToExecutionChanges:  f.blsToExecutionChanges,
 		blobKzgCommitments:     f.kzgCommitments,
 	}
 }
@@ -1601,14 +1592,6 @@ func getFields() fields {
 		TransactionsRoot: root[:],
 		WithdrawalsRoot:  root[:],
 	}
-	blsToExecutionChanges := []*eth.SignedBLSToExecutionChange{{
-		Message: &eth.BLSToExecutionChange{
-			ValidatorIndex:     128,
-			FromBlsPubkey:      b48,
-			ToExecutionAddress: b20,
-		},
-		Signature: sig[:],
-	}}
 
 	execPayloadDeneb := &enginev1.ExecutionPayloadDeneb{
 		ParentHash:    root[:],
@@ -1680,7 +1663,6 @@ func getFields() fields {
 		execPayloadHeaderCapella: execPayloadHeaderCapella,
 		execPayloadDeneb:         execPayloadDeneb,
 		execPayloadHeaderDeneb:   execPayloadHeaderDeneb,
-		blsToExecutionChanges:    blsToExecutionChanges,
 		kzgCommitments:           kzgCommitments,
 	}
 }

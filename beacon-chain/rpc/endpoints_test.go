@@ -43,7 +43,6 @@ func Test_endpoints(t *testing.T) {
 		"/eth/v2/beacon/pool/attester_slashings":                     {http.MethodGet, http.MethodPost},
 		"/eth/v1/beacon/pool/proposer_slashings":                     {http.MethodGet, http.MethodPost},
 		"/eth/v1/beacon/pool/voluntary_exits":                        {http.MethodGet, http.MethodPost},
-		"/eth/v1/beacon/pool/bls_to_execution_changes":               {http.MethodGet},
 		"/prysm/v1/beacon/individual_votes":                          {http.MethodPost},
 	}
 
@@ -120,7 +119,6 @@ func Test_endpoints(t *testing.T) {
 	}
 
 	overRoutes := map[string][]string{
-		"/chronos/validator/estimated_activation/{validator_id}":                 {http.MethodGet, http.MethodPost},
 		"/chronos/states/epoch_reward/{epoch}":                                   {http.MethodGet},
 		"/over/v1/beacon/states/{state_id}/reserves":                             {http.MethodGet},
 		"/over/v1/beacon/states/{state_id}/deposit_estimation":                   {http.MethodGet},

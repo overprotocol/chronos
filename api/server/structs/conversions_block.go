@@ -906,10 +906,6 @@ func (b *BeaconBlockCapella) ToConsensus() (*eth.BeaconBlockCapella, error) {
 			Amount:         amount,
 		}
 	}
-	blsChanges, err := SignedBLSChangesToConsensus(b.Body.BLSToExecutionChanges)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "Body.BLSToExecutionChanges")
-	}
 
 	return &eth.BeaconBlockCapella{
 		Slot:          primitives.Slot(slot),
@@ -946,7 +942,6 @@ func (b *BeaconBlockCapella) ToConsensus() (*eth.BeaconBlockCapella, error) {
 				Transactions:  payloadTxs,
 				Withdrawals:   withdrawals,
 			},
-			BlsToExecutionChanges: blsChanges,
 		},
 	}, nil
 }
@@ -1109,10 +1104,6 @@ func (b *BlindedBeaconBlockCapella) ToConsensus() (*eth.BlindedBeaconBlockCapell
 	if err != nil {
 		return nil, server.NewDecodeError(err, "Body.ExecutionPayloadHeader.WithdrawalsRoot")
 	}
-	blsChanges, err := SignedBLSChangesToConsensus(b.Body.BLSToExecutionChanges)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "Body.BLSToExecutionChanges")
-	}
 
 	return &eth.BlindedBeaconBlockCapella{
 		Slot:          primitives.Slot(slot),
@@ -1149,7 +1140,6 @@ func (b *BlindedBeaconBlockCapella) ToConsensus() (*eth.BlindedBeaconBlockCapell
 				TransactionsRoot: payloadTxsRoot,
 				WithdrawalsRoot:  payloadWithdrawalsRoot,
 			},
-			BlsToExecutionChanges: blsChanges,
 		},
 	}, nil
 }
@@ -1403,10 +1393,6 @@ func (b *BeaconBlockDeneb) ToConsensus() (*eth.BeaconBlockDeneb, error) {
 	if err != nil {
 		return nil, server.NewDecodeError(err, "Body.ExecutionPayload.ExcessBlobGas")
 	}
-	blsChanges, err := SignedBLSChangesToConsensus(b.Body.BLSToExecutionChanges)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "Body.BLSToExecutionChanges")
-	}
 	err = slice.VerifyMaxLength(b.Body.BlobKzgCommitments, fieldparams.MaxBlobCommitmentsPerBlock)
 	if err != nil {
 		return nil, server.NewDecodeError(err, "Body.BlobKzgCommitments")
@@ -1456,8 +1442,7 @@ func (b *BeaconBlockDeneb) ToConsensus() (*eth.BeaconBlockDeneb, error) {
 				BlobGasUsed:   payloadBlobGasUsed,
 				ExcessBlobGas: payloadExcessBlobGas,
 			},
-			BlsToExecutionChanges: blsChanges,
-			BlobKzgCommitments:    blobKzgCommitments,
+			BlobKzgCommitments: blobKzgCommitments,
 		},
 	}, nil
 }
@@ -1658,10 +1643,6 @@ func (b *BlindedBeaconBlockDeneb) ToConsensus() (*eth.BlindedBeaconBlockDeneb, e
 		return nil, server.NewDecodeError(err, "Body.ExecutionPayload.ExcessBlobGas")
 	}
 
-	blsChanges, err := SignedBLSChangesToConsensus(b.Body.BLSToExecutionChanges)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "Body.BLSToExecutionChanges")
-	}
 	err = slice.VerifyMaxLength(b.Body.BlobKzgCommitments, fieldparams.MaxBlobCommitmentsPerBlock)
 	if err != nil {
 		return nil, server.NewDecodeError(err, "Body.BlobKzgCommitments")
@@ -1712,8 +1693,7 @@ func (b *BlindedBeaconBlockDeneb) ToConsensus() (*eth.BlindedBeaconBlockDeneb, e
 				BlobGasUsed:      payloadBlobGasUsed,
 				ExcessBlobGas:    payloadExcessBlobGas,
 			},
-			BlsToExecutionChanges: blsChanges,
-			BlobKzgCommitments:    blobKzgCommitments,
+			BlobKzgCommitments: blobKzgCommitments,
 		},
 	}, nil
 }
@@ -2000,10 +1980,6 @@ func (b *BeaconBlockElectra) ToConsensus() (*eth.BeaconBlockElectra, error) {
 		}
 	}
 
-	blsChanges, err := SignedBLSChangesToConsensus(b.Body.BLSToExecutionChanges)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "Body.BLSToExecutionChanges")
-	}
 	err = slice.VerifyMaxLength(b.Body.BlobKzgCommitments, fieldparams.MaxBlobCommitmentsPerBlock)
 	if err != nil {
 		return nil, server.NewDecodeError(err, "Body.BlobKzgCommitments")
@@ -2053,8 +2029,7 @@ func (b *BeaconBlockElectra) ToConsensus() (*eth.BeaconBlockElectra, error) {
 				BlobGasUsed:   payloadBlobGasUsed,
 				ExcessBlobGas: payloadExcessBlobGas,
 			},
-			BlsToExecutionChanges: blsChanges,
-			BlobKzgCommitments:    blobKzgCommitments,
+			BlobKzgCommitments: blobKzgCommitments,
 			ExecutionRequests: &enginev1.ExecutionRequests{
 				Deposits:    depositRequests,
 				Withdrawals: withdrawalRequests,
@@ -2276,10 +2251,6 @@ func (b *BlindedBeaconBlockElectra) ToConsensus() (*eth.BlindedBeaconBlockElectr
 		}
 	}
 
-	blsChanges, err := SignedBLSChangesToConsensus(b.Body.BLSToExecutionChanges)
-	if err != nil {
-		return nil, server.NewDecodeError(err, "Body.BLSToExecutionChanges")
-	}
 	err = slice.VerifyMaxLength(b.Body.BlobKzgCommitments, fieldparams.MaxBlobCommitmentsPerBlock)
 	if err != nil {
 		return nil, server.NewDecodeError(err, "Body.BlobKzgCommitments")
@@ -2330,8 +2301,7 @@ func (b *BlindedBeaconBlockElectra) ToConsensus() (*eth.BlindedBeaconBlockElectr
 				BlobGasUsed:      payloadBlobGasUsed,
 				ExcessBlobGas:    payloadExcessBlobGas,
 			},
-			BlsToExecutionChanges: blsChanges,
-			BlobKzgCommitments:    blobKzgCommitments,
+			BlobKzgCommitments: blobKzgCommitments,
 			ExecutionRequests: &enginev1.ExecutionRequests{
 				Deposits:    depositRequests,
 				Withdrawals: withdrawalRequests,
@@ -2538,7 +2508,6 @@ func BlindedBeaconBlockCapellaFromConsensus(b *eth.BlindedBeaconBlockCapella) (*
 			Deposits:               DepositsFromConsensus(b.Body.Deposits),
 			VoluntaryExits:         SignedExitsFromConsensus(b.Body.VoluntaryExits),
 			ExecutionPayloadHeader: payload,
-			BLSToExecutionChanges:  SignedBLSChangesFromConsensus(b.Body.BlsToExecutionChanges),
 		},
 	}, nil
 }
@@ -2566,16 +2535,15 @@ func BeaconBlockCapellaFromConsensus(b *eth.BeaconBlockCapella) (*BeaconBlockCap
 		ParentRoot:    hexutil.Encode(b.ParentRoot),
 		StateRoot:     hexutil.Encode(b.StateRoot),
 		Body: &BeaconBlockBodyCapella{
-			RandaoReveal:          hexutil.Encode(b.Body.RandaoReveal),
-			Eth1Data:              Eth1DataFromConsensus(b.Body.Eth1Data),
-			Graffiti:              hexutil.Encode(b.Body.Graffiti),
-			ProposerSlashings:     ProposerSlashingsFromConsensus(b.Body.ProposerSlashings),
-			AttesterSlashings:     AttesterSlashingsFromConsensus(b.Body.AttesterSlashings),
-			Attestations:          AttsFromConsensus(b.Body.Attestations),
-			Deposits:              DepositsFromConsensus(b.Body.Deposits),
-			VoluntaryExits:        SignedExitsFromConsensus(b.Body.VoluntaryExits),
-			ExecutionPayload:      payload,
-			BLSToExecutionChanges: SignedBLSChangesFromConsensus(b.Body.BlsToExecutionChanges),
+			RandaoReveal:      hexutil.Encode(b.Body.RandaoReveal),
+			Eth1Data:          Eth1DataFromConsensus(b.Body.Eth1Data),
+			Graffiti:          hexutil.Encode(b.Body.Graffiti),
+			ProposerSlashings: ProposerSlashingsFromConsensus(b.Body.ProposerSlashings),
+			AttesterSlashings: AttesterSlashingsFromConsensus(b.Body.AttesterSlashings),
+			Attestations:      AttsFromConsensus(b.Body.Attestations),
+			Deposits:          DepositsFromConsensus(b.Body.Deposits),
+			VoluntaryExits:    SignedExitsFromConsensus(b.Body.VoluntaryExits),
+			ExecutionPayload:  payload,
 		},
 	}, nil
 }
@@ -2659,7 +2627,6 @@ func BlindedBeaconBlockDenebFromConsensus(b *eth.BlindedBeaconBlockDeneb) (*Blin
 			Deposits:               DepositsFromConsensus(b.Body.Deposits),
 			VoluntaryExits:         SignedExitsFromConsensus(b.Body.VoluntaryExits),
 			ExecutionPayloadHeader: payload,
-			BLSToExecutionChanges:  SignedBLSChangesFromConsensus(b.Body.BlsToExecutionChanges),
 			BlobKzgCommitments:     blobKzgCommitments,
 		},
 	}, nil
@@ -2723,8 +2690,7 @@ func BeaconBlockDenebFromConsensus(b *eth.BeaconBlockDeneb) (*BeaconBlockDeneb, 
 				BlobGasUsed:   fmt.Sprintf("%d", b.Body.ExecutionPayload.BlobGasUsed),
 				ExcessBlobGas: fmt.Sprintf("%d", b.Body.ExecutionPayload.ExcessBlobGas),
 			},
-			BLSToExecutionChanges: SignedBLSChangesFromConsensus(b.Body.BlsToExecutionChanges),
-			BlobKzgCommitments:    blobKzgCommitments,
+			BlobKzgCommitments: blobKzgCommitments,
 		},
 	}, nil
 }
@@ -2808,7 +2774,6 @@ func BlindedBeaconBlockElectraFromConsensus(b *eth.BlindedBeaconBlockElectra) (*
 			Deposits:               DepositsFromConsensus(b.Body.Deposits),
 			VoluntaryExits:         SignedExitsFromConsensus(b.Body.VoluntaryExits),
 			ExecutionPayloadHeader: payload,
-			BLSToExecutionChanges:  SignedBLSChangesFromConsensus(b.Body.BlsToExecutionChanges),
 			BlobKzgCommitments:     blobKzgCommitments,
 			ExecutionRequests:      ExecutionRequestsFromConsensus(b.Body.ExecutionRequests),
 		},
@@ -2849,18 +2814,17 @@ func BeaconBlockElectraFromConsensus(b *eth.BeaconBlockElectra) (*BeaconBlockEle
 		ParentRoot:    hexutil.Encode(b.ParentRoot),
 		StateRoot:     hexutil.Encode(b.StateRoot),
 		Body: &BeaconBlockBodyElectra{
-			RandaoReveal:          hexutil.Encode(b.Body.RandaoReveal),
-			Eth1Data:              Eth1DataFromConsensus(b.Body.Eth1Data),
-			Graffiti:              hexutil.Encode(b.Body.Graffiti),
-			ProposerSlashings:     ProposerSlashingsFromConsensus(b.Body.ProposerSlashings),
-			AttesterSlashings:     AttesterSlashingsElectraFromConsensus(b.Body.AttesterSlashings),
-			Attestations:          AttsElectraFromConsensus(b.Body.Attestations),
-			Deposits:              DepositsFromConsensus(b.Body.Deposits),
-			VoluntaryExits:        SignedExitsFromConsensus(b.Body.VoluntaryExits),
-			ExecutionPayload:      payload,
-			BLSToExecutionChanges: SignedBLSChangesFromConsensus(b.Body.BlsToExecutionChanges),
-			BlobKzgCommitments:    blobKzgCommitments,
-			ExecutionRequests:     ExecutionRequestsFromConsensus(b.Body.ExecutionRequests),
+			RandaoReveal:       hexutil.Encode(b.Body.RandaoReveal),
+			Eth1Data:           Eth1DataFromConsensus(b.Body.Eth1Data),
+			Graffiti:           hexutil.Encode(b.Body.Graffiti),
+			ProposerSlashings:  ProposerSlashingsFromConsensus(b.Body.ProposerSlashings),
+			AttesterSlashings:  AttesterSlashingsElectraFromConsensus(b.Body.AttesterSlashings),
+			Attestations:       AttsElectraFromConsensus(b.Body.Attestations),
+			Deposits:           DepositsFromConsensus(b.Body.Deposits),
+			VoluntaryExits:     SignedExitsFromConsensus(b.Body.VoluntaryExits),
+			ExecutionPayload:   payload,
+			BlobKzgCommitments: blobKzgCommitments,
+			ExecutionRequests:  ExecutionRequestsFromConsensus(b.Body.ExecutionRequests),
 		},
 	}, nil
 }

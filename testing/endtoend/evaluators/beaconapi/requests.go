@@ -104,9 +104,6 @@ var getRequests = map[string]endpoint{
 	"/beacon/pool/voluntary_exits": newMetadata[structs.ListVoluntaryExitsResponse](
 		v1PathTemplate,
 		withSanityCheckOnly()),
-	"/beacon/pool/bls_to_execution_changes": newMetadata[structs.BLSToExecutionChangesPoolResponse](
-		v1PathTemplate,
-		withSanityCheckOnly()),
 	"/builder/states/{param1}/expected_withdrawals": newMetadata[structs.ExpectedWithdrawalsResponse](
 		v1PathTemplate,
 		withStart(params.CapellaE2EForkEpoch),

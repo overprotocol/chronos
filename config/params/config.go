@@ -128,20 +128,18 @@ type BeaconChainConfig struct {
 	MaxVoluntaryExits                uint64 `yaml:"MAX_VOLUNTARY_EXITS" spec:"true"`           // MaxVoluntaryExits defines the maximum number of validator exits in a block.
 	MaxWithdrawalsPerPayload         uint64 `yaml:"MAX_WITHDRAWALS_PER_PAYLOAD" spec:"true"`   // MaxWithdrawalsPerPayload defines the maximum number of withdrawals in a block.
 	MaxPartialWithdrawalsPerPayload  uint64 `yaml:"MAX_PARTIAL_WITHDRAWALS_PER_PAYLOAD" spec:"true"`
-	MaxBlsToExecutionChanges         uint64 `yaml:"MAX_BLS_TO_EXECUTION_CHANGES" spec:"true"`         // MaxBlsToExecutionChanges defines the maximum number of BLS-to-execution-change objects in a block.
 	MaxValidatorsPerWithdrawalsSweep uint64 `yaml:"MAX_VALIDATORS_PER_WITHDRAWALS_SWEEP" spec:"true"` // MaxValidatorsPerWithdrawalsSweep bounds the size of the sweep searching for withdrawals per slot.
 
 	// BLS domain values.
-	DomainBeaconProposer       [4]byte `yaml:"DOMAIN_BEACON_PROPOSER" spec:"true"`         // DomainBeaconProposer defines the BLS signature domain for beacon proposal verification.
-	DomainRandao               [4]byte `yaml:"DOMAIN_RANDAO" spec:"true"`                  // DomainRandao defines the BLS signature domain for randao verification.
-	DomainBeaconAttester       [4]byte `yaml:"DOMAIN_BEACON_ATTESTER" spec:"true"`         // DomainBeaconAttester defines the BLS signature domain for attestation verification.
-	DomainDeposit              [4]byte `yaml:"DOMAIN_DEPOSIT" spec:"true"`                 // DomainDeposit defines the BLS signature domain for deposit verification.
-	DomainVoluntaryExit        [4]byte `yaml:"DOMAIN_VOLUNTARY_EXIT" spec:"true"`          // DomainVoluntaryExit defines the BLS signature domain for exit verification.
-	DomainSelectionProof       [4]byte `yaml:"DOMAIN_SELECTION_PROOF" spec:"true"`         // DomainSelectionProof defines the BLS signature domain for selection proof.
-	DomainAggregateAndProof    [4]byte `yaml:"DOMAIN_AGGREGATE_AND_PROOF" spec:"true"`     // DomainAggregateAndProof defines the BLS signature domain for aggregate and proof.
-	DomainApplicationMask      [4]byte `yaml:"DOMAIN_APPLICATION_MASK" spec:"true"`        // DomainApplicationMask defines the BLS signature domain for application mask.
-	DomainApplicationBuilder   [4]byte `yaml:"DOMAIN_APPLICATION_BUILDER" spec:"true"`     // DomainApplicationBuilder defines the BLS signature domain for application builder.
-	DomainBLSToExecutionChange [4]byte `yaml:"DOMAIN_BLS_TO_EXECUTION_CHANGE" spec:"true"` // DomainBLSToExecutionChange defines the BLS signature domain to change withdrawal addresses to ETH1 prefix
+	DomainBeaconProposer     [4]byte `yaml:"DOMAIN_BEACON_PROPOSER" spec:"true"`     // DomainBeaconProposer defines the BLS signature domain for beacon proposal verification.
+	DomainRandao             [4]byte `yaml:"DOMAIN_RANDAO" spec:"true"`              // DomainRandao defines the BLS signature domain for randao verification.
+	DomainBeaconAttester     [4]byte `yaml:"DOMAIN_BEACON_ATTESTER" spec:"true"`     // DomainBeaconAttester defines the BLS signature domain for attestation verification.
+	DomainDeposit            [4]byte `yaml:"DOMAIN_DEPOSIT" spec:"true"`             // DomainDeposit defines the BLS signature domain for deposit verification.
+	DomainVoluntaryExit      [4]byte `yaml:"DOMAIN_VOLUNTARY_EXIT" spec:"true"`      // DomainVoluntaryExit defines the BLS signature domain for exit verification.
+	DomainSelectionProof     [4]byte `yaml:"DOMAIN_SELECTION_PROOF" spec:"true"`     // DomainSelectionProof defines the BLS signature domain for selection proof.
+	DomainAggregateAndProof  [4]byte `yaml:"DOMAIN_AGGREGATE_AND_PROOF" spec:"true"` // DomainAggregateAndProof defines the BLS signature domain for aggregate and proof.
+	DomainApplicationMask    [4]byte `yaml:"DOMAIN_APPLICATION_MASK" spec:"true"`    // DomainApplicationMask defines the BLS signature domain for application mask.
+	DomainApplicationBuilder [4]byte `yaml:"DOMAIN_APPLICATION_BUILDER" spec:"true"` // DomainApplicationBuilder defines the BLS signature domain for application builder.
 
 	// Prysm constants.
 	GenesisValidatorsRoot          [32]byte        // GenesisValidatorsRoot is the root hash of the genesis validators.
