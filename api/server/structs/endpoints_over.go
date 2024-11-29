@@ -1,11 +1,5 @@
 package structs
 
-type EstimatedActivationResponse struct {
-	WaitingEpoch  uint64 `json:"waiting_epoch"`
-	EligibleEpoch uint64 `json:"eligible_epoch"`
-	Status        uint64 `json:"status"`
-}
-
 type EpochReward struct {
 	Reward string `json:"reward"`
 }
