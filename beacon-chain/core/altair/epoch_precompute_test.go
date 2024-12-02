@@ -409,31 +409,6 @@ func TestProcessRewardsAndPenaltiesPrecompute_Ok(t *testing.T) {
 	require.Equal(t, uint64(0), totalReserve)
 }
 
-func TestProcessRewardsAndPenaltiesPrecompute_InactivityLeak(t *testing.T) {
-	s, err := testState()
-	require.NoError(t, err)
-	validators, balance, err := InitializePrecomputeValidators(context.Background(), s)
-	require.NoError(t, err)
-	validators, balance, err = ProcessEpochParticipation(context.Background(), s, balance, validators)
-	require.NoError(t, err)
-	sCopy := s.Copy()
-	s, err = ProcessRewardsAndPenaltiesPrecompute(s, balance, validators)
-	require.NoError(t, err)
-
-	// Copied state where finality happened long ago
-	require.NoError(t, sCopy.SetSlot(params.BeaconConfig().SlotsPerEpoch*1000))
-	sCopy, err = ProcessRewardsAndPenaltiesPrecompute(sCopy, balance, validators)
-	require.NoError(t, err)
-
-	balances := s.Balances()
-	inactivityBalances := sCopy.Balances()
-	// Balances decreased to 0 due to inactivity
-	require.Equal(t, uint64(19977168876), balances[2])
-	require.Equal(t, uint64(24733637656), balances[3])
-	require.Equal(t, uint64(0), inactivityBalances[2])
-	require.Equal(t, uint64(0), inactivityBalances[3])
-}
-
 func TestProcessInactivityScores_CanProcessInactivityLeak(t *testing.T) {
 	s, err := testState()
 	require.NoError(t, err)

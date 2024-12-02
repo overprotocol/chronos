@@ -1,11 +1,5 @@
 package structs
 
-type EstimatedActivationResponse struct {
-	WaitingEpoch  uint64 `json:"waiting_epoch"`
-	EligibleEpoch uint64 `json:"eligible_epoch"`
-	Status        uint64 `json:"status"`
-}
-
 type EpochReward struct {
 	Reward string `json:"reward"`
 }
@@ -78,4 +72,14 @@ type WithdrawalEstimationContainer struct {
 type PendingPartialWithdrawalContainer struct {
 	Amount        uint64 `json:"amount"`
 	ExpectedEpoch uint64 `json:"expected_epoch"`
+}
+
+type GetExitQueueEpochResponse struct {
+	Data                *ExitQueueEpochContainer `json:"data"`
+	ExecutionOptimistic bool                     `json:"execution_optimistic"`
+	Finalized           bool                     `json:"finalized"`
+}
+
+type ExitQueueEpochContainer struct {
+	ExitQueueEpoch uint64 `json:"exit_queue_epoch"`
 }

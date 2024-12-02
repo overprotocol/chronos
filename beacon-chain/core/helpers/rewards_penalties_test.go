@@ -529,6 +529,7 @@ func TestTargetDepositPlan(t *testing.T) {
 
 func TestTotalRewardWithReserveUsage_OK(t *testing.T) {
 	tests := []struct {
+		name    string
 		epoch   uint64
 		factor  uint64
 		reserve uint64
@@ -536,14 +537,22 @@ func TestTotalRewardWithReserveUsage_OK(t *testing.T) {
 		sign    int
 		usage   uint64
 	}{
-		{epoch: 1, factor: 1030000000000, reserve: 0, want: 243531202435, usage: 0},
-		{epoch: 1, factor: 0, reserve: 1000000000, want: 243531202435, usage: 0},
-		{epoch: 1, factor: 100000000000, reserve: 1000000000000000, want: 47437686693262, usage: 47194155490827},
-		{epoch: 1, factor: 1030000000000, reserve: 1000000000, want: 244531202435, usage: 1000000000},
-		{epoch: 862313, factor: 1030000000000, reserve: 0, want: 0, usage: 0},
-		{epoch: 862313, factor: 0, reserve: 1000000000, want: 0, usage: 0},
-		{epoch: 862313, factor: 100000000000, reserve: 1000000000000000, want: 47194155490827, usage: 47194155490827},
-		{epoch: 862313, factor: 100000000000, reserve: 1000000, want: 1000000, usage: 1000000},
+		{name: "case 1", epoch: 1, factor: 0, reserve: 100000000000000000, want: 243531202435, usage: 0},
+		{name: "case 1-1", epoch: 1, factor: 0, reserve: 0, want: 243531202435, usage: 0},
+		{name: "case 2", epoch: 1, factor: 150, reserve: 100000000000000000, want: 243549467275, usage: 18264840},
+		{name: "case 2-1", epoch: 1, factor: 150, reserve: 0, want: 243531202435, usage: 0},
+		{name: "case 3", epoch: 1, factor: 999850, reserve: 100000000000000000, want: 365278538812, usage: 121747336377},
+		{name: "case 3-1", epoch: 1, factor: 999850, reserve: 0, want: 243531202435, usage: 0},
+		{name: "case 4", epoch: 1, factor: 1000000, reserve: 100000000000000000, want: 365296803652, usage: 121765601217},
+		{name: "case 4-1", epoch: 1, factor: 1000000, reserve: 0, want: 243531202435, usage: 0},
+		{name: "year 2 case 1", epoch: 82126, factor: 0, reserve: 100000000000000000, want: 243531202435, usage: 0},
+		{name: "year 2 case 1-1", epoch: 82126, factor: 0, reserve: 0, want: 243531202435, usage: 0},
+		{name: "year 2 case 2", epoch: 82126, factor: 150, reserve: 100000000000000000, want: 243549467275, usage: 18264840},
+		{name: "year 2 case 2-1", epoch: 82126, factor: 150, reserve: 0, want: 243531202435, usage: 0},
+		{name: "year 2 case 3", epoch: 82126, factor: 999850, reserve: 100000000000000000, want: 365278538812, usage: 121747336377},
+		{name: "year 2 case 3-1", epoch: 82126, factor: 999850, reserve: 0, want: 243531202435, usage: 0},
+		{name: "year 2 case 4", epoch: 82126, factor: 1000000, reserve: 100000000000000000, want: 365296803652, usage: 121765601217},
+		{name: "year 2 case 4-1", epoch: 82126, factor: 1000000, reserve: 0, want: 243531202435, usage: 0},
 	}
 	for _, test := range tests {
 		base := buildState(params.BeaconConfig().SlotsPerEpoch.Mul(test.epoch), 20000)
@@ -553,8 +562,8 @@ func TestTotalRewardWithReserveUsage_OK(t *testing.T) {
 		require.NoError(t, err)
 
 		got, usage := helpers.TotalRewardWithReserveUsage(beaconState)
-		assert.Equal(t, test.want, got)
-		assert.Equal(t, test.usage, usage)
+		assert.Equal(t, test.want, got, test.name)
+		assert.Equal(t, test.usage, usage, test.name+"_usage")
 	}
 }
 
