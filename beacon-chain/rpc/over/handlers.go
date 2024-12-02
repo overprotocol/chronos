@@ -125,7 +125,7 @@ func (s *Server) GetExitQueueEpoch(w http.ResponseWriter, r *http.Request) {
 	// Parse exit_balance from URL params
 	rawExitBalance := r.URL.Query().Get("exit_balance")
 	if st.Version() >= version.Alpaca && rawExitBalance == "" {
-		httputil.HandleError(w, "exit_balance is required for post-electra in query params", http.StatusBadRequest)
+		httputil.HandleError(w, "exit_balance is required for post-alpaca in query params", http.StatusBadRequest)
 		return
 	}
 

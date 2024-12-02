@@ -192,7 +192,7 @@ func TestGetExitQueueEpoch(t *testing.T) {
 				return st
 			}(),
 			code:    http.StatusBadRequest,
-			wantErr: "exit_balance is required for post-electra in query params",
+			wantErr: "exit_balance is required for post-alpaca in query params",
 		},
 		{
 			name: "pre-electra: no exiting validators",
