@@ -211,8 +211,9 @@ var (
 	}
 	// EnableOverNodeRPCEndpoints opens additional RPC endpoints for OverNode.
 	EnableOverNodeRPCEndpoints = &cli.BoolFlag{
-		Name:  "enable-over-node-rpc-endpoints",
-		Usage: "Enables the OverNode rpc service, containing utility endpoints for OverNode",
+		Name: "enable-over-node-rpc-endpoints",
+		Usage: "Enables the OverNode rpc service, containing utility endpoints for OverNode. " +
+			"auth-token-file flag must be set to enable close API.",
 	}
 	// SubscribeToAllSubnets defines a flag to specify whether to subscribe to all possible attestation/sync subnets or not.
 	SubscribeToAllSubnets = &cli.BoolFlag{
@@ -300,5 +301,12 @@ var (
 		Name:  "slasher-datadir",
 		Usage: "Directory for the slasher database",
 		Value: cmd.DefaultDataDir(),
+	}
+
+	// AuthTokenPathFlag defines the path to the auth token used to secure the validator api.
+	AuthTokenPathFlag = &cli.StringFlag{
+		Name: "auth-token-file",
+		Usage: "Path to auth token file used for OverScape API. " +
+			"Set this flag to enable the close API for OverScape.",
 	}
 )

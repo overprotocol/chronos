@@ -1087,13 +1087,22 @@ func (s *Service) overNodeEndpoints(handler *closehandler.CloseHandler) []endpoi
 		CloseHandler: handler,
 	}
 
+	authToken, err := getAuthToken(s.cfg.AuthTokenPath)
+	if err != nil {
+		log.WithError(err).Warnf("Failed to get auth token, /over-node/close endpoint will not be enabled")
+		return []endpoint{}
+	}
+
 	const namespace = "over-node"
 	return []endpoint{
 		{
 			template: "/over-node/close",
 			name:     namespace + ".Close",
 			handler:  server.CloseClient,
-			methods:  []string{http.MethodPost},
+			middleware: []middleware.Middleware{
+				middleware.AuthTokenHandler(authToken),
+			},
+			methods: []string{http.MethodPost},
 		},
 	}
 }
