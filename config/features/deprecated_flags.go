@@ -90,6 +90,9 @@ var (
 	}
 	deprecatedInteropNumValidatorsFlag = &cli.Uint64Flag{
 		Name:   "interop-num-validators",
+	}
+	deprecatedEnableQuic = &cli.BoolFlag{
+		Name:   "enable-quic",
 		Usage:  deprecatedUsage,
 		Hidden: true,
 	}
@@ -112,6 +115,7 @@ var deprecatedFlags = []cli.Flag{
 	deprecatedEnableExperimentalState,
 	deprecatedEnableCommitteeAwarePacking,
 	deprecatedInteropGenesisTimeFlag,
+	deprecatedEnableQuic,
 }
 
 // deprecatedBeaconFlags contains flags that are still used by other components
