@@ -83,6 +83,16 @@ var (
 		Usage:  deprecatedUsage,
 		Hidden: true,
 	}
+	deprecatedInteropGenesisTimeFlag = &cli.Uint64Flag{
+		Name:   "interop-genesis-time",
+		Usage:  deprecatedUsage,
+		Hidden: true,
+	}
+	deprecatedInteropNumValidatorsFlag = &cli.Uint64Flag{
+		Name:   "interop-num-validators",
+		Usage:  deprecatedUsage,
+		Hidden: true,
+	}
 )
 
 // Deprecated flags for both the beacon node and validator client.
@@ -101,8 +111,11 @@ var deprecatedFlags = []cli.Flag{
 	deprecatedDisableGRPCGateway,
 	deprecatedEnableExperimentalState,
 	deprecatedEnableCommitteeAwarePacking,
+	deprecatedInteropGenesisTimeFlag,
 }
 
 // deprecatedBeaconFlags contains flags that are still used by other components
 // and therefore cannot be added to deprecatedFlags
-var deprecatedBeaconFlags []cli.Flag
+var deprecatedBeaconFlags = []cli.Flag{
+	deprecatedInteropNumValidatorsFlag,
+}
