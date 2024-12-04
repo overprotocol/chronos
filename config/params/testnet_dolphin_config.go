@@ -5,7 +5,7 @@ func UseDolphinNetworkConfig() {
 	cfg := BeaconNetworkConfig().Copy()
 	cfg.BootstrapNodes = []string{
 		// Dolphin testnet boot nodes
-		"enr:-LG4QIKxU43azrDAd777KngiPXD2Vd1_TlIFDq33rDZ95mNuFxcO-HbetclOxx0Ofdgmr6PXC5jnglaYMLyhRcQ0ariGAZOP_nHOh2F0dG5ldHOIAAAAAAAAAACCaWSCdjSCaXCEp6xM9IRvdmVykNBNsU8AAAAY__________-Jc2VjcDI1NmsxoQOM3AK4-wojli0G8baFWHRRPMNREBTUefi7ltQJXTpRZ4N1ZHCCyyA",
+		"enr:-LG4QA6NXs27TzpZbIC97Ksesg8dW-Y_CbKlHeqHyb7bLdxEYbSsaVhjVjfqgEtokkPOLzO1FGFMsN0c9DeOFuLGAMaGAZOQVo7uh2F0dG5ldHOIAAAAAAAAAACCaWSCdjSCaXCEp6xM9IRvdmVykNBNsU8AAAAY__________-Jc2VjcDI1NmsxoQJvTlHWJvTBS0OJ7cEqydw3RLR67DNiQAkR_g0XoABu2IN1ZHCCyyA",
 	}
 	OverrideBeaconNetworkConfig(cfg)
 }
@@ -13,7 +13,7 @@ func UseDolphinNetworkConfig() {
 // DolphinConfig defines the config for the Dolphin beacon chain testnet.
 func DolphinConfig() *BeaconChainConfig {
 	cfg := MainnetConfig().Copy()
-	cfg.GenesisValidatorsRoot = [32]byte{197, 106, 18, 116, 72, 45, 248, 71, 14, 95, 225, 167, 251, 5, 217, 99, 189, 20, 169, 20, 11, 236, 169, 89, 239, 170, 171, 48, 115, 61, 69, 71}
+	cfg.GenesisValidatorsRoot = [32]byte{180, 154, 221, 57, 193, 238, 8, 239, 30, 212, 34, 252, 18, 14, 158, 200, 167, 131, 219, 243, 181, 118, 69, 47, 246, 172, 83, 107, 150, 104, 235, 145}
 	cfg.ConfigName = DolphinName
 	cfg.GenesisForkVersion = []byte{0x0, 0x00, 0x00, 0x28}
 	cfg.DepositChainID = 541764
