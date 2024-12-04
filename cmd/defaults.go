@@ -33,11 +33,11 @@ func DefaultDataDir() string {
 	if home != "" {
 		switch runtime.GOOS {
 		case "darwin":
-			return filepath.Join(home, "Library", "Eth2")
+			return filepath.Join(home, "Library", "Over")
 		case "windows":
-			return filepath.Join(home, "AppData", "Local", "Eth2")
+			return filepath.Join(home, "AppData", "Local", "Over")
 		default:
-			return filepath.Join(home, ".eth2")
+			return filepath.Join(home, ".over")
 		}
 	}
 	// As we cannot guess a stable location, return empty and handle later

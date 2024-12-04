@@ -45,5 +45,5 @@ func BuildData() string {
 			gitCommit = strings.TrimRight(string(commit), "\r\n")
 		}
 	}
-	return fmt.Sprintf("Prysm/%s/%s", gitTag, gitCommit)
+	return fmt.Sprintf("Chronos/%s/%s", gitTag, gitCommit)
 }
