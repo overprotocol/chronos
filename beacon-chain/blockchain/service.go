@@ -35,7 +35,6 @@ import (
 	fieldparams "github.com/prysmaticlabs/prysm/v5/config/fieldparams"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/blocks"
-	consensus_blocks "github.com/prysmaticlabs/prysm/v5/consensus-types/blocks"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/interfaces"
 	"github.com/prysmaticlabs/prysm/v5/encoding/bytesutil"
 	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing/trace"
@@ -304,7 +303,7 @@ func (s *Service) StartFromSavedState(saved state.BeaconState) error {
 	if err != nil {
 		return errors.Wrap(err, "could not get finalized checkpoint block")
 	}
-	roblock, err := consensus_blocks.NewROBlockWithRoot(finalizedBlock, fRoot)
+	roblock, err := blocks.NewROBlockWithRoot(finalizedBlock, fRoot)
 	if err != nil {
 		return err
 	}
@@ -520,7 +519,7 @@ func (s *Service) saveGenesisData(ctx context.Context, genesisState state.Beacon
 
 	s.cfg.ForkChoiceStore.Lock()
 	defer s.cfg.ForkChoiceStore.Unlock()
-	gb, err := consensus_blocks.NewROBlockWithRoot(genesisBlk, genesisBlkRoot)
+	gb, err := blocks.NewROBlockWithRoot(genesisBlk, genesisBlkRoot)
 	if err != nil {
 		return err
 	}

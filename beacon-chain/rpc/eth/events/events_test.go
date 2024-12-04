@@ -457,7 +457,7 @@ func TestStreamEvents_OperationsEvents(t *testing.T) {
 				request := topics.testHttpRequest(testSync.ctx, t)
 				w := NewStreamingResponseWriterRecorder(testSync.ctx)
 				events := []*feed.Event{
-					&feed.Event{
+					{
 						Type: statefeed.PayloadAttributes,
 						Data: payloadattribute.EventData{
 							ProposerIndex:     0,

@@ -635,7 +635,7 @@ func TestToForkVersion(t *testing.T) {
 		config.DenebForkEpoch = 99
 		config.AlpacaForkEpoch = 100
 		params.OverrideBeaconConfig(config)
-		
+
 		slot, err := EpochStart(params.BeaconConfig().CapellaForkEpoch)
 		require.NoError(t, err)
 
