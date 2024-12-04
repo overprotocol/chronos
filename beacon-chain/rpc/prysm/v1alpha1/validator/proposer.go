@@ -63,11 +63,11 @@ func (vs *Server) GetBeaconBlock(ctx context.Context, req *ethpb.BlockRequest) (
 	ctx, span := trace.StartSpan(ctx, "ProposerServer.GetBeaconBlock")
 	defer span.End()
 	span.SetAttributes(trace.Int64Attribute("slot", int64(req.Slot)))
-
+	startTime := time.Now()
 	t, err := slots.ToTime(uint64(vs.TimeFetcher.GenesisTime().Unix()), req.Slot)
 
 	defer func() {
-		duration := time.Since(t)
+		duration := time.Since(startTime)
 		processV3Duration.Set(duration.Seconds())
 	}()
 

@@ -8,6 +8,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/pkg/errors"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prysmaticlabs/prysm/v5/api/server/structs"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
 	valhelpers "github.com/prysmaticlabs/prysm/v5/beacon-chain/rpc/eth/helpers"
@@ -20,8 +21,20 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing/trace"
 	"github.com/prysmaticlabs/prysm/v5/network/httputil"
 	"github.com/prysmaticlabs/prysm/v5/runtime/version"
+	"github.com/prysmaticlabs/prysm/v5/time"
 	"github.com/prysmaticlabs/prysm/v5/time/slots"
 )
+
+var (
+	getDepositPreEstimationDuration = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "get_deposit_pre_estimation_duration",
+		Help: "Duration of get deposit pre estimation request",
+	})
+)
+
+func init() {
+	prometheus.MustRegister(getDepositPreEstimationDuration)
+}
 
 const (
 	// constants for search limit. These are used to slice down the pending deposits/pending partial withdrawals.
@@ -44,6 +57,12 @@ const (
 func (s *Server) GetDepositPreEstimation(w http.ResponseWriter, r *http.Request) {
 	ctx, span := trace.StartSpan(r.Context(), "over.GetDepositPreEstimation")
 	defer span.End()
+	startTime := time.Now()
+
+	defer func() {
+		duration := time.Since(startTime)
+		getDepositPreEstimationDuration.Set(duration.Seconds())
+	}()
 
 	// Parse state_id and replay to the state
 	stateId := r.PathValue("state_id")
