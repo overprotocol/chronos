@@ -1073,6 +1073,12 @@ func (s *Service) overEndpoints(stater lookup.Stater) []endpoint {
 			handler:  server.GetWithdrawalEstimation,
 			methods:  []string{http.MethodGet},
 		},
+		{
+			template: "/over/v1/beacon/states/{state_id}/exit/queue_epoch",
+			name:     namespace + ".GetExitQueueEpoch",
+			handler:  server.GetExitQueueEpoch,
+			methods:  []string{http.MethodGet},
+		},
 	}
 }
 
@@ -1081,13 +1087,22 @@ func (s *Service) overNodeEndpoints(handler *closehandler.CloseHandler) []endpoi
 		CloseHandler: handler,
 	}
 
+	authToken, err := getAuthToken(s.cfg.AuthTokenPath)
+	if err != nil {
+		log.WithError(err).Warnf("Failed to get auth token, /over-node/close endpoint will not be enabled")
+		return []endpoint{}
+	}
+
 	const namespace = "over-node"
 	return []endpoint{
 		{
 			template: "/over-node/close",
 			name:     namespace + ".Close",
 			handler:  server.CloseClient,
-			methods:  []string{http.MethodPost},
+			middleware: []middleware.Middleware{
+				middleware.AuthTokenHandler(authToken),
+			},
+			methods: []string{http.MethodPost},
 		},
 	}
 }

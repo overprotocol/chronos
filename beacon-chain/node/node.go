@@ -958,6 +958,12 @@ func (b *BeaconNode) registerRPCService(router *http.ServeMux) error {
 	maxMsgSize := b.cliCtx.Int(cmd.GrpcMaxCallRecvMsgSizeFlag.Name)
 	enableOverNodeRPCEndpoints := b.cliCtx.Bool(flags.EnableOverNodeRPCEndpoints.Name)
 	enableDebugRPCEndpoints := !b.cliCtx.Bool(flags.DisableDebugRPCEndpoints.Name)
+	authTokenPath := b.cliCtx.String(flags.AuthTokenPathFlag.Name) // the validity of the path will be checked in overNodeEndpoints.
+
+	if enableOverNodeRPCEndpoints && authTokenPath == "" {
+		log.Error("The --auth-token-path flag is required when the --enable-over-node-rpc-endpoints flag is set.")
+		return errors.New("missing required flag: auth-token-path")
+	}
 
 	p2pService := b.fetchP2P()
 
@@ -1016,6 +1022,7 @@ func (b *BeaconNode) registerRPCService(router *http.ServeMux) error {
 		TrackedValidatorsCache:        b.trackedValidatorsCache,
 		PayloadIDCache:                b.payloadIDCache,
 		CloseHandler:                  closeHandler,
+		AuthTokenPath:                 authTokenPath,
 	})
 
 	return b.services.RegisterService(rpcService)
