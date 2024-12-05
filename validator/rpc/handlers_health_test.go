@@ -189,7 +189,7 @@ func TestServer_GetVersion(t *testing.T) {
 	body, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
 	require.NotNil(t, body)
-	require.StringContains(t, `{"beacon":"4.10.1","validator":"Prysm/Unknown/Local build. Built at: Moments ago"}`, string(body))
+	require.StringContains(t, `{"beacon":"4.10.1","validator":"Chronos/Unknown/Local build. Built at: Moments ago"}`, string(body))
 }
 
 func TestServer_GetStatus(t *testing.T) {
