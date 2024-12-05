@@ -520,7 +520,7 @@ func TestPool_PendingAttesterSlashings(t *testing.T) {
 	}
 }
 
-func TestPool_PendingAttesterSlashings_AfterElectra(t *testing.T) {
+func TestPool_PendingAttesterSlashings_AfterAlpaca(t *testing.T) {
 	type fields struct {
 		pending []*PendingAttesterSlashing
 		all     bool
