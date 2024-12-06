@@ -40,8 +40,8 @@ var mainnetNetworkConfig = &NetworkConfig{
 	ContractDeploymentBlock:    0, // Note: contract was deployed in genesis block.
 	BootstrapNodes: []string{
 		// Over Mainnet Bootnodes
-		"enr:-LG4QK2PsOwCsO3gJ8Hacjb_NBgbRuTatIBRw82l8g_nbgFtPXJlhra6DvybytwScurfuLYcz-9djJoGUpPJNWVUMZyGAZOb7_sSh2F0dG5ldHOIAAAAAAAAAACCaWSCdjSCaXCEnfU0eoRvdmVykNBNsU8AAAAY__________-Jc2VjcDI1NmsxoQKo9VPgO1_uqE3U5S3p_ma9e_mY5zt5VFWjUH9wSADzOoN1ZHCCyyA", // Bootnode1
-		"enr:-LG4QG57HmufUPEfcYa7ivb7ocXJowsp1WCl4jcXgC82RtNrNFJ4vPPYawalWW_gX-8w1Y33USeWQQdOSBlzzOlqzL-GAZOb7_q0h2F0dG5ldHOIAAAAAAAAAACCaWSCdjSCaXCEnfUwuYRvdmVykNBNsU8AAAAY__________-Jc2VjcDI1NmsxoQJWYA9yzdsJgvFqkHHOQff4ipCe6EVN45xS3aIv_fHWh4N1ZHCCyyA", // Bootnode2
+		"enr:-LG4QIhLG5S7CY73q1NmVj_spDPMAWyK2z29QQ4TBYyqK0z6aTw5CLTNrNVSyClHoj48AzxDihphFyh5RNohQyvQZsWGAZOcOwlIh2F0dG5ldHOIAAAAAAAAAACCaWSCdjSCaXCEnfU0eoRvdmVykNBNsU8AAAAY__________-Jc2VjcDI1NmsxoQJ0Zjg898V8W5LULvpMTnfEU9WrHmi5MOF6ROpUwywrYoN1ZHCCyyA", // Bootnode1
+		"enr:-LG4QD7VR5qBOldKVYEee357BQ_UiPKM9kEibw-HZCgSHnDhLHt3gXlYbKAyOA-4pz6lzmcF-7ND05tzrOKFW3ytYGaGAZOcOwlPh2F0dG5ldHOIAAAAAAAAAACCaWSCdjSCaXCEnfUwuYRvdmVykNBNsU8AAAAY__________-Jc2VjcDI1NmsxoQKzkytNFWBqLJ5bzrBbFiCns-8Zk1QrLGG25-ohJaubUIN1ZHCCyyA", // Bootnode2
 	},
 }
 
