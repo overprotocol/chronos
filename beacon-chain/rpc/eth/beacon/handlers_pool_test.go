@@ -383,7 +383,7 @@ func TestListAttestations(t *testing.T) {
 				var atts []*structs.AttestationElectra
 				require.NoError(t, json.Unmarshal(resp.Data, &atts))
 				assert.Equal(t, 4, len(atts))
-				assert.Equal(t, "electra", resp.Version)
+				assert.Equal(t, "alpaca", resp.Version)
 			})
 			t.Run("slot request", func(t *testing.T) {
 				url := "http://example.com?slot=2"
@@ -401,7 +401,7 @@ func TestListAttestations(t *testing.T) {
 				var atts []*structs.AttestationElectra
 				require.NoError(t, json.Unmarshal(resp.Data, &atts))
 				assert.Equal(t, 2, len(atts))
-				assert.Equal(t, "electra", resp.Version)
+				assert.Equal(t, "alpaca", resp.Version)
 				for _, a := range atts {
 					assert.Equal(t, "2", a.Data.Slot)
 				}
@@ -422,7 +422,7 @@ func TestListAttestations(t *testing.T) {
 				var atts []*structs.AttestationElectra
 				require.NoError(t, json.Unmarshal(resp.Data, &atts))
 				assert.Equal(t, 2, len(atts))
-				assert.Equal(t, "electra", resp.Version)
+				assert.Equal(t, "alpaca", resp.Version)
 				for _, a := range atts {
 					assert.Equal(t, "4", a.Data.CommitteeIndex)
 				}
@@ -443,7 +443,7 @@ func TestListAttestations(t *testing.T) {
 				var atts []*structs.AttestationElectra
 				require.NoError(t, json.Unmarshal(resp.Data, &atts))
 				assert.Equal(t, 1, len(atts))
-				assert.Equal(t, "electra", resp.Version)
+				assert.Equal(t, "alpaca", resp.Version)
 				for _, a := range atts {
 					assert.Equal(t, "2", a.Data.Slot)
 					assert.Equal(t, "4", a.Data.CommitteeIndex)
