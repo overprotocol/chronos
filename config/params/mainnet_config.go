@@ -26,11 +26,11 @@ const (
 	// Bellatrix Fork Epoch for mainnet config.
 	mainnetBellatrixForkEpoch = 0 // epoch 0
 	// Capella Fork Epoch for mainnet config.
-	mainnetCapellaForkEpoch = 10 // epoch 10
+	mainnetCapellaForkEpoch = 0 // epoch 0
 	// Deneb Fork Epoch for mainnet config.
-	mainnetDenebForkEpoch = math.MaxUint64 // not activated
+	mainnetDenebForkEpoch = 0 // epoch 0
 	// Alpaca Fork Epoch for mainnet config
-	mainnetAlpacaForkEpoch = math.MaxUint64 // Far future / to be defined
+	mainnetAlpacaForkEpoch = 0 // epoch 0
 )
 
 var mainnetNetworkConfig = &NetworkConfig{
@@ -40,8 +40,8 @@ var mainnetNetworkConfig = &NetworkConfig{
 	ContractDeploymentBlock:    0, // Note: contract was deployed in genesis block.
 	BootstrapNodes: []string{
 		// Over Mainnet Bootnodes
-		"enr:-LG4QIhLG5S7CY73q1NmVj_spDPMAWyK2z29QQ4TBYyqK0z6aTw5CLTNrNVSyClHoj48AzxDihphFyh5RNohQyvQZsWGAZOcOwlIh2F0dG5ldHOIAAAAAAAAAACCaWSCdjSCaXCEnfU0eoRvdmVykNBNsU8AAAAY__________-Jc2VjcDI1NmsxoQJ0Zjg898V8W5LULvpMTnfEU9WrHmi5MOF6ROpUwywrYoN1ZHCCyyA", // Bootnode1
-		"enr:-LG4QD7VR5qBOldKVYEee357BQ_UiPKM9kEibw-HZCgSHnDhLHt3gXlYbKAyOA-4pz6lzmcF-7ND05tzrOKFW3ytYGaGAZOcOwlPh2F0dG5ldHOIAAAAAAAAAACCaWSCdjSCaXCEnfUwuYRvdmVykNBNsU8AAAAY__________-Jc2VjcDI1NmsxoQKzkytNFWBqLJ5bzrBbFiCns-8Zk1QrLGG25-ohJaubUIN1ZHCCyyA", // Bootnode2
+		"enr:-LG4QAZh5HIjmPnT1qQR7tqSVuH3_kRJDytuPuWcUCintZfiAMJ3fMZG5bFqp9KhtAoomzRjZCTB-AgnqP77wfq3yL2GAZOcrDixh2F0dG5ldHOIAAAAAAAAAACCaWSCdjSCaXCEnfU0eoRvdmVykNBNsU8AAAAY__________-Jc2VjcDI1NmsxoQIL-CzJpYlv0v0E8aJoidli-Yxg7pmN9ZzMU8-ae-VTWIN1ZHCCyyA", // Bootnode1
+		"enr:-LG4QCEwTPHqHfzbhgnebNP4jiscdjA26dtOpJeDPjHQfnMkYODW6r-j3qc6ua4GfzFtFl3Led0miZKAhXpVzlIwonOGAZOcrDmZh2F0dG5ldHOIAAAAAAAAAACCaWSCdjSCaXCEnfUwuYRvdmVykNBNsU8AAAAY__________-Jc2VjcDI1NmsxoQJcbWMw8WiqIgQ7QCDJTbCZ4SAwGdx4Ja7cHhZIixKnaoN1ZHCCyyA", // Bootnode2
 	},
 }
 
@@ -162,7 +162,7 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	DomainApplicationBuilder: bytesutil.Uint32ToBytes4(0x00000001),
 
 	// Prysm constants.
-	GenesisValidatorsRoot:          [32]byte{24, 239, 253, 154, 5, 156, 47, 170, 208, 115, 27, 25, 10, 64, 155, 132, 181, 69, 90, 168, 3, 92, 43, 100, 152, 142, 76, 138, 12, 40, 182, 227},
+	GenesisValidatorsRoot:          [32]byte{121, 226, 52, 11, 249, 108, 180, 50, 74, 231, 240, 239, 252, 228, 213, 171, 92, 234, 226, 130, 124, 130, 41, 246, 207, 224, 109, 227, 71, 150, 174, 196},
 	GweiPerEth:                     1000000000,
 	BLSSecretKeyLength:             32,
 	BLSPubkeyLength:                48,
