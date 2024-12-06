@@ -23,7 +23,6 @@ import (
 	dbutil "github.com/prysmaticlabs/prysm/v5/beacon-chain/db/testing"
 	doublylinkedtree "github.com/prysmaticlabs/prysm/v5/beacon-chain/forkchoice/doubly-linked-tree"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/attestations"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/operations/synccommittee"
 	p2pmock "github.com/prysmaticlabs/prysm/v5/beacon-chain/p2p/testing"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/rpc/core"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/rpc/testutil"
@@ -358,7 +357,6 @@ func TestSubmitAggregateAndProofs(t *testing.T) {
 		t.Run("multiple", func(t *testing.T) {
 			broadcaster := &p2pmock.MockBroadcaster{}
 			s.CoreService.Broadcaster = broadcaster
-			s.CoreService.SyncCommitteePool = synccommittee.NewStore()
 
 			var body bytes.Buffer
 			_, err := body.WriteString(multipleAggregates)
@@ -422,7 +420,7 @@ func TestSubmitAggregateAndProofs(t *testing.T) {
 			_, err := body.WriteString(singleAggregateElectra)
 			require.NoError(t, err)
 			request := httptest.NewRequest(http.MethodPost, "http://example.com", &body)
-			request.Header.Set(api.VersionHeader, version.String(version.Electra))
+			request.Header.Set(api.VersionHeader, version.String(version.Alpaca))
 			writer := httptest.NewRecorder()
 			writer.Body = &bytes.Buffer{}
 
@@ -449,13 +447,12 @@ func TestSubmitAggregateAndProofs(t *testing.T) {
 		t.Run("multiple", func(t *testing.T) {
 			broadcaster := &p2pmock.MockBroadcaster{}
 			s.CoreService.Broadcaster = broadcaster
-			s.CoreService.SyncCommitteePool = synccommittee.NewStore()
 
 			var body bytes.Buffer
 			_, err := body.WriteString(multipleAggregatesElectra)
 			require.NoError(t, err)
 			request := httptest.NewRequest(http.MethodPost, "http://example.com", &body)
-			request.Header.Set(api.VersionHeader, version.String(version.Electra))
+			request.Header.Set(api.VersionHeader, version.String(version.Alpaca))
 			writer := httptest.NewRecorder()
 			writer.Body = &bytes.Buffer{}
 
@@ -466,7 +463,6 @@ func TestSubmitAggregateAndProofs(t *testing.T) {
 		t.Run("multiple-pre-electra", func(t *testing.T) {
 			broadcaster := &p2pmock.MockBroadcaster{}
 			s.CoreService.Broadcaster = broadcaster
-			s.CoreService.SyncCommitteePool = synccommittee.NewStore()
 
 			var body bytes.Buffer
 			_, err := body.WriteString(multipleAggregates)
@@ -482,7 +478,7 @@ func TestSubmitAggregateAndProofs(t *testing.T) {
 		})
 		t.Run("no body", func(t *testing.T) {
 			request := httptest.NewRequest(http.MethodPost, "http://example.com", nil)
-			request.Header.Set(api.VersionHeader, version.String(version.Electra))
+			request.Header.Set(api.VersionHeader, version.String(version.Alpaca))
 			writer := httptest.NewRecorder()
 			writer.Body = &bytes.Buffer{}
 
@@ -511,7 +507,7 @@ func TestSubmitAggregateAndProofs(t *testing.T) {
 			_, err := body.WriteString("[]")
 			require.NoError(t, err)
 			request := httptest.NewRequest(http.MethodPost, "http://example.com", &body)
-			request.Header.Set(api.VersionHeader, version.String(version.Electra))
+			request.Header.Set(api.VersionHeader, version.String(version.Alpaca))
 			writer := httptest.NewRecorder()
 			writer.Body = &bytes.Buffer{}
 
@@ -543,7 +539,7 @@ func TestSubmitAggregateAndProofs(t *testing.T) {
 			_, err := body.WriteString(invalidAggregateElectra)
 			require.NoError(t, err)
 			request := httptest.NewRequest(http.MethodPost, "http://example.com", &body)
-			request.Header.Set(api.VersionHeader, version.String(version.Electra))
+			request.Header.Set(api.VersionHeader, version.String(version.Alpaca))
 			writer := httptest.NewRecorder()
 			writer.Body = &bytes.Buffer{}
 
@@ -2286,73 +2282,6 @@ var (
       "selection_proof": "0x1b66ac1fb663c9bc59509846d6ec05345bd908eda73e670af888da41af171505cc411d61252fb6cb3fa0017b679f8bb2305b26a285fa2737f175668d0dff91cc1b66ac1fb663c9bc59509846d6ec05345bd908eda73e670af888da41af171505"
     },
     "signature": "0x1b66ac1fb663c9bc59509846d6ec05345bd908eda73e670af888da41af171505cc411d61252fb6cb3fa0017b679f8bb2305b26a285fa2737f175668d0dff91cc1b66ac1fb663c9bc59509846d6ec05345bd908eda73e670af888da41af171505"
-  }
-]`
-	singleSyncCommitteeSubscription = `[
-  {
-    "validator_index": "1",
-    "sync_committee_indices": [
-      "0",
-      "2"
-    ],
-    "until_epoch": "1"
-  }
-]`
-	singleSyncCommitteeSubscription2 = `[
-  {
-    "validator_index": "0",
-    "sync_committee_indices": [
-      "0",
-      "2"
-    ],
-    "until_epoch": "0"
-  }
-]`
-	singleSyncCommitteeSubscription3 = fmt.Sprintf(`[
-  {
-    "validator_index": "0",
-    "sync_committee_indices": [
-      "0",
-      "2"
-    ],
-    "until_epoch": "%d"
-  }
-]`, 2*params.BeaconConfig().EpochsPerSyncCommitteePeriod)
-	singleSyncCommitteeSubscription4 = fmt.Sprintf(`[
-  {
-    "validator_index": "0",
-    "sync_committee_indices": [
-      "0",
-      "2"
-    ],
-    "until_epoch": "%d"
-  }
-]`, 2*params.BeaconConfig().EpochsPerSyncCommitteePeriod+1)
-	multipleSyncCommitteeSubscription = `[
-  {
-    "validator_index": "0",
-    "sync_committee_indices": [
-      "0"
-    ],
-    "until_epoch": "1"
-  },
-  {
-    "validator_index": "1",
-    "sync_committee_indices": [
-      "2"
-    ],
-    "until_epoch": "1"
-  }
-]`
-	// validator_index is invalid
-	invalidSyncCommitteeSubscription = `[
-  {
-    "validator_index": "foo",
-    "sync_committee_indices": [
-      "0",
-      "2"
-    ],
-    "until_epoch": "1"
   }
 ]`
 	singleBeaconCommitteeContribution = `[

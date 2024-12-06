@@ -219,25 +219,6 @@ func (s *Service) validatorEndpoints(
 			methods: []string{http.MethodPost},
 		},
 		{
-			template: "/eth/v1/validator/sync_committee_contribution",
-			name:     namespace + ".ProduceSyncCommitteeContribution",
-			middleware: []middleware.Middleware{
-				middleware.AcceptHeaderHandler([]string{api.JsonMediaType}),
-			},
-			handler: server.ProduceSyncCommitteeContribution,
-			methods: []string{http.MethodGet},
-		},
-		{
-			template: "/eth/v1/validator/sync_committee_subscriptions",
-			name:     namespace + ".SubmitSyncCommitteeSubscription",
-			middleware: []middleware.Middleware{
-				middleware.ContentTypeHandler([]string{api.JsonMediaType}),
-				middleware.AcceptHeaderHandler([]string{api.JsonMediaType}),
-			},
-			handler: server.SubmitSyncCommitteeSubscription,
-			methods: []string{http.MethodPost},
-		},
-		{
 			template: "/eth/v1/validator/beacon_committee_subscriptions",
 			name:     namespace + ".SubmitBeaconCommitteeSubscription",
 			middleware: []middleware.Middleware{

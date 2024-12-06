@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"sort"
 	"strconv"
-	"time"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/pkg/errors"
@@ -112,43 +111,6 @@ func matchingAtt(atts []ethpbalpha.Att, slot primitives.Slot, attDataRoot []byte
 	return nil, nil
 }
 
-// SubmitContributionAndProofs publishes multiple signed sync committee contribution and proofs.
-func (s *Server) SubmitContributionAndProofs(w http.ResponseWriter, r *http.Request) {
-	ctx, span := trace.StartSpan(r.Context(), "validator.SubmitContributionAndProofs")
-	defer span.End()
-
-	var reqData []json.RawMessage
-	if err := json.NewDecoder(r.Body).Decode(&reqData); err != nil {
-		if errors.Is(err, io.EOF) {
-			httputil.HandleError(w, "No data submitted", http.StatusBadRequest)
-		} else {
-			httputil.HandleError(w, "Could not decode request body: "+err.Error(), http.StatusBadRequest)
-		}
-		return
-	}
-	if len(reqData) == 0 {
-		httputil.HandleError(w, "No data submitted", http.StatusBadRequest)
-		return
-	}
-
-	for _, item := range reqData {
-		var contribution structs.SignedContributionAndProof
-		if err := json.Unmarshal(item, &contribution); err != nil {
-			httputil.HandleError(w, "Could not decode item: "+err.Error(), http.StatusBadRequest)
-			return
-		}
-		consensusItem, err := contribution.ToConsensus()
-		if err != nil {
-			httputil.HandleError(w, "Could not convert contribution to consensus format: "+err.Error(), http.StatusBadRequest)
-			return
-		}
-		if rpcError := s.CoreService.SubmitSignedContributionAndProof(ctx, consensusItem); rpcError != nil {
-			httputil.HandleError(w, rpcError.Err.Error(), core.ErrorReasonToHTTP(rpcError.Reason))
-			return
-		}
-	}
-}
-
 // SubmitAggregateAndProofs verifies given aggregate and proofs and publishes them on appropriate gossipsub topic.
 func (s *Server) SubmitAggregateAndProofs(w http.ResponseWriter, r *http.Request) {
 	ctx, span := trace.StartSpan(r.Context(), "validator.SubmitAggregateAndProofs")
@@ -232,7 +194,7 @@ func (s *Server) SubmitAggregateAndProofsV2(w http.ResponseWriter, r *http.Reque
 	broadcastFailed := false
 	var rpcError *core.RpcError
 	for _, raw := range reqData {
-		if v >= version.Electra {
+		if v >= version.Alpaca {
 			var signedAggregate structs.SignedAggregateAttestationAndProofElectra
 			err = json.Unmarshal(raw, &signedAggregate)
 			if err != nil {
@@ -272,119 +234,6 @@ func (s *Server) SubmitAggregateAndProofsV2(w http.ResponseWriter, r *http.Reque
 	}
 	if broadcastFailed {
 		httputil.HandleError(w, "Could not broadcast one or more signed aggregated attestations", http.StatusInternalServerError)
-	}
-}
-
-// SubmitSyncCommitteeSubscription subscribe to a number of sync committee subnets.
-//
-// Subscribing to sync committee subnets is an action performed by VC to enable
-// network participation, and only required if the VC has an active
-// validator in an active sync committee.
-func (s *Server) SubmitSyncCommitteeSubscription(w http.ResponseWriter, r *http.Request) {
-	ctx, span := trace.StartSpan(r.Context(), "validator.SubmitSyncCommitteeSubscription")
-	defer span.End()
-
-	if shared.IsSyncing(ctx, w, s.SyncChecker, s.HeadFetcher, s.TimeFetcher, s.OptimisticModeFetcher) {
-		return
-	}
-
-	var req structs.SubmitSyncCommitteeSubscriptionsRequest
-	err := json.NewDecoder(r.Body).Decode(&req.Data)
-	switch {
-	case errors.Is(err, io.EOF):
-		httputil.HandleError(w, "No data submitted", http.StatusBadRequest)
-		return
-	case err != nil:
-		httputil.HandleError(w, "Could not decode request body: "+err.Error(), http.StatusBadRequest)
-		return
-	}
-	if len(req.Data) == 0 {
-		httputil.HandleError(w, "No data submitted", http.StatusBadRequest)
-		return
-	}
-
-	st, err := s.HeadFetcher.HeadStateReadOnly(ctx)
-	if err != nil {
-		httputil.HandleError(w, "Could not get head state: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-	currEpoch := slots.ToEpoch(st.Slot())
-	validators := make([]state.ReadOnlyValidator, len(req.Data))
-	subscriptions := make([]*validator2.SyncCommitteeSubscription, len(req.Data))
-	for i, item := range req.Data {
-		consensusItem, err := item.ToConsensus()
-		if err != nil {
-			httputil.HandleError(w, "Could not convert request subscription to consensus subscription: "+err.Error(), http.StatusBadRequest)
-			return
-		}
-		subscriptions[i] = consensusItem
-		val, err := st.ValidatorAtIndexReadOnly(consensusItem.ValidatorIndex)
-		if err != nil {
-			httputil.HandleError(
-				w,
-				fmt.Sprintf("Could not get validator at index %d: %s", consensusItem.ValidatorIndex, err.Error()),
-				http.StatusInternalServerError,
-			)
-			return
-		}
-		valStatus, err := rpchelpers.ValidatorSubStatus(val, currEpoch)
-		if err != nil {
-			httputil.HandleError(
-				w,
-				fmt.Sprintf("Could not get validator status at index %d: %s", consensusItem.ValidatorIndex, err.Error()),
-				http.StatusInternalServerError,
-			)
-			return
-		}
-		if valStatus != validator2.ActiveOngoing && valStatus != validator2.ActiveExiting {
-			httputil.HandleError(
-				w,
-				fmt.Sprintf("Validator at index %d is not active or exiting", consensusItem.ValidatorIndex),
-				http.StatusBadRequest,
-			)
-			return
-		}
-		validators[i] = val
-	}
-
-	startEpoch, err := slots.SyncCommitteePeriodStartEpoch(currEpoch)
-	if err != nil {
-		httputil.HandleError(w, "Could not get sync committee period start epoch: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	for i, sub := range subscriptions {
-		if sub.UntilEpoch <= currEpoch {
-			httputil.HandleError(
-				w,
-				fmt.Sprintf("Epoch for subscription at index %d is in the past. It must be at least %d", i, currEpoch+1),
-				http.StatusBadRequest,
-			)
-			return
-		}
-		maxValidUntilEpoch := startEpoch + params.BeaconConfig().EpochsPerSyncCommitteePeriod*2
-		if sub.UntilEpoch > maxValidUntilEpoch {
-			httputil.HandleError(
-				w,
-				fmt.Sprintf("Epoch for subscription at index %d is too far in the future. It can be at most %d", i, maxValidUntilEpoch),
-				http.StatusBadRequest,
-			)
-			return
-		}
-	}
-
-	for i, sub := range subscriptions {
-		pubkey48 := validators[i].PublicKey()
-		// Handle overflow in the event current epoch is less than end epoch.
-		// This is an impossible condition, so it is a defensive check.
-		epochsToWatch, err := sub.UntilEpoch.SafeSub(uint64(startEpoch))
-		if err != nil {
-			epochsToWatch = 0
-		}
-		epochDuration := time.Duration(params.BeaconConfig().SlotsPerEpoch.Mul(params.BeaconConfig().SecondsPerSlot)) * time.Second
-		totalDuration := epochDuration * time.Duration(epochsToWatch)
-
-		cache.SyncSubnetIDs.AddSyncCommitteeSubnets(pubkey48[:], startEpoch, sub.SyncCommitteeIndices, totalDuration)
 	}
 }
 
