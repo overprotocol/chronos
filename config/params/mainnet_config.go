@@ -162,7 +162,7 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	DomainApplicationBuilder: bytesutil.Uint32ToBytes4(0x00000001),
 
 	// Prysm constants.
-	GenesisValidatorsRoot:          [32]byte{4, 120, 213, 155, 32, 199, 36, 195, 69, 244, 33, 54, 197, 26, 109, 158, 179, 40, 217, 229, 64, 245, 178, 140, 249, 235, 92, 227, 176, 186, 205, 138},
+	GenesisValidatorsRoot:          [32]byte{45, 162, 104, 115, 187, 87, 19, 224, 158, 233, 153, 126, 181, 79, 233, 70, 154, 226, 7, 121, 102, 99, 228, 73, 40, 109, 187, 142, 226, 235, 85, 82},
 	GweiPerEth:                     1000000000,
 	BLSSecretKeyLength:             32,
 	BLSPubkeyLength:                48,
