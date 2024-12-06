@@ -40,8 +40,8 @@ var mainnetNetworkConfig = &NetworkConfig{
 	ContractDeploymentBlock:    0, // Note: contract was deployed in genesis block.
 	BootstrapNodes: []string{
 		// Over Mainnet Bootnodes
-		"enr:-LG4QPp8Y6HmKPsO_XN1tQr_vGZb9ffClN82Q6iVW6yXzYkFVl2F_9wmYdKOTv-SUx-75xvPt6Ox52peebZklnvu7U-GAZOagV46h2F0dG5ldHOIAAAAAAAAAACCaWSCdjSCaXCEnfU0eoRvdmVykNBNsU8AAAAY__________-Jc2VjcDI1NmsxoQP2qzv7Pu9M-cq4sXfhZwTiAdW3poF9suGlydcXpq4i1YN1ZHCCyyA", // Bootnode1
-		"enr:-LG4QGE-EG3sZAHLqqhiOeUfbrIqlAnfSQCKSL2dd0JB-GnDfcTbIvafmjRWNdlbNTJ6UtNAiYxur5Rlp0IQbAL33BKGAZOagV1zh2F0dG5ldHOIAAAAAAAAAACCaWSCdjSCaXCEnfUwuYRvdmVykNBNsU8AAAAY__________-Jc2VjcDI1NmsxoQPM9H2udXWq869IwctRfNSpzscXw8XGIrrnUHn7lE88aYN1ZHCCyyA", // Bootnode2
+		"enr:-LG4QDBHttvbJ0YzmWdEKexvAKMJiCL0j2cwYThE00a-r_kRNmllkGHSQUXldIzTYpV_xoOXIFc7NTzvYR4vVHkeo4uGAZObvnqyh2F0dG5ldHOIAAAAAAAAAACCaWSCdjSCaXCEnfU0eoRvdmVykNBNsU8AAAAY__________-Jc2VjcDI1NmsxoQObFD5ZvibjbMP5EKCy0AmxNFOiZBk7MYqUf1BmPWPVnYN1ZHCCyyA", // Bootnode1
+		"enr:-LG4QNW5mnwSZjTT8Xkx0fGG86BVQghwTLbT2TKCOoAnBFgUdSBlpv-HS2l7nvE4khptwVft2eBSmMvFq_2guLKmJliGAZObvnsFh2F0dG5ldHOIAAAAAAAAAACCaWSCdjSCaXCEnfUwuYRvdmVykNBNsU8AAAAY__________-Jc2VjcDI1NmsxoQIq1m2ICxT8sQp--ZLkRLooa4JhtLppJxSjK9PJMfs3LoN1ZHCCyyA", // Bootnode2
 	},
 }
 
@@ -162,7 +162,7 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	DomainApplicationBuilder: bytesutil.Uint32ToBytes4(0x00000001),
 
 	// Prysm constants.
-	GenesisValidatorsRoot:          [32]byte{134, 177, 172, 9, 6, 222, 53, 217, 24, 59, 229, 20, 215, 20, 209, 16, 2, 9, 232, 150, 151, 166, 225, 5, 222, 7, 57, 22, 76, 255, 153, 106},
+	GenesisValidatorsRoot:          [32]byte{24, 239, 253, 154, 5, 156, 47, 170, 208, 115, 27, 25, 10, 64, 155, 132, 181, 69, 90, 168, 3, 92, 43, 100, 152, 142, 76, 138, 12, 40, 182, 227},
 	GweiPerEth:                     1000000000,
 	BLSSecretKeyLength:             32,
 	BLSPubkeyLength:                48,
