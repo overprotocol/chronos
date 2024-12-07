@@ -53,7 +53,6 @@ jobs:
             //cmd/beacon-chain \
             //cmd/validator \
             //cmd/prysmctl \
-            //tools/enr-calculator \
             //tools/bootnode
 
       - name: Make dist directory
@@ -68,7 +67,6 @@ jobs:
             bazel-bin/cmd/beacon-chain/beacon-chain_/beacon-chain.exe \
             bazel-bin/cmd/validator/validator_/validator.exe \
             bazel-bin/cmd/prysmctl/prysmctl_/prysmctl.exe \
-            bazel-bin/tools/enr-calculator/enr-calculator_/enr-calculator.exe \
             bazel-bin/tools/bootnode/bootnode_/bootnode.exe
 
       - name: Zip artifact (Non-Windows)
@@ -78,7 +76,6 @@ jobs:
             bazel-bin/cmd/beacon-chain/beacon-chain_/beacon-chain \
             bazel-bin/cmd/validator/validator_/validator \
             bazel-bin/cmd/prysmctl/prysmctl_/prysmctl \
-            bazel-bin/tools/enr-calculator/enr-calculator_/enr-calculator \
             bazel-bin/tools/bootnode/bootnode_/bootnode
 
       - name: Upload artifact
