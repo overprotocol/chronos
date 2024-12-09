@@ -552,6 +552,7 @@ func (b *BeaconNode) startDB(cliCtx *cli.Context, depositAddress string) error {
 	}
 
 	if b.CheckpointInitializer != nil {
+		log.Info("Checkpoint sync - Downloading origin state and block")
 		if err := b.CheckpointInitializer.Initialize(b.ctx, d); err != nil {
 			return err
 		}
