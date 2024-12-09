@@ -14,6 +14,10 @@ import (
 )
 
 func TestUpdateLogAggregateStats(t *testing.T) {
+	cfg := params.BeaconConfig().Copy()
+	cfg.AltairForkEpoch = 1
+	cfg.InitializeForkSchedule()
+	params.OverrideBeaconConfig(cfg)
 	v := &validator{
 		logValidatorPerformance: true,
 		startBalances:           make(map[[fieldparams.BLSPubkeyLength]byte]uint64),
@@ -88,6 +92,10 @@ func TestUpdateLogAggregateStats(t *testing.T) {
 }
 
 func TestUpdateLogAltairAggregateStats(t *testing.T) {
+	cfg := params.BeaconConfig().Copy()
+	cfg.AltairForkEpoch = 1
+	cfg.InitializeForkSchedule()
+	params.OverrideBeaconConfig(cfg)
 	v := &validator{
 		logValidatorPerformance: true,
 		startBalances:           make(map[[fieldparams.BLSPubkeyLength]byte]uint64),
@@ -158,7 +166,7 @@ func TestUpdateLogAltairAggregateStats(t *testing.T) {
 	}
 
 	require.LogsContain(t, hook, "msg=\"Previous epoch aggregated voting summary\" attestationInclusionPct=\"67%\" "+
-		"averageInactivityScore=0 correctlyVotedHeadPct=\"100%\" correctlyVotedSourcePct=\"100%\" correctlyVotedTargetPct=\"50%\" epoch=2")
+		"averageInactivityScore=0 correctlyVotedHeadPct=\"100%\" correctlyVotedSourcePct=\"100%\" correctlyVotedTargetPct=\"50%\" epoch=3")
 	require.LogsContain(t, hook, "msg=\"Vote summary since launch\" attestationsInclusionPct=\"78%\" "+
 		"correctlyVotedHeadPct=\"86%\" correctlyVotedSourcePct=\"100%\" "+
 		"correctlyVotedTargetPct=\"71%\" numberOfEpochs=3 pctChangeCombinedBalance=\"0.20555%\"")
