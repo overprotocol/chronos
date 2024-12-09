@@ -47,7 +47,7 @@ func SetupForkEpochConfigForTest() {
 	cfg.BellatrixForkEpoch = 144896
 	cfg.CapellaForkEpoch = 194048
 	cfg.DenebForkEpoch = 269568
-	cfg.AlpacaForkEpoch = 300000 // Arbitrary value for testing
+	cfg.AlpacaForkEpoch = 342308
 	cfg.InitializeForkSchedule()
 	OverrideBeaconConfig(cfg)
 }
