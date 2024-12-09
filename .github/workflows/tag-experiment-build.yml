@@ -1,0 +1,79 @@
+name: Build with tag (Experiment)
+
+on:
+  push:
+    tags:
+      - "v*_exp" # Format: v<major>.<minor>.<patch>[_exp]
+
+permissions:
+  contents: write
+
+jobs:
+  extract-version:
+    runs-on: ubuntu-latest
+    outputs:
+      tag_name: ${{ steps.extract.outputs.tag_name }}
+      version_name: ${{ steps.extract.outputs.version_name }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract tag name, version
+        id: extract
+        run: |
+          full_tag="${{ github.ref_name }}"
+          version_name="${full_tag%%_*}"
+          tag_name="${full_tag#*_}"
+          echo "tag_name=$tag_name" >> $GITHUB_OUTPUT
+          echo "version_name=$version_name" >> $GITHUB_OUTPUT
+
+  build:
+    needs: extract-version
+    strategy:
+      matrix:
+        symbol-list: [linux_amd64]
+    uses: ./.github/workflows/_build-bazel.yml
+    with:
+      build-type: ${{ matrix.symbol-list }}
+      tag_name: ${{ needs.extract-version.outputs.tag_name }}
+      version_name: ${{ needs.extract-version.outputs.version_name }}
+    permissions:
+      id-token: write
+      contents: read
+    secrets:
+      GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+
+  upload-aws:
+    needs: [build, extract-version]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist/${{ github.sha }}
+
+      - name: Flatten directory structure
+        run: |
+          find dist/${{ github.sha }} -name '*.zip' -exec mv {} dist/${{ github.sha }}/ \;
+          find dist/${{ github.sha }} -mindepth 1 -type d -delete
+
+      - name: Upload to S3
+        run: |
+          aws s3 cp dist/${{ github.sha }} \
+            s3://${{ secrets.AWS_BUCKET_NAME }}/${{ needs.extract-version.outputs.version_name }}/${{ needs.extract-version.outputs.tag_name }} \
+            --recursive --exclude "*" --include "*.zip" --acl public-read
+
+  clean:
+    needs: [upload-aws]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clean up
+        run: |
+          rm -rf dist
+          rm -rf bazel-bin
