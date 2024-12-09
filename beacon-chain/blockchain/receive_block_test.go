@@ -27,6 +27,12 @@ import (
 )
 
 func TestService_ReceiveBlock(t *testing.T) {
+	params.SetupTestConfigCleanup(t)
+	cfg := params.BeaconConfig()
+	cfg.DenebForkEpoch = 3
+	cfg.AlpacaForkEpoch = 5
+	params.OverrideBeaconConfig(cfg)
+
 	ctx := context.Background()
 
 	genesis, keys := util.DeterministicGenesisState(t, 64)

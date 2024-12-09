@@ -25,6 +25,8 @@ import (
 )
 
 func TestExpectedWithdrawals_BadRequest(t *testing.T) {
+	params.SetupForkEpochConfigForTest()
+
 	st, err := util.NewBeaconStateCapella()
 	slotsAhead := 5000
 	require.NoError(t, err)

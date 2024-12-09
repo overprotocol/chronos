@@ -152,6 +152,14 @@ func TestProcessBlockNoVerifyAnySigAltair_OK(t *testing.T) {
 }
 
 func TestProcessBlockNoVerify_SigSetContainsDescriptions(t *testing.T) {
+	cfg := params.MainnetConfig().Copy()
+	cfg.AltairForkEpoch = 300
+	cfg.BellatrixForkEpoch = 301
+	cfg.CapellaForkEpoch = 302
+	cfg.DenebForkEpoch = 303
+	cfg.AlpacaForkEpoch = 304
+	params.OverrideBeaconConfig(cfg)
+
 	beaconState, block, _, _, _ := createFullBlockWithOperations(t)
 	wsb, err := blocks.NewSignedBeaconBlock(block)
 	require.NoError(t, err)

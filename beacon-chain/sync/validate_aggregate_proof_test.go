@@ -345,6 +345,8 @@ func TestValidateAggregateAndProof_ExistedInPool(t *testing.T) {
 }
 
 func TestValidateAggregateAndProof_CanValidate(t *testing.T) {
+	params.SetupForkEpochConfigForTest()
+
 	db := dbtest.SetupDB(t)
 	p := p2ptest.NewTestP2P(t)
 
@@ -449,6 +451,7 @@ func TestValidateAggregateAndProof_CanValidate(t *testing.T) {
 }
 
 func TestVerifyIndexInCommittee_SeenAggregatorEpoch(t *testing.T) {
+	params.SetupForkEpochConfigForTest()
 	db := dbtest.SetupDB(t)
 	p := p2ptest.NewTestP2P(t)
 

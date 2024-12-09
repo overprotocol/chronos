@@ -1,6 +1,7 @@
 package params
 
 import (
+	"math"
 	"testing"
 )
 
@@ -47,6 +48,7 @@ func SetupForkEpochConfigForTest() {
 	cfg.BellatrixForkEpoch = 144896
 	cfg.CapellaForkEpoch = 194048
 	cfg.DenebForkEpoch = 269568
+	cfg.AlpacaForkEpoch = math.MaxUint64
 	cfg.InitializeForkSchedule()
 	OverrideBeaconConfig(cfg)
 }
