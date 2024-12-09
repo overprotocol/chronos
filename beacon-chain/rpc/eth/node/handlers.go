@@ -97,7 +97,7 @@ func (*Server) GetVersion(w http.ResponseWriter, r *http.Request) {
 	_, span := trace.StartSpan(r.Context(), "node.GetVersion")
 	defer span.End()
 
-	v := fmt.Sprintf("Prysm/%s (%s %s)", version.SemanticVersion(), runtime.GOOS, runtime.GOARCH)
+	v := fmt.Sprintf("Chronos/%s (%s %s)", version.SemanticVersion(), runtime.GOOS, runtime.GOARCH)
 	resp := &structs.GetVersionResponse{
 		Data: &structs.Version{
 			Version: v,
