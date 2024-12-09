@@ -789,6 +789,7 @@ func TestComputeProposerIndex(t *testing.T) {
 }
 
 func TestIsEligibleForActivationQueue(t *testing.T) {
+	params.SetupForkEpochConfigForTest()
 	tests := []struct {
 		name         string
 		validator    *ethpb.Validator

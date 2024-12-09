@@ -171,6 +171,14 @@ func TestGenerateFullBlock_ValidDeposits(t *testing.T) {
 }
 
 func TestGenerateFullBlock_ValidVoluntaryExits(t *testing.T) {
+	config := params.BeaconConfig()
+	config.AltairForkEpoch = 301
+	config.BellatrixForkEpoch = 302
+	config.CapellaForkEpoch = 303
+	config.DenebForkEpoch = 304
+	config.AlpacaForkEpoch = 305
+	params.OverrideBeaconConfig(config)
+
 	beaconState, privs := DeterministicGenesisState(t, 256)
 	// Moving the state 2048 epochs forward due to PERSISTENT_COMMITTEE_PERIOD.
 	err := beaconState.SetSlot(params.BeaconConfig().SlotsPerEpoch.Mul(uint64(params.BeaconConfig().ShardCommitteePeriod)).Add(3))
@@ -363,6 +371,8 @@ func TestGenerateVoluntaryExits(t *testing.T) {
 	params.SetupTestConfigCleanup(t)
 	config := params.BeaconConfig()
 	config.ShardCommitteePeriod = 0
+	config.DenebForkEpoch = 10
+	config.AlpacaForkEpoch = 15
 	params.OverrideBeaconConfig(config)
 
 	beaconState, privKeys := DeterministicGenesisState(t, 256)

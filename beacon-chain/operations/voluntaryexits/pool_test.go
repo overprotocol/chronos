@@ -44,6 +44,11 @@ func TestPendingExits(t *testing.T) {
 }
 
 func TestExitsForInclusion(t *testing.T) {
+	cfg := params.BeaconConfig().Copy()
+	cfg.DenebForkEpoch = 300
+	cfg.AlpacaForkEpoch = 350
+	params.OverrideBeaconConfig(cfg)
+
 	spb := &ethpb.BeaconStateCapella{
 		Fork: &ethpb.Fork{
 			CurrentVersion:  params.BeaconConfig().GenesisForkVersion,

@@ -70,6 +70,7 @@ func TestAttestToBlockHead_SubmitAttestation_EmptyCommittee(t *testing.T) {
 func TestAttestToBlockHead_SubmitAttestation_RequestFailure(t *testing.T) {
 	for _, isSlashingProtectionMinimal := range [...]bool{false, true} {
 		t.Run(fmt.Sprintf("SlashingProtectionMinimal:%v", isSlashingProtectionMinimal), func(t *testing.T) {
+			params.SetupForkEpochConfigForTest()
 			hook := logTest.NewGlobal()
 
 			validator, m, validatorKey, finish := setup(t, isSlashingProtectionMinimal)
@@ -109,6 +110,8 @@ func TestAttestToBlockHead_SubmitAttestation_RequestFailure(t *testing.T) {
 func TestAttestToBlockHead_AttestsCorrectly(t *testing.T) {
 	for _, isSlashingProtectionMinimal := range [...]bool{false, true} {
 		t.Run(fmt.Sprintf("Phase 0 (SlashingProtectionMinimal:%v)", isSlashingProtectionMinimal), func(t *testing.T) {
+			params.SetupTestConfigCleanup(t)
+			params.SetupForkEpochConfigForTest()
 			validator, m, validatorKey, finish := setup(t, isSlashingProtectionMinimal)
 			defer finish()
 			hook := logTest.NewGlobal()
@@ -269,6 +272,7 @@ func TestAttestToBlockHead_AttestsCorrectly(t *testing.T) {
 func TestAttestToBlockHead_BlocksDoubleAtt(t *testing.T) {
 	for _, isSlashingProtectionMinimal := range [...]bool{false, true} {
 		t.Run(fmt.Sprintf("SlashingProtectionMinimal:%v", isSlashingProtectionMinimal), func(t *testing.T) {
+			params.SetupForkEpochConfigForTest()
 			hook := logTest.NewGlobal()
 			validator, m, validatorKey, finish := setup(t, isSlashingProtectionMinimal)
 			defer finish()
@@ -325,6 +329,7 @@ func TestAttestToBlockHead_BlocksDoubleAtt(t *testing.T) {
 func TestAttestToBlockHead_BlocksSurroundAtt(t *testing.T) {
 	for _, isSlashingProtectionMinimal := range [...]bool{false, true} {
 		t.Run(fmt.Sprintf("SlashingProtectionMinimal:%v", isSlashingProtectionMinimal), func(t *testing.T) {
+			params.SetupForkEpochConfigForTest()
 			hook := logTest.NewGlobal()
 			validator, m, validatorKey, finish := setup(t, isSlashingProtectionMinimal)
 			defer finish()
@@ -381,6 +386,7 @@ func TestAttestToBlockHead_BlocksSurroundAtt(t *testing.T) {
 func TestAttestToBlockHead_BlocksSurroundedAtt(t *testing.T) {
 	for _, isSlashingProtectionMinimal := range [...]bool{false, true} {
 		t.Run(fmt.Sprintf("SlashingProtectionMinimal:%v", isSlashingProtectionMinimal), func(t *testing.T) {
+			params.SetupForkEpochConfigForTest()
 			hook := logTest.NewGlobal()
 			validator, m, validatorKey, finish := setup(t, isSlashingProtectionMinimal)
 			defer finish()
@@ -471,6 +477,7 @@ func TestAttestToBlockHead_DoesNotAttestBeforeDelay(t *testing.T) {
 func TestAttestToBlockHead_DoesAttestAfterDelay(t *testing.T) {
 	for _, isSlashingProtectionMinimal := range [...]bool{false, true} {
 		t.Run(fmt.Sprintf("SlashingProtectionMinimal:%v", isSlashingProtectionMinimal), func(t *testing.T) {
+			params.SetupForkEpochConfigForTest()
 			validator, m, validatorKey, finish := setup(t, isSlashingProtectionMinimal)
 			defer finish()
 
@@ -520,6 +527,7 @@ func TestAttestToBlockHead_DoesAttestAfterDelay(t *testing.T) {
 func TestAttestToBlockHead_CorrectBitfieldLength(t *testing.T) {
 	for _, isSlashingProtectionMinimal := range [...]bool{false, true} {
 		t.Run(fmt.Sprintf("SlashingProtectionMinimal:%v", isSlashingProtectionMinimal), func(t *testing.T) {
+			params.SetupForkEpochConfigForTest()
 			validator, m, validatorKey, finish := setup(t, isSlashingProtectionMinimal)
 			defer finish()
 			validatorIndex := primitives.ValidatorIndex(2)

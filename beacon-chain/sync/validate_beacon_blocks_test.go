@@ -704,6 +704,7 @@ func TestValidateBeaconBlockPubSub_RejectBlocksFromThePast(t *testing.T) {
 }
 
 func TestValidateBeaconBlockPubSub_SeenProposerSlot(t *testing.T) {
+	params.SetupForkEpochConfigForTest()
 	db := dbtest.SetupDB(t)
 	p := p2ptest.NewTestP2P(t)
 	ctx := context.Background()
@@ -901,6 +902,7 @@ func TestValidateBeaconBlockPubSub_ParentNotFinalizedDescendant(t *testing.T) {
 }
 
 func TestValidateBeaconBlockPubSub_InvalidParentBlock(t *testing.T) {
+	params.SetupForkEpochConfigForTest()
 	db := dbtest.SetupDB(t)
 	p := p2ptest.NewTestP2P(t)
 	ctx := context.Background()
@@ -1177,6 +1179,7 @@ func TestService_isBlockQueueable(t *testing.T) {
 }
 
 func TestValidateBeaconBlockPubSub_ValidExecutionPayload(t *testing.T) {
+	params.SetupForkEpochConfigForTest()
 	db := dbtest.SetupDB(t)
 	p := p2ptest.NewTestP2P(t)
 	ctx := context.Background()
@@ -1409,6 +1412,7 @@ func Test_validateBellatrixBeaconBlockParentValidation(t *testing.T) {
 }
 
 func Test_validateBeaconBlockProcessingWhenParentIsOptimistic(t *testing.T) {
+	params.SetupForkEpochConfigForTest()
 	db := dbtest.SetupDB(t)
 	p := p2ptest.NewTestP2P(t)
 	ctx := context.Background()

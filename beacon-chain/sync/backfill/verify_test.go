@@ -24,6 +24,7 @@ func TestDomainCache(t *testing.T) {
 	cfg.BellatrixForkEpoch = 2
 	cfg.CapellaForkEpoch = 3
 	cfg.DenebForkEpoch = 4
+	cfg.AlpacaForkEpoch = 5
 	params.OverrideBeaconConfig(cfg)
 	cfg.InitializeForkSchedule()
 

@@ -82,6 +82,13 @@ func TestProcessVoluntaryExits_ExitAlreadySubmitted(t *testing.T) {
 }
 
 func TestProcessVoluntaryExits_AppliesCorrectStatus(t *testing.T) {
+	params.SetupTestConfigCleanup(t)
+	cfg := params.BeaconConfig()
+	cfg.CapellaForkEpoch = 300
+	cfg.DenebForkEpoch = 301
+	cfg.AlpacaForkEpoch = 302
+	params.OverrideBeaconConfig(cfg)
+
 	exits := []*ethpb.SignedVoluntaryExit{
 		{
 			Exit: &ethpb.VoluntaryExit{

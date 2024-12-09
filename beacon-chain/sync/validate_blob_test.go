@@ -144,6 +144,7 @@ func TestValidateBlob_AlreadySeenInCache(t *testing.T) {
 }
 
 func TestValidateBlob_InvalidTopicIndex(t *testing.T) {
+	params.SetupForkEpochConfigForTest()
 	ctx := context.Background()
 	p := p2ptest.NewTestP2P(t)
 	chainService := &mock.ChainService{Genesis: time.Unix(time.Now().Unix()-int64(params.BeaconConfig().SecondsPerSlot), 0)}

@@ -123,6 +123,8 @@ func TestDownloadBackwardsCompatibleCombined(t *testing.T) {
 	cfg.AltairForkEpoch = 299
 	cfg.BellatrixForkEpoch = 300
 	cfg.CapellaForkEpoch = 301
+	cfg.DenebForkEpoch = 302
+	cfg.AlpacaForkEpoch = 303
 	cfg.InitializeForkSchedule()
 	params.OverrideBeaconConfig(cfg)
 

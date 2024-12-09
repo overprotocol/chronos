@@ -42,6 +42,7 @@ func TestSubmitAggregateAndProof_GetDutiesRequestFailure(t *testing.T) {
 func TestSubmitAggregateAndProof_SignFails(t *testing.T) {
 	for _, isSlashingProtectionMinimal := range [...]bool{false, true} {
 		t.Run(fmt.Sprintf("SlashingProtectionMinimal:%v", isSlashingProtectionMinimal), func(t *testing.T) {
+			params.SetupForkEpochConfigForTest()
 			validator, m, validatorKey, finish := setup(t, isSlashingProtectionMinimal)
 			defer finish()
 			var pubKey [fieldparams.BLSPubkeyLength]byte
@@ -87,6 +88,7 @@ func TestSubmitAggregateAndProof_SignFails(t *testing.T) {
 func TestSubmitAggregateAndProof_Ok(t *testing.T) {
 	for _, isSlashingProtectionMinimal := range [...]bool{false, true} {
 		t.Run(fmt.Sprintf("Phase 0 (SlashingProtectionMinimal:%v)", isSlashingProtectionMinimal), func(t *testing.T) {
+			params.SetupForkEpochConfigForTest()
 			validator, m, validatorKey, finish := setup(t, isSlashingProtectionMinimal)
 			defer finish()
 			var pubKey [fieldparams.BLSPubkeyLength]byte
@@ -193,6 +195,7 @@ func TestSubmitAggregateAndProof_Distributed(t *testing.T) {
 	ctx := context.Background()
 	for _, isSlashingProtectionMinimal := range [...]bool{false, true} {
 		t.Run(fmt.Sprintf("SlashingProtectionMinimal:%v", isSlashingProtectionMinimal), func(t *testing.T) {
+			params.SetupForkEpochConfigForTest()
 			validator, m, validatorKey, finish := setup(t, isSlashingProtectionMinimal)
 			defer finish()
 

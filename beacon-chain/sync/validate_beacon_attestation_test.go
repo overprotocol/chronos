@@ -27,6 +27,8 @@ import (
 )
 
 func TestService_validateCommitteeIndexBeaconAttestation(t *testing.T) {
+	params.SetupForkEpochConfigForTest()
+
 	p := p2ptest.NewTestP2P(t)
 	db := dbtest.SetupDB(t)
 	chain := &mockChain.ChainService{
