@@ -182,7 +182,8 @@ func (s *Service) RegisterValidator(ctx context.Context, reg []*ethpb.SignedVali
 // RegistrationByValidatorID returns either the values from the cache or db.
 func (s *Service) RegistrationByValidatorID(ctx context.Context, id primitives.ValidatorIndex) (*ethpb.ValidatorRegistrationV1, error) {
 	if s.registrationCache != nil {
-		return s.registrationCache.RegistrationByIndex(id)
+		return s.cfg.beaconDB.RegistrationByValidatorID(ctx, id)
+		// return s.registrationCache.RegistrationByIndex(id)
 	} else {
 		if s.cfg == nil || s.cfg.beaconDB == nil {
 			return nil, errors.New("nil beacon db")
