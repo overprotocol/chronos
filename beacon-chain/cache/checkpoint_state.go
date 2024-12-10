@@ -42,18 +42,18 @@ func NewCheckpointStateCache() *CheckpointStateCache {
 // StateByCheckpoint fetches state by checkpoint. Returns true with a
 // reference to the CheckpointState info, if exists. Otherwise returns false, nil.
 func (c *CheckpointStateCache) StateByCheckpoint(cp *ethpb.Checkpoint) (state.BeaconState, error) {
-	h, err := hash.Proto(cp)
-	if err != nil {
-		return nil, err
-	}
-
-	item, exists := c.cache.Get(h)
-
-	if exists && item != nil {
-		checkpointStateHit.Inc()
-		// Copy here is unnecessary since the return will only be used to verify attestation signature.
-		return item.(state.BeaconState), nil
-	}
+	//h, err := hash.Proto(cp)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//
+	//item, exists := c.cache.Get(h)
+	//
+	//if exists && item != nil {
+	//	checkpointStateHit.Inc()
+	//	// Copy here is unnecessary since the return will only be used to verify attestation signature.
+	//	return item.(state.BeaconState), nil
+	//}
 
 	checkpointStateMiss.Inc()
 	return nil, nil
