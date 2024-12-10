@@ -160,21 +160,21 @@ func (c *CommitteeCache) ActiveIndices(ctx context.Context, seed [32]byte) ([]pr
 	if err := c.checkInProgress(ctx, seed); err != nil {
 		return nil, err
 	}
-	obj, exists := c.CommitteeCache.Get(key(seed))
+	//obj, exists := c.CommitteeCache.Get(key(seed))
+	//
+	//if exists {
+	//	CommitteeCacheHit.Inc()
+	//} else {
+	CommitteeCacheMiss.Inc()
+	return nil, nil
+	//}
 
-	if exists {
-		CommitteeCacheHit.Inc()
-	} else {
-		CommitteeCacheMiss.Inc()
-		return nil, nil
-	}
-
-	item, ok := obj.(*Committees)
-	if !ok {
-		return nil, ErrNotCommittee
-	}
-
-	return item.SortedIndices, nil
+	//item, ok := obj.(*Committees)
+	//if !ok {
+	//	return nil, ErrNotCommittee
+	//}
+	//
+	//return item.SortedIndices, nil
 }
 
 // ActiveIndicesCount returns the active indices count of a given seed stored in cache.
@@ -183,20 +183,20 @@ func (c *CommitteeCache) ActiveIndicesCount(ctx context.Context, seed [32]byte) 
 		return 0, err
 	}
 
-	obj, exists := c.CommitteeCache.Get(key(seed))
-	if exists {
-		CommitteeCacheHit.Inc()
-	} else {
-		CommitteeCacheMiss.Inc()
-		return 0, nil
-	}
+	//obj, exists := c.CommitteeCache.Get(key(seed))
+	//if exists {
+	//	CommitteeCacheHit.Inc()
+	//} else {
+	CommitteeCacheMiss.Inc()
+	return 0, nil
+	//}
 
-	item, ok := obj.(*Committees)
-	if !ok {
-		return 0, ErrNotCommittee
-	}
-
-	return len(item.SortedIndices), nil
+	//item, ok := obj.(*Committees)
+	//if !ok {
+	//	return 0, ErrNotCommittee
+	//}
+	//
+	//return len(item.SortedIndices), nil
 }
 
 // HasEntry returns true if the committee cache has a value.
