@@ -66,19 +66,19 @@ func (c *BalanceCache) AddTotalEffectiveBalance(st state.ReadOnlyBeaconState, ba
 
 // Get returns the current epoch's effective balance for state `st` in cache.
 func (c *BalanceCache) Get(st state.ReadOnlyBeaconState) (uint64, error) {
-	key, err := balanceCacheKey(st)
-	if err != nil {
-		return 0, err
-	}
+	//key, err := balanceCacheKey(st)
+	//if err != nil {
+	//	return 0, err
+	//}
 
 	c.lock.RLock()
 	defer c.lock.RUnlock()
 
-	value, exists := c.cache.Get(key)
-	if !exists {
-		balanceCacheMiss.Inc()
-		return 0, ErrNotFound
-	}
-	balanceCacheHit.Inc()
-	return value.(uint64), nil
+	//value, exists := c.cache.Get(key)
+	//if !exists {
+	balanceCacheMiss.Inc()
+	return 0, ErrNotFound
+	//}
+	//balanceCacheHit.Inc()
+	//return value.(uint64), nil
 }
