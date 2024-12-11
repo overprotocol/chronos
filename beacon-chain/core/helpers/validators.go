@@ -319,14 +319,14 @@ func BeaconProposerIndexAtSlot(ctx context.Context, state state.ReadOnlyBeaconSt
 			return 0, err
 		}
 		if r != nil && !bytes.Equal(r, params.BeaconConfig().ZeroHash[:]) {
-			pid, err := cachedProposerIndexAtSlot(slot, [32]byte(r))
-			if err == nil {
-				return pid, nil
-			}
+			//pid, err := cachedProposerIndexAtSlot(slot, [32]byte(r))
+			//if err == nil {
+			//	return pid, nil
+			//}
 			if err := UpdateProposerIndicesInCache(ctx, state, e); err != nil {
 				return 0, errors.Wrap(err, "could not update proposer index cache")
 			}
-			pid, err = cachedProposerIndexAtSlot(slot, [32]byte(r))
+			pid, err := cachedProposerIndexAtSlot(slot, [32]byte(r))
 			if err == nil {
 				return pid, nil
 			}

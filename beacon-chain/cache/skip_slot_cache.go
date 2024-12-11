@@ -2,16 +2,13 @@ package cache
 
 import (
 	"context"
-	"math"
 	"sync"
-	"time"
 
 	lru "github.com/hashicorp/golang-lru"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
 	lruwrpr "github.com/prysmaticlabs/prysm/v5/cache/lru"
-	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing/trace"
 )
 
 var (
@@ -60,49 +57,49 @@ func (c *SkipSlotCache) Disable() {
 // Get waits for any in progress calculation to complete before returning a
 // cached response, if any.
 func (c *SkipSlotCache) Get(ctx context.Context, r [32]byte) (state.BeaconState, error) {
-	ctx, span := trace.StartSpan(ctx, "skipSlotCache.Get")
-	defer span.End()
+	//ctx, span := trace.StartSpan(ctx, "skipSlotCache.Get")
+	//defer span.End()
 	if c.disabled {
 		// Return a miss result if cache is not enabled.
 		skipSlotCacheMiss.Inc()
 		return nil, nil
 	}
-
-	delay := minDelay
-
-	// Another identical request may be in progress already. Let's wait until
-	// any in progress request resolves or our timeout is exceeded.
-	inProgress := false
-	for {
-		if ctx.Err() != nil {
-			return nil, ctx.Err()
-		}
-
-		c.lock.RLock()
-		if !c.inProgress[r] {
-			c.lock.RUnlock()
-			break
-		}
-		inProgress = true
-		c.lock.RUnlock()
-
-		// This increasing backoff is to decrease the CPU cycles while waiting
-		// for the in progress boolean to flip to false.
-		time.Sleep(time.Duration(delay) * time.Nanosecond)
-		delay *= delayFactor
-		delay = math.Min(delay, maxDelay)
-	}
-	span.SetAttributes(trace.BoolAttribute("inProgress", inProgress))
-
-	item, exists := c.cache.Get(r)
-
-	if exists && item != nil {
-		skipSlotCacheHit.Inc()
-		span.SetAttributes(trace.BoolAttribute("hit", true))
-		return item.(state.BeaconState).Copy(), nil
-	}
+	//
+	//delay := minDelay
+	//
+	//// Another identical request may be in progress already. Let's wait until
+	//// any in progress request resolves or our timeout is exceeded.
+	//inProgress := false
+	//for {
+	//	if ctx.Err() != nil {
+	//		return nil, ctx.Err()
+	//	}
+	//
+	//	c.lock.RLock()
+	//	if !c.inProgress[r] {
+	//		c.lock.RUnlock()
+	//		break
+	//	}
+	//	inProgress = true
+	//	c.lock.RUnlock()
+	//
+	//	// This increasing backoff is to decrease the CPU cycles while waiting
+	//	// for the in progress boolean to flip to false.
+	//	time.Sleep(time.Duration(delay) * time.Nanosecond)
+	//	delay *= delayFactor
+	//	delay = math.Min(delay, maxDelay)
+	//}
+	//span.SetAttributes(trace.BoolAttribute("inProgress", inProgress))
+	//
+	//item, exists := c.cache.Get(r)
+	//
+	//if exists && item != nil {
+	//	skipSlotCacheHit.Inc()
+	//	span.SetAttributes(trace.BoolAttribute("hit", true))
+	//	return item.(state.BeaconState).Copy(), nil
+	//}
 	skipSlotCacheMiss.Inc()
-	span.SetAttributes(trace.BoolAttribute("hit", false))
+	//span.SetAttributes(trace.BoolAttribute("hit", false))
 	return nil, nil
 }
 
