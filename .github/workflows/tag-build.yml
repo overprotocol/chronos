@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - "v*_*" # Format: v<major>.<minor>.<patch>[_<stable|beta|dev>]
+      - "!v*_exp" # Exclude tags ending with _exp
 
 permissions:
   contents: write
