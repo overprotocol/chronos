@@ -199,6 +199,45 @@ func TestGetDepositEstimation(t *testing.T) {
 			},
 		},
 		{
+			name:   "[initial] initial deposit with large amount",
+			pubkey: pubkey0,
+			state: func() state.BeaconState {
+				pd := &ethpb.PendingDeposit{
+					PublicKey:             sk0.PublicKey().Marshal(),
+					WithdrawalCredentials: make([]byte, 32),
+					Amount:                params.BeaconConfig().MaxEffectiveBalanceAlpaca, // 16384 OVER
+					Slot:                  primitives.Slot(321),
+				}
+				pd, err = signedPendingDeposit(sk0, pd)
+				require.NoError(t, err)
+
+				st, _ := util.DeterministicGenesisStateElectra(t, 10)
+				require.NoError(t, st.SetSlot(384)) // current epoch = 12
+				require.NoError(t, st.SetFinalizedCheckpoint(&ethpb.Checkpoint{
+					Epoch: 10,
+					Root:  []byte("finalized"),
+				}))
+				require.NoError(t, st.AppendPendingDeposit(pd))
+				return st
+			}(),
+			code: http.StatusOK,
+			wantData: &structs.DepositEstimationContainer{
+				Pubkey:    pubkey0,
+				Validator: nil,
+				PendingDeposits: []*structs.PendingDepositEstimationContainer{
+					{
+						Type: "initial",
+						Data: &structs.PendingDepositEstimation{
+							Amount:                  params.BeaconConfig().MaxEffectiveBalanceAlpaca,
+							Slot:                    321,
+							ExpectedEpoch:           14,
+							ExpectedActivationEpoch: 22,
+						},
+					},
+				},
+			},
+		},
+		{
 			name:   "[initial] initial deposit was processed, validator's activation epoch is in the future",
 			pubkey: pubkey0,
 			state: func() state.BeaconState {
