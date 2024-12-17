@@ -278,10 +278,10 @@ func buildPendingDepositEstimations(st state.BeaconState, pubkeyFilter []byte, i
 		// Premise: finalizedSlot will always be incremented by 32 slots(= 1 epoch).
 		for pd.Slot > finalizedSlot {
 			currentEpoch += 1
-
-			availableForProcessing = balanceChurnLimit
 			finalizedSlot += params.BeaconConfig().SlotsPerEpoch
 
+			// Reset per-epoch tracking variables
+			availableForProcessing = balanceChurnLimit
 			processedAmount = uint64(0)
 			depositCount = uint64(0)
 		}
@@ -289,10 +289,10 @@ func buildPendingDepositEstimations(st state.BeaconState, pubkeyFilter []byte, i
 		// Move to next epoch if max pending deposits per epoch is reached.
 		if depositCount >= params.BeaconConfig().MaxPendingDepositsPerEpoch {
 			currentEpoch += 1
-
-			availableForProcessing = balanceChurnLimit
 			finalizedSlot += params.BeaconConfig().SlotsPerEpoch
 
+			// Reset per-epoch tracking variables
+			availableForProcessing = balanceChurnLimit
 			processedAmount = uint64(0)
 			depositCount = uint64(0)
 		}
@@ -315,9 +315,9 @@ func buildPendingDepositEstimations(st state.BeaconState, pubkeyFilter []byte, i
 			// If churn limit is reached, move to the next epoch.
 			if isChurnLimitReached {
 				currentEpoch += 1
-
 				finalizedSlot += params.BeaconConfig().SlotsPerEpoch
 
+				// Reset per-epoch tracking variables
 				depBalToConsume = availableForProcessing - primitives.Gwei(processedAmount)
 				// deposit_balance_to_consume only matters when the churn limit is reached.
 				availableForProcessing = depBalToConsume + balanceChurnLimit
