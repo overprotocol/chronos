@@ -311,9 +311,8 @@ func buildPendingDepositEstimations(st state.BeaconState, pubkeyFilter []byte, i
 		}
 
 		if !isValidatorWithdrawn && !isValidatorExited {
-			isChurnLimitReached := primitives.Gwei(processedAmount+pd.Amount) > availableForProcessing
-			// If churn limit is reached, move to the next epoch.
-			if isChurnLimitReached {
+			// If churn limit is reached, move to the next epoch while it can be consumed.
+			for primitives.Gwei(processedAmount+pd.Amount) > availableForProcessing {
 				currentEpoch += 1
 				finalizedSlot += params.BeaconConfig().SlotsPerEpoch
 

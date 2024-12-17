@@ -230,8 +230,8 @@ func TestGetDepositEstimation(t *testing.T) {
 						Data: &structs.PendingDepositEstimation{
 							Amount:                  params.BeaconConfig().MaxEffectiveBalanceAlpaca,
 							Slot:                    321,
-							ExpectedEpoch:           14,
-							ExpectedActivationEpoch: 22,
+							ExpectedEpoch:           16,
+							ExpectedActivationEpoch: 24,
 						},
 					},
 				},
