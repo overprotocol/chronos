@@ -85,11 +85,14 @@ func TestEventStreamRequestError(t *testing.T) {
 	eventsChannel := make(chan *Event, 1)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+	
 	// use valid url that will result in failed request with nil body
 	stream, err := NewEventStream(ctx, http.DefaultClient, "http://badhost:1234", topics)
 	require.NoError(t, err)
+	
 	// error will happen when request is made, should be received over events channel
 	go stream.Subscribe(eventsChannel)
+	
 	event := <-eventsChannel
 	if event.EventType != EventConnectionError {
 		t.Errorf("Expected event type %q, got %q", EventConnectionError, event.EventType)
