@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"math"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -859,21 +858,14 @@ func TestSubmitVoluntaryExit(t *testing.T) {
 		assert.Equal(t, true, broadcaster.BroadcastCalled.Load())
 	})
 	t.Run("across fork", func(t *testing.T) {
-		t.Skip("Exit signature must be re-generated")
-
 		params.SetupTestConfigCleanup(t)
 		config := params.BeaconConfig()
 		config.AltairForkEpoch = params.BeaconConfig().ShardCommitteePeriod + 1
-		config.BellatrixForkEpoch = math.MaxUint64
-		config.CapellaForkEpoch = math.MaxUint64
-		config.DenebForkEpoch = math.MaxUint64
+		config.BellatrixForkEpoch = params.BeaconConfig().ShardCommitteePeriod + 32
 		params.OverrideBeaconConfig(config)
-		config.InitializeForkSchedule()
 
-		bs, _ := util.DeterministicGenesisState(t, 1)
-		// Satisfy activity time required before exiting.
-		require.NoError(t, bs.SetSlot(params.BeaconConfig().SlotsPerEpoch.Mul(uint64(params.BeaconConfig().ShardCommitteePeriod))))
-
+		bs, _ := util.DeterministicGenesisStateAltair(t, 1)
+		require.NoError(t, bs.SetSlot(params.BeaconConfig().SlotsPerEpoch.Mul(uint64(params.BeaconConfig().ShardCommitteePeriod+31))))
 		broadcaster := &p2pMock.MockBroadcaster{}
 		s := &Server{
 			ChainInfoFetcher:   &blockchainmock.ChainService{State: bs},
@@ -1815,8 +1807,8 @@ var (
     "epoch": "%d",
     "validator_index": "0"
   },
-  "signature": "0xa430330829331089c4381427217231c32c26ac551de410961002491257b1ef50c3d49a89fc920ac2f12f0a27a95ab9b811e49f04cb08020ff7dbe03bdb479f85614608c4e5d0108052497f4ae0148c0c2ef79c05adeaf74e6c003455f2cc5716"
-}`, params.BeaconConfig().ShardCommitteePeriod+1)
+  "signature": "0x8161b7c8ae6a16c505ccf426de7a920100341f0d968a22c60c475a48dd2a98e88ec42851c7ebda0dcbe5ba751ad31c9e0f4daee9f22373edd4d1439d62f54f803d6d851d2c10f3fb31b4fbe2b4c24e24ff8cb6a79d3f14b0ed5745b5d89abcb3"
+}`, params.BeaconConfig().ShardCommitteePeriod+32)
 	// epoch is invalid
 	invalidExit1 = `{
   "message": {
