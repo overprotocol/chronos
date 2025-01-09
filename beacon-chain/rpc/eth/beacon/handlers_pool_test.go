@@ -1246,7 +1246,7 @@ func TestGetAttesterSlashings(t *testing.T) {
 			require.NoError(t, json.Unmarshal(writer.Body.Bytes(), resp))
 			require.NotNil(t, resp)
 			require.NotNil(t, resp.Data)
-			assert.Equal(t, "electra", resp.Version)
+			assert.Equal(t, "alpaca", resp.Version)
 
 			// Unmarshal resp.Data into a slice of slashings
 			var slashings []*structs.AttesterSlashingElectra
