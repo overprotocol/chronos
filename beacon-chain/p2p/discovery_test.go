@@ -433,21 +433,21 @@ func TestIsBelowMinimumSyncPeers(t *testing.T) {
 	}
 
 	for i := 0; i < 2; i++ {
-		_ = addPeer(t, s.peers, peerdata.PeerConnectionState(ethpb.ConnectionState_CONNECTED), true)
+		_ = addPeer(t, s.peers, peerdata.ConnectionState(ethpb.ConnectionState_CONNECTED), true)
 	}
 
 	require.Equal(t, true, s.isBelowMinimumSyncPeers(), "not at minimums sync peer threshold")
 
 	// Adding a peer with a connection state of CONNECTING will not count towards the minimum sync peers
 	for i := 0; i < 2; i++ {
-		_ = addPeer(t, s.peers, peerdata.PeerConnectionState(ethpb.ConnectionState_CONNECTING), true)
+		_ = addPeer(t, s.peers, peerdata.ConnectionState(ethpb.ConnectionState_CONNECTING), true)
 
 	}
 
 	require.Equal(t, true, s.isBelowMinimumSyncPeers(), "not at minimums sync peer threshold")
 
 	for i := 0; i < 3; i++ {
-		_ = addPeer(t, s.peers, peerdata.PeerConnectionState(ethpb.ConnectionState_CONNECTED), true)
+		_ = addPeer(t, s.peers, peerdata.ConnectionState(ethpb.ConnectionState_CONNECTED), true)
 	}
 
 	require.Equal(t, false, s.isBelowMinimumSyncPeers(), "still at minimums sync peer threshold")
