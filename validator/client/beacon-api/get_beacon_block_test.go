@@ -523,7 +523,7 @@ func TestGetBeaconBlock_ElectraValid(t *testing.T) {
 	).SetArg(
 		2,
 		structs.ProduceBlockV3Response{
-			Version:                 "electra",
+			Version:                 "alpaca",
 			ExecutionPayloadBlinded: false,
 			Data:                    bytes,
 		},
@@ -568,7 +568,7 @@ func TestGetBeaconBlock_BlindedElectraValid(t *testing.T) {
 	).SetArg(
 		2,
 		structs.ProduceBlockV3Response{
-			Version:                 "electra",
+			Version:                 "alpaca",
 			ExecutionPayloadBlinded: true,
 			Data:                    bytes,
 		},
