@@ -9,6 +9,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/prysmaticlabs/go-bitfield"
@@ -201,7 +202,7 @@ func TestListAttestations(t *testing.T) {
 			bs, err := util.NewBeaconState()
 			require.NoError(t, err)
 
-			chainService := &blockchainmock.ChainService{State: bs}
+			chainService := &blockchainmock.ChainService{State: bs, Genesis: time.Now()}
 			s := &Server{
 				ChainInfoFetcher: chainService,
 				TimeFetcher:      chainService,
@@ -211,6 +212,7 @@ func TestListAttestations(t *testing.T) {
 			params.SetupTestConfigCleanup(t)
 			config := params.BeaconConfig()
 			config.DenebForkEpoch = 0
+			config.AlpacaForkEpoch = 100
 			params.OverrideBeaconConfig(config)
 
 			require.NoError(t, s.AttestationsPool.SaveAggregatedAttestations([]ethpbv1alpha1.Att{att1, att2}))
@@ -1219,7 +1221,7 @@ func TestGetAttesterSlashings(t *testing.T) {
 			require.NoError(t, json.Unmarshal(writer.Body.Bytes(), resp))
 			require.NotNil(t, resp)
 			require.NotNil(t, resp.Data)
-			assert.Equal(t, "electra", resp.Version)
+			assert.Equal(t, "alpaca", resp.Version)
 
 			// Unmarshal resp.Data into a slice of slashings
 			var slashings []*structs.AttesterSlashingElectra
@@ -1271,9 +1273,15 @@ func TestGetAttesterSlashings(t *testing.T) {
 			require.DeepEqual(t, slashing2PostElectra, ss[1])
 		})
 		t.Run("pre-alpaca-ok", func(t *testing.T) {
+			params.SetupTestConfigCleanup(t)
+			config := params.BeaconConfig()
+			config.DenebForkEpoch = 0
+			config.AlpacaForkEpoch = 100
+			params.OverrideBeaconConfig(config)
+
 			bs, err := util.NewBeaconState()
 			require.NoError(t, err)
-			chainService := &blockchainmock.ChainService{State: bs}
+			chainService := &blockchainmock.ChainService{State: bs, Genesis: time.Now()}
 
 			s := &Server{
 				ChainInfoFetcher: chainService,

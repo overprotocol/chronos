@@ -617,6 +617,11 @@ func TestToForkVersion(t *testing.T) {
 	})
 
 	t.Run("Deneb fork version", func(t *testing.T) {
+		params.SetupTestConfigCleanup(t)
+		config := params.BeaconConfig()
+		config.AlpacaForkEpoch = 100
+		params.OverrideBeaconConfig(config)
+
 		slot, err := EpochStart(params.BeaconConfig().DenebForkEpoch)
 		require.NoError(t, err)
 
@@ -625,6 +630,12 @@ func TestToForkVersion(t *testing.T) {
 	})
 
 	t.Run("Capella fork version", func(t *testing.T) {
+		params.SetupTestConfigCleanup(t)
+		config := params.BeaconConfig()
+		config.DenebForkEpoch = 99
+		config.AlpacaForkEpoch = 100
+		params.OverrideBeaconConfig(config)
+		
 		slot, err := EpochStart(params.BeaconConfig().CapellaForkEpoch)
 		require.NoError(t, err)
 
@@ -633,6 +644,13 @@ func TestToForkVersion(t *testing.T) {
 	})
 
 	t.Run("Bellatrix fork version", func(t *testing.T) {
+		params.SetupTestConfigCleanup(t)
+		config := params.BeaconConfig()
+		config.CapellaForkEpoch = 98
+		config.DenebForkEpoch = 99
+		config.AlpacaForkEpoch = 100
+		params.OverrideBeaconConfig(config)
+
 		slot, err := EpochStart(params.BeaconConfig().BellatrixForkEpoch)
 		require.NoError(t, err)
 
@@ -641,6 +659,14 @@ func TestToForkVersion(t *testing.T) {
 	})
 
 	t.Run("Altair fork version", func(t *testing.T) {
+		params.SetupTestConfigCleanup(t)
+		config := params.BeaconConfig()
+		config.BellatrixForkEpoch = 97
+		config.CapellaForkEpoch = 98
+		config.DenebForkEpoch = 99
+		config.AlpacaForkEpoch = 100
+		params.OverrideBeaconConfig(config)
+
 		slot, err := EpochStart(params.BeaconConfig().AltairForkEpoch)
 		require.NoError(t, err)
 
@@ -649,6 +675,15 @@ func TestToForkVersion(t *testing.T) {
 	})
 
 	t.Run("Phase0 fork version", func(t *testing.T) {
+		params.SetupTestConfigCleanup(t)
+		config := params.BeaconConfig()
+		config.AltairForkEpoch = 96
+		config.BellatrixForkEpoch = 97
+		config.CapellaForkEpoch = 98
+		config.DenebForkEpoch = 99
+		config.AlpacaForkEpoch = 100
+		params.OverrideBeaconConfig(config)
+
 		slot, err := EpochStart(params.BeaconConfig().AltairForkEpoch)
 		require.NoError(t, err)
 

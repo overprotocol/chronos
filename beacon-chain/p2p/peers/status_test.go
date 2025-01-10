@@ -623,7 +623,7 @@ func TestPeerIPTrackerPrune(t *testing.T) {
 	}
 
 	for _, pr := range badPeers {
-		assert.Equal(t, true, p.IsBad(pr), "peer with bad ip is not bad")
+		assert.NotNil(t, p.IsBad(pr), "peer with bad ip is not bad")
 	}
 
 	// wait 5 seconds
@@ -632,7 +632,7 @@ func TestPeerIPTrackerPrune(t *testing.T) {
 	p.DecayBadIps()
 
 	for _, pr := range badPeers {
-		assert.Equal(t, false, p.IsBad(pr), "peer with bad ip is not bad")
+		assert.Equal(t, nil, p.IsBad(pr), "peer with bad ip is not bad")
 	}
 
 }

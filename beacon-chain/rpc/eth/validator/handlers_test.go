@@ -80,6 +80,12 @@ func TestGetAggregateAttestation(t *testing.T) {
 	}
 
 	t.Run("V1", func(t *testing.T) {
+		params.SetupTestConfigCleanup(t)
+		config := params.BeaconConfig()
+		config.DenebForkEpoch = 0
+		config.AlpacaForkEpoch = 100
+		params.OverrideBeaconConfig(config)
+
 		aggSlot1_Root1_1 := createAttestation(1, bitfield.Bitlist{0b11100}, root1)
 		aggSlot1_Root1_2 := createAttestation(1, bitfield.Bitlist{0b10111}, root1)
 		aggSlot1_Root2 := createAttestation(1, bitfield.Bitlist{0b11100}, root2)
@@ -223,6 +229,12 @@ func TestGetAggregateAttestation(t *testing.T) {
 	})
 	t.Run("V2", func(t *testing.T) {
 		t.Run("pre-electra", func(t *testing.T) {
+			params.SetupTestConfigCleanup(t)
+			config := params.BeaconConfig()
+			config.DenebForkEpoch = 0
+			config.AlpacaForkEpoch = 100
+			params.OverrideBeaconConfig(config)
+
 			committeeBits := bitfield.NewBitvector64()
 			committeeBits.SetBitAt(1, true)
 
