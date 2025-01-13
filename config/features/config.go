@@ -239,7 +239,7 @@ func ConfigureBeaconChain(ctx *cli.Context) error {
 		cfg.BlobSaveFsync = true
 	}
 	cfg.EnableQUIC = true
-	if ctx.IsSet(DisableQUIC.Name) {
+	if ctx.Bool(DisableQUIC.Name) {
 		logDisabled(DisableQUIC)
 		cfg.EnableQUIC = false
 	}

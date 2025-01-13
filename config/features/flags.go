@@ -156,6 +156,7 @@ var (
 	DisableQUIC = &cli.BoolFlag{
 		Name:  "disable-quic",
 		Usage: "Disables connecting using the QUIC protocol with peers.",
+		Value: true,
 	}
 	DisableCommitteeAwarePacking = &cli.BoolFlag{
 		Name:  "disable-committee-aware-packing",
