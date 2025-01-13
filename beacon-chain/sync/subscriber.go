@@ -135,7 +135,7 @@ func (s *Service) subscribeWithBase(topic string, validator wrappedVal, handle s
 	// Do not resubscribe already seen subscriptions.
 	ok := s.subHandler.topicExists(topic)
 	if ok {
-		log.Debugf("Provided topic already has an active subscription running: %s", topic)
+		log.WithField("topic", topic).Debug("Provided topic already has an active subscription running")
 		return nil
 	}
 
@@ -152,6 +152,7 @@ func (s *Service) subscribeWithBase(topic string, validator wrappedVal, handle s
 		log.WithError(err).Error("Could not subscribe topic")
 		return nil
 	}
+
 	s.subHandler.addTopic(sub.Topic(), sub)
 
 	// Pipeline decodes the incoming subscription data, runs the validation, and handles the
@@ -159,6 +160,7 @@ func (s *Service) subscribeWithBase(topic string, validator wrappedVal, handle s
 	pipeline := func(msg *pubsub.Message) {
 		ctx, cancel := context.WithTimeout(s.ctx, pubsubMessageTimeout)
 		defer cancel()
+
 		ctx, span := trace.StartSpan(ctx, "sync.pubsub")
 		defer span.End()
 
@@ -276,8 +278,8 @@ func (s *Service) wrapAndReportValidation(topic string, v wrappedVal) (string, p
 					"multiaddress": multiAddr(pid, s.cfg.p2p.Peers()),
 					"peerID":       pid.String(),
 					"agent":        agentString(pid, s.cfg.p2p.Host()),
-					"gossipScore":  s.cfg.p2p.Peers().Scorers().GossipScorer().Score(pid),
-				}).Debugf("Gossip message was ignored")
+					"gossipScore":  fmt.Sprintf("%.2f", s.cfg.p2p.Peers().Scorers().GossipScorer().Score(pid)),
+				}).Debug("Gossip message was ignored")
 			}
 			messageIgnoredValidationCounter.WithLabelValues(topic).Inc()
 		}
@@ -332,9 +334,7 @@ func (s *Service) subscribeStaticWithSubnets(topic string, validator wrappedVal,
 				}
 				// Check every slot that there are enough peers
 				for i := uint64(0); i < subnetCount; i++ {
-					if !s.validPeersExist(s.addDigestAndIndexToTopic(topic, digest, i)) {
-						log.Debugf("No peers found subscribed to attestation gossip subnet with "+
-							"committee index %d. Searching network for peers subscribed to the subnet.", i)
+					if !s.enoughPeersAreConnected(s.addDigestAndIndexToTopic(topic, digest, i)) {
 						_, err := s.cfg.p2p.FindPeersWithSubnet(
 							s.ctx,
 							s.addDigestAndIndexToTopic(topic, digest, i),
@@ -398,10 +398,8 @@ func (s *Service) subscribeDynamicWithSubnets(
 					return
 				}
 				wantedSubs := s.retrievePersistentSubs(currentSlot)
-				// Resize as appropriate.
 				s.reValidateSubscriptions(subscriptions, wantedSubs, topicFormat, digest)
 
-				// subscribe desired aggregator subnets.
 				for _, idx := range wantedSubs {
 					s.subscribeAggregatorSubnet(subscriptions, idx, digest, validate, handle)
 				}
@@ -415,9 +413,15 @@ func (s *Service) subscribeDynamicWithSubnets(
 	}()
 }
 
-// revalidate that our currently connected subnets are valid.
-func (s *Service) reValidateSubscriptions(subscriptions map[uint64]*pubsub.Subscription,
-	wantedSubs []uint64, topicFormat string, digest [4]byte) {
+// reValidateSubscriptions unsubscribe from topics we are currently subscribed to but that are
+// not in the list of wanted subnets.
+// TODO: Rename this functions as it does not only revalidate subscriptions.
+func (s *Service) reValidateSubscriptions(
+	subscriptions map[uint64]*pubsub.Subscription,
+	wantedSubs []uint64,
+	topicFormat string,
+	digest [4]byte,
+) {
 	for k, v := range subscriptions {
 		var wanted bool
 		for _, idx := range wantedSubs {
@@ -426,6 +430,7 @@ func (s *Service) reValidateSubscriptions(subscriptions map[uint64]*pubsub.Subsc
 				break
 			}
 		}
+
 		if !wanted && v != nil {
 			v.Cancel()
 			fullTopic := fmt.Sprintf(topicFormat, digest, k) + s.cfg.p2p.Encoding().ProtocolSuffix()
@@ -451,9 +456,7 @@ func (s *Service) subscribeAggregatorSubnet(
 	if _, exists := subscriptions[idx]; !exists {
 		subscriptions[idx] = s.subscribeWithBase(subnetTopic, validate, handle)
 	}
-	if !s.validPeersExist(subnetTopic) {
-		log.Debugf("No peers found subscribed to attestation gossip subnet with "+
-			"committee index %d. Searching network for peers subscribed to the subnet.", idx)
+	if !s.enoughPeersAreConnected(subnetTopic) {
 		_, err := s.cfg.p2p.FindPeersWithSubnet(s.ctx, subnetTopic, idx, flags.Get().MinimumPeersPerSubnet)
 		if err != nil {
 			log.WithError(err).Debug("Could not search for peers")
@@ -465,9 +468,7 @@ func (s *Service) subscribeAggregatorSubnet(
 func (s *Service) lookupAttesterSubnets(digest [4]byte, idx uint64) {
 	topic := p2p.GossipTypeMapping[reflect.TypeOf(&ethpb.Attestation{})]
 	subnetTopic := fmt.Sprintf(topic, digest, idx)
-	if !s.validPeersExist(subnetTopic) {
-		log.Debugf("No peers found subscribed to attestation gossip subnet with "+
-			"committee index %d. Searching network for peers subscribed to the subnet.", idx)
+	if !s.enoughPeersAreConnected(subnetTopic) {
 		// perform a search for peers with the desired committee index.
 		_, err := s.cfg.p2p.FindPeersWithSubnet(s.ctx, subnetTopic, idx, flags.Get().MinimumPeersPerSubnet)
 		if err != nil {
@@ -491,10 +492,15 @@ func (s *Service) unSubscribeFromTopic(topic string) {
 	}
 }
 
-// find if we have peers who are subscribed to the same subnet
-func (s *Service) validPeersExist(subnetTopic string) bool {
-	numOfPeers := s.cfg.p2p.PubSub().ListPeers(subnetTopic + s.cfg.p2p.Encoding().ProtocolSuffix())
-	return len(numOfPeers) >= flags.Get().MinimumPeersPerSubnet
+// enoughPeersAreConnected checks if we have enough peers which are subscribed to the same subnet.
+func (s *Service) enoughPeersAreConnected(subnetTopic string) bool {
+	topic := subnetTopic + s.cfg.p2p.Encoding().ProtocolSuffix()
+	threshold := flags.Get().MinimumPeersPerSubnet
+
+	peersWithSubnet := s.cfg.p2p.PubSub().ListPeers(topic)
+	peersWithSubnetCount := len(peersWithSubnet)
+
+	return peersWithSubnetCount >= threshold
 }
 
 func (s *Service) retrievePersistentSubs(currSlot primitives.Slot) []uint64 {

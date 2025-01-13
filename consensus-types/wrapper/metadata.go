@@ -8,7 +8,7 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-// MetadataV1 is a convenience wrapper around our metadata v2 protobuf object.
+// MetadataV1 is a convenience wrapper around our metadata v1 protobuf object.
 type MetadataV1 struct {
 	md *pb.MetaDataV1
 }
@@ -73,6 +73,6 @@ func (m MetadataV1) MetadataObjV1() *pb.MetaDataV1 {
 }
 
 // Version returns the fork version of the underlying object.
-func (_ MetadataV1) Version() int {
+func (MetadataV1) Version() int {
 	return version.Altair
 }

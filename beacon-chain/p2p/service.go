@@ -43,6 +43,10 @@ var _ runtime.Service = (*Service)(nil)
 // defined below.
 var pollingPeriod = 6 * time.Second
 
+// When looking for new nodes, if not enough nodes are found,
+// we stop after this amount of iterations.
+var batchSize = 2_000
+
 // Refresh rate of ENR set at twice per slot.
 var refreshRate = slots.DivideSlotBy(2)
 
@@ -231,7 +235,7 @@ func (s *Service) Start() {
 	}
 	// Initialize metadata according to the
 	// current epoch.
-	s.RefreshENR()
+	s.RefreshPersistentSubnets()
 
 	// Periodic functions.
 	async.RunEvery(s.ctx, params.BeaconConfig().TtfbTimeoutDuration(), func() {
@@ -240,7 +244,7 @@ func (s *Service) Start() {
 	async.RunEvery(s.ctx, 30*time.Minute, s.Peers().Prune)
 	async.RunEvery(s.ctx, time.Duration(params.BeaconConfig().RespTimeout)*time.Second, s.updateMetrics)
 	async.RunEvery(s.ctx, s.Peers().IPTrackerBanTime()/2, s.Peers().DecayBadIps) // run every IPBanTime /2
-	async.RunEvery(s.ctx, refreshRate, s.RefreshENR)
+	async.RunEvery(s.ctx, refreshRate, s.RefreshPersistentSubnets)
 	async.RunEvery(s.ctx, 1*time.Minute, func() {
 		inboundQUICCount := len(s.peers.InboundConnectedWithProtocol(peers.QUIC))
 		inboundTCPCount := len(s.peers.InboundConnectedWithProtocol(peers.TCP))
