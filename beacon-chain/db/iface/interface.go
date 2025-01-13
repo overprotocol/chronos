@@ -92,6 +92,13 @@ type NoHeadAccessDatabase interface {
 	// Fee recipients operations.
 	SaveFeeRecipientsByValidatorIDs(ctx context.Context, ids []primitives.ValidatorIndex, addrs []common.Address) error
 	SaveRegistrationsByValidatorIDs(ctx context.Context, ids []primitives.ValidatorIndex, regs []*ethpb.ValidatorRegistrationV1) error
+
+	CleanUpDirtyStates(ctx context.Context, slotsPerArchivedPoint primitives.Slot) error
+}
+
+// HeadAccessDatabase defines a struct with access to reading chain head data.
+type HeadAccessDatabase interface {
+	NoHeadAccessDatabase
 	// Block related methods.
 	HeadBlock(ctx context.Context) (interfaces.ReadOnlySignedBeaconBlock, error)
 	SaveHeadBlockRoot(ctx context.Context, blockRoot [32]byte) error

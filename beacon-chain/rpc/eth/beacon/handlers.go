@@ -924,7 +924,7 @@ func (s *Server) validateConsensus(ctx context.Context, b *eth.GenericSignedBeac
 	var blobs [][]byte
 	var proofs [][]byte
 	switch {
-	case blk.Version() == version.Electra:
+	case blk.Version() == version.Alpaca:
 		blobs = b.GetElectra().Blobs
 		proofs = b.GetElectra().KzgProofs
 	case blk.Version() == version.Deneb:
