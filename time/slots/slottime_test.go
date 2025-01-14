@@ -603,6 +603,19 @@ func TestSecondsUntilNextEpochStart(t *testing.T) {
 }
 
 func TestToForkVersion(t *testing.T) {
+	t.Run("Badger fork version", func(t *testing.T) {
+		params.SetupTestConfigCleanup(t)
+		config := params.BeaconConfig()
+		config.BadgerForkEpoch = 100
+		params.OverrideBeaconConfig(config)
+
+		slot, err := EpochStart(params.BeaconConfig().BadgerForkEpoch)
+		require.NoError(t, err)
+
+		result := ToForkVersion(slot)
+		require.Equal(t, version.Badger, result)
+	})
+
 	t.Run("Alpaca fork version", func(t *testing.T) {
 		params.SetupTestConfigCleanup(t)
 		config := params.BeaconConfig()

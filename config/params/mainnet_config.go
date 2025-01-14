@@ -31,6 +31,8 @@ const (
 	mainnetDenebForkEpoch = 0 // epoch 0
 	// Alpaca Fork Epoch for mainnet config
 	mainnetAlpacaForkEpoch = 0 // epoch 0
+	// Badger Fork Epoch for mainnet config
+	mainnetBadgerForkEpoch = math.MaxUint64 // Far future
 )
 
 var mainnetNetworkConfig = &NetworkConfig{
@@ -183,6 +185,7 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	BeaconStateCapellaFieldCount:   26,
 	BeaconStateDenebFieldCount:     26,
 	BeaconStateAlpacaFieldCount:    32,
+	BeaconStateBadgerFieldCount:    32,
 
 	// Slasher related values.
 	WeakSubjectivityPeriod:          54000,
@@ -205,6 +208,8 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	DenebForkEpoch:       mainnetDenebForkEpoch,
 	AlpacaForkVersion:    []byte{0x05, 0x00, 0x00, 0x18},
 	AlpacaForkEpoch:      mainnetAlpacaForkEpoch,
+	BadgerForkVersion:    []byte{0x06, 0x00, 0x00, 0x18},
+	BadgerForkEpoch:      mainnetBadgerForkEpoch,
 
 	// New values introduced in Altair hard fork 1.
 	// Participation flag indices.
@@ -316,6 +321,7 @@ func FillTestVersions(c *BeaconChainConfig, b byte) {
 	c.CapellaForkVersion = make([]byte, fieldparams.VersionLength)
 	c.DenebForkVersion = make([]byte, fieldparams.VersionLength)
 	c.AlpacaForkVersion = make([]byte, fieldparams.VersionLength)
+	c.BadgerForkVersion = make([]byte, fieldparams.VersionLength)
 
 	c.GenesisForkVersion[fieldparams.VersionLength-1] = b
 	c.AltairForkVersion[fieldparams.VersionLength-1] = b
@@ -323,6 +329,7 @@ func FillTestVersions(c *BeaconChainConfig, b byte) {
 	c.CapellaForkVersion[fieldparams.VersionLength-1] = b
 	c.DenebForkVersion[fieldparams.VersionLength-1] = b
 	c.AlpacaForkVersion[fieldparams.VersionLength-1] = b
+	c.BadgerForkVersion[fieldparams.VersionLength-1] = b
 
 	c.GenesisForkVersion[0] = 0
 	c.AltairForkVersion[0] = 1
@@ -330,4 +337,5 @@ func FillTestVersions(c *BeaconChainConfig, b byte) {
 	c.CapellaForkVersion[0] = 3
 	c.DenebForkVersion[0] = 4
 	c.AlpacaForkVersion[0] = 5
+	c.BadgerForkVersion[0] = 6
 }

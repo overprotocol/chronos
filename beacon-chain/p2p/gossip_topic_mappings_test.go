@@ -30,17 +30,20 @@ func TestGossipTopicMappings_CorrectType(t *testing.T) {
 	capellaForkEpoch := primitives.Epoch(300)
 	denebForkEpoch := primitives.Epoch(400)
 	alpacaForkEpoch := primitives.Epoch(500)
+	badgerForkEpoch := primitives.Epoch(600)
 
 	bCfg.AltairForkEpoch = altairForkEpoch
 	bCfg.BellatrixForkEpoch = bellatrixForkEpoch
 	bCfg.CapellaForkEpoch = capellaForkEpoch
 	bCfg.DenebForkEpoch = denebForkEpoch
 	bCfg.AlpacaForkEpoch = alpacaForkEpoch
+	bCfg.BadgerForkEpoch = badgerForkEpoch
 	bCfg.ForkVersionSchedule[bytesutil.ToBytes4(bCfg.AltairForkVersion)] = primitives.Epoch(100)
 	bCfg.ForkVersionSchedule[bytesutil.ToBytes4(bCfg.BellatrixForkVersion)] = primitives.Epoch(200)
 	bCfg.ForkVersionSchedule[bytesutil.ToBytes4(bCfg.CapellaForkVersion)] = primitives.Epoch(300)
 	bCfg.ForkVersionSchedule[bytesutil.ToBytes4(bCfg.DenebForkVersion)] = primitives.Epoch(400)
 	bCfg.ForkVersionSchedule[bytesutil.ToBytes4(bCfg.AlpacaForkVersion)] = primitives.Epoch(500)
+	bCfg.ForkVersionSchedule[bytesutil.ToBytes4(bCfg.BadgerForkVersion)] = primitives.Epoch(600)
 	params.OverrideBeaconConfig(bCfg)
 
 	// Phase 0
