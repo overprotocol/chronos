@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/pkg/errors"
@@ -25,6 +26,11 @@ import (
 	"github.com/tyler-smith/go-bip39"
 	"github.com/tyler-smith/go-bip39/wordlists"
 	keystorev4 "github.com/wealdtech/go-eth2-wallet-encryptor-keystorev4"
+)
+
+const (
+	maxFailedAttempts = 5           // number of allowed password failures
+	lockoutDuration   = time.Minute // e.g., 1 minute lockout (adjust as needed)
 )
 
 // CreateWallet via an API request, allowing a user to save a new wallet.
@@ -455,6 +461,15 @@ func (s *Server) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Check if the server is currently locked out from previous failures
+	if time.Now().Before(s.lockoutUntil) {
+		remaining := time.Until(s.lockoutUntil).Round(time.Second)
+		msg := fmt.Sprintf("Too many failed attempts. Please try again in %v.", remaining)
+		log.Warn(msg)
+		httputil.HandleError(w, msg, http.StatusBadRequest)
+		return
+	}
+
 	var req ChangePasswordRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 	switch {
@@ -466,24 +481,41 @@ func (s *Server) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Validate old password
+	// Decode and decrypt the old password
 	password, err := hexutil.Decode(req.Password)
 	if err != nil {
-		log.WithError(err).Error("Could not decode password")
-		httputil.HandleError(w, "Could not decode password", http.StatusBadRequest)
+		log.WithError(err).Error("Could not decode old password")
+		httputil.HandleError(w, "Could not decode old password", http.StatusBadRequest)
 		return
 	}
 	decryptedPassword, err := aes.Decrypt(s.cipherKey, password)
 	if err != nil {
-		log.WithError(err).Error("Could not decrypt password")
-		httputil.HandleError(w, "Could not decrypt password", http.StatusBadRequest)
+		log.WithError(err).Error("Could not decrypt old password")
+		httputil.HandleError(w, "Could not decrypt old password", http.StatusBadRequest)
 		return
 	}
+
+	// Verify the old password
 	if s.wallet.Password() != string(decryptedPassword) {
-		log.Error("Password is not correct")
-		httputil.HandleError(w, "Old password is not correct", http.StatusBadRequest)
+		s.failedPasswordAttempts++
+		log.Errorf("Password attempt failed (%d/%d)", s.failedPasswordAttempts, maxFailedAttempts)
+
+		if s.failedPasswordAttempts >= maxFailedAttempts {
+			// Initiate lockout
+			s.lockoutUntil = time.Now().Add(lockoutDuration)
+			msg := fmt.Sprintf("Too many failed attempts. Locked out until %v.", s.lockoutUntil.Format(time.RFC3339))
+			log.Warn(msg)
+			httputil.HandleError(w, msg, http.StatusBadRequest)
+		} else {
+			httputil.HandleError(w, "Old password is not correct", http.StatusBadRequest)
+		}
 		return
 	}
+
+	// If old password is correct, reset the failed attempts counter
+	s.failedPasswordAttempts = 0
+
+	// Decode and decrypt the new password
 	newPassword, err := hexutil.Decode(req.NewPassword)
 	if err != nil {
 		log.WithError(err).Error("Could not decode new password")
@@ -497,7 +529,15 @@ func (s *Server) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// get keymanager
+	// Password Length Check
+	if err := prompt.ValidatePasswordInput(string(decryptedNewPassword)); err != nil {
+		// This function likely returns an error if the password is too weak or too short
+		log.WithError(err).Error("New password does not meet criteria")
+		httputil.HandleError(w, "New password does not meet criteria: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Retrieve the keymanager
 	km, err := s.validatorService.Keymanager()
 	if err != nil {
 		log.WithError(err).Error("Could not get keymanager")
@@ -511,6 +551,9 @@ func (s *Server) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		httputil.HandleError(w, "Could not change password", http.StatusInternalServerError)
 		return
 	}
+
+	log.Infof("Password changed successfully for wallet at '%s'", s.walletDir)
+	httputil.WriteJson(w, map[string]string{"message": "Password changed successfully"})
 }
 
 // Initialize a wallet and send it over a global feed.

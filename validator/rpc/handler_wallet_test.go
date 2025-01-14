@@ -798,7 +798,6 @@ func TestServer_ChangePassword_WrongPassword(t *testing.T) {
 	cipher, err := generateRandomKey()
 	require.NoError(t, err)
 	password := "testpassword"
-	require.NoError(t, err)
 
 	walletDir := setupWalletDir(t)
 	w := wallet.New(&wallet.Config{
@@ -852,7 +851,6 @@ func TestServer_ChangePassword_WrongPassword(t *testing.T) {
 	var buf bytes.Buffer
 	err = json.NewEncoder(&buf).Encode(reqBody)
 	require.NoError(t, err)
-
 	req := httptest.NewRequest(http.MethodPost, "/v2/validator/wallet/change-password", &buf)
 	wr := httptest.NewRecorder()
 	wr.Body = &bytes.Buffer{}
@@ -917,4 +915,277 @@ func generateRandomKey() ([]byte, error) {
 		return nil, err
 	}
 	return key, nil
+}
+
+func TestServer_ChangePassword_PreventBruteForce(t *testing.T) {
+	t.Run("LockoutAfterMultipleFailedAttempts", func(t *testing.T) {
+		// 1. Set up a Server with a known correct old password.
+		ctx := context.Background()
+		cipher, err := generateRandomKey()
+		require.NoError(t, err)
+		oldPassword := "correct-old-password"
+
+		walletDir := setupWalletDir(t)
+		w := wallet.New(&wallet.Config{
+			WalletDir:      walletDir,
+			KeymanagerKind: keymanager.Local,
+			WalletPassword: oldPassword,
+		})
+		km, err := local.NewKeymanager(ctx, &local.SetupConfig{
+			Wallet:           w,
+			ListenForChanges: true,
+		})
+		require.NoError(t, err)
+
+		// Import one random keystore to fully initialize the wallet.
+		ks := createRandomKeystore(t, oldPassword)
+		_, err = km.ImportKeystores(ctx, []*keymanager.Keystore{ks}, []string{oldPassword})
+		require.NoError(t, err)
+
+		vs, err := client.NewValidatorService(ctx, &client.Config{
+			Validator: &mock.Validator{Km: km},
+			Wallet:    w,
+		})
+		require.NoError(t, err)
+
+		s := &Server{
+			useOverNode:           true, // must be true to enable ChangePassword
+			walletInitializedFeed: new(event.Feed),
+			cipherKey:             cipher,
+			validatorService:      vs,
+			wallet:                w,
+			walletInitialized:     true,
+		}
+
+		// 2. Encrypt a WRONG old password for repeated attempts.
+		wrongPassword := "wrong-old-password"
+		encryptedWrongPassword, err := aes.Encrypt(cipher, []byte(wrongPassword))
+		require.NoError(t, err)
+		newPassword := "someNewPassword"
+		encryptedNewPassword, err := aes.Encrypt(cipher, []byte(newPassword))
+		require.NoError(t, err)
+
+		// 3. Try multiple times with the wrong old password.
+		maxAttempts := 5 // or 5, depending on your actual code’s logic
+		for i := 1; i <= maxAttempts; i++ {
+
+			reqBody := &ChangePasswordRequest{
+				Password:    hexutil.Encode(encryptedWrongPassword),
+				NewPassword: hexutil.Encode(encryptedNewPassword),
+			}
+			var buf bytes.Buffer
+			require.NoError(t, json.NewEncoder(&buf).Encode(reqBody))
+
+			req := httptest.NewRequest(http.MethodPost, "/v2/validator/wallet/change-password", &buf)
+			wr := httptest.NewRecorder()
+			wr.Body = &bytes.Buffer{}
+			s.ChangePassword(wr, req)
+
+			if i < maxAttempts {
+				// Expect a 400 with "Old password is not correct".
+				require.Equal(t, http.StatusBadRequest, wr.Code)
+				require.StringContains(t, "Old password is not correct", wr.Body.String())
+			} else {
+				// On the final attempt, we expect the server to lock out the user (429 or similar).
+				require.Equal(t, http.StatusBadRequest, wr.Code)
+				require.StringContains(t, "Too many failed attempts", wr.Body.String())
+			}
+		}
+	})
+
+	t.Run("CannotChangePasswordWhileLockedOut", func(t *testing.T) {
+		// 1. Recreate server with correct old password.
+		ctx := context.Background()
+		cipher, err := generateRandomKey()
+		require.NoError(t, err)
+		oldPassword := "correct-old-password"
+
+		walletDir := setupWalletDir(t)
+		w := wallet.New(&wallet.Config{
+			WalletDir:      walletDir,
+			KeymanagerKind: keymanager.Local,
+			WalletPassword: oldPassword,
+		})
+		km, err := local.NewKeymanager(ctx, &local.SetupConfig{
+			Wallet:           w,
+			ListenForChanges: true,
+		})
+		require.NoError(t, err)
+		ks := createRandomKeystore(t, oldPassword)
+		_, err = km.ImportKeystores(ctx, []*keymanager.Keystore{ks}, []string{oldPassword})
+		require.NoError(t, err)
+
+		vs, err := client.NewValidatorService(ctx, &client.Config{
+			Validator: &mock.Validator{Km: km},
+			Wallet:    w,
+		})
+		require.NoError(t, err)
+
+		s := &Server{
+			useOverNode:           true,
+			walletInitializedFeed: new(event.Feed),
+			cipherKey:             cipher,
+			validatorService:      vs,
+			wallet:                w,
+			walletInitialized:     true,
+		}
+
+		// 2. Force the server into a "locked-out" state.
+		//    In your actual code, s.lockoutUntil might be the field used.
+		s.failedPasswordAttempts = 999 // big number
+		// (In real usage, you'd set s.lockoutUntil to time.Now().Add(...) )
+
+		wrongPassword := "wrong-old-password"
+		encryptedWrongPassword, err := aes.Encrypt(cipher, []byte(wrongPassword))
+		require.NoError(t, err)
+		encryptedNewPassword, err := aes.Encrypt(cipher, []byte("newValidPassword"))
+		require.NoError(t, err)
+
+		reqBody := &ChangePasswordRequest{
+			Password:    hexutil.Encode(encryptedWrongPassword),
+			NewPassword: hexutil.Encode(encryptedNewPassword),
+		}
+		var buf bytes.Buffer
+		require.NoError(t, json.NewEncoder(&buf).Encode(reqBody))
+
+		req := httptest.NewRequest(http.MethodPost, "/v2/validator/wallet/change-password", &buf)
+		wr := httptest.NewRecorder()
+		wr.Body = &bytes.Buffer{}
+		s.ChangePassword(wr, req)
+
+		req = httptest.NewRequest(http.MethodPost, "/v2/validator/wallet/change-password", &buf)
+		wr = httptest.NewRecorder()
+		wr.Body = &bytes.Buffer{}
+		s.ChangePassword(wr, req)
+
+		// Expect locked-out response (429 or 400 with a lockout message).
+		// Adjust to match your actual code’s status + message.
+		require.Equal(t, http.StatusBadRequest, wr.Code)
+		require.StringContains(t, "Too many failed attempts", wr.Body.String())
+	})
+
+	t.Run("ResetsFailuresOnSuccessfulOldPassword", func(t *testing.T) {
+		// 1. Set up a server with a known correct old password.
+		ctx := context.Background()
+		cipher, err := generateRandomKey()
+		require.NoError(t, err)
+		oldPassword := "correct-old-password"
+
+		walletDir := setupWalletDir(t)
+		w := wallet.New(&wallet.Config{
+			WalletDir:      walletDir,
+			KeymanagerKind: keymanager.Local,
+			WalletPassword: oldPassword,
+		})
+		km, err := local.NewKeymanager(ctx, &local.SetupConfig{
+			Wallet:           w,
+			ListenForChanges: true,
+		})
+		require.NoError(t, err)
+		ks := createRandomKeystore(t, oldPassword)
+		_, err = km.ImportKeystores(ctx, []*keymanager.Keystore{ks}, []string{oldPassword})
+		require.NoError(t, err)
+
+		vs, err := client.NewValidatorService(ctx, &client.Config{
+			Validator: &mock.Validator{Km: km},
+			Wallet:    w,
+		})
+		require.NoError(t, err)
+
+		s := &Server{
+			useOverNode:            true,
+			walletInitializedFeed:  new(event.Feed),
+			cipherKey:              cipher,
+			validatorService:       vs,
+			wallet:                 w,
+			walletInitialized:      true,
+			failedPasswordAttempts: 2, // Some prior failures
+		}
+
+		// 2. Encrypt the correct old password and a valid new password.
+		encryptedOldPassword, err := aes.Encrypt(cipher, []byte(oldPassword))
+		require.NoError(t, err)
+		encryptedNewPassword, err := aes.Encrypt(cipher, []byte("brandNewStrongPassword"))
+		require.NoError(t, err)
+
+		reqBody := &ChangePasswordRequest{
+			Password:    hexutil.Encode(encryptedOldPassword),
+			NewPassword: hexutil.Encode(encryptedNewPassword),
+		}
+		var buf bytes.Buffer
+		require.NoError(t, json.NewEncoder(&buf).Encode(reqBody))
+
+		req := httptest.NewRequest(http.MethodPost, "/v2/validator/wallet/change-password", &buf)
+		wr := httptest.NewRecorder()
+		wr.Body = &bytes.Buffer{}
+		s.ChangePassword(wr, req)
+
+		// Expect success (200 OK).
+		require.Equal(t, http.StatusOK, wr.Code)
+		require.StringContains(t, "Password changed successfully", wr.Body.String())
+
+		// Confirm the failure count was reset to 0.
+		assert.Equal(t, 0, s.failedPasswordAttempts, "failedPasswordAttempts should be reset on success")
+	})
+
+	t.Run("ShortNewPasswordFailsValidation", func(t *testing.T) {
+		// 1. Set up a server with the correct old password.
+		ctx := context.Background()
+		cipher, err := generateRandomKey()
+		require.NoError(t, err)
+		oldPassword := "my-super-secret-oldpass"
+
+		walletDir := setupWalletDir(t)
+		w := wallet.New(&wallet.Config{
+			WalletDir:      walletDir,
+			KeymanagerKind: keymanager.Local,
+			WalletPassword: oldPassword,
+		})
+		km, err := local.NewKeymanager(ctx, &local.SetupConfig{
+			Wallet:           w,
+			ListenForChanges: true,
+		})
+		require.NoError(t, err)
+		ks := createRandomKeystore(t, oldPassword)
+		_, err = km.ImportKeystores(ctx, []*keymanager.Keystore{ks}, []string{oldPassword})
+		require.NoError(t, err)
+
+		vs, err := client.NewValidatorService(ctx, &client.Config{
+			Validator: &mock.Validator{Km: km},
+			Wallet:    w,
+		})
+		require.NoError(t, err)
+
+		s := &Server{
+			useOverNode:           true,
+			walletInitializedFeed: new(event.Feed),
+			cipherKey:             cipher,
+			validatorService:      vs,
+			wallet:                w,
+			walletInitialized:     true,
+		}
+
+		// 2. Provide correct old password but an obviously too-short new password
+		encryptedOldPassword, err := aes.Encrypt(cipher, []byte(oldPassword))
+		require.NoError(t, err)
+		encryptedShortPassword, err := aes.Encrypt(cipher, []byte("12")) // fails ValidatePasswordInput?
+		require.NoError(t, err)
+
+		reqBody := &ChangePasswordRequest{
+			Password:    hexutil.Encode(encryptedOldPassword),
+			NewPassword: hexutil.Encode(encryptedShortPassword),
+		}
+		var buf bytes.Buffer
+		require.NoError(t, json.NewEncoder(&buf).Encode(reqBody))
+
+		req := httptest.NewRequest(http.MethodPost, "/v2/validator/wallet/change-password", &buf)
+		wr := httptest.NewRecorder()
+		wr.Body = &bytes.Buffer{}
+		s.ChangePassword(wr, req)
+
+		// Expect a 400 with a "Password too weak" or similar message
+		// (depends on how ValidatePasswordInput returns its errors).
+		require.Equal(t, http.StatusBadRequest, wr.Code)
+		require.StringContains(t, "New password does not meet criteria", wr.Body.String())
+	})
 }
