@@ -350,7 +350,7 @@ type BeaconBlockBodyElectra struct {
 	Attestations       []*AttestationElectra      `json:"attestations"`
 	Deposits           []*Deposit                 `json:"deposits"`
 	VoluntaryExits     []*SignedVoluntaryExit     `json:"voluntary_exits"`
-	ExecutionPayload   *ExecutionPayloadElectra   `json:"execution_payload"`
+	ExecutionPayload   *ExecutionPayloadDeneb     `json:"execution_payload"`
 	BlobKzgCommitments []string                   `json:"blob_kzg_commitments"`
 	ExecutionRequests  *ExecutionRequests         `json:"execution_requests"`
 }
@@ -379,17 +379,17 @@ func (s *SignedBlindedBeaconBlockElectra) SigString() string {
 }
 
 type BlindedBeaconBlockBodyElectra struct {
-	RandaoReveal           string                         `json:"randao_reveal"`
-	Eth1Data               *Eth1Data                      `json:"eth1_data"`
-	Graffiti               string                         `json:"graffiti"`
-	ProposerSlashings      []*ProposerSlashing            `json:"proposer_slashings"`
-	AttesterSlashings      []*AttesterSlashingElectra     `json:"attester_slashings"`
-	Attestations           []*AttestationElectra          `json:"attestations"`
-	Deposits               []*Deposit                     `json:"deposits"`
-	VoluntaryExits         []*SignedVoluntaryExit         `json:"voluntary_exits"`
-	ExecutionPayloadHeader *ExecutionPayloadHeaderElectra `json:"execution_payload_header"`
-	BlobKzgCommitments     []string                       `json:"blob_kzg_commitments"`
-	ExecutionRequests      *ExecutionRequests             `json:"execution_requests"`
+	RandaoReveal           string                       `json:"randao_reveal"`
+	Eth1Data               *Eth1Data                    `json:"eth1_data"`
+	Graffiti               string                       `json:"graffiti"`
+	ProposerSlashings      []*ProposerSlashing          `json:"proposer_slashings"`
+	AttesterSlashings      []*AttesterSlashingElectra   `json:"attester_slashings"`
+	Attestations           []*AttestationElectra        `json:"attestations"`
+	Deposits               []*Deposit                   `json:"deposits"`
+	VoluntaryExits         []*SignedVoluntaryExit       `json:"voluntary_exits"`
+	ExecutionPayloadHeader *ExecutionPayloadHeaderDeneb `json:"execution_payload_header"`
+	BlobKzgCommitments     []string                     `json:"blob_kzg_commitments"`
+	ExecutionRequests      *ExecutionRequests           `json:"execution_requests"`
 }
 
 type SignedBeaconBlockHeaderContainer struct {
@@ -501,8 +501,6 @@ type ExecutionPayloadDeneb struct {
 	ExcessBlobGas string        `json:"excess_blob_gas"`
 }
 
-type ExecutionPayloadElectra = ExecutionPayloadDeneb
-
 type ExecutionPayloadHeaderDeneb struct {
 	ParentHash       string `json:"parent_hash"`
 	FeeRecipient     string `json:"fee_recipient"`
@@ -522,8 +520,6 @@ type ExecutionPayloadHeaderDeneb struct {
 	BlobGasUsed      string `json:"blob_gas_used"`
 	ExcessBlobGas    string `json:"excess_blob_gas"`
 }
-
-type ExecutionPayloadHeaderElectra = ExecutionPayloadHeaderDeneb
 
 type ExecutionRequests struct {
 	Deposits    []*DepositRequest    `json:"deposits"`

@@ -575,7 +575,7 @@ func hydrateBeaconBlockBodyElectra() *eth.BeaconBlockBodyElectra {
 			DepositRoot: make([]byte, fieldparams.RootLength),
 			BlockHash:   make([]byte, fieldparams.RootLength),
 		},
-		ExecutionPayload: &pb.ExecutionPayloadElectra{
+		ExecutionPayload: &pb.ExecutionPayloadDeneb{
 			ParentHash:    make([]byte, fieldparams.RootLength),
 			FeeRecipient:  make([]byte, 20),
 			StateRoot:     make([]byte, fieldparams.RootLength),

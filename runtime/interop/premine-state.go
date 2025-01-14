@@ -504,7 +504,7 @@ func (s *PremineGenesisConfig) setLatestBlockHeader(g state.BeaconState) error {
 				BlockHash:   make([]byte, 32),
 			},
 			Graffiti: make([]byte, 32),
-			ExecutionPayload: &enginev1.ExecutionPayloadElectra{
+			ExecutionPayload: &enginev1.ExecutionPayloadDeneb{
 				ParentHash:    make([]byte, 32),
 				FeeRecipient:  make([]byte, 20),
 				StateRoot:     make([]byte, 32),
@@ -640,7 +640,7 @@ func (s *PremineGenesisConfig) setExecutionPayload(g state.BeaconState) error {
 			return err
 		}
 	case version.Alpaca:
-		payload := &enginev1.ExecutionPayloadElectra{
+		payload := &enginev1.ExecutionPayloadDeneb{
 			ParentHash:    gb.ParentHash().Bytes(),
 			FeeRecipient:  gb.Coinbase().Bytes(),
 			StateRoot:     gb.Root().Bytes(),
@@ -659,7 +659,7 @@ func (s *PremineGenesisConfig) setExecutionPayload(g state.BeaconState) error {
 			ExcessBlobGas: *gb.ExcessBlobGas(),
 			BlobGasUsed:   *gb.BlobGasUsed(),
 		}
-		wep, err := blocks.WrappedExecutionPayloadElectra(payload)
+		wep, err := blocks.WrappedExecutionPayloadDeneb(payload)
 		if err != nil {
 			return err
 		}
@@ -667,7 +667,7 @@ func (s *PremineGenesisConfig) setExecutionPayload(g state.BeaconState) error {
 		if err != nil {
 			return err
 		}
-		ed, err = blocks.WrappedExecutionPayloadHeaderElectra(eph)
+		ed, err = blocks.WrappedExecutionPayloadHeaderDeneb(eph)
 		if err != nil {
 			return err
 		}

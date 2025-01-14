@@ -177,7 +177,7 @@ func NewGenesisBlockForState(ctx context.Context, st state.BeaconState) (interfa
 						BlockHash:   make([]byte, 32),
 					},
 					Graffiti: make([]byte, 32),
-					ExecutionPayload: &enginev1.ExecutionPayloadElectra{
+					ExecutionPayload: &enginev1.ExecutionPayloadDeneb{
 						ParentHash:    make([]byte, 32),
 						FeeRecipient:  make([]byte, 20),
 						StateRoot:     make([]byte, 32),

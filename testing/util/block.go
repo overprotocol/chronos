@@ -1299,7 +1299,7 @@ func HydrateBeaconBlockBodyElectra(b *ethpb.BeaconBlockBodyElectra) *ethpb.Beaco
 		}
 	}
 	if b.ExecutionPayload == nil {
-		b.ExecutionPayload = &enginev1.ExecutionPayloadElectra{
+		b.ExecutionPayload = &enginev1.ExecutionPayloadDeneb{
 			ParentHash:    make([]byte, fieldparams.RootLength),
 			FeeRecipient:  make([]byte, 20),
 			StateRoot:     make([]byte, fieldparams.RootLength),
@@ -1501,7 +1501,7 @@ func HydrateBlindedBeaconBlockBodyElectra(b *ethpb.BlindedBeaconBlockBodyElectra
 		}
 	}
 	if b.ExecutionPayloadHeader == nil {
-		b.ExecutionPayloadHeader = &enginev1.ExecutionPayloadHeaderElectra{
+		b.ExecutionPayloadHeader = &enginev1.ExecutionPayloadHeaderDeneb{
 			ParentHash:       make([]byte, 32),
 			FeeRecipient:     make([]byte, 20),
 			StateRoot:        make([]byte, fieldparams.RootLength),

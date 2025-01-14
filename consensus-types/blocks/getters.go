@@ -153,7 +153,7 @@ func (b *SignedBeaconBlock) ToBlinded() (interfaces.ReadOnlySignedBeaconBlock, e
 	}
 
 	if b.version >= version.Alpaca {
-		p, ok := payload.Proto().(*enginev1.ExecutionPayloadElectra)
+		p, ok := payload.Proto().(*enginev1.ExecutionPayloadDeneb)
 		if !ok {
 			return nil, fmt.Errorf("%T is not an execution payload header of Deneb version", p)
 		}
