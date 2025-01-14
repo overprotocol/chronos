@@ -155,6 +155,8 @@ func TestReplayBlocks_ThroughFutureForkBoundaries(t *testing.T) {
 	bCfg.ForkVersionSchedule[bytesutil.ToBytes4(bCfg.DenebForkVersion)] = 4
 	bCfg.AlpacaForkEpoch = 5
 	bCfg.ForkVersionSchedule[bytesutil.ToBytes4(bCfg.AlpacaForkVersion)] = 5
+	bCfg.BadgerForkEpoch = 6
+	bCfg.ForkVersionSchedule[bytesutil.ToBytes4(bCfg.BadgerForkVersion)] = 6
 	params.OverrideBeaconConfig(bCfg)
 
 	beaconState, _ := util.DeterministicGenesisState(t, 32)
@@ -197,6 +199,13 @@ func TestReplayBlocks_ThroughFutureForkBoundaries(t *testing.T) {
 
 	// Verify state is version Alpaca.
 	assert.Equal(t, version.Alpaca, newState.Version())
+
+	targetSlot = params.BeaconConfig().SlotsPerEpoch * 6
+	newState, err = service.replayBlocks(context.Background(), newState, []interfaces.ReadOnlySignedBeaconBlock{}, targetSlot)
+	require.NoError(t, err)
+
+	// Verify state is version Badger.
+	assert.Equal(t, version.Badger, newState.Version())
 }
 
 func TestReplayBlocks_ProcessEpoch_Alpaca(t *testing.T) {
