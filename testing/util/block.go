@@ -1094,16 +1094,6 @@ func HydrateSignedBlindedBeaconBlockElectra(b *ethpb.SignedBlindedBeaconBlockEle
 	return b
 }
 
-// HydrateV2SignedBlindedBeaconBlockDeneb hydrates a signed v2 blinded beacon block with correct field length sizes
-// to comply with fssz marshalling and unmarshalling rules.
-func HydrateV2SignedBlindedBeaconBlockDeneb(b *v2.SignedBlindedBeaconBlockDeneb) *v2.SignedBlindedBeaconBlockDeneb {
-	if b.Signature == nil {
-		b.Signature = make([]byte, fieldparams.BLSSignatureLength)
-	}
-	b.Message = HydrateV2BlindedBeaconBlockDeneb(b.Message)
-	return b
-}
-
 // HydrateBlindedBeaconBlockDeneb hydrates a blinded beacon block with correct field length sizes
 // to comply with fssz marshalling and unmarshalling rules.
 func HydrateBlindedBeaconBlockDeneb(b *ethpb.BlindedBeaconBlockDeneb) *ethpb.BlindedBeaconBlockDeneb {
