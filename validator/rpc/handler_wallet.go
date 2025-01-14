@@ -30,7 +30,7 @@ import (
 
 const (
 	maxFailedAttempts = 5           // number of allowed password failures
-	lockoutDuration   = time.Minute // e.g., 1 minute lockout (adjust as needed)
+	lockoutDuration   = time.Minute // lockout if fail specified times
 )
 
 // CreateWallet via an API request, allowing a user to save a new wallet.
