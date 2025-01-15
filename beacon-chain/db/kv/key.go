@@ -65,3 +65,17 @@ func hasElectraBlindKey(enc []byte) bool {
 	}
 	return bytes.Equal(enc[:len(electraBlindKey)], electraBlindKey)
 }
+
+func hasBadgerKey(enc []byte) bool {
+	if len(badgerKey) >= len(enc) {
+		return false
+	}
+	return bytes.Equal(enc[:len(badgerKey)], badgerKey)
+}
+
+func hasBadgerBlindKey(enc []byte) bool {
+	if len(badgerBlindKey) >= len(enc) {
+		return false
+	}
+	return bytes.Equal(enc[:len(badgerBlindKey)], badgerBlindKey)
+}
