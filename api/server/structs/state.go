@@ -167,3 +167,5 @@ type BeaconStateElectra struct {
 	PendingDeposits              []*PendingDeposit            `json:"pending_deposits"`
 	PendingPartialWithdrawals    []*PendingPartialWithdrawal  `json:"pending_partial_withdrawals"`
 }
+
+type BeaconStateBadger = BeaconStateElectra
