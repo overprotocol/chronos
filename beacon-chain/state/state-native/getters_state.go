@@ -209,6 +209,41 @@ func (b *BeaconState) ToProtoUnsafe() interface{} {
 			PendingDeposits:              b.pendingDeposits,
 			PendingPartialWithdrawals:    b.pendingPartialWithdrawals,
 		}
+	case version.Badger:
+		return &ethpb.BeaconStateBadger{
+			GenesisTime:                  b.genesisTime,
+			GenesisValidatorsRoot:        gvrCopy[:],
+			Slot:                         b.slot,
+			Fork:                         b.fork,
+			LatestBlockHeader:            b.latestBlockHeader,
+			BlockRoots:                   br,
+			StateRoots:                   sr,
+			RewardAdjustmentFactor:       b.rewardAdjustmentFactor,
+			Eth1Data:                     b.eth1Data,
+			Eth1DataVotes:                b.eth1DataVotes,
+			Eth1DepositIndex:             b.eth1DepositIndex,
+			Validators:                   vals,
+			Balances:                     bals,
+			Reserves:                     b.reserves,
+			RandaoMixes:                  rm,
+			PreviousEpochParticipation:   b.previousEpochParticipation,
+			CurrentEpochParticipation:    b.currentEpochParticipation,
+			JustificationBits:            b.justificationBits,
+			PreviousJustifiedCheckpoint:  b.previousJustifiedCheckpoint,
+			CurrentJustifiedCheckpoint:   b.currentJustifiedCheckpoint,
+			FinalizedCheckpoint:          b.finalizedCheckpoint,
+			InactivityScores:             inactivityScores,
+			LatestExecutionPayloadHeader: b.latestExecutionPayloadHeaderDeneb,
+			NextWithdrawalIndex:          b.nextWithdrawalIndex,
+			NextWithdrawalValidatorIndex: b.nextWithdrawalValidatorIndex,
+			HistoricalSummaries:          b.historicalSummaries,
+			DepositRequestsStartIndex:    b.depositRequestsStartIndex,
+			DepositBalanceToConsume:      b.depositBalanceToConsume,
+			ExitBalanceToConsume:         b.exitBalanceToConsume,
+			EarliestExitEpoch:            b.earliestExitEpoch,
+			PendingDeposits:              b.pendingDeposits,
+			PendingPartialWithdrawals:    b.pendingPartialWithdrawals,
+		}
 	default:
 		return nil
 	}
@@ -402,6 +437,41 @@ func (b *BeaconState) ToProto() interface{} {
 			PendingDeposits:              b.pendingDepositsVal(),
 			PendingPartialWithdrawals:    b.pendingPartialWithdrawalsVal(),
 		}
+	case version.Badger:
+		return &ethpb.BeaconStateBadger{
+			GenesisTime:                  b.genesisTime,
+			GenesisValidatorsRoot:        gvrCopy[:],
+			Slot:                         b.slot,
+			Fork:                         b.forkVal(),
+			LatestBlockHeader:            b.latestBlockHeaderVal(),
+			BlockRoots:                   br,
+			StateRoots:                   sr,
+			RewardAdjustmentFactor:       b.rewardAdjustmentFactor,
+			Eth1Data:                     b.eth1DataVal(),
+			Eth1DataVotes:                b.eth1DataVotesVal(),
+			Eth1DepositIndex:             b.eth1DepositIndex,
+			Validators:                   b.validatorsVal(),
+			Balances:                     b.balancesVal(),
+			Reserves:                     b.reserves,
+			RandaoMixes:                  rm,
+			PreviousEpochParticipation:   b.previousEpochParticipationVal(),
+			CurrentEpochParticipation:    b.currentEpochParticipationVal(),
+			JustificationBits:            b.justificationBitsVal(),
+			PreviousJustifiedCheckpoint:  b.previousJustifiedCheckpointVal(),
+			CurrentJustifiedCheckpoint:   b.currentJustifiedCheckpointVal(),
+			FinalizedCheckpoint:          b.finalizedCheckpointVal(),
+			InactivityScores:             b.inactivityScoresVal(),
+			LatestExecutionPayloadHeader: b.latestExecutionPayloadHeaderDeneb.Copy(),
+			NextWithdrawalIndex:          b.nextWithdrawalIndex,
+			NextWithdrawalValidatorIndex: b.nextWithdrawalValidatorIndex,
+			HistoricalSummaries:          b.historicalSummariesVal(),
+			DepositRequestsStartIndex:    b.depositRequestsStartIndex,
+			DepositBalanceToConsume:      b.depositBalanceToConsume,
+			ExitBalanceToConsume:         b.exitBalanceToConsume,
+			EarliestExitEpoch:            b.earliestExitEpoch,
+			PendingDeposits:              b.pendingDepositsVal(),
+			PendingPartialWithdrawals:    b.pendingPartialWithdrawalsVal(),
+		}
 	default:
 		return nil
 	}
@@ -524,6 +594,16 @@ func ProtobufBeaconStateElectra(s interface{}) (*ethpb.BeaconStateElectra, error
 	pbState, ok := s.(*ethpb.BeaconStateElectra)
 	if !ok {
 		return nil, errors.New("input is not type pb.BeaconStateElectra")
+	}
+	return pbState, nil
+}
+
+// ProtobufBeaconStateBadger transforms an input into beacon state Badger in the form of protobuf.
+// Error is returned if the input is not type protobuf beacon state.
+func ProtobufBeaconStateBadger(s interface{}) (*ethpb.BeaconStateBadger, error) {
+	pbState, ok := s.(*ethpb.BeaconStateBadger)
+	if !ok {
+		return nil, errors.New("input is not type pb.BeaconStateBadger")
 	}
 	return pbState, nil
 }
