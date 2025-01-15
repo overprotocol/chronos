@@ -201,7 +201,7 @@ func TestReplayBlocks_ThroughFutureForkBoundaries(t *testing.T) {
 	assert.Equal(t, version.Alpaca, newState.Version())
 
 	targetSlot = params.BeaconConfig().SlotsPerEpoch * 6
-	_, err = service.replayBlocks(context.Background(), newState, []interfaces.ReadOnlySignedBeaconBlock{}, targetSlot)
+	newState, err = service.replayBlocks(context.Background(), newState, []interfaces.ReadOnlySignedBeaconBlock{}, targetSlot)
 	require.NoError(t, err)
 
 	// Verify state is version Badger.
