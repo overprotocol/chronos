@@ -302,7 +302,7 @@ func ConstructDialOptions(
 		transportSecurity = grpc.WithInsecure()
 		log.Warn("You are using an insecure gRPC connection. If you are running your beacon node and " +
 			"validator on the same machines, you can ignore this message. If you want to know " +
-			"how to enable secure connections, see: https://docs.prylabs.network/docs/prysm-usage/secure-grpc")
+			"how to enable secure connections, see: https://docs.over.network/operators/advanced-guides/secure-grpc-connections")
 	}
 
 	if maxCallRecvMsgSize == 0 {
