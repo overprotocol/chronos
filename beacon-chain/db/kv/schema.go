@@ -50,6 +50,8 @@ var (
 	denebBlindKey              = []byte("blind-deneb")
 	electraKey                 = []byte("electra")
 	electraBlindKey            = []byte("blind-electra")
+	badgerKey                  = []byte("badger")
+	badgerBlindKey             = []byte("blind-badger")
 
 	// block root included in the beacon state used by weak subjectivity initial sync
 	originCheckpointBlockRootKey = []byte("origin-checkpoint-block-root")
