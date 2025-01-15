@@ -275,6 +275,7 @@ go_library(
     name = "go_default_library",
     srcs = [
         "attestation.go",
+        "badger.go",
         "beacon_block.go",
         "cloners.go",
         "eip_7521.go",
