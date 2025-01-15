@@ -205,8 +205,7 @@ func TestReplayBlocks_ThroughFutureForkBoundaries(t *testing.T) {
 	require.NoError(t, err)
 
 	// Verify state is version Badger.
-	// TODO: This test fails because the state is not updated to the Badger version. Will be fixed.
-	// assert.Equal(t, version.Badger, newState.Version())
+	assert.Equal(t, version.Badger, newState.Version())
 }
 
 func TestReplayBlocks_ProcessEpoch_Alpaca(t *testing.T) {
