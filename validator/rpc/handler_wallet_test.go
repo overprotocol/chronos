@@ -851,6 +851,7 @@ func TestServer_ChangePassword_WrongPassword(t *testing.T) {
 	var buf bytes.Buffer
 	err = json.NewEncoder(&buf).Encode(reqBody)
 	require.NoError(t, err)
+
 	req := httptest.NewRequest(http.MethodPost, "/v2/validator/wallet/change-password", &buf)
 	wr := httptest.NewRecorder()
 	wr.Body = &bytes.Buffer{}
@@ -919,7 +920,6 @@ func generateRandomKey() ([]byte, error) {
 
 func TestServer_ChangePassword_PreventBruteForce(t *testing.T) {
 	t.Run("LockoutAfterMultipleFailedAttempts", func(t *testing.T) {
-		// Set up a Server with a known correct old password.
 		ctx := context.Background()
 		cipher, err := generateRandomKey()
 		require.NoError(t, err)
@@ -937,7 +937,6 @@ func TestServer_ChangePassword_PreventBruteForce(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		// Import one random keystore to fully initialize the wallet.
 		ks := createRandomKeystore(t, oldPassword)
 		_, err = km.ImportKeystores(ctx, []*keymanager.Keystore{ks}, []string{oldPassword})
 		require.NoError(t, err)
@@ -949,7 +948,7 @@ func TestServer_ChangePassword_PreventBruteForce(t *testing.T) {
 		require.NoError(t, err)
 
 		s := &Server{
-			useOverNode:           true, // must be true to enable ChangePassword
+			useOverNode:           true,
 			walletInitializedFeed: new(event.Feed),
 			cipherKey:             cipher,
 			validatorService:      vs,
@@ -957,7 +956,6 @@ func TestServer_ChangePassword_PreventBruteForce(t *testing.T) {
 			walletInitialized:     true,
 		}
 
-		// Encrypt a WRONG old password for repeated attempts.
 		wrongPassword := "wrong-old-password"
 		encryptedWrongPassword, err := aes.Encrypt(cipher, []byte(wrongPassword))
 		require.NoError(t, err)
@@ -965,7 +963,6 @@ func TestServer_ChangePassword_PreventBruteForce(t *testing.T) {
 		encryptedNewPassword, err := aes.Encrypt(cipher, []byte(newPassword))
 		require.NoError(t, err)
 
-		// Try multiple times with the wrong old password.
 		maxAttempts := 5
 		for i := 1; i <= maxAttempts; i++ {
 
@@ -982,11 +979,9 @@ func TestServer_ChangePassword_PreventBruteForce(t *testing.T) {
 			s.ChangePassword(wr, req)
 
 			if i < maxAttempts {
-				// Expect a 400 with "Old password is not correct".
 				require.Equal(t, http.StatusBadRequest, wr.Code)
 				require.StringContains(t, "Old password is not correct", wr.Body.String())
 			} else {
-				// On the final attempt, we expect the server to lock out the user
 				require.Equal(t, http.StatusBadRequest, wr.Code)
 				require.StringContains(t, "Too many failed attempts", wr.Body.String())
 			}
@@ -994,7 +989,6 @@ func TestServer_ChangePassword_PreventBruteForce(t *testing.T) {
 	})
 
 	t.Run("CannotChangePasswordWhileLockedOut", func(t *testing.T) {
-		// Recreate server with correct old password.
 		ctx := context.Background()
 		cipher, err := generateRandomKey()
 		require.NoError(t, err)
@@ -1030,13 +1024,13 @@ func TestServer_ChangePassword_PreventBruteForce(t *testing.T) {
 			walletInitialized:     true,
 		}
 
-		// Force the server into a "locked-out" state.
 		s.failedPasswordAttempts = 999
 
 		wrongPassword := "wrong-old-password"
 		encryptedWrongPassword, err := aes.Encrypt(cipher, []byte(wrongPassword))
 		require.NoError(t, err)
-		encryptedNewPassword, err := aes.Encrypt(cipher, []byte("newValidPassword"))
+		newValidPassword := "new-valid-password"
+		encryptedNewPassword, err := aes.Encrypt(cipher, []byte(newValidPassword))
 		require.NoError(t, err)
 
 		reqBody := &ChangePasswordRequest{
@@ -1046,24 +1040,23 @@ func TestServer_ChangePassword_PreventBruteForce(t *testing.T) {
 		var buf bytes.Buffer
 		require.NoError(t, json.NewEncoder(&buf).Encode(reqBody))
 
+		// First attempts triggers lockout
 		req := httptest.NewRequest(http.MethodPost, "/v2/validator/wallet/change-password", &buf)
 		wr := httptest.NewRecorder()
 		wr.Body = &bytes.Buffer{}
 		s.ChangePassword(wr, req)
 
+		// Second attempt should fail by lockout
 		req = httptest.NewRequest(http.MethodPost, "/v2/validator/wallet/change-password", &buf)
 		wr = httptest.NewRecorder()
 		wr.Body = &bytes.Buffer{}
 		s.ChangePassword(wr, req)
 
-		// Expect locked-out response (429 or 400 with a lockout message).
-		// Adjust to match your actual code’s status + message.
 		require.Equal(t, http.StatusBadRequest, wr.Code)
 		require.StringContains(t, "Too many failed attempts", wr.Body.String())
 	})
 
 	t.Run("ResetsFailuresOnSuccessfulOldPassword", func(t *testing.T) {
-		// Set up a server with a known correct old password.
 		ctx := context.Background()
 		cipher, err := generateRandomKey()
 		require.NoError(t, err)
@@ -1097,10 +1090,9 @@ func TestServer_ChangePassword_PreventBruteForce(t *testing.T) {
 			validatorService:       vs,
 			wallet:                 w,
 			walletInitialized:      true,
-			failedPasswordAttempts: 2, // Some prior failures
+			failedPasswordAttempts: 2,
 		}
 
-		// Encrypt the correct old password and a valid new password.
 		encryptedOldPassword, err := aes.Encrypt(cipher, []byte(oldPassword))
 		require.NoError(t, err)
 		encryptedNewPassword, err := aes.Encrypt(cipher, []byte("brandNewStrongPassword"))
@@ -1118,16 +1110,13 @@ func TestServer_ChangePassword_PreventBruteForce(t *testing.T) {
 		wr.Body = &bytes.Buffer{}
 		s.ChangePassword(wr, req)
 
-		// Expect success (200 OK).
 		require.Equal(t, http.StatusOK, wr.Code)
 		require.StringContains(t, "Password changed successfully", wr.Body.String())
 
-		// Confirm the failure count was reset to 0.
 		assert.Equal(t, 0, s.failedPasswordAttempts, "failedPasswordAttempts should be reset on success")
 	})
 
 	t.Run("ShortNewPasswordFailsValidation", func(t *testing.T) {
-		// Set up a server with the correct old password.
 		ctx := context.Background()
 		cipher, err := generateRandomKey()
 		require.NoError(t, err)
@@ -1163,10 +1152,10 @@ func TestServer_ChangePassword_PreventBruteForce(t *testing.T) {
 			walletInitialized:     true,
 		}
 
-		// Provide correct old password but an obviously too-short new password
 		encryptedOldPassword, err := aes.Encrypt(cipher, []byte(oldPassword))
 		require.NoError(t, err)
-		encryptedShortPassword, err := aes.Encrypt(cipher, []byte("12")) // fails ValidatePasswordInput?
+		newShortPassword := "passwor"
+		encryptedShortPassword, err := aes.Encrypt(cipher, []byte(newShortPassword)) // fails ValidatePasswordInput?
 		require.NoError(t, err)
 
 		reqBody := &ChangePasswordRequest{
@@ -1181,8 +1170,6 @@ func TestServer_ChangePassword_PreventBruteForce(t *testing.T) {
 		wr.Body = &bytes.Buffer{}
 		s.ChangePassword(wr, req)
 
-		// Expect a 400 with a "Password too weak" or similar message
-		// (depends on how ValidatePasswordInput returns its errors).
 		require.Equal(t, http.StatusBadRequest, wr.Code)
 		require.StringContains(t, "New password does not meet criteria", wr.Body.String())
 	})

@@ -29,8 +29,9 @@ import (
 )
 
 const (
-	maxFailedAttempts = 5           // number of allowed password failures
-	lockoutDuration   = time.Minute // lockout if fail specified times
+	// Configuration for bruteforce prevention in ChangePassword.
+	maxFailedAttempts = 5
+	lockoutDuration   = time.Minute
 )
 
 // CreateWallet via an API request, allowing a user to save a new wallet.
@@ -461,7 +462,7 @@ func (s *Server) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check if the server is currently locked out from previous failures
+	// Check if the server is currently locked out from previous failures.
 	if time.Now().Before(s.lockoutUntil) {
 		remaining := time.Until(s.lockoutUntil).Round(time.Second)
 		msg := fmt.Sprintf("Too many failed attempts. Please try again in %v.", remaining)
@@ -481,7 +482,6 @@ func (s *Server) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Decode and decrypt the old password
 	password, err := hexutil.Decode(req.Password)
 	if err != nil {
 		log.WithError(err).Error("Could not decode old password")
@@ -515,7 +515,6 @@ func (s *Server) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	// If old password is correct, reset the failed attempts counter
 	s.failedPasswordAttempts = 0
 
-	// Decode and decrypt the new password
 	newPassword, err := hexutil.Decode(req.NewPassword)
 	if err != nil {
 		log.WithError(err).Error("Could not decode new password")
@@ -531,13 +530,11 @@ func (s *Server) ChangePassword(w http.ResponseWriter, r *http.Request) {
 
 	// Password Length Check
 	if err := prompt.ValidatePasswordInput(string(decryptedNewPassword)); err != nil {
-		// This function likely returns an error if the password is too weak or too short
 		log.WithError(err).Error("New password does not meet criteria")
 		httputil.HandleError(w, "New password does not meet criteria: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	// Retrieve the keymanager
 	km, err := s.validatorService.Keymanager()
 	if err != nil {
 		log.WithError(err).Error("Could not get keymanager")
