@@ -70,6 +70,13 @@ func InitializeDataMaps() {
 				&ethpb.SignedBeaconBlockElectra{Block: &ethpb.BeaconBlockElectra{Body: &ethpb.BeaconBlockBodyElectra{ExecutionPayload: &enginev1.ExecutionPayloadDeneb{}}}},
 			)
 		},
+		// TODO: If Badger has different block structure, we need to update this.
+		// Other maps(e.g. MetaDataMap, AttestationMap, AggregateAttestationMap) don't need to be updated.
+		bytesutil.ToBytes4(params.BeaconConfig().BadgerForkVersion): func() (interfaces.ReadOnlySignedBeaconBlock, error) {
+			return blocks.NewSignedBeaconBlock(
+				&ethpb.SignedBeaconBlockElectra{Block: &ethpb.BeaconBlockElectra{Body: &ethpb.BeaconBlockBodyElectra{ExecutionPayload: &enginev1.ExecutionPayloadDeneb{}}}},
+			)
+		},
 	}
 
 	// Reset our metadata map.
@@ -90,6 +97,9 @@ func InitializeDataMaps() {
 			return wrapper.WrappedMetadataV1(&ethpb.MetaDataV1{}), nil
 		},
 		bytesutil.ToBytes4(params.BeaconConfig().AlpacaForkVersion): func() (metadata.Metadata, error) {
+			return wrapper.WrappedMetadataV1(&ethpb.MetaDataV1{}), nil
+		},
+		bytesutil.ToBytes4(params.BeaconConfig().BadgerForkVersion): func() (metadata.Metadata, error) {
 			return wrapper.WrappedMetadataV1(&ethpb.MetaDataV1{}), nil
 		},
 	}
@@ -114,6 +124,9 @@ func InitializeDataMaps() {
 		bytesutil.ToBytes4(params.BeaconConfig().AlpacaForkVersion): func() (ethpb.Att, error) {
 			return &ethpb.AttestationElectra{}, nil
 		},
+		bytesutil.ToBytes4(params.BeaconConfig().BadgerForkVersion): func() (ethpb.Att, error) {
+			return &ethpb.AttestationElectra{}, nil
+		},
 	}
 
 	// Reset our aggregate attestation map.
@@ -134,6 +147,9 @@ func InitializeDataMaps() {
 			return &ethpb.SignedAggregateAttestationAndProof{}, nil
 		},
 		bytesutil.ToBytes4(params.BeaconConfig().AlpacaForkVersion): func() (ethpb.SignedAggregateAttAndProof, error) {
+			return &ethpb.SignedAggregateAttestationAndProofElectra{}, nil
+		},
+		bytesutil.ToBytes4(params.BeaconConfig().BadgerForkVersion): func() (ethpb.SignedAggregateAttAndProof, error) {
 			return &ethpb.SignedAggregateAttestationAndProofElectra{}, nil
 		},
 	}
