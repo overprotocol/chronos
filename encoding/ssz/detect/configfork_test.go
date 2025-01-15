@@ -46,8 +46,7 @@ func TestSlotFromBlock(t *testing.T) {
 }
 
 func TestByState(t *testing.T) {
-	undo := util.HackElectraMaxuint(t)
-	defer undo()
+	defer util.HackForksMaxuint(t, []int{version.Alpaca, version.Badger})()
 	params.SetupForkEpochConfigForTest()
 	bc := params.BeaconConfig()
 	altairSlot, err := slots.EpochStart(bc.AltairForkEpoch)
@@ -59,6 +58,8 @@ func TestByState(t *testing.T) {
 	denebSlot, err := slots.EpochStart(bc.DenebForkEpoch)
 	require.NoError(t, err)
 	alpacaSlot, err := slots.EpochStart(bc.AlpacaForkEpoch)
+	require.NoError(t, err)
+	badgerSlot, err := slots.EpochStart(bc.BadgerForkEpoch)
 	require.NoError(t, err)
 	cases := []struct {
 		name        string
@@ -101,6 +102,12 @@ func TestByState(t *testing.T) {
 			version:     version.Alpaca,
 			slot:        alpacaSlot,
 			forkversion: bytesutil.ToBytes4(bc.AlpacaForkVersion),
+		},
+		{
+			name:        "badger",
+			version:     version.Badger,
+			slot:        badgerSlot,
+			forkversion: bytesutil.ToBytes4(bc.BadgerForkVersion),
 		},
 	}
 	for _, c := range cases {
@@ -136,6 +143,8 @@ func stateForVersion(v int) (state.BeaconState, error) {
 		return util.NewBeaconStateDeneb()
 	case version.Alpaca:
 		return util.NewBeaconStateElectra()
+	case version.Badger:
+		return util.NewBeaconStateBadger()
 	default:
 		return nil, fmt.Errorf("unrecognized version %d", v)
 	}
@@ -143,8 +152,7 @@ func stateForVersion(v int) (state.BeaconState, error) {
 
 func TestUnmarshalState(t *testing.T) {
 	ctx := context.Background()
-	undo := util.HackElectraMaxuint(t)
-	defer undo()
+	defer util.HackForksMaxuint(t, []int{version.Alpaca, version.Badger})()
 	params.SetupForkEpochConfigForTest()
 	bc := params.BeaconConfig()
 	altairSlot, err := slots.EpochStart(bc.AltairForkEpoch)
@@ -156,6 +164,8 @@ func TestUnmarshalState(t *testing.T) {
 	denebSlot, err := slots.EpochStart(bc.DenebForkEpoch)
 	require.NoError(t, err)
 	alpacaSlot, err := slots.EpochStart(bc.AlpacaForkEpoch)
+	require.NoError(t, err)
+	badgerSlot, err := slots.EpochStart(bc.BadgerForkEpoch)
 	require.NoError(t, err)
 	cases := []struct {
 		name        string
@@ -199,6 +209,12 @@ func TestUnmarshalState(t *testing.T) {
 			slot:        alpacaSlot,
 			forkversion: bytesutil.ToBytes4(bc.AlpacaForkVersion),
 		},
+		{
+			name:        "badger",
+			version:     version.Badger,
+			slot:        badgerSlot,
+			forkversion: bytesutil.ToBytes4(bc.BadgerForkVersion),
+		},
 	}
 	for _, c := range cases {
 		st, err := stateForVersion(c.version)
@@ -224,9 +240,8 @@ func TestUnmarshalState(t *testing.T) {
 }
 
 func TestDetectAndUnmarshalBlock(t *testing.T) {
-	undo := util.HackElectraMaxuint(t)
+	defer util.HackForksMaxuint(t, []int{version.Alpaca, version.Badger})()
 	params.SetupForkEpochConfigForTest()
-	defer undo()
 	altairS, err := slots.EpochStart(params.BeaconConfig().AltairForkEpoch)
 	require.NoError(t, err)
 	bellaS, err := slots.EpochStart(params.BeaconConfig().BellatrixForkEpoch)
@@ -324,9 +339,8 @@ func TestDetectAndUnmarshalBlock(t *testing.T) {
 }
 
 func TestUnmarshalBlock(t *testing.T) {
-	undo := util.HackElectraMaxuint(t)
+	defer util.HackForksMaxuint(t, []int{version.Alpaca, version.Badger})()
 	params.SetupForkEpochConfigForTest()
-	defer undo()
 	genv := bytesutil.ToBytes4(params.BeaconConfig().GenesisForkVersion)
 	altairv := bytesutil.ToBytes4(params.BeaconConfig().AltairForkVersion)
 	bellav := bytesutil.ToBytes4(params.BeaconConfig().BellatrixForkVersion)
@@ -448,9 +462,8 @@ func TestUnmarshalBlock(t *testing.T) {
 }
 
 func TestUnmarshalBlindedBlock(t *testing.T) {
-	undo := util.HackElectraMaxuint(t)
+	defer util.HackForksMaxuint(t, []int{version.Alpaca, version.Badger})()
 	params.SetupForkEpochConfigForTest()
-	defer undo()
 	genv := bytesutil.ToBytes4(params.BeaconConfig().GenesisForkVersion)
 	altairv := bytesutil.ToBytes4(params.BeaconConfig().AltairForkVersion)
 	bellav := bytesutil.ToBytes4(params.BeaconConfig().BellatrixForkVersion)
