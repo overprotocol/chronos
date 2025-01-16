@@ -308,6 +308,51 @@ func (body *BlindedBeaconBlockBodyElectra) Copy() *BlindedBeaconBlockBodyElectra
 }
 
 // Copy --
+func (sigBlock *SignedBlindedBeaconBlockBadger) Copy() *SignedBlindedBeaconBlockBadger {
+	if sigBlock == nil {
+		return nil
+	}
+	return &SignedBlindedBeaconBlockBadger{
+		Message:   sigBlock.Message.Copy(),
+		Signature: bytesutil.SafeCopyBytes(sigBlock.Signature),
+	}
+}
+
+// Copy --
+func (block *BlindedBeaconBlockBadger) Copy() *BlindedBeaconBlockBadger {
+	if block == nil {
+		return nil
+	}
+	return &BlindedBeaconBlockBadger{
+		Slot:          block.Slot,
+		ProposerIndex: block.ProposerIndex,
+		ParentRoot:    bytesutil.SafeCopyBytes(block.ParentRoot),
+		StateRoot:     bytesutil.SafeCopyBytes(block.StateRoot),
+		Body:          block.Body.Copy(),
+	}
+}
+
+// Copy --
+func (body *BlindedBeaconBlockBodyBadger) Copy() *BlindedBeaconBlockBodyBadger {
+	if body == nil {
+		return nil
+	}
+	return &BlindedBeaconBlockBodyBadger{
+		RandaoReveal:           bytesutil.SafeCopyBytes(body.RandaoReveal),
+		Eth1Data:               body.Eth1Data.Copy(),
+		Graffiti:               bytesutil.SafeCopyBytes(body.Graffiti),
+		ProposerSlashings:      CopySlice(body.ProposerSlashings),
+		AttesterSlashings:      CopySlice(body.AttesterSlashings),
+		Attestations:           CopySlice(body.Attestations),
+		Deposits:               CopySlice(body.Deposits),
+		VoluntaryExits:         CopySlice(body.VoluntaryExits),
+		ExecutionPayloadHeader: body.ExecutionPayloadHeader.Copy(),
+		BlobKzgCommitments:     CopyBlobKZGs(body.BlobKzgCommitments),
+		ExecutionRequests:      CopyExecutionRequests(body.ExecutionRequests),
+	}
+}
+
+// Copy --
 func (sigBlock *SignedBlindedBeaconBlockBellatrix) Copy() *SignedBlindedBeaconBlockBellatrix {
 	if sigBlock == nil {
 		return nil
@@ -450,6 +495,51 @@ func (body *BeaconBlockBodyElectra) Copy() *BeaconBlockBodyElectra {
 		return nil
 	}
 	return &BeaconBlockBodyElectra{
+		RandaoReveal:       bytesutil.SafeCopyBytes(body.RandaoReveal),
+		Eth1Data:           body.Eth1Data.Copy(),
+		Graffiti:           bytesutil.SafeCopyBytes(body.Graffiti),
+		ProposerSlashings:  CopySlice(body.ProposerSlashings),
+		AttesterSlashings:  CopySlice(body.AttesterSlashings),
+		Attestations:       CopySlice(body.Attestations),
+		Deposits:           CopySlice(body.Deposits),
+		VoluntaryExits:     CopySlice(body.VoluntaryExits),
+		ExecutionPayload:   body.ExecutionPayload.Copy(),
+		BlobKzgCommitments: CopyBlobKZGs(body.BlobKzgCommitments),
+		ExecutionRequests:  CopyExecutionRequests(body.ExecutionRequests),
+	}
+}
+
+// Copy --
+func (sigBlock *SignedBeaconBlockBadger) Copy() *SignedBeaconBlockBadger {
+	if sigBlock == nil {
+		return nil
+	}
+	return &SignedBeaconBlockBadger{
+		Block:     sigBlock.Block.Copy(),
+		Signature: bytesutil.SafeCopyBytes(sigBlock.Signature),
+	}
+}
+
+// Copy --
+func (block *BeaconBlockBadger) Copy() *BeaconBlockBadger {
+	if block == nil {
+		return nil
+	}
+	return &BeaconBlockBadger{
+		Slot:          block.Slot,
+		ProposerIndex: block.ProposerIndex,
+		ParentRoot:    bytesutil.SafeCopyBytes(block.ParentRoot),
+		StateRoot:     bytesutil.SafeCopyBytes(block.StateRoot),
+		Body:          block.Body.Copy(),
+	}
+}
+
+// Copy --
+func (body *BeaconBlockBodyBadger) Copy() *BeaconBlockBodyBadger {
+	if body == nil {
+		return nil
+	}
+	return &BeaconBlockBodyBadger{
 		RandaoReveal:       bytesutil.SafeCopyBytes(body.RandaoReveal),
 		Eth1Data:           body.Eth1Data.Copy(),
 		Graffiti:           bytesutil.SafeCopyBytes(body.Graffiti),
