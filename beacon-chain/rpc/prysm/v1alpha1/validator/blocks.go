@@ -170,6 +170,17 @@ func sendVerifiedBlocks(stream ethpb.BeaconNodeValidator_StreamBlocksAltairServe
 			return nil
 		}
 		b.Block = &ethpb.StreamBlocksResponse_ElectraBlock{ElectraBlock: phBlk}
+	case version.Badger:
+		pb, err := data.SignedBlock.Proto()
+		if err != nil {
+			return errors.Wrap(err, "could not get protobuf block")
+		}
+		phBlk, ok := pb.(*ethpb.SignedBeaconBlockBadger)
+		if !ok {
+			log.Warn("Mismatch between version and block type, was expecting SignedBeaconBlockBadger")
+			return nil
+		}
+		b.Block = &ethpb.StreamBlocksResponse_BadgerBlock{BadgerBlock: phBlk}
 	}
 
 	if err := stream.Send(b); err != nil {
