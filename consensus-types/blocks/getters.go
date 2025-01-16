@@ -166,6 +166,41 @@ func (b *SignedBeaconBlock) ToBlinded() (interfaces.ReadOnlySignedBeaconBlock, e
 		return nil, err
 	}
 
+	if b.version >= version.Badger {
+		p, ok := payload.Proto().(*enginev1.ExecutionPayloadDeneb)
+		if !ok {
+			return nil, fmt.Errorf("%T is not an execution payload header of Deneb version", p)
+		}
+		header, err := PayloadToHeaderBadger(payload)
+		if err != nil {
+			return nil, errors.Wrap(err, "payload to header badger")
+		}
+
+		return initBlindedSignedBlockFromProtoBadger(
+			&eth.SignedBlindedBeaconBlockBadger{
+				Message: &eth.BlindedBeaconBlockBadger{
+					Slot:          b.block.slot,
+					ProposerIndex: b.block.proposerIndex,
+					ParentRoot:    b.block.parentRoot[:],
+					StateRoot:     b.block.stateRoot[:],
+					Body: &eth.BlindedBeaconBlockBodyBadger{
+						RandaoReveal:           b.block.body.randaoReveal[:],
+						Eth1Data:               b.block.body.eth1Data,
+						Graffiti:               b.block.body.graffiti[:],
+						ProposerSlashings:      b.block.body.proposerSlashings,
+						AttesterSlashings:      b.block.body.attesterSlashingsElectra,
+						Attestations:           b.block.body.attestationsElectra,
+						Deposits:               b.block.body.deposits,
+						VoluntaryExits:         b.block.body.voluntaryExits,
+						ExecutionPayloadHeader: header,
+						BlobKzgCommitments:     b.block.body.blobKzgCommitments,
+						ExecutionRequests:      b.block.body.executionRequests,
+					},
+				},
+				Signature: b.signature[:],
+			})
+	}
+
 	if b.version >= version.Alpaca {
 		p, ok := payload.Proto().(*enginev1.ExecutionPayloadDeneb)
 		if !ok {
@@ -173,7 +208,7 @@ func (b *SignedBeaconBlock) ToBlinded() (interfaces.ReadOnlySignedBeaconBlock, e
 		}
 		header, err := PayloadToHeaderElectra(payload)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "payload to header electra")
 		}
 		return initBlindedSignedBlockFromProtoElectra(
 			&eth.SignedBlindedBeaconBlockElectra{
