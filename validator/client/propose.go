@@ -148,6 +148,12 @@ func (v *validator) ProposeBlock(ctx context.Context, slot primitives.Slot, pubK
 				log.WithError(err).Error("Failed to build generic signed block")
 				return
 			}
+		case version.Badger:
+			genericSignedBlock, err = buildGenericSignedBlockBadgerWithBlobs(pb, b)
+			if err != nil {
+				log.WithError(err).Error("Failed to build generic signed block")
+				return
+			}
 		default:
 			log.Errorf("Unsupported block version %s", version.String(blk.Version()))
 		}
@@ -265,6 +271,22 @@ func buildGenericSignedBlockElectraWithBlobs(pb proto.Message, b *ethpb.GenericB
 				Block:     electraBlock,
 				KzgProofs: b.GetElectra().KzgProofs,
 				Blobs:     b.GetElectra().Blobs,
+			},
+		},
+	}, nil
+}
+
+func buildGenericSignedBlockBadgerWithBlobs(pb proto.Message, b *ethpb.GenericBeaconBlock) (*ethpb.GenericSignedBeaconBlock, error) {
+	badgerBlock, ok := pb.(*ethpb.SignedBeaconBlockBadger)
+	if !ok {
+		return nil, errors.New("could cast to badger block")
+	}
+	return &ethpb.GenericSignedBeaconBlock{
+		Block: &ethpb.GenericSignedBeaconBlock_Badger{
+			Badger: &ethpb.SignedBeaconBlockContentsBadger{
+				Block:     badgerBlock,
+				KzgProofs: b.GetBadger().KzgProofs,
+				Blobs:     b.GetBadger().Blobs,
 			},
 		},
 	}, nil

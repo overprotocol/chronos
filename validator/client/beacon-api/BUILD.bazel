@@ -90,6 +90,7 @@ go_test(
         "prepare_beacon_proposer_test.go",
         "propose_attestation_test.go",
         "propose_beacon_block_altair_test.go",
+        "propose_beacon_block_badger_test.go",
         "propose_beacon_block_bellatrix_test.go",
         "propose_beacon_block_blinded_bellatrix_test.go",
         "propose_beacon_block_blinded_capella_test.go",
