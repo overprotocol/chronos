@@ -333,6 +333,9 @@ message StreamBlocksResponse {
 
         // Representing a electra block.
         SignedBeaconBlockElectra electra_block = 6;
+
+        // Representing a badger block.
+        SignedBeaconBlockBadger badger_block = 7;
     }
 }
 

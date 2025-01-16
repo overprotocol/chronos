@@ -147,6 +147,18 @@ ssz_electra_objs = [
     "SignedBlindedBeaconBlockElectra",
 ]
 
+ssz_badger_objs = [
+    "BeaconBlockBodyBadger",
+    "BeaconBlockContentsBadger",
+    "BeaconBlockBadger",
+    "BlindedBeaconBlockBodyBadger",
+    "BlindedBeaconBlockBadger",
+    "SignedBeaconBlockContentsBadger",
+    "SignedBeaconBlockBadger",
+    "SignedBlindedBeaconBlockBadger",
+#   "BeaconStateBadger", # State for Badger is not needed as it is the same as Electra
+]
+
 ssz_gen_marshal(
     name = "ssz_generated_phase0",
     out = "phase0.ssz.go",
@@ -225,6 +237,19 @@ ssz_gen_marshal(
 )
 
 ssz_gen_marshal(
+    name = "ssz_generated_badger",
+    out = "badger.ssz.go",
+    exclude_objs = ssz_phase0_objs + ssz_altair_objs + ssz_bellatrix_objs + ssz_capella_objs + ssz_deneb_objs + ssz_electra_objs,
+    go_proto = ":go_proto",
+    includes = [
+        "//consensus-types/primitives:go_default_library",
+        "//math:go_default_library",
+        "//proto/engine/v1:go_default_library",
+    ],
+    objs = ssz_badger_objs,
+)
+
+ssz_gen_marshal(
     name = "ssz_generated_non_core",
     out = "non-core.ssz.go",
     go_proto = ":go_proto",
@@ -284,6 +309,7 @@ go_library(
         ":ssz_generated_capella",  # keep
         ":ssz_generated_deneb",  # keep
         ":ssz_generated_electra",  # keep
+        ":ssz_generated_badger",  # keep
         ":ssz_generated_non_core",  # keep
         ":ssz_generated_phase0",  # keep
     ],
