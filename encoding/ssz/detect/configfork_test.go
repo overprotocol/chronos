@@ -252,6 +252,8 @@ func TestDetectAndUnmarshalBlock(t *testing.T) {
 	require.NoError(t, err)
 	alpacaS, err := slots.EpochStart(params.BeaconConfig().AlpacaForkEpoch)
 	require.NoError(t, err)
+	badgerS, err := slots.EpochStart(params.BeaconConfig().BadgerForkEpoch)
+	require.NoError(t, err)
 	cases := []struct {
 		b         func(*testing.T, primitives.Slot) interfaces.ReadOnlySignedBeaconBlock
 		name      string
@@ -303,6 +305,11 @@ func TestDetectAndUnmarshalBlock(t *testing.T) {
 			slot: alpacaS,
 		},
 		{
+			name: "first slot of badger",
+			b:    signedTestBlockBadger,
+			slot: badgerS,
+		},
+		{
 			name:      "bellatrix block in altair slot",
 			b:         signedTestBlockBellatrix,
 			slot:      bellaS - 1,
@@ -347,6 +354,7 @@ func TestUnmarshalBlock(t *testing.T) {
 	capellaV := bytesutil.ToBytes4(params.BeaconConfig().CapellaForkVersion)
 	denebV := bytesutil.ToBytes4(params.BeaconConfig().DenebForkVersion)
 	alpacaV := bytesutil.ToBytes4(params.BeaconConfig().AlpacaForkVersion)
+	badgerV := bytesutil.ToBytes4(params.BeaconConfig().BadgerForkVersion)
 	altairS, err := slots.EpochStart(params.BeaconConfig().AltairForkEpoch)
 	require.NoError(t, err)
 	bellaS, err := slots.EpochStart(params.BeaconConfig().BellatrixForkEpoch)
@@ -356,6 +364,8 @@ func TestUnmarshalBlock(t *testing.T) {
 	denebS, err := slots.EpochStart(params.BeaconConfig().DenebForkEpoch)
 	require.NoError(t, err)
 	alpacaS, err := slots.EpochStart(params.BeaconConfig().AlpacaForkEpoch)
+	require.NoError(t, err)
+	badgerS, err := slots.EpochStart(params.BeaconConfig().BadgerForkEpoch)
 	require.NoError(t, err)
 	cases := []struct {
 		b       func(*testing.T, primitives.Slot) interfaces.ReadOnlySignedBeaconBlock
@@ -418,6 +428,12 @@ func TestUnmarshalBlock(t *testing.T) {
 			slot:    alpacaS,
 		},
 		{
+			name:    "first slot of badger",
+			b:       signedTestBlockBadger,
+			version: badgerV,
+			slot:    badgerS,
+		},
+		{
 			name:    "bellatrix block in altair slot",
 			b:       signedTestBlockBellatrix,
 			version: bellav,
@@ -470,6 +486,7 @@ func TestUnmarshalBlindedBlock(t *testing.T) {
 	capellaV := bytesutil.ToBytes4(params.BeaconConfig().CapellaForkVersion)
 	denebV := bytesutil.ToBytes4(params.BeaconConfig().DenebForkVersion)
 	alpacaV := bytesutil.ToBytes4(params.BeaconConfig().AlpacaForkVersion)
+	badgerV := bytesutil.ToBytes4(params.BeaconConfig().BadgerForkVersion)
 	altairS, err := slots.EpochStart(params.BeaconConfig().AltairForkEpoch)
 	require.NoError(t, err)
 	bellaS, err := slots.EpochStart(params.BeaconConfig().BellatrixForkEpoch)
@@ -479,6 +496,8 @@ func TestUnmarshalBlindedBlock(t *testing.T) {
 	denebS, err := slots.EpochStart(params.BeaconConfig().DenebForkEpoch)
 	require.NoError(t, err)
 	alpacaS, err := slots.EpochStart(params.BeaconConfig().AlpacaForkEpoch)
+	require.NoError(t, err)
+	badgerS, err := slots.EpochStart(params.BeaconConfig().BadgerForkEpoch)
 	require.NoError(t, err)
 	cases := []struct {
 		b       func(*testing.T, primitives.Slot) interfaces.ReadOnlySignedBeaconBlock
@@ -546,6 +565,12 @@ func TestUnmarshalBlindedBlock(t *testing.T) {
 			b:       signedTestBlindedBlockElectra,
 			version: alpacaV,
 			slot:    alpacaS,
+		},
+		{
+			name:    "first slot of badger",
+			b:       signedTestBlindedBlockBadger,
+			version: badgerV,
+			slot:    badgerS,
 		},
 		{
 			name:    "genesis block in altair slot",
@@ -648,6 +673,15 @@ func signedTestBlockElectra(t *testing.T, slot primitives.Slot) interfaces.ReadO
 	return s
 }
 
+func signedTestBlockBadger(t *testing.T, slot primitives.Slot) interfaces.ReadOnlySignedBeaconBlock {
+	b := util.NewBeaconBlockBadger()
+	b.Block.Slot = slot
+	s, err := blocks.NewSignedBeaconBlock(b)
+	require.NoError(t, err)
+	return s
+}
+
+
 func signedTestBlindedBlockDeneb(t *testing.T, slot primitives.Slot) interfaces.ReadOnlySignedBeaconBlock {
 	b := util.NewBlindedBeaconBlockDeneb()
 	b.Message.Slot = slot
@@ -658,6 +692,14 @@ func signedTestBlindedBlockDeneb(t *testing.T, slot primitives.Slot) interfaces.
 
 func signedTestBlindedBlockElectra(t *testing.T, slot primitives.Slot) interfaces.ReadOnlySignedBeaconBlock {
 	b := util.NewBlindedBeaconBlockElectra()
+	b.Message.Slot = slot
+	s, err := blocks.NewSignedBeaconBlock(b)
+	require.NoError(t, err)
+	return s
+}
+
+func signedTestBlindedBlockBadger(t *testing.T, slot primitives.Slot) interfaces.ReadOnlySignedBeaconBlock {
+	b := util.NewBlindedBeaconBlockBadger()
 	b.Message.Slot = slot
 	s, err := blocks.NewSignedBeaconBlock(b)
 	require.NoError(t, err)

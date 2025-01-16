@@ -225,6 +225,8 @@ func (cf *VersionedUnmarshaler) UnmarshalBeaconBlock(marshaled []byte) (interfac
 		blk = &ethpb.SignedBeaconBlockDeneb{}
 	case version.Alpaca:
 		blk = &ethpb.SignedBeaconBlockElectra{}
+	case version.Badger:
+		blk = &ethpb.SignedBeaconBlockBadger{}
 	default:
 		forkName := version.String(cf.Fork)
 		return nil, fmt.Errorf("unable to initialize ReadOnlyBeaconBlock for fork version=%s at slot=%d", forkName, slot)
@@ -262,6 +264,8 @@ func (cf *VersionedUnmarshaler) UnmarshalBlindedBeaconBlock(marshaled []byte) (i
 		blk = &ethpb.SignedBlindedBeaconBlockDeneb{}
 	case version.Alpaca:
 		blk = &ethpb.SignedBlindedBeaconBlockElectra{}
+	case version.Badger:
+		blk = &ethpb.SignedBlindedBeaconBlockBadger{}
 	default:
 		forkName := version.String(cf.Fork)
 		return nil, fmt.Errorf("unable to initialize ReadOnlyBeaconBlock for fork version=%s at slot=%d", forkName, slot)
