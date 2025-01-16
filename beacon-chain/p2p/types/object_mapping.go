@@ -70,11 +70,9 @@ func InitializeDataMaps() {
 				&ethpb.SignedBeaconBlockElectra{Block: &ethpb.BeaconBlockElectra{Body: &ethpb.BeaconBlockBodyElectra{ExecutionPayload: &enginev1.ExecutionPayloadDeneb{}}}},
 			)
 		},
-		// TODO: If Badger has different block structure, we need to update this.
-		// Other maps(e.g. MetaDataMap, AttestationMap, AggregateAttestationMap) don't need to be updated.
 		bytesutil.ToBytes4(params.BeaconConfig().BadgerForkVersion): func() (interfaces.ReadOnlySignedBeaconBlock, error) {
 			return blocks.NewSignedBeaconBlock(
-				&ethpb.SignedBeaconBlockElectra{Block: &ethpb.BeaconBlockElectra{Body: &ethpb.BeaconBlockBodyElectra{ExecutionPayload: &enginev1.ExecutionPayloadDeneb{}}}},
+				&ethpb.SignedBeaconBlockBadger{Block: &ethpb.BeaconBlockBadger{Body: &ethpb.BeaconBlockBodyBadger{ExecutionPayload: &enginev1.ExecutionPayloadDeneb{}}}},
 			)
 		},
 	}

@@ -129,4 +129,18 @@ func TestGossipTopicMappings_CorrectType(t *testing.T) {
 	pMessage = GossipTopicMappings(AggregateAndProofSubnetTopicFormat, alpacaForkEpoch)
 	_, ok = pMessage.(*ethpb.SignedAggregateAttestationAndProofElectra)
 	assert.Equal(t, true, ok)
+
+	// Badger Fork
+	pMessage = GossipTopicMappings(BlockSubnetTopicFormat, badgerForkEpoch)
+	_, ok = pMessage.(*ethpb.SignedBeaconBlockBadger)
+	assert.Equal(t, true, ok)
+	pMessage = GossipTopicMappings(AttestationSubnetTopicFormat, badgerForkEpoch)
+	_, ok = pMessage.(*ethpb.AttestationElectra)
+	assert.Equal(t, true, ok)
+	pMessage = GossipTopicMappings(AttesterSlashingSubnetTopicFormat, badgerForkEpoch)
+	_, ok = pMessage.(*ethpb.AttesterSlashingElectra)
+	assert.Equal(t, true, ok)
+	pMessage = GossipTopicMappings(AggregateAndProofSubnetTopicFormat, badgerForkEpoch)
+	_, ok = pMessage.(*ethpb.SignedAggregateAttestationAndProofElectra)
+	assert.Equal(t, true, ok)
 }
