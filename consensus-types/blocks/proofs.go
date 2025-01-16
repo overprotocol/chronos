@@ -43,6 +43,8 @@ func ComputeBlockBodyFieldRoots(ctx context.Context, blockBody *BeaconBlockBody)
 		fieldRoots = make([][]byte, 10)
 	case version.Alpaca:
 		fieldRoots = make([][]byte, 11)
+	case version.Badger:
+		fieldRoots = make([][]byte, 11)
 	default:
 		return nil, fmt.Errorf("unknown block body version %s", version.String(blockBody.version))
 	}

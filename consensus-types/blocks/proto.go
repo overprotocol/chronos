@@ -156,6 +156,33 @@ func (b *SignedBeaconBlock) Proto() (proto.Message, error) { // nolint:gocognit
 			Block:     block,
 			Signature: b.signature[:],
 		}, nil
+	case version.Badger:
+		if b.IsBlinded() {
+			var block *eth.BlindedBeaconBlockBadger
+			if blockMessage != nil {
+				var ok bool
+				block, ok = blockMessage.(*eth.BlindedBeaconBlockBadger)
+				if !ok {
+					return nil, errIncorrectBlockVersion
+				}
+			}
+			return &eth.SignedBlindedBeaconBlockBadger{
+				Message:   block,
+				Signature: b.signature[:],
+			}, nil
+		}
+		var block *eth.BeaconBlockBadger
+		if blockMessage != nil {
+			var ok bool
+			block, ok = blockMessage.(*eth.BeaconBlockBadger)
+			if !ok {
+				return nil, errIncorrectBlockVersion
+			}
+		}
+		return &eth.SignedBeaconBlockBadger{
+			Block:     block,
+			Signature: b.signature[:],
+		}, nil
 	default:
 		return nil, errors.New("unsupported signed beacon block version")
 	}
@@ -337,6 +364,39 @@ func (b *BeaconBlock) Proto() (proto.Message, error) { // nolint:gocognit
 			StateRoot:     b.stateRoot[:],
 			Body:          body,
 		}, nil
+	case version.Badger:
+		if b.IsBlinded() {
+			var body *eth.BlindedBeaconBlockBodyBadger
+			if bodyMessage != nil {
+				var ok bool
+				body, ok = bodyMessage.(*eth.BlindedBeaconBlockBodyBadger)
+				if !ok {
+					return nil, errIncorrectBodyVersion
+				}
+			}
+			return &eth.BlindedBeaconBlockBadger{
+				Slot:          b.slot,
+				ProposerIndex: b.proposerIndex,
+				ParentRoot:    b.parentRoot[:],
+				StateRoot:     b.stateRoot[:],
+				Body:          body,
+			}, nil
+		}
+		var body *eth.BeaconBlockBodyBadger
+		if bodyMessage != nil {
+			var ok bool
+			body, ok = bodyMessage.(*eth.BeaconBlockBodyBadger)
+			if !ok {
+				return nil, errIncorrectBodyVersion
+			}
+		}
+		return &eth.BeaconBlockBadger{
+			Slot:          b.slot,
+			ProposerIndex: b.proposerIndex,
+			ParentRoot:    b.parentRoot[:],
+			StateRoot:     b.stateRoot[:],
+			Body:          body,
+		}, nil
 
 	default:
 		return nil, errors.New("unsupported beacon block version")
@@ -344,6 +404,7 @@ func (b *BeaconBlock) Proto() (proto.Message, error) { // nolint:gocognit
 }
 
 // Proto converts the beacon block body to a protobuf object.
+// nolint:gocognit
 func (b *BeaconBlockBody) Proto() (proto.Message, error) {
 	if b == nil {
 		return nil, nil
@@ -542,6 +603,51 @@ func (b *BeaconBlockBody) Proto() (proto.Message, error) {
 			BlobKzgCommitments: b.blobKzgCommitments,
 			ExecutionRequests:  b.executionRequests,
 		}, nil
+	case version.Badger:
+		if b.IsBlinded() {
+			var ph *enginev1.ExecutionPayloadHeaderDeneb
+			var ok bool
+			if b.executionPayloadHeader != nil {
+				ph, ok = b.executionPayloadHeader.Proto().(*enginev1.ExecutionPayloadHeaderDeneb)
+				if !ok {
+					return nil, errPayloadHeaderWrongType
+				}
+			}
+			return &eth.BlindedBeaconBlockBodyBadger{
+				RandaoReveal:           b.randaoReveal[:],
+				Eth1Data:               b.eth1Data,
+				Graffiti:               b.graffiti[:],
+				ProposerSlashings:      b.proposerSlashings,
+				AttesterSlashings:      b.attesterSlashingsElectra,
+				Attestations:           b.attestationsElectra,
+				Deposits:               b.deposits,
+				VoluntaryExits:         b.voluntaryExits,
+				ExecutionPayloadHeader: ph,
+				BlobKzgCommitments:     b.blobKzgCommitments,
+				ExecutionRequests:      b.executionRequests,
+			}, nil
+		}
+		var p *enginev1.ExecutionPayloadDeneb
+		var ok bool
+		if b.executionPayload != nil {
+			p, ok = b.executionPayload.Proto().(*enginev1.ExecutionPayloadDeneb)
+			if !ok {
+				return nil, errPayloadWrongType
+			}
+		}
+		return &eth.BeaconBlockBodyBadger{
+			RandaoReveal:       b.randaoReveal[:],
+			Eth1Data:           b.eth1Data,
+			Graffiti:           b.graffiti[:],
+			ProposerSlashings:  b.proposerSlashings,
+			AttesterSlashings:  b.attesterSlashingsElectra,
+			Attestations:       b.attestationsElectra,
+			Deposits:           b.deposits,
+			VoluntaryExits:     b.voluntaryExits,
+			ExecutionPayload:   p,
+			BlobKzgCommitments: b.blobKzgCommitments,
+			ExecutionRequests:  b.executionRequests,
+		}, nil
 
 	default:
 		return nil, errors.New("unsupported beacon block body version")
@@ -650,6 +756,23 @@ func initSignedBlockFromProtoElectra(pb *eth.SignedBeaconBlockElectra) (*SignedB
 	return b, nil
 }
 
+func initSignedBlockFromProtoBadger(pb *eth.SignedBeaconBlockBadger) (*SignedBeaconBlock, error) {
+	if pb == nil {
+		return nil, errNilBlock
+	}
+
+	block, err := initBlockFromProtoBadger(pb.Block)
+	if err != nil {
+		return nil, err
+	}
+	b := &SignedBeaconBlock{
+		version:   version.Badger,
+		block:     block,
+		signature: bytesutil.ToBytes96(pb.Signature),
+	}
+	return b, nil
+}
+
 func initBlindedSignedBlockFromProtoBellatrix(pb *eth.SignedBlindedBeaconBlockBellatrix) (*SignedBeaconBlock, error) {
 	if pb == nil {
 		return nil, errNilBlock
@@ -712,6 +835,23 @@ func initBlindedSignedBlockFromProtoElectra(pb *eth.SignedBlindedBeaconBlockElec
 	}
 	b := &SignedBeaconBlock{
 		version:   version.Alpaca,
+		block:     block,
+		signature: bytesutil.ToBytes96(pb.Signature),
+	}
+	return b, nil
+}
+
+func initBlindedSignedBlockFromProtoBadger(pb *eth.SignedBlindedBeaconBlockBadger) (*SignedBeaconBlock, error) {
+	if pb == nil {
+		return nil, errNilBlock
+	}
+
+	block, err := initBlindedBlockFromProtoBadger(pb.Message)
+	if err != nil {
+		return nil, err
+	}
+	b := &SignedBeaconBlock{
+		version:   version.Badger,
 		block:     block,
 		signature: bytesutil.ToBytes96(pb.Signature),
 	}
@@ -858,6 +998,26 @@ func initBlockFromProtoElectra(pb *eth.BeaconBlockElectra) (*BeaconBlock, error)
 	return b, nil
 }
 
+func initBlockFromProtoBadger(pb *eth.BeaconBlockBadger) (*BeaconBlock, error) {
+	if pb == nil {
+		return nil, errNilBlock
+	}
+
+	body, err := initBlockBodyFromProtoBadger(pb.Body)
+	if err != nil {
+		return nil, err
+	}
+	b := &BeaconBlock{
+		version:       version.Badger,
+		slot:          pb.Slot,
+		proposerIndex: pb.ProposerIndex,
+		parentRoot:    bytesutil.ToBytes32(pb.ParentRoot),
+		stateRoot:     bytesutil.ToBytes32(pb.StateRoot),
+		body:          body,
+	}
+	return b, nil
+}
+
 func initBlindedBlockFromProtoCapella(pb *eth.BlindedBeaconBlockCapella) (*BeaconBlock, error) {
 	if pb == nil {
 		return nil, errNilBlock
@@ -917,6 +1077,27 @@ func initBlindedBlockFromProtoElectra(pb *eth.BlindedBeaconBlockElectra) (*Beaco
 	}
 	return b, nil
 }
+
+func initBlindedBlockFromProtoBadger(pb *eth.BlindedBeaconBlockBadger) (*BeaconBlock, error) {
+	if pb == nil {
+		return nil, errNilBlock
+	}
+
+	body, err := initBlindedBlockBodyFromProtoBadger(pb.Body)
+	if err != nil {
+		return nil, err
+	}
+	b := &BeaconBlock{
+		version:       version.Badger,
+		slot:          pb.Slot,
+		proposerIndex: pb.ProposerIndex,
+		parentRoot:    bytesutil.ToBytes32(pb.ParentRoot),
+		stateRoot:     bytesutil.ToBytes32(pb.StateRoot),
+		body:          body,
+	}
+	return b, nil
+}
+
 
 func initBlockBodyFromProtoPhase0(pb *eth.BeaconBlockBody) (*BeaconBlockBody, error) {
 	if pb == nil {
@@ -1139,6 +1320,37 @@ func initBlockBodyFromProtoElectra(pb *eth.BeaconBlockBodyElectra) (*BeaconBlock
 	return b, nil
 }
 
+func initBlockBodyFromProtoBadger(pb *eth.BeaconBlockBodyBadger) (*BeaconBlockBody, error) {
+	if pb == nil {
+		return nil, errNilBlockBody
+	}
+
+	p, err := WrappedExecutionPayloadDeneb(pb.ExecutionPayload)
+	// We allow the payload to be nil
+	if err != nil && !errors.Is(err, consensus_types.ErrNilObjectWrapped) {
+		return nil, err
+	}
+	er := pb.ExecutionRequests
+	if er == nil {
+		er = &enginev1.ExecutionRequests{}
+	}
+	b := &BeaconBlockBody{
+		version:                  version.Badger,
+		randaoReveal:             bytesutil.ToBytes96(pb.RandaoReveal),
+		eth1Data:                 pb.Eth1Data,
+		graffiti:                 bytesutil.ToBytes32(pb.Graffiti),
+		proposerSlashings:        pb.ProposerSlashings,
+		attesterSlashingsElectra: pb.AttesterSlashings,
+		attestationsElectra:      pb.Attestations,
+		deposits:                 pb.Deposits,
+		voluntaryExits:           pb.VoluntaryExits,
+		executionPayload:         p,
+		blobKzgCommitments:       pb.BlobKzgCommitments,
+		executionRequests:        er,
+	}
+	return b, nil
+}
+
 func initBlindedBlockBodyFromProtoElectra(pb *eth.BlindedBeaconBlockBodyElectra) (*BeaconBlockBody, error) {
 	if pb == nil {
 		return nil, errNilBlockBody
@@ -1155,6 +1367,37 @@ func initBlindedBlockBodyFromProtoElectra(pb *eth.BlindedBeaconBlockBodyElectra)
 	}
 	b := &BeaconBlockBody{
 		version:                  version.Alpaca,
+		randaoReveal:             bytesutil.ToBytes96(pb.RandaoReveal),
+		eth1Data:                 pb.Eth1Data,
+		graffiti:                 bytesutil.ToBytes32(pb.Graffiti),
+		proposerSlashings:        pb.ProposerSlashings,
+		attesterSlashingsElectra: pb.AttesterSlashings,
+		attestationsElectra:      pb.Attestations,
+		deposits:                 pb.Deposits,
+		voluntaryExits:           pb.VoluntaryExits,
+		executionPayloadHeader:   ph,
+		blobKzgCommitments:       pb.BlobKzgCommitments,
+		executionRequests:        er,
+	}
+	return b, nil
+}
+
+func initBlindedBlockBodyFromProtoBadger(pb *eth.BlindedBeaconBlockBodyBadger) (*BeaconBlockBody, error) {
+	if pb == nil {
+		return nil, errNilBlockBody
+	}
+
+	ph, err := WrappedExecutionPayloadHeaderDeneb(pb.ExecutionPayloadHeader)
+	// We allow the payload to be nil
+	if err != nil && !errors.Is(err, consensus_types.ErrNilObjectWrapped) {
+		return nil, err
+	}
+	er := pb.ExecutionRequests
+	if er == nil {
+		er = &enginev1.ExecutionRequests{}
+	}
+	b := &BeaconBlockBody{
+		version:                  version.Badger,
 		randaoReveal:             bytesutil.ToBytes96(pb.RandaoReveal),
 		eth1Data:                 pb.Eth1Data,
 		graffiti:                 bytesutil.ToBytes32(pb.Graffiti),

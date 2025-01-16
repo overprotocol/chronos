@@ -75,6 +75,11 @@ func (b *SignedBeaconBlock) Copy() (interfaces.SignedBeaconBlock, error) {
 			return initBlindedSignedBlockFromProtoElectra(pb.(*eth.SignedBlindedBeaconBlockElectra).Copy())
 		}
 		return initSignedBlockFromProtoElectra(pb.(*eth.SignedBeaconBlockElectra).Copy())
+	case version.Badger:
+		if b.IsBlinded() {
+			return initBlindedSignedBlockFromProtoBadger(pb.(*eth.SignedBlindedBeaconBlockBadger).Copy())
+		}
+		return initSignedBlockFromProtoBadger(pb.(*eth.SignedBeaconBlockBadger).Copy())
 	default:
 		return nil, errIncorrectBlockVersion
 	}
@@ -130,6 +135,15 @@ func (b *SignedBeaconBlock) PbGenericBlock() (*eth.GenericSignedBeaconBlock, err
 		}
 		return &eth.GenericSignedBeaconBlock{
 			Block: &eth.GenericSignedBeaconBlock_Electra{Electra: pb.(*eth.SignedBeaconBlockContentsElectra)},
+		}, nil
+	case version.Badger:
+		if b.IsBlinded() {
+			return &eth.GenericSignedBeaconBlock{
+				Block: &eth.GenericSignedBeaconBlock_BlindedBadger{BlindedBadger: pb.(*eth.SignedBlindedBeaconBlockBadger)},
+			}, nil
+		}
+		return &eth.GenericSignedBeaconBlock{
+			Block: &eth.GenericSignedBeaconBlock_Badger{Badger: pb.(*eth.SignedBeaconBlockContentsBadger)},
 		}, nil
 	default:
 		return nil, errIncorrectBlockVersion
@@ -362,6 +376,11 @@ func (b *SignedBeaconBlock) MarshalSSZ() ([]byte, error) {
 			return pb.(*eth.SignedBlindedBeaconBlockElectra).MarshalSSZ()
 		}
 		return pb.(*eth.SignedBeaconBlockElectra).MarshalSSZ()
+	case version.Badger:
+		if b.IsBlinded() {
+			return pb.(*eth.SignedBlindedBeaconBlockBadger).MarshalSSZ()
+		}
+		return pb.(*eth.SignedBeaconBlockBadger).MarshalSSZ()
 	default:
 		return []byte{}, errIncorrectBlockVersion
 	}
@@ -399,6 +418,11 @@ func (b *SignedBeaconBlock) MarshalSSZTo(dst []byte) ([]byte, error) {
 			return pb.(*eth.SignedBlindedBeaconBlockElectra).MarshalSSZTo(dst)
 		}
 		return pb.(*eth.SignedBeaconBlockElectra).MarshalSSZTo(dst)
+	case version.Badger:
+		if b.IsBlinded() {
+			return pb.(*eth.SignedBlindedBeaconBlockBadger).MarshalSSZTo(dst)
+		}
+		return pb.(*eth.SignedBeaconBlockBadger).MarshalSSZTo(dst)
 	default:
 		return []byte{}, errIncorrectBlockVersion
 	}
@@ -440,12 +464,18 @@ func (b *SignedBeaconBlock) SizeSSZ() int {
 			return pb.(*eth.SignedBlindedBeaconBlockElectra).SizeSSZ()
 		}
 		return pb.(*eth.SignedBeaconBlockElectra).SizeSSZ()
+	case version.Badger:
+		if b.IsBlinded() {
+			return pb.(*eth.SignedBlindedBeaconBlockBadger).SizeSSZ()
+		}
+		return pb.(*eth.SignedBeaconBlockBadger).SizeSSZ()
 	default:
 		panic(incorrectBlockVersion)
 	}
 }
 
 // UnmarshalSSZ unmarshals the signed beacon block from its relevant ssz form.
+// nolint:gocognit
 func (b *SignedBeaconBlock) UnmarshalSSZ(buf []byte) error {
 	var newBlock *SignedBeaconBlock
 	switch b.version {
@@ -557,6 +587,28 @@ func (b *SignedBeaconBlock) UnmarshalSSZ(buf []byte) error {
 				return err
 			}
 		}
+	case version.Badger:
+		if b.IsBlinded() {
+			pb := &eth.SignedBlindedBeaconBlockBadger{}
+			if err := pb.UnmarshalSSZ(buf); err != nil {
+				return err
+			}
+			var err error
+			newBlock, err = initBlindedSignedBlockFromProtoBadger(pb)
+			if err != nil {
+				return err
+			}
+		} else {
+			pb := &eth.SignedBeaconBlockBadger{}
+			if err := pb.UnmarshalSSZ(buf); err != nil {
+				return err
+			}
+			var err error
+			newBlock, err = initSignedBlockFromProtoBadger(pb)
+			if err != nil {
+				return err
+			}
+		}
 	default:
 		return errIncorrectBlockVersion
 	}
@@ -635,6 +687,11 @@ func (b *BeaconBlock) HashTreeRoot() ([field_params.RootLength]byte, error) {
 			return pb.(*eth.BlindedBeaconBlockElectra).HashTreeRoot()
 		}
 		return pb.(*eth.BeaconBlockElectra).HashTreeRoot()
+	case version.Badger:
+		if b.IsBlinded() {
+			return pb.(*eth.BlindedBeaconBlockBadger).HashTreeRoot()
+		}
+		return pb.(*eth.BeaconBlockBadger).HashTreeRoot()
 	default:
 		return [field_params.RootLength]byte{}, errIncorrectBlockVersion
 	}
@@ -671,6 +728,11 @@ func (b *BeaconBlock) HashTreeRootWith(h *ssz.Hasher) error {
 			return pb.(*eth.BlindedBeaconBlockElectra).HashTreeRootWith(h)
 		}
 		return pb.(*eth.BeaconBlockElectra).HashTreeRootWith(h)
+	case version.Badger:
+		if b.IsBlinded() {
+			return pb.(*eth.BlindedBeaconBlockBadger).HashTreeRootWith(h)
+		}
+		return pb.(*eth.BeaconBlockBadger).HashTreeRootWith(h)
 	default:
 		return errIncorrectBlockVersion
 	}
@@ -708,6 +770,11 @@ func (b *BeaconBlock) MarshalSSZ() ([]byte, error) {
 			return pb.(*eth.BlindedBeaconBlockElectra).MarshalSSZ()
 		}
 		return pb.(*eth.BeaconBlockElectra).MarshalSSZ()
+	case version.Badger:
+		if b.IsBlinded() {
+			return pb.(*eth.BlindedBeaconBlockBadger).MarshalSSZ()
+		}
+		return pb.(*eth.BeaconBlockBadger).MarshalSSZ()
 	default:
 		return []byte{}, errIncorrectBlockVersion
 	}
@@ -745,6 +812,11 @@ func (b *BeaconBlock) MarshalSSZTo(dst []byte) ([]byte, error) {
 			return pb.(*eth.BlindedBeaconBlockElectra).MarshalSSZTo(dst)
 		}
 		return pb.(*eth.BeaconBlockElectra).MarshalSSZTo(dst)
+	case version.Badger:
+		if b.IsBlinded() {
+			return pb.(*eth.BlindedBeaconBlockBadger).MarshalSSZTo(dst)
+		}
+		return pb.(*eth.BeaconBlockBadger).MarshalSSZTo(dst)
 	default:
 		return []byte{}, errIncorrectBlockVersion
 	}
@@ -786,12 +858,18 @@ func (b *BeaconBlock) SizeSSZ() int {
 			return pb.(*eth.BlindedBeaconBlockElectra).SizeSSZ()
 		}
 		return pb.(*eth.BeaconBlockElectra).SizeSSZ()
+	case version.Badger:
+		if b.IsBlinded() {
+			return pb.(*eth.BlindedBeaconBlockBadger).SizeSSZ()
+		}
+		return pb.(*eth.BeaconBlockBadger).SizeSSZ()
 	default:
 		panic(incorrectBodyVersion)
 	}
 }
 
 // UnmarshalSSZ unmarshals the beacon block from its relevant ssz form.
+// nolint:gocognit
 func (b *BeaconBlock) UnmarshalSSZ(buf []byte) error {
 	var newBlock *BeaconBlock
 	switch b.version {
@@ -903,6 +981,28 @@ func (b *BeaconBlock) UnmarshalSSZ(buf []byte) error {
 				return err
 			}
 		}
+	case version.Badger:
+		if b.IsBlinded() {
+			pb := &eth.BlindedBeaconBlockBadger{}
+			if err := pb.UnmarshalSSZ(buf); err != nil {
+				return err
+			}
+			var err error
+			newBlock, err = initBlindedBlockFromProtoBadger(pb)
+			if err != nil {
+				return err
+			}
+		} else {
+			pb := &eth.BeaconBlockBadger{}
+			if err := pb.UnmarshalSSZ(buf); err != nil {
+				return err
+			}
+			var err error
+			newBlock, err = initBlockFromProtoBadger(pb)
+			if err != nil {
+				return err
+			}
+		}
 	default:
 		return errIncorrectBlockVersion
 	}
@@ -941,6 +1041,11 @@ func (b *BeaconBlock) AsSignRequestObject() (validatorpb.SignRequestObject, erro
 			return &validatorpb.SignRequest_BlindedBlockElectra{BlindedBlockElectra: pb.(*eth.BlindedBeaconBlockElectra)}, nil
 		}
 		return &validatorpb.SignRequest_BlockElectra{BlockElectra: pb.(*eth.BeaconBlockElectra)}, nil
+	case version.Badger:
+		if b.IsBlinded() {
+			return &validatorpb.SignRequest_BlindedBlockBadger{BlindedBlockBadger: pb.(*eth.BlindedBeaconBlockBadger)}, nil
+		}
+		return &validatorpb.SignRequest_BlockBadger{BlockBadger: pb.(*eth.BeaconBlockBadger)}, nil
 	default:
 		return nil, errIncorrectBlockVersion
 	}
@@ -980,6 +1085,11 @@ func (b *BeaconBlock) Copy() (interfaces.ReadOnlyBeaconBlock, error) {
 			return initBlindedBlockFromProtoElectra(pb.(*eth.BlindedBeaconBlockElectra).Copy())
 		}
 		return initBlockFromProtoElectra(pb.(*eth.BeaconBlockElectra).Copy())
+	case version.Badger:
+		if b.IsBlinded() {
+			return initBlindedBlockFromProtoBadger(pb.(*eth.BlindedBeaconBlockBadger).Copy())
+		}
+		return initBlockFromProtoBadger(pb.(*eth.BeaconBlockBadger).Copy())
 	default:
 		return nil, errIncorrectBlockVersion
 	}
@@ -1136,6 +1246,11 @@ func (b *BeaconBlockBody) HashTreeRoot() ([field_params.RootLength]byte, error) 
 			return pb.(*eth.BlindedBeaconBlockBodyElectra).HashTreeRoot()
 		}
 		return pb.(*eth.BeaconBlockBodyElectra).HashTreeRoot()
+	case version.Badger:
+		if b.IsBlinded() {
+			return pb.(*eth.BlindedBeaconBlockBodyBadger).HashTreeRoot()
+		}
+		return pb.(*eth.BeaconBlockBodyBadger).HashTreeRoot()
 	default:
 		return [field_params.RootLength]byte{}, errIncorrectBodyVersion
 	}
