@@ -517,6 +517,19 @@ func (s *Store) unmarshalState(_ context.Context, enc []byte, validatorEntries [
 	}
 
 	switch {
+	case hasBadgerKey(enc):
+		protoState := &ethpb.BeaconStateBadger{}
+		if err := protoState.UnmarshalSSZ(enc[len(badgerKey):]); err != nil {
+			return nil, errors.Wrap(err, "failed to unmarshal encoding for Badger")
+		}
+		ok, err := s.isStateValidatorMigrationOver()
+		if err != nil {
+			return nil, err
+		}
+		if ok {
+			protoState.Validators = validatorEntries
+		}
+		return statenative.InitializeFromProtoUnsafeBadger(protoState)
 	case hasElectraKey(enc):
 		protoState := &ethpb.BeaconStateElectra{}
 		if err := protoState.UnmarshalSSZ(enc[len(electraKey):]); err != nil {

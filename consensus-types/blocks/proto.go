@@ -1098,7 +1098,6 @@ func initBlindedBlockFromProtoBadger(pb *eth.BlindedBeaconBlockBadger) (*BeaconB
 	return b, nil
 }
 
-
 func initBlockBodyFromProtoPhase0(pb *eth.BeaconBlockBody) (*BeaconBlockBody, error) {
 	if pb == nil {
 		return nil, errNilBlockBody
