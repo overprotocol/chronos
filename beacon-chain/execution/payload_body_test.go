@@ -37,6 +37,7 @@ type blindedBlockFixtures struct {
 	emptyDenebBlock *fullAndBlinded
 	afterSkipDeneb  *fullAndBlinded
 	electra         *fullAndBlinded
+	badger          *fullAndBlinded
 }
 
 type fullAndBlinded struct {
@@ -70,6 +71,12 @@ func electraSlot(t *testing.T) primitives.Slot {
 	return s
 }
 
+func badgerSlot(t *testing.T) primitives.Slot {
+	s, err := slots.EpochStart(params.BeaconConfig().BadgerForkEpoch)
+	require.NoError(t, err)
+	return s
+}
+
 func testBlindedBlockFixtures(t *testing.T) *blindedBlockFixtures {
 	pfx := fixturesStruct()
 	fx := &blindedBlockFixtures{}
@@ -97,6 +104,13 @@ func testBlindedBlockFixtures(t *testing.T) *blindedBlockFixtures {
 	electra.BlockNumber = 5
 	electraBlock, _ := util.GenerateTestElectraBlockWithSidecar(t, [32]byte{}, electraSlot(t), 0, util.WithElectraPayload(electra))
 	fx.electra = blindedBlockWithHeader(t, electraBlock)
+
+	badger := fixturesStruct().ExecutionPayloadDeneb
+	badger.BlockHash = bytesutil.PadTo([]byte("badger"), 32)
+	electra.BlockNumber = 6
+	badgerBlock, _ := util.GenerateTestBadgerBlockWithSidecar(t, [32]byte{}, badgerSlot(t), 0, util.WithBadgerPayload(badger))
+	fx.badger = blindedBlockWithHeader(t, badgerBlock)
+
 	return fx
 }
 
@@ -332,12 +346,13 @@ func TestReconstructBlindedBlockBatchDenebAndElectra(t *testing.T) {
 		cli, srv := newMockEngine(t)
 		fx := testBlindedBlockFixtures(t)
 		srv.register(GetPayloadBodiesByHashV1, func(msg *jsonrpcMessage, w http.ResponseWriter, r *http.Request) {
-			executionPayloadBodies := []*pb.ExecutionPayloadBody{payloadToBody(t, fx.denebBlock.blinded.header), payloadToBody(t, fx.electra.blinded.header)}
+			executionPayloadBodies := []*pb.ExecutionPayloadBody{payloadToBody(t, fx.denebBlock.blinded.header), payloadToBody(t, fx.electra.blinded.header), payloadToBody(t, fx.badger.blinded.header)}
 			mockWriteResult(t, w, msg, executionPayloadBodies)
 		})
 		blinded := []interfaces.ReadOnlySignedBeaconBlock{
 			fx.denebBlock.blinded.block,
 			fx.electra.blinded.block,
+			fx.badger.blinded.block,
 		}
 		unblinded, err := reconstructBlindedBlockBatch(context.Background(), cli, blinded)
 		require.NoError(t, err)
