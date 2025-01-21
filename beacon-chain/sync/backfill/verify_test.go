@@ -25,6 +25,7 @@ func TestDomainCache(t *testing.T) {
 	cfg.CapellaForkEpoch = 3
 	cfg.DenebForkEpoch = 4
 	cfg.AlpacaForkEpoch = 5
+	cfg.BadgerForkEpoch = 6
 	params.OverrideBeaconConfig(cfg)
 	cfg.InitializeForkSchedule()
 
@@ -33,8 +34,7 @@ func TestDomainCache(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 32, len(vRoot))
 	fsched := forks.NewOrderedSchedule(cfg)
-	dc, err := newDomainCache(vRoot,
-		dType, fsched)
+	dc, err := newDomainCache(vRoot, dType, fsched)
 	require.NoError(t, err)
 	require.Equal(t, len(fsched), len(dc.forkDomains))
 	for i := range fsched {

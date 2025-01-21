@@ -153,7 +153,7 @@ func (b *SignedBeaconBlock) ToBlinded() (interfaces.ReadOnlySignedBeaconBlock, e
 	}
 
 	if b.version >= version.Alpaca {
-		p, ok := payload.Proto().(*enginev1.ExecutionPayloadElectra)
+		p, ok := payload.Proto().(*enginev1.ExecutionPayloadDeneb)
 		if !ok {
 			return nil, fmt.Errorf("%T is not an execution payload header of Deneb version", p)
 		}
@@ -1081,14 +1081,15 @@ func (b *BeaconBlockBody) Execution() (interfaces.ExecutionData, error) {
 
 // BlobKzgCommitments returns the blob kzg commitments in the block.
 func (b *BeaconBlockBody) BlobKzgCommitments() ([][]byte, error) {
-	switch b.version {
-	case version.Phase0, version.Altair, version.Bellatrix, version.Capella:
-		return nil, consensus_types.ErrNotSupported("BlobKzgCommitments", b.version)
-	case version.Deneb, version.Alpaca:
+	if b.version >= version.Deneb {
 		return b.blobKzgCommitments, nil
-	default:
-		return nil, errIncorrectBlockVersion
 	}
+
+	if b.version >= version.Phase0 {
+		return nil, consensus_types.ErrNotSupported("BlobKzgCommitments", b.version)
+	}
+
+	return nil, errIncorrectBlockVersion
 }
 
 // ExecutionRequests returns the execution requests

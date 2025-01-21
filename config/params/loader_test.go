@@ -30,8 +30,6 @@ var placeholderFields = []string{
 	"EIP6110_FORK_VERSION",
 	"EIP7002_FORK_EPOCH",
 	"EIP7002_FORK_VERSION",
-	"EIP7594_FORK_EPOCH",
-	"EIP7594_FORK_VERSION",
 	"EIP7732_FORK_EPOCH",
 	"EIP7732_FORK_VERSION",
 	"FIELD_ELEMENTS_PER_BLOB",              // Compile time constant.
@@ -147,6 +145,7 @@ func assertEqualConfigs(t *testing.T, name string, fields []string, expected, ac
 	assert.Equal(t, expected.CapellaForkEpoch, actual.CapellaForkEpoch, "%s: CapellaForkEpoch", name)
 	assert.Equal(t, expected.DenebForkEpoch, actual.DenebForkEpoch, "%s: DenebForkEpoch", name)
 	assert.Equal(t, expected.AlpacaForkEpoch, actual.AlpacaForkEpoch, "%s: AlpacaForkEpoch", name)
+	assert.Equal(t, expected.BadgerForkEpoch, actual.BadgerForkEpoch, "%s: BadgerForkEpoch", name)
 	assert.Equal(t, expected.SqrRootSlotsPerEpoch, actual.SqrRootSlotsPerEpoch, "%s: SqrRootSlotsPerEpoch", name)
 	assert.DeepEqual(t, expected.GenesisForkVersion, actual.GenesisForkVersion, "%s: GenesisForkVersion", name)
 	assert.DeepEqual(t, expected.AltairForkVersion, actual.AltairForkVersion, "%s: AltairForkVersion", name)
@@ -154,6 +153,7 @@ func assertEqualConfigs(t *testing.T, name string, fields []string, expected, ac
 	assert.DeepEqual(t, expected.CapellaForkVersion, actual.CapellaForkVersion, "%s: CapellaForkVersion", name)
 	assert.DeepEqual(t, expected.DenebForkVersion, actual.DenebForkVersion, "%s: DenebForkVersion", name)
 	assert.DeepEqual(t, expected.AlpacaForkVersion, actual.AlpacaForkVersion, "%s: AlpacaForkVersion", name)
+	assert.DeepEqual(t, expected.BadgerForkVersion, actual.BadgerForkVersion, "%s: BadgerForkVersion", name)
 
 	assertYamlFieldsMatch(t, name, fields, expected, actual)
 }

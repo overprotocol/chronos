@@ -1,5 +1,7 @@
 package params
 
+import "math"
+
 // UseDolphinNetworkConfig uses the Dolphin beacon chain specific network config.
 func UseDolphinNetworkConfig() {
 	cfg := BeaconNetworkConfig().Copy()
@@ -28,6 +30,8 @@ func DolphinConfig() *BeaconChainConfig {
 	cfg.DenebForkVersion = []byte{0x4, 0x00, 0x00, 0x28}
 	cfg.AlpacaForkEpoch = 0
 	cfg.AlpacaForkVersion = []byte{0x5, 0x00, 0x00, 0x28}
+	cfg.BadgerForkEpoch = math.MaxUint64
+	cfg.BadgerForkVersion = []byte{0x6, 0x00, 0x00, 0x28}
 	cfg.InitializeForkSchedule()
 	cfg.InitializeDolphinDepositPlan()
 	cfg.InitializeInactivityValues()

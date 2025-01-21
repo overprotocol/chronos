@@ -99,6 +99,15 @@ func CanUpgradeToElectra(slot primitives.Slot) bool {
 	return epochStart && electraEpoch
 }
 
+// CanUpgradeToBadger returns true if the input `slot` can upgrade to Badger.
+// Spec code:
+// If state.slot % SLOTS_PER_EPOCH == 0 and compute_epoch_at_slot(state.slot) == BADGER_FORK_EPOCH
+func CanUpgradeToBadger(slot primitives.Slot) bool {
+	epochStart := slots.IsEpochStart(slot)
+	badgerEpoch := slots.ToEpoch(slot) == params.BeaconConfig().BadgerForkEpoch
+	return epochStart && badgerEpoch
+}
+
 // CanProcessEpoch checks the eligibility to process epoch.
 // The epoch can be processed at the end of the last slot of every epoch.
 //

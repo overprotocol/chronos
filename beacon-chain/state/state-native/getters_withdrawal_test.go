@@ -65,7 +65,7 @@ func TestNextWithdrawalValidatorIndex(t *testing.T) {
 }
 
 func TestExpectedWithdrawals(t *testing.T) {
-	for _, stateVersion := range []int{version.Capella, version.Deneb, version.Alpaca} {
+	for _, stateVersion := range []int{version.Capella, version.Deneb, version.Alpaca, version.Badger} {
 		t.Run(version.String(stateVersion), func(t *testing.T) {
 			params.BeaconConfig().MinSlashingWithdrawableDelay = 0
 			params.BeaconConfig().MinValidatorWithdrawabilityDelay = 0

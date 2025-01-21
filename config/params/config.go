@@ -161,6 +161,7 @@ type BeaconChainConfig struct {
 	BeaconStateCapellaFieldCount   int             // BeaconStateCapellaFieldCount defines how many fields are in beacon state post upgrade to Capella.
 	BeaconStateDenebFieldCount     int             // BeaconStateDenebFieldCount defines how many fields are in beacon state post upgrade to Deneb.
 	BeaconStateAlpacaFieldCount    int             // BeaconStateAlpacaFieldCount defines how many fields are in beacon state post upgrade to Alpaca.
+	BeaconStateBadgerFieldCount    int             // BeaconStateBadgerFieldCount defines how many fields are in beacon state post upgrade to Badger.
 
 	// Slasher constants.
 	WeakSubjectivityPeriod    primitives.Epoch // WeakSubjectivityPeriod defines the time period expressed in number of epochs were proof of stake network should validate block headers and attestations for slashable events.
@@ -181,6 +182,8 @@ type BeaconChainConfig struct {
 	DenebForkEpoch       primitives.Epoch `yaml:"DENEB_FORK_EPOCH" spec:"true"`       // DenebForkEpoch is used to represent the assigned fork epoch for deneb.
 	AlpacaForkVersion    []byte           `yaml:"ALPACA_FORK_VERSION" spec:"true"`    // AlpacaForkVersion is used to represent the fork version for alpaca.
 	AlpacaForkEpoch      primitives.Epoch `yaml:"ALPACA_FORK_EPOCH" spec:"true"`      // AlpacaForkEpoch is used to represent the assigned fork epoch for alpaca.
+	BadgerForkVersion    []byte           `yaml:"BADGER_FORK_VERSION" spec:"true"`    // BadgerForkVersion is used to represent the fork version for badger.
+	BadgerForkEpoch      primitives.Epoch `yaml:"BADGER_FORK_EPOCH" spec:"true"`      // BadgerForkEpoch is used to represent the assigned fork epoch for badger.
 
 	ForkVersionSchedule map[[fieldparams.VersionLength]byte]primitives.Epoch // Schedule of fork epochs by version.
 	ForkVersionNames    map[[fieldparams.VersionLength]byte]string           // Human-readable names of fork versions.
@@ -293,6 +296,7 @@ func configForkSchedule(b *BeaconChainConfig) map[[fieldparams.VersionLength]byt
 	fvs[bytesutil.ToBytes4(b.CapellaForkVersion)] = b.CapellaForkEpoch
 	fvs[bytesutil.ToBytes4(b.DenebForkVersion)] = b.DenebForkEpoch
 	fvs[bytesutil.ToBytes4(b.AlpacaForkVersion)] = b.AlpacaForkEpoch
+	fvs[bytesutil.ToBytes4(b.BadgerForkVersion)] = b.BadgerForkEpoch
 	return fvs
 }
 
@@ -315,6 +319,7 @@ func ConfigForkVersions(b *BeaconChainConfig) map[[fieldparams.VersionLength]byt
 		bytesutil.ToBytes4(b.CapellaForkVersion):   version.Capella,
 		bytesutil.ToBytes4(b.DenebForkVersion):     version.Deneb,
 		bytesutil.ToBytes4(b.AlpacaForkVersion):    version.Alpaca,
+		bytesutil.ToBytes4(b.BadgerForkVersion):    version.Badger,
 	}
 }
 

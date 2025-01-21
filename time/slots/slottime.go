@@ -85,6 +85,8 @@ func ToEpoch(slot primitives.Slot) primitives.Epoch {
 func ToForkVersion(slot primitives.Slot) int {
 	epoch := ToEpoch(slot)
 	switch {
+	case epoch >= params.BeaconConfig().BadgerForkEpoch:
+		return version.Badger
 	case epoch >= params.BeaconConfig().AlpacaForkEpoch:
 		return version.Alpaca
 	case epoch >= params.BeaconConfig().DenebForkEpoch:

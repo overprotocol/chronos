@@ -2010,7 +2010,7 @@ func (b *BeaconBlockElectra) ToConsensus() (*eth.BeaconBlockElectra, error) {
 			Attestations:      atts,
 			Deposits:          deposits,
 			VoluntaryExits:    exits,
-			ExecutionPayload: &enginev1.ExecutionPayloadElectra{
+			ExecutionPayload: &enginev1.ExecutionPayloadDeneb{
 				ParentHash:    payloadParentHash,
 				FeeRecipient:  payloadFeeRecipient,
 				StateRoot:     payloadStateRoot,
@@ -2282,7 +2282,7 @@ func (b *BlindedBeaconBlockElectra) ToConsensus() (*eth.BlindedBeaconBlockElectr
 			Attestations:      atts,
 			Deposits:          deposits,
 			VoluntaryExits:    exits,
-			ExecutionPayloadHeader: &enginev1.ExecutionPayloadHeaderElectra{
+			ExecutionPayloadHeader: &enginev1.ExecutionPayloadHeaderDeneb{
 				ParentHash:       payloadParentHash,
 				FeeRecipient:     payloadFeeRecipient,
 				StateRoot:        payloadStateRoot,

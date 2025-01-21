@@ -24,85 +24,87 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-var phase0Fields = []types.FieldIndex{
-	types.GenesisTime,
-	types.GenesisValidatorsRoot,
-	types.Slot,
-	types.Fork,
-	types.LatestBlockHeader,
-	types.BlockRoots,
-	types.StateRoots,
-	types.RewardAdjustmentFactor,
-	types.Eth1Data,
-	types.Eth1DataVotes,
-	types.Eth1DepositIndex,
-	types.Validators,
-	types.Balances,
-	types.Reserves,
-	types.RandaoMixes,
-	types.PreviousEpochAttestations,
-	types.CurrentEpochAttestations,
-	types.JustificationBits,
-	types.PreviousJustifiedCheckpoint,
-	types.CurrentJustifiedCheckpoint,
-	types.FinalizedCheckpoint,
-}
+var (
+	phase0Fields = []types.FieldIndex{
+		types.GenesisTime,
+		types.GenesisValidatorsRoot,
+		types.Slot,
+		types.Fork,
+		types.LatestBlockHeader,
+		types.BlockRoots,
+		types.StateRoots,
+		types.RewardAdjustmentFactor,
+		types.Eth1Data,
+		types.Eth1DataVotes,
+		types.Eth1DepositIndex,
+		types.Validators,
+		types.Balances,
+		types.Reserves,
+		types.RandaoMixes,
+		types.PreviousEpochAttestations,
+		types.CurrentEpochAttestations,
+		types.JustificationBits,
+		types.PreviousJustifiedCheckpoint,
+		types.CurrentJustifiedCheckpoint,
+		types.FinalizedCheckpoint,
+	}
 
-var altairFields = []types.FieldIndex{
-	types.GenesisTime,
-	types.GenesisValidatorsRoot,
-	types.Slot,
-	types.Fork,
-	types.LatestBlockHeader,
-	types.BlockRoots,
-	types.StateRoots,
-	types.RewardAdjustmentFactor,
-	types.Eth1Data,
-	types.Eth1DataVotes,
-	types.Eth1DepositIndex,
-	types.Validators,
-	types.Balances,
-	types.Reserves,
-	types.RandaoMixes,
-	types.PreviousEpochParticipationBits,
-	types.CurrentEpochParticipationBits,
-	types.JustificationBits,
-	types.PreviousJustifiedCheckpoint,
-	types.CurrentJustifiedCheckpoint,
-	types.FinalizedCheckpoint,
-	types.InactivityScores,
-}
+	altairFields = []types.FieldIndex{
+		types.GenesisTime,
+		types.GenesisValidatorsRoot,
+		types.Slot,
+		types.Fork,
+		types.LatestBlockHeader,
+		types.BlockRoots,
+		types.StateRoots,
+		types.RewardAdjustmentFactor,
+		types.Eth1Data,
+		types.Eth1DataVotes,
+		types.Eth1DepositIndex,
+		types.Validators,
+		types.Balances,
+		types.Reserves,
+		types.RandaoMixes,
+		types.PreviousEpochParticipationBits,
+		types.CurrentEpochParticipationBits,
+		types.JustificationBits,
+		types.PreviousJustifiedCheckpoint,
+		types.CurrentJustifiedCheckpoint,
+		types.FinalizedCheckpoint,
+		types.InactivityScores,
+	}
 
-var bellatrixFields = append(altairFields, types.LatestExecutionPayloadHeader)
+	bellatrixFields = append(altairFields, types.LatestExecutionPayloadHeader)
 
-var capellaFields = append(
-	altairFields,
-	types.LatestExecutionPayloadHeaderCapella,
-	types.NextWithdrawalIndex,
-	types.NextWithdrawalValidatorIndex,
-	types.HistoricalSummaries,
-)
+	capellaFields = append(
+		altairFields,
+		types.LatestExecutionPayloadHeaderCapella,
+		types.NextWithdrawalIndex,
+		types.NextWithdrawalValidatorIndex,
+		types.HistoricalSummaries,
+	)
 
-var denebFields = append(
-	altairFields,
-	types.LatestExecutionPayloadHeaderDeneb,
-	types.NextWithdrawalIndex,
-	types.NextWithdrawalValidatorIndex,
-	types.HistoricalSummaries,
-)
+	denebFields = append(
+		altairFields,
+		types.LatestExecutionPayloadHeaderDeneb,
+		types.NextWithdrawalIndex,
+		types.NextWithdrawalValidatorIndex,
+		types.HistoricalSummaries,
+	)
 
-var electraFields = append(
-	altairFields,
-	types.LatestExecutionPayloadHeaderDeneb,
-	types.NextWithdrawalIndex,
-	types.NextWithdrawalValidatorIndex,
-	types.HistoricalSummaries,
-	types.DepositRequestsStartIndex,
-	types.DepositBalanceToConsume,
-	types.ExitBalanceToConsume,
-	types.EarliestExitEpoch,
-	types.PendingDeposits,
-	types.PendingPartialWithdrawals,
+	electraFields = append(
+		altairFields,
+		types.LatestExecutionPayloadHeaderDeneb,
+		types.NextWithdrawalIndex,
+		types.NextWithdrawalValidatorIndex,
+		types.HistoricalSummaries,
+		types.DepositRequestsStartIndex,
+		types.DepositBalanceToConsume,
+		types.ExitBalanceToConsume,
+		types.EarliestExitEpoch,
+		types.PendingDeposits,
+		types.PendingPartialWithdrawals,
+	)
 )
 
 const (
