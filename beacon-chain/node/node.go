@@ -30,7 +30,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/db/filesystem"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/db/kv"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/db/slasherkv"
-	interopcoldstart "github.com/prysmaticlabs/prysm/v5/beacon-chain/deterministic-genesis"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/execution"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/forkchoice"
 	doublylinkedtree "github.com/prysmaticlabs/prysm/v5/beacon-chain/forkchoice/doubly-linked-tree"
@@ -187,20 +186,13 @@ func New(cliCtx *cli.Context, cancel context.CancelFunc, opts ...Option) (*Beaco
 	beacon.verifyInitWaiter = verification.NewInitializerWaiter(
 		beacon.clockWaiter, forkchoice.NewROForkChoice(beacon.forkChoicer), beacon.stateGen)
 
-	pa := peers.NewAssigner(beacon.fetchP2P().Peers(), beacon.forkChoicer)
-
 	beacon.BackfillOpts = append(
 		beacon.BackfillOpts,
 		backfill.WithVerifierWaiter(beacon.verifyInitWaiter),
 		backfill.WithInitSyncWaiter(initSyncWaiter(ctx, beacon.initialSyncComplete)),
 	)
 
-	bf, err := backfill.NewService(ctx, bfs, beacon.BlobStorage, beacon.clockWaiter, beacon.fetchP2P(), pa, beacon.BackfillOpts...)
-	if err != nil {
-		return nil, errors.Wrap(err, "error initializing backfill service")
-	}
-
-	if err := registerServices(cliCtx, beacon, synchronizer, bf, bfs); err != nil {
+	if err := registerServices(cliCtx, beacon, synchronizer, bfs); err != nil {
 		return nil, errors.Wrap(err, "could not register services")
 	}
 
@@ -263,10 +255,6 @@ func configureBeacon(cliCtx *cli.Context) error {
 
 	configureNetwork(cliCtx)
 
-	if err := configureInteropConfig(cliCtx); err != nil {
-		return errors.Wrap(err, "could not configure interop config")
-	}
-
 	if err := configureExecutionSetting(cliCtx); err != nil {
 		return errors.Wrap(err, "could not configure execution setting")
 	}
@@ -287,11 +275,6 @@ func startBaseServices(cliCtx *cli.Context, beacon *BeaconNode, depositAddress s
 		return nil, errors.Wrap(err, "could not start slashing DB")
 	}
 
-	log.Debugln("Registering P2P Service")
-	if err := beacon.registerP2P(cliCtx); err != nil {
-		return nil, errors.Wrap(err, "could not register P2P service")
-	}
-
 	bfs, err := backfill.NewUpdater(ctx, beacon.db)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not create backfill updater")
@@ -310,9 +293,15 @@ func startBaseServices(cliCtx *cli.Context, beacon *BeaconNode, depositAddress s
 	return bfs, nil
 }
 
-func registerServices(cliCtx *cli.Context, beacon *BeaconNode, synchronizer *startup.ClockSynchronizer, bf *backfill.Service, bfs *backfill.Store) error {
-	if err := beacon.services.RegisterService(bf); err != nil {
-		return errors.Wrap(err, "could not register backfill service")
+func registerServices(cliCtx *cli.Context, beacon *BeaconNode, synchronizer *startup.ClockSynchronizer, bfs *backfill.Store) error {
+	log.Debugln("Registering P2P Service")
+	if err := beacon.registerP2P(cliCtx); err != nil {
+		return errors.Wrap(err, "could not register P2P service")
+	}
+
+	log.Debugln("Registering Backfill Service")
+	if err := beacon.RegisterBackfillService(cliCtx, bfs); err != nil {
+		return errors.Wrap(err, "could not register Back Fill service")
 	}
 
 	log.Debugln("Registering POW Chain Service")
@@ -323,11 +312,6 @@ func registerServices(cliCtx *cli.Context, beacon *BeaconNode, synchronizer *sta
 	log.Debugln("Registering Attestation Pool Service")
 	if err := beacon.registerAttestationPool(); err != nil {
 		return errors.Wrap(err, "could not register attestation pool service")
-	}
-
-	log.Debugln("Registering Deterministic Genesis Service")
-	if err := beacon.registerDeterministicGenesisService(); err != nil {
-		return errors.Wrap(err, "could not register deterministic genesis service")
 	}
 
 	log.Debugln("Registering Blockchain Service")
@@ -568,6 +552,7 @@ func (b *BeaconNode) startDB(cliCtx *cli.Context, depositAddress string) error {
 	}
 
 	if b.CheckpointInitializer != nil {
+		log.Info("Checkpoint sync - Downloading origin state and block")
 		if err := b.CheckpointInitializer.Initialize(b.ctx, d); err != nil {
 			return err
 		}
@@ -805,6 +790,7 @@ func (b *BeaconNode) registerPOWChainService() error {
 		execution.WithBeaconNodeStatsUpdater(bs),
 		execution.WithFinalizedStateAtStartup(b.finalizedStateAtStartUp),
 		execution.WithJwtId(b.cliCtx.String(flags.JwtId.Name)),
+		execution.WithVerifierWaiter(b.verifyInitWaiter),
 	)
 	web3Service, err := execution.NewService(b.ctx, opts...)
 	if err != nil {
@@ -845,7 +831,7 @@ func (b *BeaconNode) registerSyncService(initialSyncComplete chan struct{}, bFil
 		regularsync.WithStateGen(b.stateGen),
 		regularsync.WithSlasherAttestationsFeed(b.slasherAttestationsFeed),
 		regularsync.WithSlasherBlockHeadersFeed(b.slasherBlockHeadersFeed),
-		regularsync.WithPayloadReconstructor(web3Service),
+		regularsync.WithReconstructor(web3Service),
 		regularsync.WithClockWaiter(b.clockWaiter),
 		regularsync.WithInitialSyncComplete(initialSyncComplete),
 		regularsync.WithStateNotifier(b),
@@ -933,20 +919,8 @@ func (b *BeaconNode) registerRPCService(router *http.ServeMux) error {
 		}
 	}
 
-	genesisValidators := b.cliCtx.Uint64(flags.InteropNumValidatorsFlag.Name)
-	var depositFetcher cache.DepositFetcher
-	var chainStartFetcher execution.ChainStartFetcher
-	if genesisValidators > 0 {
-		var interopService *interopcoldstart.Service
-		if err := b.services.FetchService(&interopService); err != nil {
-			return err
-		}
-		depositFetcher = interopService
-		chainStartFetcher = interopService
-	} else {
-		depositFetcher = b.depositCache
-		chainStartFetcher = web3Service
-	}
+	depositFetcher := b.depositCache
+	chainStartFetcher := web3Service
 
 	host := b.cliCtx.String(flags.RPCHost.Name)
 	port := b.cliCtx.String(flags.RPCPort.Name)
@@ -973,56 +947,56 @@ func (b *BeaconNode) registerRPCService(router *http.ServeMux) error {
 	}
 
 	rpcService := rpc.NewService(b.ctx, &rpc.Config{
-		ExecutionEngineCaller:         web3Service,
-		ExecutionPayloadReconstructor: web3Service,
-		Host:                          host,
-		Port:                          port,
-		BeaconMonitoringHost:          beaconMonitoringHost,
-		BeaconMonitoringPort:          beaconMonitoringPort,
-		CertFlag:                      cert,
-		KeyFlag:                       key,
-		BeaconDB:                      b.db,
-		Broadcaster:                   p2pService,
-		PeersFetcher:                  p2pService,
-		PeerManager:                   p2pService,
-		MetadataProvider:              p2pService,
-		ChainInfoFetcher:              chainService,
-		HeadFetcher:                   chainService,
-		CanonicalFetcher:              chainService,
-		ForkFetcher:                   chainService,
-		ForkchoiceFetcher:             chainService,
-		FinalizationFetcher:           chainService,
-		BlockReceiver:                 chainService,
-		BlobReceiver:                  chainService,
-		AttestationReceiver:           chainService,
-		GenesisTimeFetcher:            chainService,
-		GenesisFetcher:                chainService,
-		OptimisticModeFetcher:         chainService,
-		AttestationsPool:              b.attestationPool,
-		ExitPool:                      b.exitPool,
-		SlashingsPool:                 b.slashingsPool,
-		ExecutionChainService:         web3Service,
-		ExecutionChainInfoFetcher:     web3Service,
-		ChainStartFetcher:             chainStartFetcher,
-		MockEth1Votes:                 mockEth1DataVotes,
-		SyncService:                   syncService,
-		DepositFetcher:                depositFetcher,
-		PendingDepositFetcher:         b.depositCache,
-		BlockNotifier:                 b,
-		StateNotifier:                 b,
-		OperationNotifier:             b,
-		StateGen:                      b.stateGen,
-		EnableDebugRPCEndpoints:       enableDebugRPCEndpoints,
-		EnableOverNodeRPCEndpoints:    enableOverNodeRPCEndpoints,
-		MaxMsgSize:                    maxMsgSize,
-		BlockBuilder:                  b.fetchBuilderService(),
-		Router:                        router,
-		ClockWaiter:                   b.clockWaiter,
-		BlobStorage:                   b.BlobStorage,
-		TrackedValidatorsCache:        b.trackedValidatorsCache,
-		PayloadIDCache:                b.payloadIDCache,
-		CloseHandler:                  closeHandler,
-		AuthTokenPath:                 authTokenPath,
+		ExecutionEngineCaller:      web3Service,
+		ExecutionReconstructor:     web3Service,
+		Host:                       host,
+		Port:                       port,
+		BeaconMonitoringHost:       beaconMonitoringHost,
+		BeaconMonitoringPort:       beaconMonitoringPort,
+		CertFlag:                   cert,
+		KeyFlag:                    key,
+		BeaconDB:                   b.db,
+		Broadcaster:                p2pService,
+		PeersFetcher:               p2pService,
+		PeerManager:                p2pService,
+		MetadataProvider:           p2pService,
+		ChainInfoFetcher:           chainService,
+		HeadFetcher:                chainService,
+		CanonicalFetcher:           chainService,
+		ForkFetcher:                chainService,
+		ForkchoiceFetcher:          chainService,
+		FinalizationFetcher:        chainService,
+		BlockReceiver:              chainService,
+		BlobReceiver:               chainService,
+		AttestationReceiver:        chainService,
+		GenesisTimeFetcher:         chainService,
+		GenesisFetcher:             chainService,
+		OptimisticModeFetcher:      chainService,
+		AttestationsPool:           b.attestationPool,
+		ExitPool:                   b.exitPool,
+		SlashingsPool:              b.slashingsPool,
+		ExecutionChainService:      web3Service,
+		ExecutionChainInfoFetcher:  web3Service,
+		ChainStartFetcher:          chainStartFetcher,
+		MockEth1Votes:              mockEth1DataVotes,
+		SyncService:                syncService,
+		DepositFetcher:             depositFetcher,
+		PendingDepositFetcher:      b.depositCache,
+		BlockNotifier:              b,
+		StateNotifier:              b,
+		OperationNotifier:          b,
+		StateGen:                   b.stateGen,
+		EnableDebugRPCEndpoints:    enableDebugRPCEndpoints,
+		EnableOverNodeRPCEndpoints: enableOverNodeRPCEndpoints,
+		MaxMsgSize:                 maxMsgSize,
+		BlockBuilder:               b.fetchBuilderService(),
+		Router:                     router,
+		ClockWaiter:                b.clockWaiter,
+		BlobStorage:                b.BlobStorage,
+		TrackedValidatorsCache:     b.trackedValidatorsCache,
+		PayloadIDCache:             b.payloadIDCache,
+		CloseHandler:               closeHandler,
+		AuthTokenPath:              authTokenPath,
 	})
 
 	return b.services.RegisterService(rpcService)
@@ -1082,32 +1056,6 @@ func (b *BeaconNode) registerHTTPService(router *http.ServeMux) error {
 	return b.services.RegisterService(g)
 }
 
-func (b *BeaconNode) registerDeterministicGenesisService() error {
-	genesisTime := b.cliCtx.Uint64(flags.InteropGenesisTimeFlag.Name)
-	genesisValidators := b.cliCtx.Uint64(flags.InteropNumValidatorsFlag.Name)
-
-	if genesisValidators > 0 {
-		svc := interopcoldstart.NewService(b.ctx, &interopcoldstart.Config{
-			GenesisTime:   genesisTime,
-			NumValidators: genesisValidators,
-			BeaconDB:      b.db,
-			DepositCache:  b.depositCache,
-		})
-		svc.Start()
-
-		// Register genesis state as start-up state when interop mode.
-		// The start-up state gets reused across services.
-		st, err := b.db.GenesisState(b.ctx)
-		if err != nil {
-			return err
-		}
-		b.finalizedStateAtStartUp = st
-
-		return b.services.RegisterService(svc)
-	}
-	return nil
-}
-
 func (b *BeaconNode) registerValidatorMonitorService(initialSyncComplete chan struct{}) error {
 	cliSlice := b.cliCtx.IntSlice(cmd.ValidatorMonitorIndicesFlag.Name)
 	if cliSlice == nil {
@@ -1154,6 +1102,16 @@ func (b *BeaconNode) registerBuilderService(cliCtx *cli.Context) error {
 		return err
 	}
 	return b.services.RegisterService(svc)
+}
+
+func (b *BeaconNode) RegisterBackfillService(cliCtx *cli.Context, bfs *backfill.Store) error {
+	pa := peers.NewAssigner(b.fetchP2P().Peers(), b.forkChoicer)
+	bf, err := backfill.NewService(cliCtx.Context, bfs, b.BlobStorage, b.clockWaiter, b.fetchP2P(), pa, b.BackfillOpts...)
+	if err != nil {
+		return errors.Wrap(err, "error initializing backfill service")
+	}
+
+	return b.services.RegisterService(bf)
 }
 
 func hasNetworkFlag(cliCtx *cli.Context) bool {

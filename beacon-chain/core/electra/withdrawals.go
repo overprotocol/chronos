@@ -110,29 +110,30 @@ func ProcessWithdrawalRequests(ctx context.Context, st state.BeaconState, wrs []
 			log.Debugf("Skipping execution layer withdrawal request, validator index for %s not found\n", hexutil.Encode(wr.ValidatorPubkey))
 			continue
 		}
-		validator, err := st.ValidatorAtIndex(vIdx)
+		validator, err := st.ValidatorAtIndexReadOnly(vIdx)
 		if err != nil {
 			return nil, err
 		}
 		// Verify withdrawal credentials
-		isCorrectSourceAddress := bytes.Equal(validator.WithdrawalCredentials[12:], wr.SourceAddress)
+		wc := validator.GetWithdrawalCredentials()
+		isCorrectSourceAddress := bytes.Equal(wc[12:], wr.SourceAddress)
 		if !isCorrectSourceAddress {
 			log.Debugln("Skipping execution layer withdrawal request, wrong withdrawal credentials")
 			continue
 		}
 
 		// Verify the validator is active.
-		if !helpers.IsActiveValidator(validator, currentEpoch) {
+		if !helpers.IsActiveValidatorUsingTrie(validator, currentEpoch) {
 			log.Debugln("Skipping execution layer withdrawal request, validator not active")
 			continue
 		}
 		// Verify the validator has not yet submitted an exit.
-		if validator.ExitEpoch != params.BeaconConfig().FarFutureEpoch {
+		if validator.ExitEpoch() != params.BeaconConfig().FarFutureEpoch {
 			log.Debugln("Skipping execution layer withdrawal request, validator has submitted an exit already")
 			continue
 		}
 		// Verify the validator has been active long enough.
-		if currentEpoch < validator.ActivationEpoch.AddEpoch(params.BeaconConfig().ShardCommitteePeriod) {
+		if currentEpoch < validator.ActivationEpoch().AddEpoch(params.BeaconConfig().ShardCommitteePeriod) {
 			log.Debugln("Skipping execution layer withdrawal request, validator has not been active long enough")
 			continue
 		}
@@ -154,7 +155,7 @@ func ProcessWithdrawalRequests(ctx context.Context, st state.BeaconState, wrs []
 			continue
 		}
 
-		hasSufficientEffectiveBalance := validator.EffectiveBalance >= params.BeaconConfig().MinActivationBalance
+		hasSufficientEffectiveBalance := validator.EffectiveBalance() >= params.BeaconConfig().MinActivationBalance
 		vBal, err := st.BalanceAtIndex(vIdx)
 		if err != nil {
 			return nil, err

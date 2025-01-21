@@ -16,6 +16,8 @@ import (
 	"github.com/ethereum/go-ethereum/p2p/discover"
 	"github.com/ethereum/go-ethereum/p2p/enode"
 	"github.com/ethereum/go-ethereum/p2p/enr"
+	"github.com/libp2p/go-libp2p"
+	"github.com/libp2p/go-libp2p/core/crypto"
 	"github.com/libp2p/go-libp2p/core/host"
 	"github.com/libp2p/go-libp2p/core/network"
 	"github.com/libp2p/go-libp2p/core/peer"
@@ -31,13 +33,12 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/wrapper"
 	leakybucket "github.com/prysmaticlabs/prysm/v5/container/leaky-bucket"
+	ecdsaprysm "github.com/prysmaticlabs/prysm/v5/crypto/ecdsa"
 	"github.com/prysmaticlabs/prysm/v5/encoding/bytesutil"
 	prysmNetwork "github.com/prysmaticlabs/prysm/v5/network"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
-	"github.com/prysmaticlabs/prysm/v5/runtime/version"
 	"github.com/prysmaticlabs/prysm/v5/testing/assert"
 	"github.com/prysmaticlabs/prysm/v5/testing/require"
-	"github.com/prysmaticlabs/prysm/v5/time/slots"
 	logTest "github.com/sirupsen/logrus/hooks/test"
 )
 
@@ -132,6 +133,10 @@ func TestStartDiscV5_DiscoverAllPeers(t *testing.T) {
 }
 
 func TestCreateLocalNode(t *testing.T) {
+	params.SetupTestConfigCleanup(t)
+	cfg := params.BeaconConfig()
+	cfg.AlpacaForkEpoch = 1
+	params.OverrideBeaconConfig(cfg)
 	testCases := []struct {
 		name          string
 		cfg           *Config
@@ -374,14 +379,14 @@ func TestInboundPeerLimit(t *testing.T) {
 	}
 
 	for i := 0; i < 30; i++ {
-		_ = addPeer(t, s.peers, peerdata.PeerConnectionState(ethpb.ConnectionState_CONNECTED), false)
+		_ = addPeer(t, s.peers, peerdata.ConnectionState(ethpb.ConnectionState_CONNECTED), false)
 	}
 
 	require.Equal(t, true, s.isPeerAtLimit(false), "not at limit for outbound peers")
 	require.Equal(t, false, s.isPeerAtLimit(true), "at limit for inbound peers")
 
 	for i := 0; i < highWatermarkBuffer; i++ {
-		_ = addPeer(t, s.peers, peerdata.PeerConnectionState(ethpb.ConnectionState_CONNECTED), false)
+		_ = addPeer(t, s.peers, peerdata.ConnectionState(ethpb.ConnectionState_CONNECTED), false)
 	}
 
 	require.Equal(t, true, s.isPeerAtLimit(true), "not at limit for inbound peers")
@@ -400,13 +405,13 @@ func TestOutboundPeerThreshold(t *testing.T) {
 	}
 
 	for i := 0; i < 2; i++ {
-		_ = addPeer(t, s.peers, peerdata.PeerConnectionState(ethpb.ConnectionState_CONNECTED), true)
+		_ = addPeer(t, s.peers, peerdata.ConnectionState(ethpb.ConnectionState_CONNECTED), true)
 	}
 
 	require.Equal(t, true, s.isBelowOutboundPeerThreshold(), "not at outbound peer threshold")
 
 	for i := 0; i < 3; i++ {
-		_ = addPeer(t, s.peers, peerdata.PeerConnectionState(ethpb.ConnectionState_CONNECTED), true)
+		_ = addPeer(t, s.peers, peerdata.ConnectionState(ethpb.ConnectionState_CONNECTED), true)
 	}
 
 	require.Equal(t, false, s.isBelowOutboundPeerThreshold(), "still at outbound peer threshold")
@@ -433,21 +438,21 @@ func TestIsBelowMinimumSyncPeers(t *testing.T) {
 	}
 
 	for i := 0; i < 2; i++ {
-		_ = addPeer(t, s.peers, peerdata.PeerConnectionState(ethpb.ConnectionState_CONNECTED), true)
+		_ = addPeer(t, s.peers, peerdata.ConnectionState(ethpb.ConnectionState_CONNECTED), true)
 	}
 
 	require.Equal(t, true, s.isBelowMinimumSyncPeers(), "not at minimums sync peer threshold")
 
 	// Adding a peer with a connection state of CONNECTING will not count towards the minimum sync peers
 	for i := 0; i < 2; i++ {
-		_ = addPeer(t, s.peers, peerdata.PeerConnectionState(ethpb.ConnectionState_CONNECTING), true)
+		_ = addPeer(t, s.peers, peerdata.ConnectionState(ethpb.ConnectionState_CONNECTING), true)
 
 	}
 
 	require.Equal(t, true, s.isBelowMinimumSyncPeers(), "not at minimums sync peer threshold")
 
 	for i := 0; i < 3; i++ {
-		_ = addPeer(t, s.peers, peerdata.PeerConnectionState(ethpb.ConnectionState_CONNECTED), true)
+		_ = addPeer(t, s.peers, peerdata.ConnectionState(ethpb.ConnectionState_CONNECTED), true)
 	}
 
 	require.Equal(t, false, s.isBelowMinimumSyncPeers(), "still at minimums sync peer threshold")
@@ -514,7 +519,7 @@ func TestCorrectUDPVersion(t *testing.T) {
 }
 
 // addPeer is a helper to add a peer with a given connection state)
-func addPeer(t *testing.T, p *peers.Status, state peerdata.PeerConnectionState, outbound bool) peer.ID {
+func addPeer(t *testing.T, p *peers.Status, state peerdata.ConnectionState, outbound bool) peer.ID {
 	// Set up some peers with different states
 	mhBytes := []byte{0x11, 0x04}
 	idBytes := make([]byte, 4)
@@ -536,187 +541,209 @@ func addPeer(t *testing.T, p *peers.Status, state peerdata.PeerConnectionState, 
 	return id
 }
 
-func TestRefreshENR_ForkBoundaries(t *testing.T) {
+func createAndConnectPeer(t *testing.T, p2pService *testp2p.TestP2P, offset int) {
+	// Create the private key.
+	privateKeyBytes := make([]byte, 32)
+	for i := 0; i < 32; i++ {
+		privateKeyBytes[i] = byte(offset + i)
+	}
+
+	privateKey, err := crypto.UnmarshalSecp256k1PrivateKey(privateKeyBytes)
+	require.NoError(t, err)
+
+	// Create the peer.
+	peer := testp2p.NewTestP2P(t, libp2p.Identity(privateKey))
+
+	// Add the peer and connect it.
+	p2pService.Peers().Add(&enr.Record{}, peer.PeerID(), nil, network.DirOutbound)
+	p2pService.Peers().SetConnectionState(peer.PeerID(), peers.Connected)
+	p2pService.Connect(peer)
+}
+
+// Define the ping count.
+var actualPingCount int
+
+type check struct {
+	pingCount              int
+	metadataSequenceNumber uint64
+	attestationSubnets     []uint64
+	custodySubnetCount     *uint64
+}
+
+func checkPingCountCacheMetadataRecord(
+	t *testing.T,
+	service *Service,
+	expected check,
+) {
+	// Check the ping count.
+	require.Equal(t, expected.pingCount, actualPingCount)
+
+	// Check the attestation subnets in the cache.
+	actualAttestationSubnets := cache.SubnetIDs.GetAllSubnets()
+	require.DeepSSZEqual(t, expected.attestationSubnets, actualAttestationSubnets)
+
+	// Check the metadata sequence number.
+	actualMetadataSequenceNumber := service.metaData.SequenceNumber()
+	require.Equal(t, expected.metadataSequenceNumber, actualMetadataSequenceNumber)
+
+	// Compute expected attestation subnets bits.
+	expectedBitV := bitfield.NewBitvector64()
+	exists := false
+
+	for _, idx := range expected.attestationSubnets {
+		exists = true
+		expectedBitV.SetBitAt(idx, true)
+	}
+
+	// Check attnets in ENR.
+	var actualBitVENR bitfield.Bitvector64
+	err := service.dv5Listener.LocalNode().Node().Record().Load(enr.WithEntry(attSubnetEnrKey, &actualBitVENR))
+	require.NoError(t, err)
+	require.DeepSSZEqual(t, expectedBitV, actualBitVENR)
+
+	// Check attnets in metadata.
+	if !exists {
+		expectedBitV = nil
+	}
+
+	actualBitVMetadata := service.metaData.AttnetsBitfield()
+	require.DeepSSZEqual(t, expectedBitV, actualBitVMetadata)
+}
+
+func TestRefreshPersistentSubnets(t *testing.T) {
 	params.SetupTestConfigCleanup(t)
+
 	// Clean up caches after usage.
 	defer cache.SubnetIDs.EmptyAllCaches()
 
-	tests := []struct {
-		name           string
-		svcBuilder     func(t *testing.T) *Service
-		postValidation func(t *testing.T, s *Service)
+	const (
+		altairForkEpoch = 5
+		alpacaForkEpoch = 10
+	)
+
+	// Set up epochs.
+	defaultCfg := params.BeaconConfig()
+	cfg := defaultCfg.Copy()
+	cfg.AltairForkEpoch = altairForkEpoch
+	cfg.AlpacaForkEpoch = alpacaForkEpoch
+	params.OverrideBeaconConfig(cfg)
+
+	// Compute the number of seconds per epoch.
+	secondsPerSlot := params.BeaconConfig().SecondsPerSlot
+	slotsPerEpoch := params.BeaconConfig().SlotsPerEpoch
+	secondsPerEpoch := secondsPerSlot * uint64(slotsPerEpoch)
+
+	testCases := []struct {
+		name              string
+		epochSinceGenesis uint64
+		checks            []check
 	}{
 		{
-			name: "metadata no change",
-			svcBuilder: func(t *testing.T) *Service {
-				port := 2000
-				ipAddr, pkey := createAddrAndPrivKey(t)
-				s := &Service{
-					genesisTime:           time.Now(),
-					genesisValidatorsRoot: bytesutil.PadTo([]byte{'A'}, 32),
-					cfg:                   &Config{UDPPort: uint(port)},
-				}
-				createListener := func() (*discover.UDPv5, error) {
-					return s.createListener(ipAddr, pkey)
-				}
-				listener, err := newListener(createListener)
-				assert.NoError(t, err)
-				s.dv5Listener = listener
-				s.metaData = wrapper.WrappedMetadataV1(new(ethpb.MetaDataV1))
-				s.updateSubnetRecordWithMetadata([]byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
-				return s
-			},
-			postValidation: func(t *testing.T, s *Service) {
-				currEpoch := slots.ToEpoch(slots.CurrentSlot(uint64(s.genesisTime.Unix())))
-				subs, err := computeSubscribedSubnets(s.dv5Listener.LocalNode().ID(), currEpoch)
-				assert.NoError(t, err)
-
-				bitV := bitfield.NewBitvector64()
-				for _, idx := range subs {
-					bitV.SetBitAt(idx, true)
-				}
-				assert.DeepEqual(t, bitV, s.metaData.AttnetsBitfield())
-			},
-		},
-		{
-			name: "metadata updated",
-			svcBuilder: func(t *testing.T) *Service {
-				port := 2000
-				ipAddr, pkey := createAddrAndPrivKey(t)
-				s := &Service{
-					genesisTime:           time.Now(),
-					genesisValidatorsRoot: bytesutil.PadTo([]byte{'A'}, 32),
-					cfg:                   &Config{UDPPort: uint(port)},
-				}
-				createListener := func() (*discover.UDPv5, error) {
-					return s.createListener(ipAddr, pkey)
-				}
-				listener, err := newListener(createListener)
-				assert.NoError(t, err)
-				s.dv5Listener = listener
-				s.metaData = wrapper.WrappedMetadataV1(new(ethpb.MetaDataV1))
-				s.updateSubnetRecordWithMetadata([]byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01})
-				cache.SubnetIDs.AddPersistentCommittee([]uint64{1, 2, 3, 23}, 0)
-				return s
-			},
-			postValidation: func(t *testing.T, s *Service) {
-				assert.DeepEqual(t, bitfield.Bitvector64{0xe, 0x0, 0x80, 0x0, 0x0, 0x0, 0x0, 0x0}, s.metaData.AttnetsBitfield())
-			},
-		},
-		{
-			name: "metadata updated at fork epoch",
-			svcBuilder: func(t *testing.T) *Service {
-				port := 2000
-				ipAddr, pkey := createAddrAndPrivKey(t)
-				s := &Service{
-					genesisTime:           time.Now().Add(-5 * oneEpochDuration()),
-					genesisValidatorsRoot: bytesutil.PadTo([]byte{'A'}, 32),
-					cfg:                   &Config{UDPPort: uint(port)},
-				}
-				createListener := func() (*discover.UDPv5, error) {
-					return s.createListener(ipAddr, pkey)
-				}
-				listener, err := newListener(createListener)
-				assert.NoError(t, err)
-
-				// Update params
-				cfg := params.BeaconConfig().Copy()
-				cfg.AltairForkEpoch = 5
-				params.OverrideBeaconConfig(cfg)
-				params.BeaconConfig().InitializeForkSchedule()
-
-				s.dv5Listener = listener
-				s.metaData = wrapper.WrappedMetadataV1(new(ethpb.MetaDataV1))
-				s.updateSubnetRecordWithMetadata([]byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01})
-				cache.SubnetIDs.AddPersistentCommittee([]uint64{1, 2, 3, 23}, 0)
-				return s
-			},
-			postValidation: func(t *testing.T, s *Service) {
-				assert.Equal(t, version.Altair, s.metaData.Version())
-				assert.DeepEqual(t, bitfield.Bitvector64{0xe, 0x0, 0x80, 0x0, 0x0, 0x0, 0x0, 0x0}, s.metaData.AttnetsBitfield())
-			},
-		},
-		{
-			name: "metadata updated at fork epoch with no bitfield",
-			svcBuilder: func(t *testing.T) *Service {
-				port := 2000
-				ipAddr, pkey := createAddrAndPrivKey(t)
-				s := &Service{
-					genesisTime:           time.Now().Add(-5 * oneEpochDuration()),
-					genesisValidatorsRoot: bytesutil.PadTo([]byte{'A'}, 32),
-					cfg:                   &Config{UDPPort: uint(port)},
-				}
-				createListener := func() (*discover.UDPv5, error) {
-					return s.createListener(ipAddr, pkey)
-				}
-				listener, err := newListener(createListener)
-				assert.NoError(t, err)
-
-				// Update params
-				cfg := params.BeaconConfig().Copy()
-				cfg.AltairForkEpoch = 5
-				params.OverrideBeaconConfig(cfg)
-				params.BeaconConfig().InitializeForkSchedule()
-
-				s.dv5Listener = listener
-				s.metaData = wrapper.WrappedMetadataV1(new(ethpb.MetaDataV1))
-				s.updateSubnetRecordWithMetadata([]byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
-				return s
-			},
-			postValidation: func(t *testing.T, s *Service) {
-				assert.Equal(t, version.Altair, s.metaData.Version())
-				currEpoch := slots.ToEpoch(slots.CurrentSlot(uint64(s.genesisTime.Unix())))
-				subs, err := computeSubscribedSubnets(s.dv5Listener.LocalNode().ID(), currEpoch)
-				assert.NoError(t, err)
-
-				bitV := bitfield.NewBitvector64()
-				for _, idx := range subs {
-					bitV.SetBitAt(idx, true)
-				}
-				assert.DeepEqual(t, bitV, s.metaData.AttnetsBitfield())
-			},
-		},
-		{
-			name: "metadata updated past fork epoch with bitfields",
-			svcBuilder: func(t *testing.T) *Service {
-				port := 2000
-				ipAddr, pkey := createAddrAndPrivKey(t)
-				s := &Service{
-					genesisTime:           time.Now().Add(-6 * oneEpochDuration()),
-					genesisValidatorsRoot: bytesutil.PadTo([]byte{'A'}, 32),
-					cfg:                   &Config{UDPPort: uint(port)},
-				}
-				createListener := func() (*discover.UDPv5, error) {
-					return s.createListener(ipAddr, pkey)
-				}
-				listener, err := newListener(createListener)
-				assert.NoError(t, err)
-
-				// Update params
-				cfg := params.BeaconConfig().Copy()
-				cfg.AltairForkEpoch = 5
-				params.OverrideBeaconConfig(cfg)
-				params.BeaconConfig().InitializeForkSchedule()
-
-				s.dv5Listener = listener
-				s.metaData = wrapper.WrappedMetadataV1(new(ethpb.MetaDataV1))
-				s.updateSubnetRecordWithMetadata([]byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
-				cache.SubnetIDs.AddPersistentCommittee([]uint64{1, 2, 3, 23}, 0)
-				return s
-			},
-			postValidation: func(t *testing.T, s *Service) {
-				assert.Equal(t, version.Altair, s.metaData.Version())
-				assert.DeepEqual(t, bitfield.Bitvector64{0xe, 0x0, 0x80, 0x0, 0x0, 0x0, 0x0, 0x0}, s.metaData.AttnetsBitfield())
+			name:              "Phase0",
+			epochSinceGenesis: 0,
+			checks: []check{
+				{
+					pingCount:              0,
+					metadataSequenceNumber: 0,
+					attestationSubnets:     []uint64{},
+				},
+				{
+					pingCount:              1,
+					metadataSequenceNumber: 1,
+					attestationSubnets:     []uint64{40, 41},
+				},
+				{
+					pingCount:              1,
+					metadataSequenceNumber: 1,
+					attestationSubnets:     []uint64{40, 41},
+				},
+				{
+					pingCount:              1,
+					metadataSequenceNumber: 1,
+					attestationSubnets:     []uint64{40, 41},
+				},
 			},
 		},
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			s := tt.svcBuilder(t)
-			s.RefreshENR()
-			tt.postValidation(t, s)
-			s.dv5Listener.Close()
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			const peerOffset = 1
+
+			// Initialize the ping count.
+			actualPingCount = 0
+
+			// Create the private key.
+			privateKeyBytes := make([]byte, 32)
+			for i := 0; i < 32; i++ {
+				privateKeyBytes[i] = byte(i)
+			}
+
+			unmarshalledPrivateKey, err := crypto.UnmarshalSecp256k1PrivateKey(privateKeyBytes)
+			require.NoError(t, err)
+
+			privateKey, err := ecdsaprysm.ConvertFromInterfacePrivKey(unmarshalledPrivateKey)
+			require.NoError(t, err)
+
+			// Create a p2p service.
+			p2p := testp2p.NewTestP2P(t)
+
+			// Create and connect a peer.
+			createAndConnectPeer(t, p2p, peerOffset)
+
+			// Create a service.
+			service := &Service{
+				pingMethod: func(_ context.Context, _ peer.ID) error {
+					actualPingCount++
+					return nil
+				},
+				cfg:                   &Config{UDPPort: 2000},
+				peers:                 p2p.Peers(),
+				genesisTime:           time.Now().Add(-time.Duration(tc.epochSinceGenesis*secondsPerEpoch) * time.Second),
+				genesisValidatorsRoot: bytesutil.PadTo([]byte{'A'}, 32),
+			}
+
+			// Set the listener and the metadata.
+			createListener := func() (*discover.UDPv5, error) {
+				return service.createListener(nil, privateKey)
+			}
+
+			listener, err := newListener(createListener)
+			require.NoError(t, err)
+
+			service.dv5Listener = listener
+			service.metaData = wrapper.WrappedMetadataV1(new(ethpb.MetaDataV1))
+
+			// Run a check.
+			checkPingCountCacheMetadataRecord(t, service, tc.checks[0])
+
+			// Refresh the persistent subnets.
+			service.RefreshPersistentSubnets()
+			time.Sleep(10 * time.Millisecond)
+
+			// Run a check.
+			checkPingCountCacheMetadataRecord(t, service, tc.checks[1])
+
+			// Refresh the persistent subnets.
+			service.RefreshPersistentSubnets()
+			time.Sleep(10 * time.Millisecond)
+
+			// Run a check.
+			checkPingCountCacheMetadataRecord(t, service, tc.checks[2])
+
+			// Refresh the persistent subnets.
+			service.RefreshPersistentSubnets()
+			time.Sleep(10 * time.Millisecond)
+
+			// Run a check.
+			checkPingCountCacheMetadataRecord(t, service, tc.checks[3])
+
+			// Clean the test.
+			service.dv5Listener.Close()
 			cache.SubnetIDs.EmptyAllCaches()
 		})
 	}
+
+	// Reset the config.
+	params.OverrideBeaconConfig(defaultCfg)
 }

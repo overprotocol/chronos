@@ -7,6 +7,7 @@ import (
 
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
+	"github.com/prysmaticlabs/prysm/v5/runtime/version"
 	"github.com/prysmaticlabs/prysm/v5/testing/assert"
 	"github.com/prysmaticlabs/prysm/v5/testing/require"
 	prysmTime "github.com/prysmaticlabs/prysm/v5/time"
@@ -599,4 +600,94 @@ func TestSecondsUntilNextEpochStart(t *testing.T) {
 	currentSlot := CurrentSlot(newGenesisTime)
 	require.Equal(t, true, IsEpochStart(currentSlot))
 
+}
+
+func TestToForkVersion(t *testing.T) {
+	t.Run("Alpaca fork version", func(t *testing.T) {
+		params.SetupTestConfigCleanup(t)
+		config := params.BeaconConfig()
+		config.AlpacaForkEpoch = 100
+		params.OverrideBeaconConfig(config)
+
+		slot, err := EpochStart(params.BeaconConfig().AlpacaForkEpoch)
+		require.NoError(t, err)
+
+		result := ToForkVersion(slot)
+		require.Equal(t, version.Alpaca, result)
+	})
+
+	t.Run("Deneb fork version", func(t *testing.T) {
+		params.SetupTestConfigCleanup(t)
+		config := params.BeaconConfig()
+		config.AlpacaForkEpoch = 100
+		params.OverrideBeaconConfig(config)
+
+		slot, err := EpochStart(params.BeaconConfig().DenebForkEpoch)
+		require.NoError(t, err)
+
+		result := ToForkVersion(slot)
+		require.Equal(t, version.Deneb, result)
+	})
+
+	t.Run("Capella fork version", func(t *testing.T) {
+		params.SetupTestConfigCleanup(t)
+		config := params.BeaconConfig()
+		config.DenebForkEpoch = 99
+		config.AlpacaForkEpoch = 100
+		params.OverrideBeaconConfig(config)
+
+		slot, err := EpochStart(params.BeaconConfig().CapellaForkEpoch)
+		require.NoError(t, err)
+
+		result := ToForkVersion(slot)
+		require.Equal(t, version.Capella, result)
+	})
+
+	t.Run("Bellatrix fork version", func(t *testing.T) {
+		params.SetupTestConfigCleanup(t)
+		config := params.BeaconConfig()
+		config.CapellaForkEpoch = 98
+		config.DenebForkEpoch = 99
+		config.AlpacaForkEpoch = 100
+		params.OverrideBeaconConfig(config)
+
+		slot, err := EpochStart(params.BeaconConfig().BellatrixForkEpoch)
+		require.NoError(t, err)
+
+		result := ToForkVersion(slot)
+		require.Equal(t, version.Bellatrix, result)
+	})
+
+	t.Run("Altair fork version", func(t *testing.T) {
+		params.SetupTestConfigCleanup(t)
+		config := params.BeaconConfig()
+		config.BellatrixForkEpoch = 97
+		config.CapellaForkEpoch = 98
+		config.DenebForkEpoch = 99
+		config.AlpacaForkEpoch = 100
+		params.OverrideBeaconConfig(config)
+
+		slot, err := EpochStart(params.BeaconConfig().AltairForkEpoch)
+		require.NoError(t, err)
+
+		result := ToForkVersion(slot)
+		require.Equal(t, version.Altair, result)
+	})
+
+	t.Run("Phase0 fork version", func(t *testing.T) {
+		params.SetupTestConfigCleanup(t)
+		config := params.BeaconConfig()
+		config.AltairForkEpoch = 96
+		config.BellatrixForkEpoch = 97
+		config.CapellaForkEpoch = 98
+		config.DenebForkEpoch = 99
+		config.AlpacaForkEpoch = 100
+		params.OverrideBeaconConfig(config)
+
+		slot, err := EpochStart(params.BeaconConfig().AltairForkEpoch)
+		require.NoError(t, err)
+
+		result := ToForkVersion(slot - 1)
+		require.Equal(t, version.Phase0, result)
+	})
 }

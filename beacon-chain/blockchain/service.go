@@ -299,7 +299,15 @@ func (s *Service) StartFromSavedState(saved state.BeaconState) error {
 	if err != nil {
 		return errors.Wrap(err, "could not get finalized checkpoint state")
 	}
-	if err := s.cfg.ForkChoiceStore.InsertNode(s.ctx, st, fRoot); err != nil {
+	finalizedBlock, err := s.cfg.BeaconDB.Block(s.ctx, fRoot)
+	if err != nil {
+		return errors.Wrap(err, "could not get finalized checkpoint block")
+	}
+	roblock, err := blocks.NewROBlockWithRoot(finalizedBlock, fRoot)
+	if err != nil {
+		return err
+	}
+	if err := s.cfg.ForkChoiceStore.InsertNode(s.ctx, st, roblock); err != nil {
 		return errors.Wrap(err, "could not insert finalized block to forkchoice")
 	}
 	if !features.Get().EnableStartOptimistic {
@@ -511,7 +519,11 @@ func (s *Service) saveGenesisData(ctx context.Context, genesisState state.Beacon
 
 	s.cfg.ForkChoiceStore.Lock()
 	defer s.cfg.ForkChoiceStore.Unlock()
-	if err := s.cfg.ForkChoiceStore.InsertNode(ctx, genesisState, genesisBlkRoot); err != nil {
+	gb, err := blocks.NewROBlockWithRoot(genesisBlk, genesisBlkRoot)
+	if err != nil {
+		return err
+	}
+	if err := s.cfg.ForkChoiceStore.InsertNode(ctx, genesisState, gb); err != nil {
 		log.WithError(err).Fatal("Could not process genesis block for fork choice")
 	}
 	s.cfg.ForkChoiceStore.SetOriginRoot(genesisBlkRoot)

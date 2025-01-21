@@ -75,11 +75,11 @@ func ProcessOperations(
 	}
 	st, err = ProcessDepositRequests(ctx, st, requests.Deposits)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not process deposit receipts")
+		return nil, errors.Wrap(err, "could not process deposit requests")
 	}
 	st, err = ProcessWithdrawalRequests(ctx, st, requests.Withdrawals)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not process execution layer withdrawal requests")
+		return nil, errors.Wrap(err, "could not process withdrawal requests")
 	}
 	return st, nil
 }

@@ -150,6 +150,10 @@ func (b *BeaconState) ValidatorAtIndexReadOnly(idx primitives.ValidatorIndex) (s
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 
+	return b.validatorAtIndexReadOnly(idx)
+}
+
+func (b *BeaconState) validatorAtIndexReadOnly(idx primitives.ValidatorIndex) (state.ReadOnlyValidator, error) {
 	if features.Get().EnableExperimentalState {
 		if b.validatorsMultiValue == nil {
 			return nil, state.ErrNilValidatorsInState
@@ -443,28 +447,6 @@ func (b *BeaconState) inactivityScoreAtIndex(idx primitives.ValidatorIndex) (uin
 		return 0, errors.Wrapf(consensus_types.ErrOutOfBounds, "inactity score index %d does not exist", idx)
 	}
 	return b.inactivityScores[idx], nil
-}
-
-// ActiveBalanceAtIndex returns the active balance for the given validator.
-//
-// Spec definition:
-//
-//	def get_active_balance(state: BeaconState, validator_index: ValidatorIndex) -> Gwei:
-//		return min(state.balances[validator_index], MAX_EFFECTIVE_BALANCE_ELECTRA)
-func (b *BeaconState) ActiveBalanceAtIndex(i primitives.ValidatorIndex) (uint64, error) {
-	if b.version < version.Alpaca {
-		return 0, errNotSupported("ActiveBalanceAtIndex", b.version)
-	}
-
-	b.lock.RLock()
-	defer b.lock.RUnlock()
-
-	bal, err := b.balanceAtIndex(i)
-	if err != nil {
-		return 0, err
-	}
-
-	return min(bal, params.BeaconConfig().MaxEffectiveBalanceAlpaca), nil
 }
 
 // PendingBalanceToWithdraw returns the sum of all pending withdrawals for the given validator.

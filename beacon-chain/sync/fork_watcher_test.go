@@ -392,6 +392,7 @@ func TestService_CheckForPreviousEpochFork(t *testing.T) {
 	}
 }
 
+// oneEpoch returns the duration of one epoch.
 func oneEpoch() time.Duration {
 	return time.Duration(params.BeaconConfig().SlotsPerEpoch.Mul(params.BeaconConfig().SecondsPerSlot)) * time.Second
 }

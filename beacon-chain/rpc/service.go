@@ -14,8 +14,6 @@ import (
 	grpcopentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
 	grpcprometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/pkg/errors"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/blockchain"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/builder"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/cache"
@@ -56,24 +54,6 @@ import (
 
 const attestationBufferSize = 100
 
-var (
-	httpRequestLatency = promauto.NewHistogramVec(
-		prometheus.HistogramOpts{
-			Name:    "http_request_latency_seconds",
-			Help:    "Latency of HTTP requests in seconds",
-			Buckets: []float64{0.001, 0.01, 0.025, 0.1, 0.25, 1, 2.5, 10},
-		},
-		[]string{"endpoint", "code", "method"},
-	)
-	httpRequestCount = promauto.NewCounterVec(
-		prometheus.CounterOpts{
-			Name: "http_request_count",
-			Help: "Number of HTTP requests",
-		},
-		[]string{"endpoint", "code", "method"},
-	)
-)
-
 // Service defining an RPC server for a beacon node.
 type Service struct {
 	cfg                  *Config
@@ -90,56 +70,56 @@ type Service struct {
 
 // Config options for the beacon node RPC server.
 type Config struct {
-	ExecutionPayloadReconstructor execution.PayloadReconstructor
-	Host                          string
-	Port                          string
-	CertFlag                      string
-	KeyFlag                       string
-	BeaconMonitoringHost          string
-	BeaconMonitoringPort          int
-	BeaconDB                      db.HeadAccessDatabase
-	ChainInfoFetcher              blockchain.ChainInfoFetcher
-	HeadFetcher                   blockchain.HeadFetcher
-	CanonicalFetcher              blockchain.CanonicalFetcher
-	ForkFetcher                   blockchain.ForkFetcher
-	ForkchoiceFetcher             blockchain.ForkchoiceFetcher
-	FinalizationFetcher           blockchain.FinalizationFetcher
-	AttestationReceiver           blockchain.AttestationReceiver
-	BlockReceiver                 blockchain.BlockReceiver
-	BlobReceiver                  blockchain.BlobReceiver
-	ExecutionChainService         execution.Chain
-	ChainStartFetcher             execution.ChainStartFetcher
-	ExecutionChainInfoFetcher     execution.ChainInfoFetcher
-	GenesisTimeFetcher            blockchain.TimeFetcher
-	GenesisFetcher                blockchain.GenesisFetcher
-	EnableOverNodeRPCEndpoints    bool
-	MockEth1Votes                 bool
-	EnableDebugRPCEndpoints       bool
-	AttestationsPool              attestations.Pool
-	ExitPool                      voluntaryexits.PoolManager
-	SlashingsPool                 slashings.PoolManager
-	SyncService                   chainSync.Checker
-	Broadcaster                   p2p.Broadcaster
-	PeersFetcher                  p2p.PeersProvider
-	PeerManager                   p2p.PeerManager
-	MetadataProvider              p2p.MetadataProvider
-	DepositFetcher                cache.DepositFetcher
-	PendingDepositFetcher         depositsnapshot.PendingDepositsFetcher
-	StateNotifier                 statefeed.Notifier
-	BlockNotifier                 blockfeed.Notifier
-	OperationNotifier             opfeed.Notifier
-	StateGen                      *stategen.State
-	MaxMsgSize                    int
-	ExecutionEngineCaller         execution.EngineCaller
-	OptimisticModeFetcher         blockchain.OptimisticModeFetcher
-	BlockBuilder                  builder.BlockBuilder
-	Router                        *http.ServeMux
-	ClockWaiter                   startup.ClockWaiter
-	BlobStorage                   *filesystem.BlobStorage
-	TrackedValidatorsCache        *cache.TrackedValidatorsCache
-	PayloadIDCache                *cache.PayloadIDCache
-	CloseHandler                  *closehandler.CloseHandler
-	AuthTokenPath                 string
+	ExecutionReconstructor     execution.Reconstructor
+	Host                       string
+	Port                       string
+	CertFlag                   string
+	KeyFlag                    string
+	BeaconMonitoringHost       string
+	BeaconMonitoringPort       int
+	BeaconDB                   db.HeadAccessDatabase
+	ChainInfoFetcher           blockchain.ChainInfoFetcher
+	HeadFetcher                blockchain.HeadFetcher
+	CanonicalFetcher           blockchain.CanonicalFetcher
+	ForkFetcher                blockchain.ForkFetcher
+	ForkchoiceFetcher          blockchain.ForkchoiceFetcher
+	FinalizationFetcher        blockchain.FinalizationFetcher
+	AttestationReceiver        blockchain.AttestationReceiver
+	BlockReceiver              blockchain.BlockReceiver
+	BlobReceiver               blockchain.BlobReceiver
+	ExecutionChainService      execution.Chain
+	ChainStartFetcher          execution.ChainStartFetcher
+	ExecutionChainInfoFetcher  execution.ChainInfoFetcher
+	GenesisTimeFetcher         blockchain.TimeFetcher
+	GenesisFetcher             blockchain.GenesisFetcher
+	EnableOverNodeRPCEndpoints bool
+	MockEth1Votes              bool
+	EnableDebugRPCEndpoints    bool
+	AttestationsPool           attestations.Pool
+	ExitPool                   voluntaryexits.PoolManager
+	SlashingsPool              slashings.PoolManager
+	SyncService                chainSync.Checker
+	Broadcaster                p2p.Broadcaster
+	PeersFetcher               p2p.PeersProvider
+	PeerManager                p2p.PeerManager
+	MetadataProvider           p2p.MetadataProvider
+	DepositFetcher             cache.DepositFetcher
+	PendingDepositFetcher      depositsnapshot.PendingDepositsFetcher
+	StateNotifier              statefeed.Notifier
+	BlockNotifier              blockfeed.Notifier
+	OperationNotifier          opfeed.Notifier
+	StateGen                   *stategen.State
+	MaxMsgSize                 int
+	ExecutionEngineCaller      execution.EngineCaller
+	OptimisticModeFetcher      blockchain.OptimisticModeFetcher
+	BlockBuilder               builder.BlockBuilder
+	Router                     *http.ServeMux
+	ClockWaiter                startup.ClockWaiter
+	BlobStorage                *filesystem.BlobStorage
+	TrackedValidatorsCache     *cache.TrackedValidatorsCache
+	PayloadIDCache             *cache.PayloadIDCache
+	CloseHandler               *closehandler.CloseHandler
+	AuthTokenPath              string
 }
 
 // NewService instantiates a new RPC service instance that will

@@ -99,7 +99,6 @@ type NoHeadAccessDatabase interface {
 // HeadAccessDatabase defines a struct with access to reading chain head data.
 type HeadAccessDatabase interface {
 	NoHeadAccessDatabase
-
 	// Block related methods.
 	HeadBlock(ctx context.Context) (interfaces.ReadOnlySignedBeaconBlock, error)
 	SaveHeadBlockRoot(ctx context.Context, blockRoot [32]byte) error

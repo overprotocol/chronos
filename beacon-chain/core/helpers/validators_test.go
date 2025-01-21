@@ -1027,13 +1027,6 @@ func TestIsFullyWithdrawableValidator(t *testing.T) {
 		want      bool
 	}{
 		{
-			name:      "Handles nil case",
-			validator: nil,
-			balance:   0,
-			epoch:     0,
-			want:      false,
-		},
-		{
 			name: "No ETH1 prefix",
 			validator: &ethpb.Validator{
 				WithdrawalCredentials: []byte{0xFA, 0xCC},
@@ -1112,7 +1105,9 @@ func TestIsFullyWithdrawableValidator(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, helpers.IsFullyWithdrawableValidator(tt.validator, tt.balance, tt.epoch, tt.fork))
+			v, err := state_native.NewValidator(tt.validator)
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, helpers.IsFullyWithdrawableValidator(v, tt.balance, tt.epoch, tt.fork))
 		})
 	}
 }
@@ -1126,13 +1121,6 @@ func TestIsPartiallyWithdrawableValidator(t *testing.T) {
 		fork      int
 		want      bool
 	}{
-		{
-			name:      "Handles nil case",
-			validator: nil,
-			balance:   0,
-			epoch:     0,
-			want:      false,
-		},
 		{
 			name: "No ETH1 prefix", // TODO this test is not valid in next spec (nathan)
 			validator: &ethpb.Validator{
@@ -1194,7 +1182,9 @@ func TestIsPartiallyWithdrawableValidator(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, helpers.IsPartiallyWithdrawableValidator(tt.validator, tt.balance, tt.epoch, tt.fork))
+			v, err := state_native.NewValidator(tt.validator)
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, helpers.IsPartiallyWithdrawableValidator(v, tt.balance, tt.epoch, tt.fork))
 		})
 	}
 }

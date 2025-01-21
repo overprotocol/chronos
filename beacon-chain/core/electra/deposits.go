@@ -455,7 +455,10 @@ func ApplyPendingDeposit(ctx context.Context, st state.BeaconState, deposit *eth
 //	set_or_append_list(state.current_epoch_participation, index, ParticipationFlags(0b0000_0000))
 //	set_or_append_list(state.inactivity_scores, index, uint64(0))
 func AddValidatorToRegistry(beaconState state.BeaconState, pubKey []byte, withdrawalCredentials []byte, amount uint64) error {
-	val := GetValidatorFromDeposit(pubKey, withdrawalCredentials, amount)
+	val, err := GetValidatorFromDeposit(pubKey, withdrawalCredentials, amount)
+	if err != nil {
+		return errors.Wrap(err, "could not get validator from deposit")
+	}
 	if err := beaconState.AppendValidator(val); err != nil {
 		return err
 	}
@@ -497,7 +500,7 @@ func AddValidatorToRegistry(beaconState state.BeaconState, pubKey []byte, withdr
 //	validator.principal_balance = amount
 //
 //	return validator
-func GetValidatorFromDeposit(pubKey []byte, withdrawalCredentials []byte, amount uint64) *ethpb.Validator {
+func GetValidatorFromDeposit(pubKey []byte, withdrawalCredentials []byte, amount uint64) (*ethpb.Validator, error) {
 	validator := &ethpb.Validator{
 		PublicKey:                  pubKey,
 		WithdrawalCredentials:      withdrawalCredentials,
@@ -509,7 +512,7 @@ func GetValidatorFromDeposit(pubKey []byte, withdrawalCredentials []byte, amount
 	}
 	validator.EffectiveBalance = min(amount-(amount%params.BeaconConfig().EffectiveBalanceIncrement), params.BeaconConfig().MaxEffectiveBalanceAlpaca)
 	validator.PrincipalBalance = amount
-	return validator
+	return validator, nil
 }
 
 // ProcessDepositRequests is a function as part of electra to process execution layer deposits
@@ -531,7 +534,7 @@ func ProcessDepositRequests(ctx context.Context, beaconState state.BeaconState, 
 	return beaconState, nil
 }
 
-// processDepositRequest processes the specific deposit receipt
+// processDepositRequest processes the specific deposit request
 // def process_deposit_request(state: BeaconState, deposit_request: DepositRequest) -> None:
 //
 //	# Set deposit request start index
@@ -561,8 +564,8 @@ func processDepositRequest(beaconState state.BeaconState, request *enginev1.Depo
 	}
 	if err := beaconState.AppendPendingDeposit(&ethpb.PendingDeposit{
 		PublicKey:             bytesutil.SafeCopyBytes(request.Pubkey),
-		Amount:                request.Amount,
 		WithdrawalCredentials: bytesutil.SafeCopyBytes(request.WithdrawalCredentials),
+		Amount:                request.Amount,
 		Signature:             bytesutil.SafeCopyBytes(request.Signature),
 		Slot:                  beaconState.Slot(),
 	}); err != nil {

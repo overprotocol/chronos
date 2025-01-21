@@ -12,6 +12,7 @@ import (
 	"testing"
 	"time"
 
+	GoKZG "github.com/crate-crypto/go-kzg-4844"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/pkg/errors"
 	"github.com/prysmaticlabs/go-bitfield"
@@ -33,6 +34,7 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/blocks"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/interfaces"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
+	"github.com/prysmaticlabs/prysm/v5/crypto/bls"
 	"github.com/prysmaticlabs/prysm/v5/encoding/bytesutil"
 	"github.com/prysmaticlabs/prysm/v5/network/httputil"
 	eth "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
@@ -2940,8 +2942,6 @@ func TestValidateConsensus(t *testing.T) {
 	require.NoError(t, err)
 	block, err := util.GenerateFullBlock(st, privs, util.DefaultBlockGenConfig(), st.Slot())
 	require.NoError(t, err)
-	sbb, err := blocks.NewSignedBeaconBlock(block)
-	require.NoError(t, err)
 	parentRoot, err := parentSbb.Block().HashTreeRoot()
 	require.NoError(t, err)
 	server := &Server{
@@ -2949,7 +2949,11 @@ func TestValidateConsensus(t *testing.T) {
 		Stater:  &testutil.MockStater{StatesByRoot: map[[32]byte]state.BeaconState{bytesutil.ToBytes32(parentBlock.Block.StateRoot): parentState}},
 	}
 
-	require.NoError(t, server.validateConsensus(ctx, sbb))
+	require.NoError(t, server.validateConsensus(ctx, &eth.GenericSignedBeaconBlock{
+		Block: &eth.GenericSignedBeaconBlock_Phase0{
+			Phase0: block,
+		},
+	}))
 }
 
 func TestValidateEquivocation(t *testing.T) {
@@ -2957,13 +2961,15 @@ func TestValidateEquivocation(t *testing.T) {
 		st, err := util.NewBeaconState()
 		require.NoError(t, err)
 		require.NoError(t, st.SetSlot(10))
+		blk, err := blocks.NewSignedBeaconBlock(util.NewBeaconBlock())
+		require.NoError(t, err)
+		roblock, err := blocks.NewROBlockWithRoot(blk, bytesutil.ToBytes32([]byte("root")))
+		require.NoError(t, err)
 		fc := doublylinkedtree.New()
-		require.NoError(t, fc.InsertNode(context.Background(), st, bytesutil.ToBytes32([]byte("root"))))
+		require.NoError(t, fc.InsertNode(context.Background(), st, roblock))
 		server := &Server{
 			ForkchoiceFetcher: &chainMock.ChainService{ForkChoiceStore: fc},
 		}
-		blk, err := blocks.NewSignedBeaconBlock(util.NewBeaconBlock())
-		require.NoError(t, err)
 		blk.SetSlot(st.Slot() + 1)
 
 		require.NoError(t, server.validateEquivocation(blk.Block()))
@@ -2972,15 +2978,17 @@ func TestValidateEquivocation(t *testing.T) {
 		st, err := util.NewBeaconState()
 		require.NoError(t, err)
 		require.NoError(t, st.SetSlot(10))
-		fc := doublylinkedtree.New()
-		require.NoError(t, fc.InsertNode(context.Background(), st, bytesutil.ToBytes32([]byte("root"))))
-		server := &Server{
-			ForkchoiceFetcher: &chainMock.ChainService{ForkChoiceStore: fc},
-		}
 		blk, err := blocks.NewSignedBeaconBlock(util.NewBeaconBlock())
 		require.NoError(t, err)
 		blk.SetSlot(st.Slot())
+		roblock, err := blocks.NewROBlockWithRoot(blk, bytesutil.ToBytes32([]byte("root")))
+		require.NoError(t, err)
 
+		fc := doublylinkedtree.New()
+		require.NoError(t, fc.InsertNode(context.Background(), st, roblock))
+		server := &Server{
+			ForkchoiceFetcher: &chainMock.ChainService{ForkChoiceStore: fc},
+		}
 		err = server.validateEquivocation(blk.Block())
 		assert.ErrorContains(t, "already exists", err)
 		require.ErrorIs(t, err, errEquivocatedBlock)
@@ -4165,4 +4173,25 @@ func TestServer_broadcastBlobSidecars(t *testing.T) {
 	server.FinalizationFetcher = &chainMock.ChainService{NotFinalized: false}
 	require.NoError(t, server.broadcastSeenBlockSidecars(context.Background(), blk, b.GetDeneb().Blobs, b.GetDeneb().KzgProofs))
 	require.LogsContain(t, hook, "Broadcasted blob sidecar for already seen block")
+}
+
+func Test_validateBlobSidecars(t *testing.T) {
+	blob := util.GetRandBlob(123)
+	commitment := GoKZG.KZGCommitment{180, 218, 156, 194, 59, 20, 10, 189, 186, 254, 132, 93, 7, 127, 104, 172, 238, 240, 237, 70, 83, 89, 1, 152, 99, 0, 165, 65, 143, 62, 20, 215, 230, 14, 205, 95, 28, 245, 54, 25, 160, 16, 178, 31, 232, 207, 38, 85}
+	proof := GoKZG.KZGProof{128, 110, 116, 170, 56, 111, 126, 87, 229, 234, 211, 42, 110, 150, 129, 206, 73, 142, 167, 243, 90, 149, 240, 240, 236, 204, 143, 182, 229, 249, 81, 27, 153, 171, 83, 70, 144, 250, 42, 1, 188, 215, 71, 235, 30, 7, 175, 86}
+	blk := util.NewBeaconBlockDeneb()
+	blk.Block.Body.BlobKzgCommitments = [][]byte{commitment[:]}
+	b, err := blocks.NewSignedBeaconBlock(blk)
+	require.NoError(t, err)
+	s := &Server{}
+	require.NoError(t, s.validateBlobSidecars(b, [][]byte{blob[:]}, [][]byte{proof[:]}))
+
+	require.ErrorContains(t, "number of blobs, proofs, and commitments do not match", s.validateBlobSidecars(b, [][]byte{blob[:]}, [][]byte{}))
+
+	sk, err := bls.RandKey()
+	require.NoError(t, err)
+	blk.Block.Body.BlobKzgCommitments = [][]byte{sk.PublicKey().Marshal()}
+	b, err = blocks.NewSignedBeaconBlock(blk)
+	require.NoError(t, err)
+	require.ErrorContains(t, "could not verify blob proof: can't verify opening proof", s.validateBlobSidecars(b, [][]byte{blob[:]}, [][]byte{proof[:]}))
 }

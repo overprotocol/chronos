@@ -121,7 +121,7 @@ func (b *BeaconState) ExpectedWithdrawals() ([]*enginev1.Withdrawal, uint64, uin
 				break
 			}
 
-			v, err := b.validatorAtIndex(w.Index)
+			v, err := b.validatorAtIndexReadOnly(w.Index)
 			if err != nil {
 				return nil, 0, 0, fmt.Errorf("failed to determine withdrawals at index %d: %w", w.Index, err)
 			}
@@ -129,14 +129,14 @@ func (b *BeaconState) ExpectedWithdrawals() ([]*enginev1.Withdrawal, uint64, uin
 			if err != nil {
 				return nil, 0, 0, fmt.Errorf("could not retrieve balance at index %d: %w", w.Index, err)
 			}
-			hasSufficientEffectiveBalance := v.EffectiveBalance >= params.BeaconConfig().MinActivationBalance
+			hasSufficientEffectiveBalance := v.EffectiveBalance() >= params.BeaconConfig().MinActivationBalance
 			hasExcessBalance := vBal > params.BeaconConfig().MinActivationBalance
-			if v.ExitEpoch == params.BeaconConfig().FarFutureEpoch && hasSufficientEffectiveBalance && hasExcessBalance {
+			if v.ExitEpoch() == params.BeaconConfig().FarFutureEpoch && hasSufficientEffectiveBalance && hasExcessBalance {
 				amount := min(vBal-params.BeaconConfig().MinActivationBalance, w.Amount)
 				withdrawals = append(withdrawals, &enginev1.Withdrawal{
 					Index:          withdrawalIndex,
 					ValidatorIndex: w.Index,
-					Address:        v.WithdrawalCredentials[12:],
+					Address:        v.GetWithdrawalCredentials()[12:],
 					Amount:         amount,
 				})
 				withdrawalIndex++
@@ -150,7 +150,7 @@ func (b *BeaconState) ExpectedWithdrawals() ([]*enginev1.Withdrawal, uint64, uin
 	validatorsLen := b.validatorsLen()
 	bound := mathutil.Min(uint64(validatorsLen), params.BeaconConfig().MaxValidatorsPerWithdrawalsSweep)
 	for i := uint64(0); i < bound; i++ {
-		val, err := b.validatorAtIndex(validatorIndex)
+		val, err := b.validatorAtIndexReadOnly(validatorIndex)
 		if err != nil {
 			return nil, 0, 0, errors.Wrapf(err, "could not retrieve validator at index %d", validatorIndex)
 		}
@@ -171,7 +171,7 @@ func (b *BeaconState) ExpectedWithdrawals() ([]*enginev1.Withdrawal, uint64, uin
 				Index:          withdrawalIndex,
 				ValidatorIndex: validatorIndex,
 				Address:        bytesutil.SafeCopyBytes(val.GetWithdrawalCredentials()[ETH1AddressOffset:]),
-				Amount:         balance - val.PrincipalBalance,
+				Amount:         balance - val.PrincipalBalance(),
 			})
 			withdrawalIndex++
 		}
