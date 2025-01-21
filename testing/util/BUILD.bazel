@@ -6,6 +6,7 @@ go_library(
     srcs = [
         "altair.go",
         "attestation.go",
+        "badger.go",
         "bazel.go",
         "bellatrix.go",
         "bellatrix_state.go",

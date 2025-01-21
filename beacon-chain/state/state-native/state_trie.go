@@ -105,6 +105,8 @@ var (
 		types.PendingDeposits,
 		types.PendingPartialWithdrawals,
 	)
+
+	badgerFields = electraFields
 )
 
 const (
@@ -114,12 +116,14 @@ const (
 	capellaSharedFieldRefCount                    = 11
 	denebSharedFieldRefCount                      = 11
 	electraSharedFieldRefCount                    = 13
+	badgerSharedFieldRefCount                     = 13
 	experimentalStatePhase0SharedFieldRefCount    = 3
 	experimentalStateAltairSharedFieldRefCount    = 3
 	experimentalStateBellatrixSharedFieldRefCount = 4
 	experimentalStateCapellaSharedFieldRefCount   = 5
 	experimentalStateDenebSharedFieldRefCount     = 5
 	experimentalStateElectraSharedFieldRefCount   = 7
+	experimentalStateBadgerSharedFieldRefCount    = 7
 )
 
 // InitializeFromProtoPhase0 the beacon state from a protobuf representation.
@@ -149,6 +153,10 @@ func InitializeFromProtoDeneb(st *ethpb.BeaconStateDeneb) (state.BeaconState, er
 
 func InitializeFromProtoElectra(st *ethpb.BeaconStateElectra) (state.BeaconState, error) {
 	return InitializeFromProtoUnsafeElectra(proto.Clone(st).(*ethpb.BeaconStateElectra))
+}
+
+func InitializeFromProtoBadger(st *ethpb.BeaconStateBadger) (state.BeaconState, error) {
+	return InitializeFromProtoUnsafeBadger(proto.Clone(st).(*ethpb.BeaconStateBadger))
 }
 
 // InitializeFromProtoUnsafePhase0 directly uses the beacon state protobuf fields
@@ -772,6 +780,118 @@ func InitializeFromProtoUnsafeElectra(st *ethpb.BeaconStateElectra) (state.Beaco
 	return b, nil
 }
 
+// InitializeFromProtoUnsafeBadger directly uses the beacon state protobuf fields
+// and sets them as fields of the BeaconState type.
+func InitializeFromProtoUnsafeBadger(st *ethpb.BeaconStateBadger) (state.BeaconState, error) {
+	if st == nil {
+		return nil, errors.New("received nil state")
+	}
+
+	fieldCount := params.BeaconConfig().BeaconStateBadgerFieldCount
+	b := &BeaconState{
+		version:                           version.Badger,
+		genesisTime:                       st.GenesisTime,
+		genesisValidatorsRoot:             bytesutil.ToBytes32(st.GenesisValidatorsRoot),
+		slot:                              st.Slot,
+		fork:                              st.Fork,
+		latestBlockHeader:                 st.LatestBlockHeader,
+		rewardAdjustmentFactor:            st.RewardAdjustmentFactor,
+		eth1Data:                          st.Eth1Data,
+		eth1DataVotes:                     st.Eth1DataVotes,
+		eth1DepositIndex:                  st.Eth1DepositIndex,
+		reserves:                          st.Reserves,
+		previousEpochParticipation:        st.PreviousEpochParticipation,
+		currentEpochParticipation:         st.CurrentEpochParticipation,
+		justificationBits:                 st.JustificationBits,
+		previousJustifiedCheckpoint:       st.PreviousJustifiedCheckpoint,
+		currentJustifiedCheckpoint:        st.CurrentJustifiedCheckpoint,
+		finalizedCheckpoint:               st.FinalizedCheckpoint,
+		latestExecutionPayloadHeaderDeneb: st.LatestExecutionPayloadHeader,
+		nextWithdrawalIndex:               st.NextWithdrawalIndex,
+		nextWithdrawalValidatorIndex:      st.NextWithdrawalValidatorIndex,
+		historicalSummaries:               st.HistoricalSummaries,
+		depositRequestsStartIndex:         st.DepositRequestsStartIndex,
+		depositBalanceToConsume:           st.DepositBalanceToConsume,
+		exitBalanceToConsume:              st.ExitBalanceToConsume,
+		earliestExitEpoch:                 st.EarliestExitEpoch,
+		pendingDeposits:                   st.PendingDeposits,
+		pendingPartialWithdrawals:         st.PendingPartialWithdrawals,
+
+		dirtyFields:      make(map[types.FieldIndex]bool, fieldCount),
+		dirtyIndices:     make(map[types.FieldIndex][]uint64, fieldCount),
+		stateFieldLeaves: make(map[types.FieldIndex]*fieldtrie.FieldTrie, fieldCount),
+		rebuildTrie:      make(map[types.FieldIndex]bool, fieldCount),
+		valMapHandler:    stateutil.NewValMapHandler(st.Validators),
+	}
+
+	if features.Get().EnableExperimentalState {
+		b.blockRootsMultiValue = NewMultiValueBlockRoots(st.BlockRoots)
+		b.stateRootsMultiValue = NewMultiValueStateRoots(st.StateRoots)
+		b.randaoMixesMultiValue = NewMultiValueRandaoMixes(st.RandaoMixes)
+		b.balancesMultiValue = NewMultiValueBalances(st.Balances)
+		b.validatorsMultiValue = NewMultiValueValidators(st.Validators)
+		b.inactivityScoresMultiValue = NewMultiValueInactivityScores(st.InactivityScores)
+		b.sharedFieldReferences = make(map[types.FieldIndex]*stateutil.Reference, experimentalStateBadgerSharedFieldRefCount)
+	} else {
+		bRoots := make([][32]byte, fieldparams.BlockRootsLength)
+		for i, r := range st.BlockRoots {
+			bRoots[i] = bytesutil.ToBytes32(r)
+		}
+		b.blockRoots = bRoots
+
+		sRoots := make([][32]byte, fieldparams.StateRootsLength)
+		for i, r := range st.StateRoots {
+			sRoots[i] = bytesutil.ToBytes32(r)
+		}
+		b.stateRoots = sRoots
+
+		mixes := make([][32]byte, fieldparams.RandaoMixesLength)
+		for i, m := range st.RandaoMixes {
+			mixes[i] = bytesutil.ToBytes32(m)
+		}
+		b.randaoMixes = mixes
+
+		b.balances = st.Balances
+		b.validators = st.Validators
+		b.inactivityScores = st.InactivityScores
+
+		b.sharedFieldReferences = make(map[types.FieldIndex]*stateutil.Reference, badgerSharedFieldRefCount)
+	}
+
+	for _, f := range badgerFields {
+		b.dirtyFields[f] = true
+		b.rebuildTrie[f] = true
+		b.dirtyIndices[f] = []uint64{}
+		trie, err := fieldtrie.NewFieldTrie(f, types.BasicArray, nil, 0)
+		if err != nil {
+			return nil, err
+		}
+		b.stateFieldLeaves[f] = trie
+	}
+
+	// Initialize field reference tracking for shared data.
+	b.sharedFieldReferences[types.Eth1DataVotes] = stateutil.NewRef(1)
+	b.sharedFieldReferences[types.PreviousEpochParticipationBits] = stateutil.NewRef(1)
+	b.sharedFieldReferences[types.CurrentEpochParticipationBits] = stateutil.NewRef(1)
+	b.sharedFieldReferences[types.LatestExecutionPayloadHeaderDeneb] = stateutil.NewRef(1)
+	b.sharedFieldReferences[types.HistoricalSummaries] = stateutil.NewRef(1)
+	b.sharedFieldReferences[types.PendingDeposits] = stateutil.NewRef(1)
+	b.sharedFieldReferences[types.PendingPartialWithdrawals] = stateutil.NewRef(1)
+	if !features.Get().EnableExperimentalState {
+		b.sharedFieldReferences[types.BlockRoots] = stateutil.NewRef(1)
+		b.sharedFieldReferences[types.StateRoots] = stateutil.NewRef(1)
+		b.sharedFieldReferences[types.RandaoMixes] = stateutil.NewRef(1)
+		b.sharedFieldReferences[types.Balances] = stateutil.NewRef(1)
+		b.sharedFieldReferences[types.Validators] = stateutil.NewRef(1)
+		b.sharedFieldReferences[types.InactivityScores] = stateutil.NewRef(1)
+	}
+
+	state.Count.Inc()
+	// Finalizer runs when dst is being destroyed in garbage collection.
+	runtime.SetFinalizer(b, finalizerCleanup)
+	return b, nil
+}
+
 // Copy returns a deep copy of the beacon state.
 func (b *BeaconState) Copy() state.BeaconState {
 	b.lock.RLock()
@@ -791,6 +911,8 @@ func (b *BeaconState) Copy() state.BeaconState {
 		fieldCount = params.BeaconConfig().BeaconStateDenebFieldCount
 	case version.Alpaca:
 		fieldCount = params.BeaconConfig().BeaconStateAlpacaFieldCount
+	case version.Badger:
+		fieldCount = params.BeaconConfig().BeaconStateBadgerFieldCount
 	}
 
 	dst := &BeaconState{
@@ -882,6 +1004,8 @@ func (b *BeaconState) Copy() state.BeaconState {
 			dst.sharedFieldReferences = make(map[types.FieldIndex]*stateutil.Reference, experimentalStateDenebSharedFieldRefCount)
 		case version.Alpaca:
 			dst.sharedFieldReferences = make(map[types.FieldIndex]*stateutil.Reference, experimentalStateElectraSharedFieldRefCount)
+		case version.Badger:
+			dst.sharedFieldReferences = make(map[types.FieldIndex]*stateutil.Reference, experimentalStateBadgerSharedFieldRefCount)
 		}
 	} else {
 		switch b.version {
@@ -897,6 +1021,8 @@ func (b *BeaconState) Copy() state.BeaconState {
 			dst.sharedFieldReferences = make(map[types.FieldIndex]*stateutil.Reference, denebSharedFieldRefCount)
 		case version.Alpaca:
 			dst.sharedFieldReferences = make(map[types.FieldIndex]*stateutil.Reference, electraSharedFieldRefCount)
+		case version.Badger:
+			dst.sharedFieldReferences = make(map[types.FieldIndex]*stateutil.Reference, badgerSharedFieldRefCount)
 		}
 	}
 
@@ -991,6 +1117,8 @@ func (b *BeaconState) initializeMerkleLayers(ctx context.Context) error {
 		b.dirtyFields = make(map[types.FieldIndex]bool, params.BeaconConfig().BeaconStateDenebFieldCount)
 	case version.Alpaca:
 		b.dirtyFields = make(map[types.FieldIndex]bool, params.BeaconConfig().BeaconStateAlpacaFieldCount)
+	case version.Badger:
+		b.dirtyFields = make(map[types.FieldIndex]bool, params.BeaconConfig().BeaconStateBadgerFieldCount)
 	default:
 		return fmt.Errorf("unknown state version (%s) when computing dirty fields in merklization", version.String(b.version))
 	}

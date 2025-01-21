@@ -299,6 +299,18 @@ func (s *Server) produceBlockV3(ctx context.Context, w http.ResponseWriter, r *h
 		handleProduceElectraV3(w, isSSZ, electraBlockContents, v1alpha1resp.PayloadValue, consensusBlockValue)
 		return
 	}
+	blindedBadgerBlockContents, ok := v1alpha1resp.Block.(*eth.GenericBeaconBlock_BlindedBadger)
+	if ok {
+		w.Header().Set(api.VersionHeader, version.String(version.Badger))
+		handleProduceBlindedBadgerV3(w, isSSZ, blindedBadgerBlockContents, v1alpha1resp.PayloadValue, consensusBlockValue)
+		return
+	}
+	badgerBlockContents, ok := v1alpha1resp.Block.(*eth.GenericBeaconBlock_Badger)
+	if ok {
+		w.Header().Set(api.VersionHeader, version.String(version.Badger))
+		handleProduceBadgerV3(w, isSSZ, badgerBlockContents, v1alpha1resp.PayloadValue, consensusBlockValue)
+		return
+	}
 }
 
 func getConsensusBlockValue(ctx context.Context, blockRewardsFetcher rewards.BlockRewardsFetcher, i interface{} /* block as argument */) (string, *httputil.DefaultJsonError) {
@@ -664,6 +676,77 @@ func handleProduceElectraV3(
 	}
 	httputil.WriteJson(w, &structs.ProduceBlockV3Response{
 		Version:                 version.String(version.Alpaca),
+		ExecutionPayloadBlinded: false,
+		ExecutionPayloadValue:   executionPayloadValue, // mev not available at this point
+		ConsensusBlockValue:     consensusBlockValue,
+		Data:                    jsonBytes,
+	})
+}
+
+func handleProduceBlindedBadgerV3(
+	w http.ResponseWriter,
+	isSSZ bool,
+	blk *eth.GenericBeaconBlock_BlindedBadger,
+	executionPayloadValue string,
+	consensusPayloadValue string,
+) {
+	if isSSZ {
+		sszResp, err := blk.BlindedBadger.MarshalSSZ()
+		if err != nil {
+			httputil.HandleError(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		httputil.WriteSsz(w, sszResp, "blindedBadgerBlockContents.ssz")
+		return
+	}
+	blindedBlock, err := structs.BlindedBeaconBlockBadgerFromConsensus(blk.BlindedBadger)
+	if err != nil {
+		httputil.HandleError(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	jsonBytes, err := json.Marshal(blindedBlock)
+	if err != nil {
+		httputil.HandleError(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	httputil.WriteJson(w, &structs.ProduceBlockV3Response{
+		Version:                 version.String(version.Badger),
+		ExecutionPayloadBlinded: true,
+		ExecutionPayloadValue:   executionPayloadValue,
+		ConsensusBlockValue:     consensusPayloadValue,
+		Data:                    jsonBytes,
+	})
+}
+
+func handleProduceBadgerV3(
+	w http.ResponseWriter,
+	isSSZ bool,
+	blk *eth.GenericBeaconBlock_Badger,
+	executionPayloadValue string,
+	consensusBlockValue string,
+) {
+	if isSSZ {
+		sszResp, err := blk.Badger.MarshalSSZ()
+		if err != nil {
+			httputil.HandleError(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		httputil.WriteSsz(w, sszResp, "badgerBlockContents.ssz")
+		return
+	}
+
+	blockContents, err := structs.BeaconBlockContentsBadgerFromConsensus(blk.Badger)
+	if err != nil {
+		httputil.HandleError(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	jsonBytes, err := json.Marshal(blockContents)
+	if err != nil {
+		httputil.HandleError(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	httputil.WriteJson(w, &structs.ProduceBlockV3Response{
+		Version:                 version.String(version.Badger),
 		ExecutionPayloadBlinded: false,
 		ExecutionPayloadValue:   executionPayloadValue, // mev not available at this point
 		ConsensusBlockValue:     consensusBlockValue,
