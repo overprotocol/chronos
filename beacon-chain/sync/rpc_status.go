@@ -63,6 +63,11 @@ func (s *Service) maintainPeerStatuses() {
 				if prysmTime.Now().After(lastUpdated.Add(interval)) {
 					if err := s.reValidatePeer(s.ctx, id); err != nil {
 						log.WithField("peer", id).WithError(err).Debug("Could not revalidate peer")
+						log.WithFields(logrus.Fields{
+							"peer": id,
+							"at":   "rpc_status/maintainPeerStatuses/revalidation fail",
+							"err":  err,
+						}).Debug("#### Incrementing bad responses scorer")
 						s.cfg.p2p.Peers().Scorers().BadResponsesScorer().Increment(id)
 					}
 				}
@@ -161,11 +166,20 @@ func (s *Service) sendRPCStatusRequest(ctx context.Context, id peer.ID) error {
 
 	code, errMsg, err := ReadStatusCode(stream, s.cfg.p2p.Encoding())
 	if err != nil {
+		log.WithFields(logrus.Fields{
+			"peer": stream.Conn().RemotePeer(),
+			"at":   "rpc_status/sendRPCStatusRequest/err != nil",
+			"err":  err,
+		}).Debug("#### Incrementing bad responses scorer")
 		s.cfg.p2p.Peers().Scorers().BadResponsesScorer().Increment(stream.Conn().RemotePeer())
 		return err
 	}
 
 	if code != 0 {
+		log.WithFields(logrus.Fields{
+			"peer": id,
+			"at":   "rpc_status/sendRPCStatusRequest/code != 0",
+		}).Debug("#### Incrementing bad responses scorer")
 		s.cfg.p2p.Peers().Scorers().BadResponsesScorer().Increment(id)
 		return errors.New(errMsg)
 	}
@@ -237,6 +251,10 @@ func (s *Service) statusRPCHandler(ctx context.Context, msg interface{}, stream 
 			return nil
 		default:
 			respCode = responseCodeInvalidRequest
+			log.WithFields(logrus.Fields{
+				"peer": remotePeer,
+				"at":   "rpc_status/statusRPCHandler",
+			}).Debug("#### Incrementing bad responses scorer")
 			s.cfg.p2p.Peers().Scorers().BadResponsesScorer().Increment(remotePeer)
 		}
 

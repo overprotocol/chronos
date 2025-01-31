@@ -18,6 +18,7 @@ import (
 	eth "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	"github.com/prysmaticlabs/prysm/v5/runtime/version"
 	"github.com/prysmaticlabs/prysm/v5/time/slots"
+	"github.com/sirupsen/logrus"
 )
 
 // sendBeaconBlocksRequest sends a recent beacon blocks request to a peer to get
@@ -94,6 +95,10 @@ func (s *Service) beaconBlocksRootRPCHandler(ctx context.Context, msg interface{
 
 	currentEpoch := slots.ToEpoch(s.cfg.clock.CurrentSlot())
 	if uint64(len(blockRoots)) > params.MaxRequestBlock(currentEpoch) {
+		log.WithFields(logrus.Fields{
+			"peer": stream.Conn().RemotePeer(),
+			"at":   "rpc_beacon_blocks_by_root/beaconBlocksRootRPCHandler",
+		}).Debug("#### Incrementing bad responses scorer")
 		s.cfg.p2p.Peers().Scorers().BadResponsesScorer().Increment(stream.Conn().RemotePeer())
 		s.writeErrorResponseToStream(responseCodeInvalidRequest, "requested more than the max block limit", stream)
 		return errors.New("requested more than the max block limit")

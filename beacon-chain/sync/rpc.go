@@ -18,6 +18,7 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing"
 	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing/trace"
 	"github.com/prysmaticlabs/prysm/v5/time/slots"
+	"github.com/sirupsen/logrus"
 )
 
 // Time to first byte timeout. The maximum time to wait for first byte of
@@ -220,6 +221,11 @@ func (s *Service) registerRPC(baseTopic string, handle rpcHandler) {
 			if err := s.cfg.p2p.Encoding().DecodeWithMaxLength(stream, msg); err != nil {
 				logStreamErrors(err, topic)
 				tracing.AnnotateError(span, err)
+				log.WithFields(logrus.Fields{
+					"peer": stream.Conn().RemotePeer(),
+					"at":   "rpc/registerRPC/t.Kind() == reflect.Ptr",
+					"err":  err,
+				}).Debug("#### Incrementing bad responses scorer")
 				s.cfg.p2p.Peers().Scorers().BadResponsesScorer().Increment(stream.Conn().RemotePeer())
 				return
 			}
@@ -238,6 +244,11 @@ func (s *Service) registerRPC(baseTopic string, handle rpcHandler) {
 				return
 			}
 			if err := s.cfg.p2p.Encoding().DecodeWithMaxLength(stream, msg); err != nil {
+				log.WithFields(logrus.Fields{
+					"peer": stream.Conn().RemotePeer(),
+					"at":   "rpc/registerRPC/t.Kind() != reflect.Ptr",
+					"err":  err,
+				}).Debug("#### Incrementing bad responses scorer")
 				logStreamErrors(err, topic)
 				tracing.AnnotateError(span, err)
 				s.cfg.p2p.Peers().Scorers().BadResponsesScorer().Increment(stream.Conn().RemotePeer())

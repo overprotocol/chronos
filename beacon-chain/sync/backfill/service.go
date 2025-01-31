@@ -17,6 +17,7 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/proto/dbval"
 	"github.com/prysmaticlabs/prysm/v5/runtime"
 	"github.com/prysmaticlabs/prysm/v5/time/slots"
+	"github.com/sirupsen/logrus"
 )
 
 type Service struct {
@@ -331,6 +332,10 @@ func (s *Service) initBatches() error {
 }
 
 func (s *Service) downscore(b batch) {
+	log.WithFields(logrus.Fields{
+		"peer": b.blockPid,
+		"at":   "downscore",
+	}).Debug("#### Incrementing bad responses scorer")
 	s.p2p.Peers().Scorers().BadResponsesScorer().Increment(b.blockPid)
 }
 

@@ -35,6 +35,11 @@ func (s *Service) blobSidecarByRootRPCHandler(ctx context.Context, msg interface
 
 	blobIdents := *ref
 	if err := validateBlobByRootRequest(blobIdents); err != nil {
+		log.WithFields(logrus.Fields{
+			"peer": stream.Conn().RemotePeer(),
+			"at":   "rpc_blob_sidecars_by_root/blobSidecarByRootRPCHandler",
+			"err":  err,
+		}).Debug("#### Incrementing bad responses scorer")
 		s.cfg.p2p.Peers().Scorers().BadResponsesScorer().Increment(stream.Conn().RemotePeer())
 		s.writeErrorResponseToStream(responseCodeInvalidRequest, err.Error(), stream)
 		return err

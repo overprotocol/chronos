@@ -13,6 +13,7 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
 	"github.com/prysmaticlabs/prysm/v5/time"
 	"github.com/prysmaticlabs/prysm/v5/time/slots"
+	"github.com/sirupsen/logrus"
 )
 
 // pingHandler reads the incoming ping rpc message from the peer.
@@ -43,6 +44,10 @@ func (s *Service) pingHandler(_ context.Context, msg interface{}, stream libp2pc
 	if err != nil {
 		// Descore peer for giving us a bad sequence number.
 		if errors.Is(err, p2ptypes.ErrInvalidSequenceNum) {
+			log.WithFields(logrus.Fields{
+				"peer": stream.Conn().RemotePeer(),
+				"at":   "rpc_ping/pingHandler",
+			}).Debug("#### Incrementing bad responses scorer")
 			s.cfg.p2p.Peers().Scorers().BadResponsesScorer().Increment(peerID)
 			s.writeErrorResponseToStream(responseCodeInvalidRequest, p2ptypes.ErrInvalidSequenceNum.Error(), stream)
 		}
@@ -141,6 +146,10 @@ func (s *Service) sendPingRequest(ctx context.Context, peerID peer.ID) error {
 
 	// If the peer responded with an error, increment the bad responses scorer.
 	if code != 0 {
+		log.WithFields(logrus.Fields{
+			"peer": peerID,
+			"at":   "rpc_ping/sendPingRequest/code != 0",
+		}).Debug("#### Incrementing bad responses scorer")
 		s.cfg.p2p.Peers().Scorers().BadResponsesScorer().Increment(peerID)
 		return errors.Errorf("code: %d - %s", code, errMsg)
 	}
@@ -156,6 +165,11 @@ func (s *Service) sendPingRequest(ctx context.Context, peerID peer.ID) error {
 	if err != nil {
 		// Descore peer for giving us a bad sequence number.
 		if errors.Is(err, p2ptypes.ErrInvalidSequenceNum) {
+			log.WithFields(logrus.Fields{
+				"peer": peerID,
+				"at":   "rpc_ping/sendPingRequest/validateSequenceNum",
+				"err":  err,
+			}).Debug("#### Incrementing bad responses scorer")
 			s.cfg.p2p.Peers().Scorers().BadResponsesScorer().Increment(peerID)
 		}
 

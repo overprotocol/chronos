@@ -495,6 +495,11 @@ func (s *Service) connectWithPeer(ctx context.Context, info peer.AddrInfo) error
 	ctx, cancel := context.WithTimeout(ctx, maxDialTimeout)
 	defer cancel()
 	if err := s.host.Connect(ctx, info); err != nil {
+		log.WithFields(logrus.Fields{
+			"peer": info.ID,
+			"at":   "connectWithPeer",
+			"err":  err,
+		}).Debug("#### Incrementing bad responses scorer")
 		s.Peers().Scorers().BadResponsesScorer().Increment(info.ID)
 		return err
 	}
