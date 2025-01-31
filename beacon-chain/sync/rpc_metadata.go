@@ -13,6 +13,7 @@ import (
 	pb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	"github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1/metadata"
 	"github.com/prysmaticlabs/prysm/v5/time/slots"
+	"github.com/sirupsen/logrus"
 )
 
 // metaDataHandler reads the incoming metadata rpc request from the peer.
@@ -76,10 +77,19 @@ func (s *Service) sendMetaDataRequest(ctx context.Context, id peer.ID) (metadata
 	defer closeStream(stream, log)
 	code, errMsg, err := ReadStatusCode(stream, s.cfg.p2p.Encoding())
 	if err != nil {
+		log.WithFields(logrus.Fields{
+			"peer": stream.Conn().RemotePeer(),
+			"at":   "rpc_metadata/sendMetaDataRequest/err != nil",
+			"err":  err,
+		}).Debug("#### Incrementing bad responses scorer")
 		s.cfg.p2p.Peers().Scorers().BadResponsesScorer().Increment(stream.Conn().RemotePeer())
 		return nil, err
 	}
 	if code != 0 {
+		log.WithFields(logrus.Fields{
+			"peer": stream.Conn().RemotePeer(),
+			"at":   "rpc_metadata/sendMetaDataRequest/code != 0",
+		}).Debug("#### Incrementing bad responses scorer")
 		s.cfg.p2p.Peers().Scorers().BadResponsesScorer().Increment(stream.Conn().RemotePeer())
 		return nil, errors.New(errMsg)
 	}
@@ -93,6 +103,11 @@ func (s *Service) sendMetaDataRequest(ctx context.Context, id peer.ID) (metadata
 		return nil, err
 	}
 	if err := s.cfg.p2p.Encoding().DecodeWithMaxLength(stream, msg); err != nil {
+		log.WithFields(logrus.Fields{
+			"peer": stream.Conn().RemotePeer(),
+			"at":   "rpc_metadata/sendMetaDataRequest/decoding error",
+			"err":  err,
+		}).Debug("#### Incrementing bad responses scorer")
 		s.cfg.p2p.Peers().Scorers().BadResponsesScorer().Increment(stream.Conn().RemotePeer())
 		return nil, err
 	}

@@ -5,6 +5,7 @@ import (
 
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/p2p/peers/peerdata"
+	"github.com/sirupsen/logrus"
 )
 
 var _ Scorer = (*BadResponsesScorer)(nil)
@@ -106,11 +107,13 @@ func (s *BadResponsesScorer) Increment(pid peer.ID) {
 
 	peerData, ok := s.store.PeerData(pid)
 	if !ok {
+		logrus.Debugf("#### pid %s: score increased from 0", pid)
 		s.store.SetPeerData(pid, &peerdata.PeerData{
 			BadResponses: 1,
 		})
 		return
 	}
+	logrus.Debugf("#### pid %s: score increased from %d", pid, peerData.BadResponses)
 	peerData.BadResponses++
 }
 
