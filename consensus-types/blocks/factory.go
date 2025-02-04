@@ -74,6 +74,14 @@ func NewSignedBeaconBlock(i interface{}) (interfaces.SignedBeaconBlock, error) {
 		return initBlindedSignedBlockFromProtoElectra(b)
 	case *eth.GenericSignedBeaconBlock_BlindedElectra:
 		return initBlindedSignedBlockFromProtoElectra(b.BlindedElectra)
+	case *eth.GenericSignedBeaconBlock_Badger:
+		return initSignedBlockFromProtoBadger(b.Badger.Block)
+	case *eth.SignedBeaconBlockBadger:
+		return initSignedBlockFromProtoBadger(b)
+	case *eth.SignedBlindedBeaconBlockBadger:
+		return initBlindedSignedBlockFromProtoBadger(b)
+	case *eth.GenericSignedBeaconBlock_BlindedBadger:
+		return initBlindedSignedBlockFromProtoBadger(b.BlindedBadger)
 	default:
 		return nil, errors.Wrapf(ErrUnsupportedSignedBeaconBlock, "unable to create block from type %T", i)
 	}
@@ -124,6 +132,14 @@ func NewBeaconBlock(i interface{}) (interfaces.ReadOnlyBeaconBlock, error) {
 		return initBlindedBlockFromProtoElectra(b)
 	case *eth.GenericBeaconBlock_BlindedElectra:
 		return initBlindedBlockFromProtoElectra(b.BlindedElectra)
+	case *eth.GenericBeaconBlock_Badger:
+		return initBlockFromProtoBadger(b.Badger.Block)
+	case *eth.BeaconBlockBadger:
+		return initBlockFromProtoBadger(b)
+	case *eth.BlindedBeaconBlockBadger:
+		return initBlindedBlockFromProtoBadger(b)
+	case *eth.GenericBeaconBlock_BlindedBadger:
+		return initBlindedBlockFromProtoBadger(b.BlindedBadger)
 	default:
 		return nil, errors.Wrapf(errUnsupportedBeaconBlock, "unable to create block from type %T", i)
 	}
@@ -154,6 +170,10 @@ func NewBeaconBlockBody(i interface{}) (interfaces.ReadOnlyBeaconBlockBody, erro
 		return initBlockBodyFromProtoElectra(b)
 	case *eth.BlindedBeaconBlockBodyElectra:
 		return initBlindedBlockBodyFromProtoElectra(b)
+	case *eth.BeaconBlockBodyBadger:
+		return initBlockBodyFromProtoBadger(b)
+	case *eth.BlindedBeaconBlockBodyBadger:
+		return initBlindedBlockBodyFromProtoBadger(b)
 	default:
 		return nil, errors.Wrapf(errUnsupportedBeaconBlockBody, "unable to create block body from type %T", i)
 	}
@@ -233,6 +253,19 @@ func BuildSignedBeaconBlock(blk interfaces.ReadOnlyBeaconBlock, signature []byte
 			return nil, errIncorrectBlockVersion
 		}
 		return NewSignedBeaconBlock(&eth.SignedBeaconBlockElectra{Block: pb, Signature: signature})
+	case version.Badger:
+		if blk.IsBlinded() {
+			pb, ok := pb.(*eth.BlindedBeaconBlockBadger)
+			if !ok {
+				return nil, errIncorrectBlockVersion
+			}
+			return NewSignedBeaconBlock(&eth.SignedBlindedBeaconBlockBadger{Message: pb, Signature: signature})
+		}
+		pb, ok := pb.(*eth.BeaconBlockBadger)
+		if !ok {
+			return nil, errIncorrectBlockVersion
+		}
+		return NewSignedBeaconBlock(&eth.SignedBeaconBlockBadger{Block: pb, Signature: signature})
 	default:
 		return nil, errUnsupportedBeaconBlock
 	}
@@ -280,7 +313,8 @@ func checkPayloadAgainstHeader(wrappedPayload, payloadHeader interfaces.Executio
 
 // BuildSignedBeaconBlockFromExecutionPayload takes a signed, blinded beacon block and converts into
 // a full, signed beacon block by specifying an execution payload.
-func BuildSignedBeaconBlockFromExecutionPayload(blk interfaces.ReadOnlySignedBeaconBlock, payload interface{}) (interfaces.SignedBeaconBlock, error) { // nolint:gocognit
+// nolint:gocognit
+func BuildSignedBeaconBlockFromExecutionPayload(blk interfaces.ReadOnlySignedBeaconBlock, payload interface{}) (interfaces.SignedBeaconBlock, error) {
 	if err := BeaconBlockIsNil(blk); err != nil {
 		return nil, err
 	}
@@ -498,6 +532,65 @@ func BuildSignedBeaconBlockFromExecutionPayload(blk interfaces.ReadOnlySignedBea
 				ParentRoot:    parentRoot[:],
 				StateRoot:     stateRoot[:],
 				Body: &eth.BeaconBlockBodyElectra{
+					RandaoReveal:       randaoReveal[:],
+					Eth1Data:           b.Body().Eth1Data(),
+					Graffiti:           graffiti[:],
+					ProposerSlashings:  b.Body().ProposerSlashings(),
+					AttesterSlashings:  attSlashings,
+					Attestations:       atts,
+					Deposits:           b.Body().Deposits(),
+					VoluntaryExits:     b.Body().VoluntaryExits(),
+					ExecutionPayload:   p,
+					BlobKzgCommitments: commitments,
+					ExecutionRequests:  er,
+				},
+			},
+			Signature: sig[:],
+		}
+	case version.Badger:
+		p, ok := payload.(*enginev1.ExecutionPayloadDeneb)
+		if !ok {
+			return nil, errors.New("payload not of Badger type")
+		}
+		commitments, err := b.Body().BlobKzgCommitments()
+		if err != nil {
+			return nil, err
+		}
+		var atts []*eth.AttestationElectra
+		if b.Body().Attestations() != nil {
+			atts = make([]*eth.AttestationElectra, len(b.Body().Attestations()))
+			for i, att := range b.Body().Attestations() {
+				a, ok := att.(*eth.AttestationElectra)
+				if !ok {
+					return nil, fmt.Errorf("attestation has wrong type (expected %T, got %T)", &eth.Attestation{}, att)
+				}
+				atts[i] = a
+			}
+		}
+		var attSlashings []*eth.AttesterSlashingElectra
+		if b.Body().AttesterSlashings() != nil {
+			attSlashings = make([]*eth.AttesterSlashingElectra, len(b.Body().AttesterSlashings()))
+			for i, slashing := range b.Body().AttesterSlashings() {
+				s, ok := slashing.(*eth.AttesterSlashingElectra)
+				if !ok {
+					return nil, fmt.Errorf("attester slashing has wrong type (expected %T, got %T)", &eth.AttesterSlashing{}, slashing)
+				}
+				attSlashings[i] = s
+			}
+		}
+
+		er, err := b.Body().ExecutionRequests()
+		if err != nil {
+			return nil, err
+		}
+
+		fullBlock = &eth.SignedBeaconBlockBadger{
+			Block: &eth.BeaconBlockBadger{
+				Slot:          b.Slot(),
+				ProposerIndex: b.ProposerIndex(),
+				ParentRoot:    parentRoot[:],
+				StateRoot:     stateRoot[:],
+				Body: &eth.BeaconBlockBodyBadger{
 					RandaoReveal:       randaoReveal[:],
 					Eth1Data:           b.Body().Eth1Data(),
 					Graffiti:           graffiti[:],

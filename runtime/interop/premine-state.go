@@ -65,7 +65,7 @@ func NewPreminedGenesis(ctx context.Context, t, nvals, pCreds uint64, version in
 
 func (s *PremineGenesisConfig) prepare(ctx context.Context) (state.BeaconState, error) {
 	switch s.Version {
-	case version.Phase0, version.Altair, version.Bellatrix, version.Capella, version.Deneb, version.Alpaca:
+	case version.Phase0, version.Altair, version.Bellatrix, version.Capella, version.Deneb, version.Alpaca, version.Badger:
 	default:
 		return nil, errors.Wrapf(errUnsupportedVersion, "version=%s", version.String(s.Version))
 	}
@@ -156,6 +156,11 @@ func (s *PremineGenesisConfig) empty() (state.BeaconState, error) {
 		}
 	case version.Alpaca:
 		e, err = state_native.InitializeFromProtoElectra(&ethpb.BeaconStateElectra{})
+		if err != nil {
+			return nil, err
+		}
+	case version.Badger:
+		e, err = state_native.InitializeFromProtoBadger(&ethpb.BeaconStateBadger{})
 		if err != nil {
 			return nil, err
 		}
@@ -499,6 +504,33 @@ func (s *PremineGenesisConfig) setLatestBlockHeader(g state.BeaconState) error {
 		}
 	case version.Alpaca:
 		body = &ethpb.BeaconBlockBodyElectra{
+			RandaoReveal: make([]byte, 96),
+			Eth1Data: &ethpb.Eth1Data{
+				DepositRoot: make([]byte, 32),
+				BlockHash:   make([]byte, 32),
+			},
+			Graffiti: make([]byte, 32),
+			ExecutionPayload: &enginev1.ExecutionPayloadDeneb{
+				ParentHash:    make([]byte, 32),
+				FeeRecipient:  make([]byte, 20),
+				StateRoot:     make([]byte, 32),
+				ReceiptsRoot:  make([]byte, 32),
+				LogsBloom:     make([]byte, 256),
+				PrevRandao:    make([]byte, 32),
+				ExtraData:     make([]byte, 0),
+				BaseFeePerGas: make([]byte, 32),
+				BlockHash:     make([]byte, 32),
+				Transactions:  make([][]byte, 0),
+				Withdrawals:   make([]*enginev1.Withdrawal, 0),
+			},
+			BlobKzgCommitments: make([][]byte, 0),
+			ExecutionRequests: &enginev1.ExecutionRequests{
+				Deposits:    make([]*enginev1.DepositRequest, 0),
+				Withdrawals: make([]*enginev1.WithdrawalRequest, 0),
+			},
+		}
+	case version.Badger:
+		body = &ethpb.BeaconBlockBodyBadger{
 			RandaoReveal: make([]byte, 96),
 			Eth1Data: &ethpb.Eth1Data{
 				DepositRoot: make([]byte, 32),

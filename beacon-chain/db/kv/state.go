@@ -517,6 +517,19 @@ func (s *Store) unmarshalState(_ context.Context, enc []byte, validatorEntries [
 	}
 
 	switch {
+	case hasBadgerKey(enc):
+		protoState := &ethpb.BeaconStateBadger{}
+		if err := protoState.UnmarshalSSZ(enc[len(badgerKey):]); err != nil {
+			return nil, errors.Wrap(err, "failed to unmarshal encoding for Badger")
+		}
+		ok, err := s.isStateValidatorMigrationOver()
+		if err != nil {
+			return nil, err
+		}
+		if ok {
+			protoState.Validators = validatorEntries
+		}
+		return statenative.InitializeFromProtoUnsafeBadger(protoState)
 	case hasElectraKey(enc):
 		protoState := &ethpb.BeaconStateElectra{}
 		if err := protoState.UnmarshalSSZ(enc[len(electraKey):]); err != nil {
@@ -676,6 +689,19 @@ func marshalState(ctx context.Context, st state.ReadOnlyBeaconState) ([]byte, er
 			return nil, err
 		}
 		return snappy.Encode(nil, append(electraKey, rawObj...)), nil
+	case version.Badger:
+		rState, ok := st.ToProtoUnsafe().(*ethpb.BeaconStateBadger)
+		if !ok {
+			return nil, errors.New("non valid inner state")
+		}
+		if rState == nil {
+			return nil, errors.New("nil state")
+		}
+		rawObj, err := rState.MarshalSSZ()
+		if err != nil {
+			return nil, err
+		}
+		return snappy.Encode(nil, append(badgerKey, rawObj...)), nil
 	default:
 		return nil, errors.New("invalid inner state")
 	}

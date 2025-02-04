@@ -129,6 +129,8 @@ func TestExtractDataType(t *testing.T) {
 	require.NoError(t, err)
 	alpacaDigest, err := signing.ComputeForkDigest(params.BeaconConfig().AlpacaForkVersion, params.BeaconConfig().ZeroHash[:])
 	require.NoError(t, err)
+	badgerDigest, err := signing.ComputeForkDigest(params.BeaconConfig().BadgerForkVersion, params.BeaconConfig().ZeroHash[:])
+	require.NoError(t, err)
 
 	type args struct {
 		digest []byte
@@ -270,6 +272,22 @@ func TestExtractDataType(t *testing.T) {
 			},
 			wantBlock: func() interfaces.ReadOnlySignedBeaconBlock {
 				wsb, err := blocks.NewSignedBeaconBlock(&ethpb.SignedBeaconBlockElectra{Block: &ethpb.BeaconBlockElectra{Body: &ethpb.BeaconBlockBodyElectra{ExecutionPayload: &enginev1.ExecutionPayloadDeneb{}}}})
+				require.NoError(t, err)
+				return wsb
+			}(),
+			wantMd:        wrapper.WrappedMetadataV1(&ethpb.MetaDataV1{}),
+			wantAtt:       &ethpb.AttestationElectra{},
+			wantAggregate: &ethpb.SignedAggregateAttestationAndProofElectra{},
+			wantErr:       false,
+		},
+		{
+			name: "badger fork version",
+			args: args{
+				digest: badgerDigest[:],
+				chain:  &mock.ChainService{ValidatorsRoot: [32]byte{}},
+			},
+			wantBlock: func() interfaces.ReadOnlySignedBeaconBlock {
+				wsb, err := blocks.NewSignedBeaconBlock(&ethpb.SignedBeaconBlockBadger{Block: &ethpb.BeaconBlockBadger{Body: &ethpb.BeaconBlockBodyBadger{ExecutionPayload: &enginev1.ExecutionPayloadDeneb{}}}})
 				require.NoError(t, err)
 				return wsb
 			}(),

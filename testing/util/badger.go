@@ -20,9 +20,9 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/time/slots"
 )
 
-type ElectraBlockGeneratorOption func(*electraBlockGenerator)
+type BadgerBlockGeneratorOption func(*badgerBlockGenerator)
 
-type electraBlockGenerator struct {
+type badgerBlockGenerator struct {
 	parent   [32]byte
 	slot     primitives.Slot
 	nblobs   int
@@ -33,8 +33,8 @@ type electraBlockGenerator struct {
 	payload  *enginev1.ExecutionPayloadDeneb
 }
 
-func WithElectraProposerSigning(idx primitives.ValidatorIndex, sk bls.SecretKey, valRoot []byte) ElectraBlockGeneratorOption {
-	return func(g *electraBlockGenerator) {
+func WithBadgerProposerSigning(idx primitives.ValidatorIndex, sk bls.SecretKey, valRoot []byte) BadgerBlockGeneratorOption {
+	return func(g *badgerBlockGenerator) {
 		g.sign = true
 		g.proposer = idx
 		g.sk = sk
@@ -42,14 +42,14 @@ func WithElectraProposerSigning(idx primitives.ValidatorIndex, sk bls.SecretKey,
 	}
 }
 
-func WithElectraPayload(p *enginev1.ExecutionPayloadDeneb) ElectraBlockGeneratorOption {
-	return func(g *electraBlockGenerator) {
+func WithBadgerPayload(p *enginev1.ExecutionPayloadDeneb) BadgerBlockGeneratorOption {
+	return func(g *badgerBlockGenerator) {
 		g.payload = p
 	}
 }
 
-func GenerateTestElectraBlockWithSidecar(t *testing.T, parent [32]byte, slot primitives.Slot, nblobs int, opts ...ElectraBlockGeneratorOption) (blocks.ROBlock, []blocks.ROBlob) {
-	g := &electraBlockGenerator{
+func GenerateTestBadgerBlockWithSidecar(t *testing.T, parent [32]byte, slot primitives.Slot, nblobs int, opts ...BadgerBlockGeneratorOption) (blocks.ROBlock, []blocks.ROBlob) {
+	g := &badgerBlockGenerator{
 		parent: parent,
 		slot:   slot,
 		nblobs: nblobs,
@@ -100,7 +100,7 @@ func GenerateTestElectraBlockWithSidecar(t *testing.T, parent [32]byte, slot pri
 		}
 	}
 
-	block := NewBeaconBlockElectra()
+	block := NewBeaconBlockBadger()
 	block.Block.Body.ExecutionPayload = g.payload
 	block.Block.Slot = g.slot
 	block.Block.ParentRoot = g.parent[:]

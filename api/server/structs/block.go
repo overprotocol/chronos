@@ -392,6 +392,92 @@ type BlindedBeaconBlockBodyElectra struct {
 	ExecutionRequests      *ExecutionRequests           `json:"execution_requests"`
 }
 
+type SignedBeaconBlockContentsBadger struct {
+	SignedBlock *SignedBeaconBlockBadger `json:"signed_block"`
+	KzgProofs   []string                 `json:"kzg_proofs"`
+	Blobs       []string                 `json:"blobs"`
+}
+
+type BeaconBlockContentsBadger struct {
+	Block     *BeaconBlockBadger `json:"block"`
+	KzgProofs []string           `json:"kzg_proofs"`
+	Blobs     []string           `json:"blobs"`
+}
+
+type SignedBeaconBlockBadger struct {
+	Message   *BeaconBlockBadger `json:"message"`
+	Signature string             `json:"signature"`
+}
+
+var _ SignedMessageJsoner = &SignedBeaconBlockBadger{}
+
+func (s *SignedBeaconBlockBadger) MessageRawJson() ([]byte, error) {
+	return json.Marshal(s.Message)
+}
+
+func (s *SignedBeaconBlockBadger) SigString() string {
+	return s.Signature
+}
+
+type BeaconBlockBadger struct {
+	Slot          string                 `json:"slot"`
+	ProposerIndex string                 `json:"proposer_index"`
+	ParentRoot    string                 `json:"parent_root"`
+	StateRoot     string                 `json:"state_root"`
+	Body          *BeaconBlockBodyBadger `json:"body"`
+}
+
+type BeaconBlockBodyBadger struct {
+	RandaoReveal       string                     `json:"randao_reveal"`
+	Eth1Data           *Eth1Data                  `json:"eth1_data"`
+	Graffiti           string                     `json:"graffiti"`
+	ProposerSlashings  []*ProposerSlashing        `json:"proposer_slashings"`
+	AttesterSlashings  []*AttesterSlashingElectra `json:"attester_slashings"`
+	Attestations       []*AttestationElectra      `json:"attestations"`
+	Deposits           []*Deposit                 `json:"deposits"`
+	VoluntaryExits     []*SignedVoluntaryExit     `json:"voluntary_exits"`
+	ExecutionPayload   *ExecutionPayloadDeneb     `json:"execution_payload"`
+	BlobKzgCommitments []string                   `json:"blob_kzg_commitments"`
+	ExecutionRequests  *ExecutionRequests         `json:"execution_requests"`
+}
+
+type BlindedBeaconBlockBadger struct {
+	Slot          string                        `json:"slot"`
+	ProposerIndex string                        `json:"proposer_index"`
+	ParentRoot    string                        `json:"parent_root"`
+	StateRoot     string                        `json:"state_root"`
+	Body          *BlindedBeaconBlockBodyBadger `json:"body"`
+}
+
+type SignedBlindedBeaconBlockBadger struct {
+	Message   *BlindedBeaconBlockBadger `json:"message"`
+	Signature string                    `json:"signature"`
+}
+
+var _ SignedMessageJsoner = &SignedBlindedBeaconBlockBadger{}
+
+func (s *SignedBlindedBeaconBlockBadger) MessageRawJson() ([]byte, error) {
+	return json.Marshal(s.Message)
+}
+
+func (s *SignedBlindedBeaconBlockBadger) SigString() string {
+	return s.Signature
+}
+
+type BlindedBeaconBlockBodyBadger struct {
+	RandaoReveal           string                       `json:"randao_reveal"`
+	Eth1Data               *Eth1Data                    `json:"eth1_data"`
+	Graffiti               string                       `json:"graffiti"`
+	ProposerSlashings      []*ProposerSlashing          `json:"proposer_slashings"`
+	AttesterSlashings      []*AttesterSlashingElectra   `json:"attester_slashings"`
+	Attestations           []*AttestationElectra        `json:"attestations"`
+	Deposits               []*Deposit                   `json:"deposits"`
+	VoluntaryExits         []*SignedVoluntaryExit       `json:"voluntary_exits"`
+	ExecutionPayloadHeader *ExecutionPayloadHeaderDeneb `json:"execution_payload_header"`
+	BlobKzgCommitments     []string                     `json:"blob_kzg_commitments"`
+	ExecutionRequests      *ExecutionRequests           `json:"execution_requests"`
+}
+
 type SignedBeaconBlockHeaderContainer struct {
 	Header    *SignedBeaconBlockHeader `json:"header"`
 	Root      string                   `json:"root"`

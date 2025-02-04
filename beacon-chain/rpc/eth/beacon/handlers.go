@@ -354,6 +354,21 @@ func (s *Server) publishBlindedBlockSSZ(ctx context.Context, w http.ResponseWrit
 		httputil.HandleError(w, api.VersionHeader+" header is required", http.StatusBadRequest)
 	}
 	switch versionHeader {
+	case version.String(version.Badger):
+		badgerBlock := &eth.SignedBlindedBeaconBlockBadger{}
+		if err = badgerBlock.UnmarshalSSZ(body); err == nil {
+			genericBlock := &eth.GenericSignedBeaconBlock{
+				Block: &eth.GenericSignedBeaconBlock_BlindedBadger{
+					BlindedBadger: badgerBlock,
+				},
+			}
+			if err = s.validateBroadcast(ctx, r, genericBlock); err != nil {
+				httputil.HandleError(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+			s.proposeBlock(ctx, w, genericBlock)
+			return
+		}
 	case version.String(version.Alpaca):
 		electraBlock := &eth.SignedBlindedBeaconBlockElectra{}
 		if err = electraBlock.UnmarshalSSZ(body); err == nil {
@@ -469,6 +484,19 @@ func (s *Server) publishBlindedBlock(ctx context.Context, w http.ResponseWriter,
 	var consensusBlock *eth.GenericSignedBeaconBlock
 
 	switch versionHeader {
+	case version.String(version.Badger):
+		var badgerBlock *structs.SignedBlindedBeaconBlockBadger
+		if err = unmarshalStrict(body, &badgerBlock); err == nil {
+			consensusBlock, err = badgerBlock.ToGeneric()
+			if err == nil {
+				if err = s.validateBroadcast(ctx, r, consensusBlock); err != nil {
+					httputil.HandleError(w, err.Error(), http.StatusBadRequest)
+					return
+				}
+				s.proposeBlock(ctx, w, consensusBlock)
+				return
+			}
+		}
 	case version.String(version.Alpaca):
 		var electraBlock *structs.SignedBlindedBeaconBlockElectra
 		if err = unmarshalStrict(body, &electraBlock); err == nil {
@@ -613,6 +641,31 @@ func (s *Server) publishBlockSSZ(ctx context.Context, w http.ResponseWriter, r *
 		return
 	}
 	switch versionHeader {
+	case version.String(version.Badger):
+		badgerBlock := &eth.SignedBeaconBlockContentsBadger{}
+		if err = badgerBlock.UnmarshalSSZ(body); err == nil {
+			genericBlock := &eth.GenericSignedBeaconBlock{
+				Block: &eth.GenericSignedBeaconBlock_Badger{
+					Badger: badgerBlock,
+				},
+			}
+			if err = s.validateBroadcast(ctx, r, genericBlock); err != nil {
+				if errors.Is(err, errEquivocatedBlock) {
+					b, err := blocks.NewSignedBeaconBlock(genericBlock)
+					if err != nil {
+						httputil.HandleError(w, err.Error(), http.StatusBadRequest)
+						return
+					}
+					if err := s.broadcastSeenBlockSidecars(ctx, b, genericBlock.GetBadger().Blobs, genericBlock.GetBadger().KzgProofs); err != nil {
+						log.WithError(err).Error("Failed to broadcast blob sidecars")
+					}
+				}
+				httputil.HandleError(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+			s.proposeBlock(ctx, w, genericBlock)
+			return
+		}
 	case version.String(version.Alpaca):
 		electraBlock := &eth.SignedBeaconBlockContentsElectra{}
 		if err = electraBlock.UnmarshalSSZ(body); err == nil {
@@ -734,7 +787,8 @@ func (s *Server) publishBlockSSZ(ctx context.Context, w http.ResponseWriter, r *
 	)
 }
 
-func (s *Server) publishBlock(ctx context.Context, w http.ResponseWriter, r *http.Request, versionRequired bool) { // nolint:gocognit
+// nolint:gocognit
+func (s *Server) publishBlock(ctx context.Context, w http.ResponseWriter, r *http.Request, versionRequired bool) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		httputil.HandleError(w, "Could not read request body", http.StatusInternalServerError)
@@ -749,6 +803,29 @@ func (s *Server) publishBlock(ctx context.Context, w http.ResponseWriter, r *htt
 	var consensusBlock *eth.GenericSignedBeaconBlock
 
 	switch versionHeader {
+	case version.String(version.Badger):
+		var badgerBlockContents *structs.SignedBeaconBlockContentsBadger
+		if err = unmarshalStrict(body, &badgerBlockContents); err == nil {
+			consensusBlock, err = badgerBlockContents.ToGeneric()
+			if err == nil {
+				if err = s.validateBroadcast(ctx, r, consensusBlock); err != nil {
+					if errors.Is(err, errEquivocatedBlock) {
+						b, err := blocks.NewSignedBeaconBlock(consensusBlock)
+						if err != nil {
+							httputil.HandleError(w, err.Error(), http.StatusBadRequest)
+							return
+						}
+						if err := s.broadcastSeenBlockSidecars(ctx, b, consensusBlock.GetBadger().Blobs, consensusBlock.GetBadger().KzgProofs); err != nil {
+							log.WithError(err).Error("Failed to broadcast blob sidecars")
+						}
+					}
+					httputil.HandleError(w, err.Error(), http.StatusBadRequest)
+					return
+				}
+				s.proposeBlock(ctx, w, consensusBlock)
+				return
+			}
+		}
 	case version.String(version.Alpaca):
 		var electraBlockContents *structs.SignedBeaconBlockContentsElectra
 		if err = unmarshalStrict(body, &electraBlockContents); err == nil {
@@ -923,13 +1000,16 @@ func (s *Server) validateConsensus(ctx context.Context, b *eth.GenericSignedBeac
 
 	var blobs [][]byte
 	var proofs [][]byte
-	switch {
-	case blk.Version() == version.Alpaca:
-		blobs = b.GetElectra().Blobs
-		proofs = b.GetElectra().KzgProofs
-	case blk.Version() == version.Deneb:
+	switch blk.Version() {
+	case version.Deneb:
 		blobs = b.GetDeneb().Blobs
 		proofs = b.GetDeneb().KzgProofs
+	case version.Alpaca:
+		blobs = b.GetElectra().Blobs
+		proofs = b.GetElectra().KzgProofs
+	case version.Badger:
+		blobs = b.GetBadger().Blobs
+		proofs = b.GetBadger().KzgProofs
 	default:
 		return nil
 	}

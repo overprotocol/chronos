@@ -26,6 +26,8 @@ func (vs *Server) constructGenericBeaconBlock(sBlk interfaces.SignedBeaconBlock,
 	bidStr := primitives.WeiToBigInt(winningBid).String()
 
 	switch sBlk.Version() {
+	case version.Badger:
+		return vs.constructBadgerBlock(blockProto, isBlinded, bidStr, blobsBundle), nil
 	case version.Alpaca:
 		return vs.constructElectraBlock(blockProto, isBlinded, bidStr, blobsBundle), nil
 	case version.Deneb:
@@ -44,6 +46,18 @@ func (vs *Server) constructGenericBeaconBlock(sBlk interfaces.SignedBeaconBlock,
 }
 
 // Helper functions for constructing blocks for each version
+func (vs *Server) constructBadgerBlock(blockProto proto.Message, isBlinded bool, payloadValue string, bundle *enginev1.BlobsBundle) *ethpb.GenericBeaconBlock {
+	if isBlinded {
+		return &ethpb.GenericBeaconBlock{Block: &ethpb.GenericBeaconBlock_BlindedBadger{BlindedBadger: blockProto.(*ethpb.BlindedBeaconBlockBadger)}, IsBlinded: true, PayloadValue: payloadValue}
+	}
+	badgerContents := &ethpb.BeaconBlockContentsBadger{Block: blockProto.(*ethpb.BeaconBlockBadger)}
+	if bundle != nil {
+		badgerContents.KzgProofs = bundle.Proofs
+		badgerContents.Blobs = bundle.Blobs
+	}
+	return &ethpb.GenericBeaconBlock{Block: &ethpb.GenericBeaconBlock_Badger{Badger: badgerContents}, IsBlinded: false, PayloadValue: payloadValue}
+}
+
 func (vs *Server) constructElectraBlock(blockProto proto.Message, isBlinded bool, payloadValue string, bundle *enginev1.BlobsBundle) *ethpb.GenericBeaconBlock {
 	if isBlinded {
 		return &ethpb.GenericBeaconBlock{Block: &ethpb.GenericBeaconBlock_BlindedElectra{BlindedElectra: blockProto.(*ethpb.BlindedBeaconBlockElectra)}, IsBlinded: true, PayloadValue: payloadValue}

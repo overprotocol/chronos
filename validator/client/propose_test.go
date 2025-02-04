@@ -662,6 +662,19 @@ func testProposeBlock(t *testing.T, graffiti []byte) {
 				},
 			},
 		},
+		{
+			name:    "badger block",
+			version: version.Badger,
+			block: &ethpb.GenericBeaconBlock{
+				Block: &ethpb.GenericBeaconBlock_Badger{
+					Badger: func() *ethpb.BeaconBlockContentsBadger {
+						blk := util.NewBeaconBlockContentsBadger()
+						blk.Block.Block.Body.Graffiti = graffiti
+						return &ethpb.BeaconBlockContentsBadger{Block: blk.Block.Block, KzgProofs: blk.KzgProofs, Blobs: blk.Blobs}
+					}(),
+				},
+			},
+		},
 	}
 
 	for _, tt := range tests {
