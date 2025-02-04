@@ -7,9 +7,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-type ExecutionPayloadElectra = ExecutionPayloadDeneb
-type ExecutionPayloadHeaderElectra = ExecutionPayloadHeaderDeneb
-
 var (
 	drExample = &DepositRequest{}
 	drSize    = drExample.SizeSSZ()

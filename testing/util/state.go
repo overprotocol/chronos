@@ -385,7 +385,7 @@ func NewBeaconStateElectra(options ...func(state *ethpb.BeaconStateElectra) erro
 		Reserves:                    0,
 		PreviousEpochParticipation:  make([]byte, 0),
 		CurrentEpochParticipation:   make([]byte, 0),
-		LatestExecutionPayloadHeader: &enginev1.ExecutionPayloadHeaderElectra{
+		LatestExecutionPayloadHeader: &enginev1.ExecutionPayloadHeaderDeneb{
 			ParentHash:       make([]byte, 32),
 			FeeRecipient:     make([]byte, 20),
 			StateRoot:        make([]byte, 32),

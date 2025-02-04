@@ -18,7 +18,8 @@ func (s *Service) forkWatcher() {
 				currEpoch == params.BeaconConfig().BellatrixForkEpoch ||
 				currEpoch == params.BeaconConfig().CapellaForkEpoch ||
 				currEpoch == params.BeaconConfig().DenebForkEpoch ||
-				currEpoch == params.BeaconConfig().AlpacaForkEpoch {
+				currEpoch == params.BeaconConfig().AlpacaForkEpoch ||
+				currEpoch == params.BeaconConfig().BadgerForkEpoch {
 				// If we are in the fork epoch, we update our enr with
 				// the updated fork digest. These repeatedly does
 				// this over the epoch, which might be slightly wasteful

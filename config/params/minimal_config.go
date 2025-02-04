@@ -91,6 +91,8 @@ func MinimalSpecConfig() *BeaconChainConfig {
 	minimalConfig.DenebForkEpoch = math.MaxUint64
 	minimalConfig.AlpacaForkVersion = []byte{5, 0, 0, 1}
 	minimalConfig.AlpacaForkEpoch = math.MaxUint64
+	minimalConfig.BadgerForkVersion = []byte{6, 0, 0, 1}
+	minimalConfig.BadgerForkEpoch = math.MaxUint64
 
 	minimalConfig.InactivityScoreBias = 2
 	minimalConfig.MinEpochsForBlockRequests = 272
