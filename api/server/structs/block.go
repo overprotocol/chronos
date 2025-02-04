@@ -394,19 +394,19 @@ type BlindedBeaconBlockBodyElectra struct {
 
 type SignedBeaconBlockContentsBadger struct {
 	SignedBlock *SignedBeaconBlockBadger `json:"signed_block"`
-	KzgProofs   []string                  `json:"kzg_proofs"`
-	Blobs       []string                  `json:"blobs"`
+	KzgProofs   []string                 `json:"kzg_proofs"`
+	Blobs       []string                 `json:"blobs"`
 }
 
 type BeaconBlockContentsBadger struct {
 	Block     *BeaconBlockBadger `json:"block"`
-	KzgProofs []string            `json:"kzg_proofs"`
-	Blobs     []string            `json:"blobs"`
+	KzgProofs []string           `json:"kzg_proofs"`
+	Blobs     []string           `json:"blobs"`
 }
 
 type SignedBeaconBlockBadger struct {
 	Message   *BeaconBlockBadger `json:"message"`
-	Signature string              `json:"signature"`
+	Signature string             `json:"signature"`
 }
 
 var _ SignedMessageJsoner = &SignedBeaconBlockBadger{}
@@ -420,10 +420,10 @@ func (s *SignedBeaconBlockBadger) SigString() string {
 }
 
 type BeaconBlockBadger struct {
-	Slot          string                  `json:"slot"`
-	ProposerIndex string                  `json:"proposer_index"`
-	ParentRoot    string                  `json:"parent_root"`
-	StateRoot     string                  `json:"state_root"`
+	Slot          string                 `json:"slot"`
+	ProposerIndex string                 `json:"proposer_index"`
+	ParentRoot    string                 `json:"parent_root"`
+	StateRoot     string                 `json:"state_root"`
 	Body          *BeaconBlockBodyBadger `json:"body"`
 }
 
@@ -442,16 +442,16 @@ type BeaconBlockBodyBadger struct {
 }
 
 type BlindedBeaconBlockBadger struct {
-	Slot          string                         `json:"slot"`
-	ProposerIndex string                         `json:"proposer_index"`
-	ParentRoot    string                         `json:"parent_root"`
-	StateRoot     string                         `json:"state_root"`
+	Slot          string                        `json:"slot"`
+	ProposerIndex string                        `json:"proposer_index"`
+	ParentRoot    string                        `json:"parent_root"`
+	StateRoot     string                        `json:"state_root"`
 	Body          *BlindedBeaconBlockBodyBadger `json:"body"`
 }
 
 type SignedBlindedBeaconBlockBadger struct {
 	Message   *BlindedBeaconBlockBadger `json:"message"`
-	Signature string                     `json:"signature"`
+	Signature string                    `json:"signature"`
 }
 
 var _ SignedMessageJsoner = &SignedBlindedBeaconBlockBadger{}

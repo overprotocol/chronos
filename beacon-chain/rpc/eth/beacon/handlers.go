@@ -787,7 +787,7 @@ func (s *Server) publishBlockSSZ(ctx context.Context, w http.ResponseWriter, r *
 	)
 }
 
- // nolint:gocognit
+// nolint:gocognit
 func (s *Server) publishBlock(ctx context.Context, w http.ResponseWriter, r *http.Request, versionRequired bool) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {

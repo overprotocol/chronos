@@ -681,7 +681,6 @@ func signedTestBlockBadger(t *testing.T, slot primitives.Slot) interfaces.ReadOn
 	return s
 }
 
-
 func signedTestBlindedBlockDeneb(t *testing.T, slot primitives.Slot) interfaces.ReadOnlySignedBeaconBlock {
 	b := util.NewBlindedBeaconBlockDeneb()
 	b.Message.Slot = slot

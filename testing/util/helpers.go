@@ -177,4 +177,3 @@ func HackForksMaxuint(t *testing.T, forksVersion []int) func() {
 		require.NoError(t, undo())
 	}
 }
-

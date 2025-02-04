@@ -2990,9 +2990,9 @@ func SignedBeaconBlockMessageJsoner(block interfaces.ReadOnlySignedBeaconBlock) 
 	case *eth.SignedBeaconBlockElectra:
 		return SignedBeaconBlockElectraFromConsensus(pbStruct)
 	case *eth.SignedBlindedBeaconBlockBadger:
-		 return SignedBlindedBeaconBlockBadgerFromConsensus(pbStruct)
+		return SignedBlindedBeaconBlockBadgerFromConsensus(pbStruct)
 	case *eth.SignedBeaconBlockBadger:
-		 return SignedBeaconBlockBadgerFromConsensus(pbStruct)
+		return SignedBeaconBlockBadgerFromConsensus(pbStruct)
 	default:
 		return nil, ErrUnsupportedConversion
 	}
