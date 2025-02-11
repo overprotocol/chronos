@@ -751,6 +751,26 @@ func TestGetDepositEstimation(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:   "[error] invalid pubkey format",
+			pubkey: "invalid_pubkey_format", // 올바르지 않은 hex 형식
+			state: func() state.BeaconState {
+				st, _ := util.DeterministicGenesisStateElectra(t, 10)
+				return st
+			}(),
+			code:    http.StatusInternalServerError,
+			wantErr: "could not decode pubkey",
+		},
+		{
+			name:   "[error] invalid pubkey length",
+			pubkey: "9073",
+			state: func() state.BeaconState {
+				st, _ := util.DeterministicGenesisStateElectra(t, 10)
+				return st
+			}(),
+			code:    http.StatusInternalServerError,
+			wantErr: "invalid pubkey length",
+		},
 	}
 
 	for _, tt := range tests {
