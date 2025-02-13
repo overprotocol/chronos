@@ -168,7 +168,7 @@ func (s *Server) GetDepositEstimation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if len(pubkey) != fieldparams.BLSPubkeyLength {
-		httputil.WriteError(w, handleWrapError(err, "invalid pubkey length", http.StatusInternalServerError))
+		httputil.WriteError(w, handleWrapError(errors.New("invalid pubkey length"), "invalid pubkey length", http.StatusInternalServerError))
 		return
 	}
 
