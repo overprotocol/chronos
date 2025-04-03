@@ -63,9 +63,9 @@ const (
 
 const (
 	// DefaultColocationLimit restricts how many peer identities we can see from a single ip or ipv6 subnet.
-	DefaultColocationLimit = 5
+	DefaultColocationLimit = 10
 
-	DefaultIpTrackerBanTime = 2 * time.Hour
+	DefaultIpTrackerBanTime = 1 * time.Hour
 
 	// Additional buffer beyond current peer limit, from which we can store the relevant peer statuses.
 	maxLimitBuffer = 150
