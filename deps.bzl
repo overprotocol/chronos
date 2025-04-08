@@ -4389,6 +4389,12 @@ def prysm_deps():
         version = "v2.0.0",
     )
     go_repository(
+        name = "in_gopkg_natefinch_npipe_v2",
+        importpath = "gopkg.in/natefinch/npipe.v2",
+        sum = "h1:+JknDZhAj8YMt7GC73Ei8pv4MzjDUNPHgQWJdtMAaDU=",
+        version = "v2.0.0-20160621034901-c1b8fa8bdcce",
+    )
+    go_repository(
         name = "in_gopkg_redis_v4",
         importpath = "gopkg.in/redis.v4",
         sum = "h1:y3XbwQAiHwgNLUng56mgWYK39vsPqo8sT84XTEcxjr0=",
