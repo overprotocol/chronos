@@ -138,7 +138,7 @@ func (n *upnp) addAnyPortMapping(protocol string, extport, intport uint16, ip ne
 		extport = uint16(n.randomPort())
 		err = n.client.AddPortMapping("", extport, protocol, intport, ip.String(), true, desc, lifetimeS)
 		if err == nil {
-			return uint16(extport), nil
+			return extport, nil
 		}
 	}
 	return 0, err

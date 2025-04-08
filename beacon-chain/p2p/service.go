@@ -536,11 +536,6 @@ func (s *Service) isInitialized() bool {
 
 func (s *Service) portMappingLoop(port uint16) {
 	log.Trace("Attempting port mapping")
-	// extip, err := s.upnp.ExternalIP()
-	// if err != nil {
-	// 	log.WithError(err).Error("Could not get external IP")
-	// 	return
-	// }
 	if s.extPort == 0 {
 		s.extPort = port
 	}
@@ -549,26 +544,8 @@ func (s *Service) portMappingLoop(port uint16) {
 	if err != nil {
 		log.Info("Couldn't add port mapping", "err", err)
 		s.extPort = 0
-		// m.nextTime = srv.clock.Now().Add(portMapRetryInterval)
 		return
 	}
-	// It was mapped!
 	s.extPort = p
-	// m.nextTime = srv.clock.Now().Add(portMapRefreshInterval)
-	// if external != m.extPort {
-	// 	log = newLogger(m.protocol, m.extPort, m.port)
-	// 	log.Info("NAT mapped alternative port")
-	// } else {
-	// 	log.Info("NAT mapped port")
-	// }
 	log.Info("NAT mapped port", "port", p)
-
-	// Update port in local ENR.
-	// switch m.protocol {
-	// case "TCP":
-	// 	srv.localnode.Set(enr.TCP(m.extPort))
-	// case "UDP":
-	// 	srv.localnode.SetFallbackUDP(m.extPort)
-	// }
-
 }
