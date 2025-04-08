@@ -102,7 +102,7 @@ func (n *upnp) ExternalIP() (addr net.IP, err error) {
 func (n *upnp) AddMapping(protocol string, extport, intport uint16, desc string, lifetime time.Duration) (uint16, error) {
 	ip, err := n.internalAddress()
 	if err != nil {
-		return 0, nil // TODO: Shouldn't we return the error?
+		return 0, err
 	}
 	protocol = strings.ToUpper(protocol)
 	lifetimeS := uint32(lifetime / time.Second)
@@ -112,7 +112,7 @@ func (n *upnp) AddMapping(protocol string, extport, intport uint16, desc string,
 	}
 
 	err = n.withRateLimit(func() error {
-		return n.client.AddPortMapping("", uint16(extport), protocol, uint16(intport), ip.String(), true, desc, lifetimeS)
+		return n.client.AddPortMapping("", extport, protocol, intport, ip.String(), true, desc, lifetimeS)
 	})
 	if err == nil {
 		return extport, nil
@@ -129,14 +129,14 @@ func (n *upnp) AddMapping(protocol string, extport, intport uint16, desc string,
 
 func (n *upnp) addAnyPortMapping(protocol string, extport, intport uint16, ip net.IP, desc string, lifetimeS uint32) (uint16, error) {
 	if client, ok := n.client.(*internetgateway2.WANIPConnection2); ok {
-		return client.AddAnyPortMapping("", uint16(extport), protocol, uint16(intport), ip.String(), true, desc, lifetimeS)
+		return client.AddAnyPortMapping("", extport, protocol, intport, ip.String(), true, desc, lifetimeS)
 	}
 	// It will retry with a random port number if the client does
 	// not support AddAnyPortMapping.
 	var err error
 	for i := 0; i < 3; i++ {
 		extport = uint16(n.randomPort())
-		err = n.client.AddPortMapping("", uint16(extport), protocol, uint16(intport), ip.String(), true, desc, lifetimeS)
+		err = n.client.AddPortMapping("", extport, protocol, intport, ip.String(), true, desc, lifetimeS)
 		if err == nil {
 			return uint16(extport), nil
 		}
@@ -176,7 +176,7 @@ func (n *upnp) internalAddress() (net.IP, error) {
 
 func (n *upnp) DeleteMapping(protocol string, extport, intport uint16) error {
 	return n.withRateLimit(func() error {
-		return n.client.DeletePortMapping("", uint16(extport), strings.ToUpper(protocol))
+		return n.client.DeletePortMapping("", extport, strings.ToUpper(protocol))
 	})
 }
 
