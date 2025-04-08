@@ -4,6 +4,7 @@ package network
 import (
 	"net"
 	"sort"
+	"strings"
 )
 
 // IPAddr gets the external ipv4 address and converts into a libp2p formatted value.
@@ -59,6 +60,9 @@ func ipAddrs() ([]net.IP, error) {
 		}
 		if iface.Flags&net.FlagLoopback != 0 {
 			continue // loopback interface
+		}
+		if strings.HasPrefix(iface.Name, "vEthernet") {
+			continue // virtual ethernet interface
 		}
 		addrs, err := iface.Addrs()
 		if err != nil {

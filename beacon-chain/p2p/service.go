@@ -60,6 +60,7 @@ var maxDialTimeout = params.BeaconConfig().RespTimeoutDuration()
 type Service struct {
 	started               bool
 	isPreGenesis          bool
+	extPort               uint16
 	pingMethod            func(ctx context.Context, id peer.ID) error
 	pingMethodLock        sync.RWMutex
 	cancel                context.CancelFunc
@@ -79,6 +80,7 @@ type Service struct {
 	startupErr            error
 	ctx                   context.Context
 	host                  host.Host
+	upnp                  UPNPInterface
 	genesisTime           time.Time
 	genesisValidatorsRoot []byte
 	activeValidatorCount  uint64
@@ -87,6 +89,7 @@ type Service struct {
 // NewService initializes a new p2p service compatible with shared.Service interface. No
 // connections are made until the Start function is called during the service registry startup.
 func NewService(ctx context.Context, cfg *Config) (*Service, error) {
+	log.Info("##### Initializing p2p service")
 	ctx, cancel := context.WithCancel(ctx)
 	_ = cancel // govet fix for lost cancel. Cancel is handled in service.Stop().
 
@@ -265,6 +268,19 @@ func (s *Service) Start() {
 
 		log.WithFields(fields).Info("Connected peers")
 	})
+
+	if s.cfg.EnableUPnP {
+		log.Info("UPNP is enabled")
+		s.upnp = DiscoverUPnP()
+		if s.upnp != nil {
+			s.portMappingLoop(uint16(s.cfg.UDPPort))
+			async.RunEvery(s.ctx, 10*time.Minute, func() { s.portMappingLoop(uint16(s.cfg.UDPPort)) })
+		} else {
+			log.Warn("UPNP on UDP failed")
+		}
+	} else {
+		log.Info("UPNP is disabled")
+	}
 
 	multiAddrs := s.host.Network().ListenAddresses()
 	logIPAddr(s.host.ID(), multiAddrs...)
@@ -526,4 +542,20 @@ func (s *Service) connectToBootnodes() error {
 // required for discovery and pubsub validation.
 func (s *Service) isInitialized() bool {
 	return !s.genesisTime.IsZero() && len(s.genesisValidatorsRoot) == 32
+}
+
+func (s *Service) portMappingLoop(port uint16) {
+	log.Trace("Attempting port mapping")
+	if s.extPort == 0 {
+		s.extPort = port
+	}
+
+	p, err := s.upnp.AddMapping("UDP", s.extPort, port, "prysm-beacon-node", 10*time.Minute)
+	if err != nil {
+		log.Info("Couldn't add port mapping", "err", err)
+		s.extPort = 0
+		return
+	}
+	s.extPort = p
+	log.Info("NAT mapped port", "port", p)
 }

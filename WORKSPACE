@@ -414,7 +414,6 @@ go_repository(
     sum = "h1:msKODTL1m0wigztaqILOtla9HeW1ciscYG4xjLtvk5I=",
     version = "v1.0.1-0.20240306101548-573246063e52",
 )
-
 go_repository(
     name = "com_github_moby_spdystream",
     importpath = "github.com/moby/spdystream",
