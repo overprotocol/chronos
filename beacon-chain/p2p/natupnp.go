@@ -20,11 +20,13 @@ import (
 	"errors"
 	"fmt"
 	"math"
-	"math/rand"
 	"net"
 	"strings"
 	"sync"
 	"time"
+
+	"crypto/rand"
+	"math/big"
 
 	"github.com/huin/goupnp"
 	"github.com/huin/goupnp/dcps/internetgateway1"
@@ -42,7 +44,7 @@ type upnp struct {
 	client      upnpClient
 	mu          sync.Mutex
 	lastReqTime time.Time
-	rand        *rand.Rand
+	// rand        *rand.Rand
 }
 
 // Interface An implementation of nat.Interface can map local ports to ports
@@ -145,10 +147,20 @@ func (n *upnp) addAnyPortMapping(protocol string, extport, intport uint16, ip ne
 }
 
 func (n *upnp) randomPort() int {
-	if n.rand == nil {
-		n.rand = rand.New(rand.NewSource(time.Now().UnixNano()))
+	// if n.rand == nil {
+	// 	var err error
+	// 	n.rand, err = rand.Int(rand.Reader, big.NewInt(math.MaxUint16-10000))
+	// 	if err != nil {
+	// 		log.Error("Failed to generate random port", "err", err)
+	// 		return 0
+	// 	}
+	// }
+	v, err := rand.Int(rand.Reader, big.NewInt(math.MaxUint16-10000))
+	if err != nil {
+		log.Error("Failed to generate random port", "err", err)
+		return 10000
 	}
-	return n.rand.Intn(math.MaxUint16-10000) + 10000
+	return int(v.Int64()) + 10000
 }
 
 func (n *upnp) internalAddress() (net.IP, error) {
