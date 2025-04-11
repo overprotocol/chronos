@@ -77,6 +77,8 @@ type Server struct {
 	walletInitializedFeed     *event.Feed
 	walletInitialized         bool
 	useOverNode               bool
+	failedPasswordAttempts    int
+	lockoutUntil              time.Time
 	validatorService          *client.ValidatorService
 	router                    *http.ServeMux
 	logStreamer               logs.Streamer
