@@ -35,18 +35,7 @@ func (s *Store) head(ctx context.Context) ([32]byte, error) {
 		if s.justifiedCheckpoint.Epoch == params.BeaconConfig().GenesisEpoch {
 			justifiedNode = s.treeRootNode
 		} else {
-			// Fallback to finalized checkpoint
-			finalizedNode, okFinalized := s.nodeByRoot[s.finalizedCheckpoint.Root]
-			if okFinalized && finalizedNode != nil {
-				justifiedNode = finalizedNode
-			} else {
-				// Fallback to tree root node
-				if s.treeRootNode != nil {
-					justifiedNode = s.treeRootNode
-				} else {
-					return [32]byte{}, errors.WithMessage(errUnknownJustifiedRoot, fmt.Sprintf("%#x", s.justifiedCheckpoint.Root))
-				}
-			}
+			return [32]byte{}, errors.WithMessage(errUnknownJustifiedRoot, fmt.Sprintf("%#x", s.justifiedCheckpoint.Root))
 		}
 	}
 
@@ -88,24 +77,24 @@ func (s *Store) head(ctx context.Context) ([32]byte, error) {
 			finalizedDiff := s.finalizedCheckpoint.Epoch - bestDescendant.finalizedEpoch
 
 			log.WithFields(logrus.Fields{
-				"bestDescendantSlot":           bestDescendant.slot,
-				"bestDescendantWeight":         bestDescendant.weight,
-				"bestDescendantRoot":           fmt.Sprintf("%#x", bestDescendant.root),
-				"epochDifference":              epochDiff,
-				"finalizedEpochDifference":     finalizedDiff,
-				"epochDiffCheck":               epochDiff <= 1000,
-				"finalizedDiffCheck":           finalizedDiff <= 20,
+				"bestDescendantSlot":       bestDescendant.slot,
+				"bestDescendantWeight":     bestDescendant.weight,
+				"bestDescendantRoot":       fmt.Sprintf("%#x", bestDescendant.root),
+				"epochDifference":          epochDiff,
+				"finalizedEpochDifference": finalizedDiff,
+				"epochDiffCheck":           epochDiff <= 10000,
+				"finalizedDiffCheck":       finalizedDiff <= 20,
 			}).Info("Checking fallback conditions for single-validator recovery")
 
 			// More relaxed conditions for single-validator recovery
 			// Allow larger epoch differences and zero weight for single-node setups
-			if epochDiff <= 1000 && finalizedDiff <= 20 {
+			if epochDiff <= 10000 && finalizedDiff <= 20 {
 				log.WithFields(logrus.Fields{
-					"bestDescendantSlot":           bestDescendant.slot,
-					"bestDescendantWeight":         bestDescendant.weight,
-					"bestDescendantRoot":           fmt.Sprintf("%#x", bestDescendant.root),
-					"epochDifference":              epochDiff,
-					"finalizedEpochDifference":     finalizedDiff,
+					"bestDescendantSlot":       bestDescendant.slot,
+					"bestDescendantWeight":     bestDescendant.weight,
+					"bestDescendantRoot":       fmt.Sprintf("%#x", bestDescendant.root),
+					"epochDifference":          epochDiff,
+					"finalizedEpochDifference": finalizedDiff,
 				}).Warn("Using best descendant as head despite epoch/weight mismatch (single-validator recovery)")
 
 				s.allTipsAreInvalid = false
@@ -113,10 +102,10 @@ func (s *Store) head(ctx context.Context) ([32]byte, error) {
 				return bestDescendant.root, nil
 			} else {
 				log.WithFields(logrus.Fields{
-					"epochDifference":           epochDiff,
-					"finalizedEpochDifference":  finalizedDiff,
-					"epochLimit":                1000,
-					"finalizedLimit":            20,
+					"epochDifference":          epochDiff,
+					"finalizedEpochDifference": finalizedDiff,
+					"epochLimit":               1000,
+					"finalizedLimit":           20,
 				}).Debug("Fallback conditions not met")
 			}
 		}

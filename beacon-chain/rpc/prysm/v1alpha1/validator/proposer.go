@@ -82,14 +82,14 @@ func (vs *Server) GetBeaconBlock(ctx context.Context, req *ethpb.BlockRequest) (
 	}).Info("Checking head-current slot gap")
 
 	// If head is significantly behind current slot, don't build block
-	if slotGap > 100 { // More than ~3 epochs behind
-		log.WithFields(logrus.Fields{
-			"currentSlot": currentSlot,
-			"headSlot":    headSlot,
-			"slotGap":     slotGap,
-		}).Warn("Head too far behind current slot, skipping block building to prevent execution payload issues")
-		return nil, status.Error(codes.Unavailable, "Head too far behind current slot, not ready to build block")
-	}
+	// if slotGap > 100 { // More than ~3 epochs behind
+	// 	log.WithFields(logrus.Fields{
+	// 		"currentSlot": currentSlot,
+	// 		"headSlot":    headSlot,
+	// 		"slotGap":     slotGap,
+	// 	}).Warn("Head too far behind current slot, skipping block building to prevent execution payload issues")
+	// 	return nil, status.Error(codes.Unavailable, "Head too far behind current slot, not ready to build block")
+	// }
 
 	log.WithFields(logrus.Fields{
 		"currentSlot": currentSlot,
