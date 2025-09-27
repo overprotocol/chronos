@@ -561,8 +561,42 @@ func (vs *Server) computeStateRoot(ctx context.Context, block interfaces.ReadOnl
 	if err != nil {
 		return nil, errors.Wrap(err, "could not retrieve beacon state")
 	}
+
+	// In single-validator setups after long downtime, allow more time for state root calculation
+	calculateCtx := ctx
+	if flags.Get().MinimumSyncPeers == 0 {
+		currentSlot := vs.TimeFetcher.CurrentSlot()
+		blockSlot := block.Block().Slot()
+		stateSlot := beaconState.Slot()
+
+		// Check for large gaps that require extended timeout
+		slotDiff := currentSlot - stateSlot
+		if slotDiff > 100 {
+			// Extended timeout based on slot difference
+			extendedTimeout := 5 * time.Minute
+			if slotDiff > 10000 {
+				extendedTimeout = 15 * time.Minute
+			} else if slotDiff > 1000 {
+				extendedTimeout = 10 * time.Minute
+			}
+
+			logrus.WithFields(logrus.Fields{
+				"currentSlot":      currentSlot,
+				"blockSlot":        blockSlot,
+				"stateSlot":        stateSlot,
+				"slotDiff":         slotDiff,
+				"extendedTimeout":  extendedTimeout,
+			}).Warn("Single-validator setup detected with large slot gap, using extended timeout for state root calculation")
+
+			// Create extended timeout context from background to avoid parent timeout limitations
+			var cancel context.CancelFunc
+			calculateCtx, cancel = context.WithTimeout(context.Background(), extendedTimeout)
+			defer cancel()
+		}
+	}
+
 	root, err := transition.CalculateStateRoot(
-		ctx,
+		calculateCtx,
 		beaconState,
 		block,
 	)
@@ -570,7 +604,7 @@ func (vs *Server) computeStateRoot(ctx context.Context, block interfaces.ReadOnl
 		return nil, errors.Wrapf(err, "could not calculate state root at slot %d", beaconState.Slot())
 	}
 
-	log.WithField("beaconStateRoot", fmt.Sprintf("%#x", root)).Debugf("Computed state root")
+	logrus.WithField("beaconStateRoot", fmt.Sprintf("%#x", root)).Debugf("Computed state root")
 	return root[:], nil
 }
 
