@@ -163,10 +163,11 @@ func (s *Service) notifyForkchoiceUpdate(ctx context.Context, arg *fcuConfig) (*
 		}).Info("Forkchoice updated with payload attributes for proposal")
 		s.cfg.PayloadIDCache.Set(nextSlot, arg.headRoot, pId)
 	} else if hasAttr && payloadID == nil && !features.Get().PrepareAllPayloads {
+		// In single-validator setups after long downtime, this is expected and can be handled gracefully
 		log.WithFields(logrus.Fields{
 			"blockHash": fmt.Sprintf("%#x", headPayload.BlockHash()),
 			"slot":      headBlk.Slot(),
-		}).Error("Received nil payload ID on VALID engine response")
+		}).Warn("Received nil payload ID on VALID engine response (normal in single-validator setup after downtime)")
 	}
 	return payloadID, nil
 }

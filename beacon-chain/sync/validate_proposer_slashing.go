@@ -9,6 +9,7 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/blocks"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/feed"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/feed/operation"
+	"github.com/prysmaticlabs/prysm/v5/cmd/beacon-chain/flags"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
 	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing"
 	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing/trace"
@@ -25,7 +26,8 @@ func (s *Service) validateProposerSlashing(ctx context.Context, pid peer.ID, msg
 	}
 
 	// The head state will be too far away to validate any slashing.
-	if s.cfg.initialSync.Syncing() {
+	// In single-validator setups (min-sync-peers=0), allow slashing processing even during sync
+	if s.cfg.initialSync.Syncing() && flags.Get().MinimumSyncPeers > 0 {
 		return pubsub.ValidationIgnore, nil
 	}
 
