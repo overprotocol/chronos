@@ -62,25 +62,37 @@ func (vs *Server) GetBeaconBlock(ctx context.Context, req *ethpb.BlockRequest) (
 		"sinceSlotStartTime": time.Since(t),
 	}).Info("Begin building block")
 
+	log.WithField("slot", req.Slot).Debug("Checking sync status")
 	// A syncing validator should not produce a block.
 	if vs.SyncChecker.Syncing() {
+		log.WithField("slot", req.Slot).Debug("Validator is syncing, cannot propose block")
 		return nil, status.Error(codes.Unavailable, "Syncing to latest head, not ready to respond")
 	}
+	log.WithField("slot", req.Slot).Debug("Sync check passed")
+	log.WithField("slot", req.Slot).Debug("Checking optimistic status")
 	// An optimistic validator MUST NOT produce a block (i.e., sign across the DOMAIN_BEACON_PROPOSER domain).
 	if slots.ToEpoch(req.Slot) >= params.BeaconConfig().BellatrixForkEpoch {
 		if err := vs.optimisticStatus(ctx); err != nil {
+			log.WithError(err).WithField("slot", req.Slot).Error("Optimistic status check failed")
 			return nil, status.Errorf(codes.Unavailable, "Validator is not ready to propose: %v", err)
 		}
 	}
+	log.WithField("slot", req.Slot).Debug("Optimistic status check passed")
 
+	log.WithField("slot", req.Slot).Debug("Getting parent state")
 	head, parentRoot, err := vs.getParentState(ctx, req.Slot)
 	if err != nil {
+		log.WithError(err).WithField("slot", req.Slot).Error("Failed to get parent state")
 		return nil, err
 	}
+	log.WithField("slot", req.Slot).Debug("Successfully got parent state")
+	log.WithField("slot", req.Slot).Debug("Creating empty block")
 	sBlk, err := getEmptyBlock(req.Slot)
 	if err != nil {
+		log.WithError(err).WithField("slot", req.Slot).Error("Failed to create empty block")
 		return nil, status.Errorf(codes.Internal, "Could not prepare block: %v", err)
 	}
+	log.WithField("slot", req.Slot).Debug("Successfully created empty block")
 	// Set slot, graffiti, randao reveal, and parent root.
 	sBlk.SetSlot(req.Slot)
 	sBlk.SetGraffiti(req.Graffiti)
@@ -88,17 +100,26 @@ func (vs *Server) GetBeaconBlock(ctx context.Context, req *ethpb.BlockRequest) (
 	sBlk.SetParentRoot(parentRoot[:])
 
 	// Set proposer index.
+	log.WithField("slot", req.Slot).Debug("Calculating proposer index")
 	idx, err := helpers.BeaconProposerIndex(ctx, head)
 	if err != nil {
+		log.WithError(err).WithField("slot", req.Slot).Error("Failed to calculate proposer index")
 		return nil, fmt.Errorf("could not calculate proposer index %w", err)
 	}
+	log.WithFields(logrus.Fields{"slot": req.Slot, "proposerIndex": idx}).Debug("Successfully calculated proposer index")
 	sBlk.SetProposerIndex(idx)
 
+	log.WithField("slot", req.Slot).Debug("Setting builder boost factor")
 	builderBoostFactor := defaultBuilderBoostFactor
 	if req.BuilderBoostFactor != nil {
 		builderBoostFactor = primitives.Gwei(req.BuilderBoostFactor.Value)
 	}
 
+	log.WithFields(logrus.Fields{
+		"slot":               req.Slot,
+		"proposerIndex":      idx,
+		"builderBoostFactor": builderBoostFactor,
+	}).Debug("About to call BuildBlockParallel")
 	resp, err := vs.BuildBlockParallel(ctx, sBlk, head, req.SkipMevBoost, builderBoostFactor)
 	log.WithFields(logrus.Fields{
 		"slot":               req.Slot,
@@ -208,8 +229,8 @@ func (vs *Server) BuildBlockParallel(ctx context.Context, sBlk interfaces.Signed
 			log.WithError(err).Error("Could not pack deposits and attestations")
 		} else {
 			log.WithFields(logrus.Fields{
-				"slot": sBlk.Block().Slot(),
-				"deposits": len(deposits),
+				"slot":         sBlk.Block().Slot(),
+				"deposits":     len(deposits),
 				"attestations": len(atts),
 			}).Debug("Successfully packed deposits and attestations")
 			sBlk.SetDeposits(deposits)
