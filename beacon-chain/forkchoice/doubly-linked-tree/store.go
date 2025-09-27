@@ -81,24 +81,43 @@ func (s *Store) head(ctx context.Context) ([32]byte, error) {
 		}
 
 		// Final fallback for single-validator networks after extended downtime:
-		// If we have a bestDescendant with non-zero weight, use it even if epochs don't match
+		// Use bestDescendant even with weight=0 or epoch mismatches in single-node setups
 		// This allows the validator to continue operating and eventually sync up
-		if bestDescendant != nil && bestDescendant.weight > 0 {
+		if bestDescendant != nil {
 			epochDiff := currentEpoch - bestDescendant.justifiedEpoch
 			finalizedDiff := s.finalizedCheckpoint.Epoch - bestDescendant.finalizedEpoch
 
-			// Only use this fallback if we're reasonably close (within recovery window)
-			if epochDiff <= 500 && finalizedDiff <= 10 {
+			log.WithFields(logrus.Fields{
+				"bestDescendantSlot":           bestDescendant.slot,
+				"bestDescendantWeight":         bestDescendant.weight,
+				"bestDescendantRoot":           fmt.Sprintf("%#x", bestDescendant.root),
+				"epochDifference":              epochDiff,
+				"finalizedEpochDifference":     finalizedDiff,
+				"epochDiffCheck":               epochDiff <= 1000,
+				"finalizedDiffCheck":           finalizedDiff <= 20,
+			}).Info("Checking fallback conditions for single-validator recovery")
+
+			// More relaxed conditions for single-validator recovery
+			// Allow larger epoch differences and zero weight for single-node setups
+			if epochDiff <= 1000 && finalizedDiff <= 20 {
 				log.WithFields(logrus.Fields{
 					"bestDescendantSlot":           bestDescendant.slot,
+					"bestDescendantWeight":         bestDescendant.weight,
 					"bestDescendantRoot":           fmt.Sprintf("%#x", bestDescendant.root),
 					"epochDifference":              epochDiff,
 					"finalizedEpochDifference":     finalizedDiff,
-				}).Warn("Using best descendant as head despite epoch mismatch (single-validator recovery)")
+				}).Warn("Using best descendant as head despite epoch/weight mismatch (single-validator recovery)")
 
 				s.allTipsAreInvalid = false
 				s.headNode = bestDescendant
 				return bestDescendant.root, nil
+			} else {
+				log.WithFields(logrus.Fields{
+					"epochDifference":           epochDiff,
+					"finalizedEpochDifference":  finalizedDiff,
+					"epochLimit":                1000,
+					"finalizedLimit":            20,
+				}).Debug("Fallback conditions not met")
 			}
 		}
 
