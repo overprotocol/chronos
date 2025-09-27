@@ -9,6 +9,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/prysmaticlabs/go-bitfield"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/blocks"
+	doublylinkedtree "github.com/prysmaticlabs/prysm/v5/beacon-chain/forkchoice/doubly-linked-tree"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
 	"github.com/prysmaticlabs/prysm/v5/config/features"
@@ -517,6 +518,10 @@ func (vs *Server) filterCurrentEpochAttestationByForkchoice(ctx context.Context,
 
 	slot, err := vs.ForkchoiceFetcher.RecentBlockSlot(attBlockRoot)
 	if err != nil {
+		if errors.Is(err, doublylinkedtree.ErrNilNode) {
+			// Skip attestation if block is unknown in forkchoice (common after long downtime)
+			return false, nil
+		}
 		return false, err
 	}
 	epoch := slots.ToEpoch(slot)
