@@ -26,7 +26,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/cmd/beacon-chain/flags"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/blocks"
-	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
 	"github.com/prysmaticlabs/prysm/v5/crypto/rand"
 	eth "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	"github.com/prysmaticlabs/prysm/v5/runtime"
@@ -299,7 +298,6 @@ func (s *Service) waitForMinimumPeers() ([]peer.ID, error) {
 		time.Sleep(handshakePollingInterval)
 	}
 }
-
 
 // markSynced marks node as synced and notifies feed listeners.
 func (s *Service) markSynced() {
