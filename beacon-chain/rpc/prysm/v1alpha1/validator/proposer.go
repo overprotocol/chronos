@@ -300,21 +300,19 @@ func (vs *Server) BuildBlockParallel(ctx context.Context, sBlk interfaces.Signed
 			logrus.WithError(err).Warn("Could not get local payload, using empty payload (single-validator recovery)")
 
 			// Create empty payload based on current fork version
-			var emptyPayloadInterface interface{}
 			currentSlot := sBlk.Block().Slot()
 
 			if slots.ToEpoch(currentSlot) >= params.BeaconConfig().DenebForkEpoch {
-				emptyPayloadInterface = emptyPayloadDeneb()
 				logrus.WithField("slot", currentSlot).Debug("Using empty Deneb payload for recovery")
+				local, err = consensusblocks.NewGetPayloadResponse(emptyPayloadDeneb())
 			} else if slots.ToEpoch(currentSlot) >= params.BeaconConfig().CapellaForkEpoch {
-				emptyPayloadInterface = emptyPayloadCapella()
 				logrus.WithField("slot", currentSlot).Debug("Using empty Capella payload for recovery")
+				local, err = consensusblocks.NewGetPayloadResponse(emptyPayloadCapella())
 			} else {
-				emptyPayloadInterface = emptyPayload()
 				logrus.WithField("slot", currentSlot).Debug("Using empty Bellatrix payload for recovery")
+				local, err = consensusblocks.NewGetPayloadResponse(emptyPayload())
 			}
 
-			local, err = consensusblocks.NewGetPayloadResponse(emptyPayloadInterface)
 			if err != nil {
 				return nil, status.Errorf(codes.Internal, "Could not create empty payload response: %v", err)
 			}
