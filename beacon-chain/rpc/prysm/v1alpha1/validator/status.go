@@ -3,11 +3,13 @@ package validator
 import (
 	"context"
 	"errors"
+	gotime "time"
 
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/signing"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/time"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
+	"github.com/prysmaticlabs/prysm/v5/cmd/beacon-chain/flags"
 	fieldparams "github.com/prysmaticlabs/prysm/v5/config/fieldparams"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
@@ -18,6 +20,7 @@ import (
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	"github.com/prysmaticlabs/prysm/v5/runtime/version"
 	"github.com/prysmaticlabs/prysm/v5/time/slots"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -261,6 +264,29 @@ func (vs *Server) optimisticStatus(ctx context.Context) error {
 	if slots.ToEpoch(vs.TimeFetcher.CurrentSlot()) < params.BeaconConfig().BellatrixForkEpoch {
 		return nil
 	}
+
+	// In single-validator setups (min-sync-peers=0), skip or use short timeout for optimistic check
+	// after long downtime to prevent block building delays
+	if flags.Get().MinimumSyncPeers == 0 {
+		logrus.Debug("Single-validator setup detected, using short timeout for optimistic status check")
+		// Use a short timeout context for the optimistic check
+		timeoutCtx, cancel := context.WithTimeout(ctx, 2*gotime.Second)
+		defer cancel()
+
+		optimistic, err := vs.OptimisticModeFetcher.IsOptimistic(timeoutCtx)
+		if err != nil {
+			// If timeout or other error in single-validator setup, assume non-optimistic to allow block building
+			logrus.WithError(err).Warn("Could not determine optimistic status in single-validator setup, assuming non-optimistic to allow block building")
+			return nil
+		}
+		if !optimistic {
+			return nil
+		}
+		// Even if optimistic in single-validator setup, allow block building for recovery
+		logrus.Warn("Node is optimistic but allowing block building in single-validator setup for recovery")
+		return nil
+	}
+
 	optimistic, err := vs.OptimisticModeFetcher.IsOptimistic(ctx)
 	if err != nil {
 		return status.Errorf(codes.Internal, "Could not determine if the node is a optimistic node: %v", err)
