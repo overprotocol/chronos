@@ -109,8 +109,8 @@ func (s *Service) internalBroadcastAttestation(ctx context.Context, subnet uint6
 			}
 			return errors.New("failed to find peers for subnet")
 		}(); err != nil {
-			log.WithError(err).Error("Failed to find peers")
-			tracing.AnnotateError(span, err)
+			// In single-node setups, not finding peers is expected and normal
+			log.WithError(err).Debug("No peers found for attestation subnet (normal in single-node setup)")
 		}
 	}
 	// In the event our attestation is outdated and beyond the
@@ -180,8 +180,8 @@ func (s *Service) internalBroadcastBlob(ctx context.Context, subnet uint64, blob
 			}
 			return errors.New("failed to find peers for subnet")
 		}(); err != nil {
-			log.WithError(err).Error("Failed to find peers")
-			tracing.AnnotateError(span, err)
+			// In single-node setups, not finding peers is expected and normal
+			log.WithError(err).Debug("No peers found for blob subnet (normal in single-node setup)")
 		}
 	}
 

@@ -66,6 +66,11 @@ func (vs *Server) packAttestations(ctx context.Context, latestState state.Beacon
 		}
 	}
 
+	// Check if context is cancelled before expensive deduplication
+	if ctx.Err() != nil {
+		return nil, ctx.Err()
+	}
+
 	// Remove duplicates from both aggregated/unaggregated attestations. This
 	// prevents inefficient aggregates being created.
 	versionAtts, err = proposerAtts(versionAtts).dedup()
@@ -83,6 +88,10 @@ func (vs *Server) packAttestations(ctx context.Context, latestState state.Beacon
 	}
 
 	for id, as := range attsById {
+		// Check if context is cancelled during aggregation processing
+		if ctx.Err() != nil {
+			return nil, ctx.Err()
+		}
 		as, err := attaggregation.Aggregate(as)
 		if err != nil {
 			return nil, err
@@ -177,6 +186,10 @@ func (a proposerAtts) filter(ctx context.Context, st state.BeaconState) (propose
 	invalidAtts := make([]ethpb.Att, 0, len(a))
 
 	for _, att := range a {
+		// Check if context is cancelled during long attestation processing
+		if ctx.Err() != nil {
+			break
+		}
 		if err := blocks.VerifyAttestationNoVerifySignature(ctx, st, att); err == nil {
 			validAtts = append(validAtts, att)
 			continue
@@ -529,7 +542,15 @@ func (vs *Server) filterCurrentEpochAttestationByForkchoice(ctx context.Context,
 		return false, nil
 	}
 
-	return vs.ForkchoiceFetcher.IsCanonical(ctx, attBlockRoot)
+	canonical, err := vs.ForkchoiceFetcher.IsCanonical(ctx, attBlockRoot)
+	if err != nil {
+		if errors.Is(err, doublylinkedtree.ErrNilNode) {
+			// Skip attestation if block is unknown in forkchoice (common after long downtime)
+			return false, nil
+		}
+		return false, err
+	}
+	return canonical, nil
 }
 
 // filterCurrentEpochAttestationByTarget returns true if an attestation from the current epoch matches the fork choice target view.
@@ -592,6 +613,10 @@ func (vs *Server) filterAttestationBySignature(ctx context.Context, atts propose
 	var verifiedAtts proposerAtts
 	var unverifiedAtts proposerAtts
 	for _, att := range atts {
+		// Check if context is cancelled during long attestation filtering
+		if ctx.Err() != nil {
+			break
+		}
 		ok, err := vs.filterCurrentEpochAttestationByTarget(att, targetRoot, targetEpoch, currentEpoch)
 		if err != nil {
 			log.WithFields(attestationFields(att)).WithError(err).Error("Could not filter current epoch attestation by target")
@@ -655,6 +680,10 @@ func (a proposerAtts) filterBatchSignature(ctx context.Context, st state.BeaconS
 func (a proposerAtts) filterIndividualSignature(ctx context.Context, st state.BeaconState) proposerAtts {
 	var validAtts proposerAtts
 	for _, att := range a {
+		// Check if context is cancelled during long signature verification
+		if ctx.Err() != nil {
+			break
+		}
 		aSet, err := blocks.AttestationSignatureBatch(ctx, st, []ethpb.Att{att})
 		if err != nil {
 			log.WithFields(attestationFields(att)).WithError(err).Error("Could not create individual attestation signature set")
