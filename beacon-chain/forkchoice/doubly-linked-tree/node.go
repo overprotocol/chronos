@@ -111,7 +111,7 @@ func (n *Node) viableForHead(justifiedEpoch, currentEpoch primitives.Epoch) bool
 	epochGap := currentEpoch - n.justifiedEpoch
 
 	// Use a configurable parameter or fallback to reasonable default
-	maxAllowedGap := primitives.Epoch(400) // Default: ~21 hours for recovery
+	maxAllowedGap := primitives.Epoch(1000) // Default: ~21 hours for recovery
 	// if params.BeaconConfig().MaxEpochsForRecovery != 0 {
 	// 	maxAllowedGap = primitives.Epoch(params.BeaconConfig().MaxEpochsForRecovery)
 	// }

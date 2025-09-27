@@ -24,6 +24,7 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/blocks"
+	consensusblocks "github.com/prysmaticlabs/prysm/v5/consensus-types/blocks"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/interfaces"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
 	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing/trace"
@@ -224,7 +225,13 @@ func (vs *Server) BuildBlockParallel(ctx context.Context, sBlk interfaces.Signed
 	if sBlk.Version() >= version.Bellatrix {
 		local, err := vs.getLocalPayload(ctx, sBlk.Block(), head)
 		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Could not get local payload: %v", err)
+			// In single-validator setups after long downtime, execution payload issues are common
+			// Continue with empty payload to allow block generation
+			log.WithError(err).Warn("Could not get local payload, using empty payload (single-validator recovery)")
+			local, err = consensusblocks.NewGetPayloadResponse(emptyPayload())
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Could not create empty payload response: %v", err)
+			}
 		}
 
 		// There's no reason to try to get a builder bid if local override is true.
