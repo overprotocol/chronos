@@ -13,6 +13,7 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing/trace"
 	"github.com/prysmaticlabs/prysm/v5/runtime/version"
 	"github.com/prysmaticlabs/prysm/v5/time/slots"
+	"github.com/sirupsen/logrus"
 )
 
 // head starts from justified root and then follows the best descendant links
@@ -57,6 +58,28 @@ func (s *Store) head(ctx context.Context) ([32]byte, error) {
 	}
 	currentEpoch := slots.EpochsSinceGenesis(time.Unix(int64(s.genesisTime), 0))
 	if !bestDescendant.viableForHead(s.justifiedCheckpoint.Epoch, currentEpoch) {
+		// Handle long downtime recovery: If no viable head found, try to find the best available node
+		// This can happen when validator has been down for extended periods
+		if s.treeRootNode != nil {
+			log.WithFields(logrus.Fields{
+				"bestDescendantSlot":           bestDescendant.slot,
+				"bestDescendantWeight":         bestDescendant.weight / 10e9,
+				"bestDescendantFinalizedEpoch": bestDescendant.finalizedEpoch,
+				"bestDescendantJustifiedEpoch": bestDescendant.justifiedEpoch,
+				"storeFinalizedEpoch":          s.finalizedCheckpoint.Epoch,
+				"storeJustifiedEpoch":          s.justifiedCheckpoint.Epoch,
+				"currentEpoch":                 currentEpoch,
+			}).Warn("No viable head found, attempting recovery from long downtime")
+
+			// Try to use tree root as fallback for recovery
+			if s.treeRootNode.viableForHead(s.justifiedCheckpoint.Epoch, currentEpoch) {
+				log.WithField("recoveryRoot", fmt.Sprintf("%#x", s.treeRootNode.root)).Info("Using tree root for head recovery")
+				s.allTipsAreInvalid = false
+				s.headNode = s.treeRootNode
+				return s.treeRootNode.root, nil
+			}
+		}
+
 		s.allTipsAreInvalid = true
 		return [32]byte{}, fmt.Errorf("head at slot %d with weight %d is not eligible, finalizedEpoch, justified Epoch %d, %d != %d, %d",
 			bestDescendant.slot, bestDescendant.weight/10e9, bestDescendant.finalizedEpoch, bestDescendant.justifiedEpoch, s.finalizedCheckpoint.Epoch, s.justifiedCheckpoint.Epoch)

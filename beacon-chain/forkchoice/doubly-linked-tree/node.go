@@ -99,7 +99,28 @@ func (n *Node) viableForHead(justifiedEpoch, currentEpoch primitives.Epoch) bool
 	// We use n.justifiedEpoch as the voting source because:
 	//   1. if this node is from current epoch, n.justifiedEpoch is the realized justification epoch.
 	//   2. if this node is from a previous epoch, n.justifiedEpoch has already been updated to the unrealized justification epoch.
-	return n.justifiedEpoch == justifiedEpoch || n.justifiedEpoch+2 >= currentEpoch
+
+	// Standard viability check
+	if n.justifiedEpoch == justifiedEpoch || n.justifiedEpoch+2 >= currentEpoch {
+		return true
+	}
+
+	// Extended viability for long downtime recovery
+	// Allow nodes that are reasonably close to current justified epoch
+	// This helps recovery when validator has been down for extended periods
+	epochGap := currentEpoch - n.justifiedEpoch
+
+	// Use a configurable parameter or fallback to reasonable default
+	maxAllowedGap := primitives.Epoch(400) // Default: ~21 hours for recovery
+	// if params.BeaconConfig().MaxEpochsForRecovery != 0 {
+	// 	maxAllowedGap = primitives.Epoch(params.BeaconConfig().MaxEpochsForRecovery)
+	// }
+
+	if epochGap <= maxAllowedGap {
+		return true
+	}
+
+	return false
 }
 
 func (n *Node) leadsToViableHead(justifiedEpoch, currentEpoch primitives.Epoch) bool {
