@@ -124,7 +124,7 @@ func (s *Service) shouldReSync() bool {
 	if currentEpoch > 1 {
 		prevEpoch = currentEpoch - 1
 	}
-	return s.cfg.initialSync != nil && !s.cfg.initialSync.Syncing() && syncedEpoch < prevEpoch
+	return s.cfg.initialSync != nil && !s.cfg.initialSync.Syncing() && syncedEpoch < prevEpoch && flags.Get().MinimumSyncPeers != 0
 }
 
 // sendRPCStatusRequest for a given topic with an expected protobuf message type.
