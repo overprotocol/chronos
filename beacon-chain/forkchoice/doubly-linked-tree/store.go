@@ -25,7 +25,7 @@ func (s *Store) head(ctx context.Context) ([32]byte, error) {
 		return [32]byte{}, err
 	}
 
-	// JustifiedRoot has to be known
+	// Try to get JustifiedRoot first
 	justifiedNode, ok := s.nodeByRoot[s.justifiedCheckpoint.Root]
 	if !ok || justifiedNode == nil {
 		// If the justifiedCheckpoint is from genesis, then the root is
@@ -34,7 +34,18 @@ func (s *Store) head(ctx context.Context) ([32]byte, error) {
 		if s.justifiedCheckpoint.Epoch == params.BeaconConfig().GenesisEpoch {
 			justifiedNode = s.treeRootNode
 		} else {
-			return [32]byte{}, errors.WithMessage(errUnknownJustifiedRoot, fmt.Sprintf("%#x", s.justifiedCheckpoint.Root))
+			// Fallback to finalized checkpoint
+			finalizedNode, okFinalized := s.nodeByRoot[s.finalizedCheckpoint.Root]
+			if okFinalized && finalizedNode != nil {
+				justifiedNode = finalizedNode
+			} else {
+				// Fallback to tree root node
+				if s.treeRootNode != nil {
+					justifiedNode = s.treeRootNode
+				} else {
+					return [32]byte{}, errors.WithMessage(errUnknownJustifiedRoot, fmt.Sprintf("%#x", s.justifiedCheckpoint.Root))
+				}
+			}
 		}
 	}
 
