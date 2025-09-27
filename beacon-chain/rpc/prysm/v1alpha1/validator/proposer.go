@@ -180,13 +180,16 @@ func (vs *Server) getParentState(ctx context.Context, slot primitives.Slot) (sta
 }
 
 func (vs *Server) BuildBlockParallel(ctx context.Context, sBlk interfaces.SignedBeaconBlock, head state.BeaconState, skipMevBoost bool, builderBoostFactor primitives.Gwei) (*ethpb.GenericBeaconBlock, error) {
+	log.WithField("slot", sBlk.Block().Slot()).Debug("Entering BuildBlockParallel")
 	// Build consensus fields in background
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
+		log.WithField("slot", sBlk.Block().Slot()).Debug("Starting background consensus field processing")
 
 		// Set eth1 data.
+		log.WithField("slot", sBlk.Block().Slot()).Debug("Getting eth1 data")
 		eth1Data, err := vs.eth1DataMajorityVote(ctx, head)
 		if err != nil {
 			eth1Data = &ethpb.Eth1Data{DepositRoot: params.BeaconConfig().ZeroHash[:], BlockHash: params.BeaconConfig().ZeroHash[:]}
@@ -195,6 +198,7 @@ func (vs *Server) BuildBlockParallel(ctx context.Context, sBlk interfaces.Signed
 		sBlk.SetEth1Data(eth1Data)
 
 		// Set deposit and attestation.
+		log.WithField("slot", sBlk.Block().Slot()).Debug("Starting to pack deposits and attestations")
 		deposits, atts, err := vs.packDepositsAndAttestations(ctx, head, sBlk.Block().Slot(), eth1Data) // TODO: split attestations and deposits
 		if err != nil {
 			sBlk.SetDeposits([]*ethpb.Deposit{})
@@ -203,6 +207,11 @@ func (vs *Server) BuildBlockParallel(ctx context.Context, sBlk interfaces.Signed
 			}
 			log.WithError(err).Error("Could not pack deposits and attestations")
 		} else {
+			log.WithFields(logrus.Fields{
+				"slot": sBlk.Block().Slot(),
+				"deposits": len(deposits),
+				"attestations": len(atts),
+			}).Debug("Successfully packed deposits and attestations")
 			sBlk.SetDeposits(deposits)
 			if err := sBlk.SetAttestations(atts); err != nil {
 				log.WithError(err).Error("Could not set attestations on block")
@@ -210,6 +219,7 @@ func (vs *Server) BuildBlockParallel(ctx context.Context, sBlk interfaces.Signed
 		}
 
 		// Set slashings.
+		log.WithField("slot", sBlk.Block().Slot()).Debug("Getting slashings")
 		validProposerSlashings, validAttSlashings := vs.getSlashings(ctx, head)
 		sBlk.SetProposerSlashings(validProposerSlashings)
 		if err := sBlk.SetAttesterSlashings(validAttSlashings); err != nil {
@@ -217,12 +227,16 @@ func (vs *Server) BuildBlockParallel(ctx context.Context, sBlk interfaces.Signed
 		}
 
 		// Set exits.
+		log.WithField("slot", sBlk.Block().Slot()).Debug("Getting exits")
 		sBlk.SetVoluntaryExits(vs.getExits(head, sBlk.Block().Slot()))
+		log.WithField("slot", sBlk.Block().Slot()).Debug("Completed background consensus field processing")
 	}()
 
+	log.WithField("slot", sBlk.Block().Slot()).Debug("Starting execution payload processing")
 	winningBid := primitives.ZeroWei()
 	var bundle *enginev1.BlobsBundle
 	if sBlk.Version() >= version.Bellatrix {
+		log.WithField("slot", sBlk.Block().Slot()).Debug("Getting local payload")
 		local, err := vs.getLocalPayload(ctx, sBlk.Block(), head)
 		if err != nil {
 			// In single-validator setups after long downtime, execution payload issues are common
@@ -244,21 +258,35 @@ func (vs *Server) BuildBlockParallel(ctx context.Context, sBlk interfaces.Signed
 			}
 		}
 
+		log.WithField("slot", sBlk.Block().Slot()).Debug("Setting execution data")
 		winningBid, bundle, err = setExecutionData(ctx, sBlk, local, builderBid, builderBoostFactor)
 		if err != nil {
+			log.WithError(err).WithField("slot", sBlk.Block().Slot()).Error("Failed to set execution data")
 			return nil, status.Errorf(codes.Internal, "Could not set execution data: %v", err)
 		}
+		log.WithField("slot", sBlk.Block().Slot()).Debug("Successfully set execution data")
 	}
 
+	log.WithField("slot", sBlk.Block().Slot()).Debug("Waiting for background consensus field processing")
 	wg.Wait()
+	log.WithField("slot", sBlk.Block().Slot()).Debug("Background processing completed, computing state root")
 
 	sr, err := vs.computeStateRoot(ctx, sBlk)
 	if err != nil {
+		log.WithError(err).WithField("slot", sBlk.Block().Slot()).Error("Failed to compute state root")
 		return nil, status.Errorf(codes.Internal, "Could not compute state root: %v", err)
 	}
+	log.WithField("slot", sBlk.Block().Slot()).Debug("Successfully computed state root")
 	sBlk.SetStateRoot(sr)
 
-	return vs.constructGenericBeaconBlock(sBlk, bundle, winningBid)
+	log.WithField("slot", sBlk.Block().Slot()).Debug("Constructing generic beacon block")
+	result, err := vs.constructGenericBeaconBlock(sBlk, bundle, winningBid)
+	if err != nil {
+		log.WithError(err).WithField("slot", sBlk.Block().Slot()).Error("Failed to construct generic beacon block")
+		return nil, err
+	}
+	log.WithField("slot", sBlk.Block().Slot()).Debug("Successfully completed BuildBlockParallel")
+	return result, nil
 }
 
 // ProposeBeaconBlock handles the proposal of beacon blocks.

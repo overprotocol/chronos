@@ -72,7 +72,10 @@ func (f *ForkChoice) Head(
 	fc := f.FinalizedCheckpoint()
 	currentEpoch := slots.EpochsSinceGenesis(time.Unix(int64(f.store.genesisTime), 0))
 	if err := f.store.treeRootNode.updateBestDescendant(ctx, jc.Epoch, fc.Epoch, currentEpoch); err != nil {
-		return [32]byte{}, errors.Wrap(err, "could not update best descendant")
+		// In single-validator setups after long downtime, updateBestDescendant may timeout
+		// but we should still attempt head selection with current state
+		logrus.WithError(err).Warn("Could not update best descendant, attempting head selection anyway (single-validator recovery)")
+		// Continue to head selection despite updateBestDescendant failure
 	}
 	return f.store.head(ctx)
 }
