@@ -4,7 +4,12 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"math/big"
+	"time"
 
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
@@ -12,7 +17,7 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/cache"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/blocks"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
-	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/time"
+	coreTime "github.com/prysmaticlabs/prysm/v5/beacon-chain/core/time"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
 	fieldparams "github.com/prysmaticlabs/prysm/v5/config/fieldparams"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
@@ -341,49 +346,326 @@ func activationEpochNotReached(slot primitives.Slot) bool {
 	return false
 }
 
+// calculateValidBlockHash calculates a valid block hash for empty execution payload
+func calculateValidBlockHash(parentHash []byte, feeRecipient []byte, stateRoot []byte, receiptsRoot []byte,
+	logsBloom []byte, prevRandao []byte, blockNumber uint64, gasLimit uint64, gasUsed uint64,
+	timestamp uint64, extraData []byte, baseFeePerGas *big.Int, transactions [][]byte, withdrawals interface{}) []byte {
+
+	// Create an Ethereum block header structure for hash calculation
+	header := &types.Header{
+		ParentHash:  common.BytesToHash(parentHash),
+		UncleHash:   types.EmptyUncleHash, // Always empty for PoS
+		Coinbase:    common.BytesToAddress(feeRecipient),
+		Root:        common.BytesToHash(stateRoot),
+		TxHash:      types.DeriveSha(types.Transactions{}, new(types.TrieStackHasher)), // Empty transactions
+		ReceiptHash: common.BytesToHash(receiptsRoot),
+		Bloom:       types.BytesToBloom(logsBloom),
+		Difficulty:  big.NewInt(0), // Always 0 for PoS
+		Number:      new(big.Int).SetUint64(blockNumber),
+		GasLimit:    gasLimit,
+		GasUsed:     gasUsed,
+		Time:        timestamp,
+		Extra:       extraData,
+		MixDigest:   common.BytesToHash(prevRandao),
+		Nonce:       types.BlockNonce{}, // Always zero for PoS
+		BaseFee:     baseFeePerGas,
+	}
+
+	blockHash := header.Hash()
+	return blockHash.Bytes()
+}
+
 func emptyPayload() *enginev1.ExecutionPayload {
+	// Use current time for timestamp
+	timestamp := uint64(time.Now().Unix())
+
+	// Basic empty payload fields
+	parentHash := make([]byte, fieldparams.RootLength)
+	feeRecipient := params.BeaconConfig().DefaultFeeRecipient.Bytes()
+	stateRoot := types.EmptyRootHash.Bytes()
+	receiptsRoot := types.EmptyRootHash.Bytes()
+	logsBloom := make([]byte, fieldparams.LogsBloomLength)
+	prevRandao := make([]byte, fieldparams.RootLength)
+	extraData := []byte("single-validator-recovery")
+	baseFeePerGas := make([]byte, fieldparams.RootLength) // Will be converted to big.Int
+	transactions := make([][]byte, 0)
+
+	// Calculate valid block hash
+	baseFee := new(big.Int).SetBytes(baseFeePerGas)
+	if baseFee.Cmp(big.NewInt(0)) == 0 {
+		baseFee = big.NewInt(1000000000) // 1 gwei default
+	}
+
+	blockHash := calculateValidBlockHash(parentHash, feeRecipient, stateRoot, receiptsRoot,
+		logsBloom, prevRandao, 1, 30000000, 0, timestamp, extraData, baseFee, transactions, nil)
+
 	return &enginev1.ExecutionPayload{
-		ParentHash:    make([]byte, fieldparams.RootLength),
-		FeeRecipient:  make([]byte, fieldparams.FeeRecipientLength),
-		StateRoot:     make([]byte, fieldparams.RootLength),
-		ReceiptsRoot:  make([]byte, fieldparams.RootLength),
-		LogsBloom:     make([]byte, fieldparams.LogsBloomLength),
-		PrevRandao:    make([]byte, fieldparams.RootLength),
-		ExtraData:     make([]byte, 0),
-		BaseFeePerGas: make([]byte, fieldparams.RootLength),
-		BlockHash:     make([]byte, fieldparams.RootLength),
-		Transactions:  make([][]byte, 0),
+		ParentHash:    parentHash,
+		FeeRecipient:  feeRecipient,
+		StateRoot:     stateRoot,
+		ReceiptsRoot:  receiptsRoot,
+		LogsBloom:     logsBloom,
+		PrevRandao:    prevRandao,
+		BlockNumber:   1,
+		GasLimit:      30000000,
+		GasUsed:       0,
+		Timestamp:     timestamp,
+		ExtraData:     extraData,
+		BaseFeePerGas: baseFee.Bytes(),
+		BlockHash:     blockHash,
+		Transactions:  transactions,
 	}
 }
 
 func emptyPayloadCapella() *enginev1.ExecutionPayloadCapella {
+	// Use current time for timestamp
+	timestamp := uint64(time.Now().Unix())
+
+	// Basic empty payload fields
+	parentHash := make([]byte, fieldparams.RootLength)
+	feeRecipient := params.BeaconConfig().DefaultFeeRecipient.Bytes()
+	stateRoot := types.EmptyRootHash.Bytes()
+	receiptsRoot := types.EmptyRootHash.Bytes()
+	logsBloom := make([]byte, fieldparams.LogsBloomLength)
+	prevRandao := make([]byte, fieldparams.RootLength)
+	extraData := []byte("single-validator-recovery")
+	transactions := make([][]byte, 0)
+	withdrawals := make([]*enginev1.Withdrawal, 0)
+
+	// Calculate valid block hash
+	baseFee := big.NewInt(1000000000) // 1 gwei default
+	blockHash := calculateValidBlockHash(parentHash, feeRecipient, stateRoot, receiptsRoot,
+		logsBloom, prevRandao, 1, 30000000, 0, timestamp, extraData, baseFee, transactions, withdrawals)
+
 	return &enginev1.ExecutionPayloadCapella{
-		ParentHash:    make([]byte, fieldparams.RootLength),
-		FeeRecipient:  make([]byte, fieldparams.FeeRecipientLength),
-		StateRoot:     make([]byte, fieldparams.RootLength),
-		ReceiptsRoot:  make([]byte, fieldparams.RootLength),
-		LogsBloom:     make([]byte, fieldparams.LogsBloomLength),
-		PrevRandao:    make([]byte, fieldparams.RootLength),
-		ExtraData:     make([]byte, 0),
-		BaseFeePerGas: make([]byte, fieldparams.RootLength),
-		BlockHash:     make([]byte, fieldparams.RootLength),
-		Transactions:  make([][]byte, 0),
-		Withdrawals:   make([]*enginev1.Withdrawal, 0),
+		ParentHash:    parentHash,
+		FeeRecipient:  feeRecipient,
+		StateRoot:     stateRoot,
+		ReceiptsRoot:  receiptsRoot,
+		LogsBloom:     logsBloom,
+		PrevRandao:    prevRandao,
+		BlockNumber:   1,
+		GasLimit:      30000000,
+		GasUsed:       0,
+		Timestamp:     timestamp,
+		ExtraData:     extraData,
+		BaseFeePerGas: baseFee.Bytes(),
+		BlockHash:     blockHash,
+		Transactions:  transactions,
+		Withdrawals:   withdrawals,
 	}
 }
 
 func emptyPayloadDeneb() *enginev1.ExecutionPayloadDeneb {
+	// Use current time for timestamp
+	timestamp := uint64(time.Now().Unix())
+
+	// Basic empty payload fields
+	parentHash := make([]byte, fieldparams.RootLength)
+	feeRecipient := params.BeaconConfig().DefaultFeeRecipient.Bytes()
+	stateRoot := types.EmptyRootHash.Bytes()
+	receiptsRoot := types.EmptyRootHash.Bytes()
+	logsBloom := make([]byte, fieldparams.LogsBloomLength)
+	prevRandao := make([]byte, fieldparams.RootLength)
+	extraData := []byte("single-validator-recovery")
+	transactions := make([][]byte, 0)
+	withdrawals := make([]*enginev1.Withdrawal, 0)
+
+	// Calculate valid block hash
+	baseFee := big.NewInt(1000000000) // 1 gwei default
+	blockHash := calculateValidBlockHash(parentHash, feeRecipient, stateRoot, receiptsRoot,
+		logsBloom, prevRandao, 1, 30000000, 0, timestamp, extraData, baseFee, transactions, withdrawals)
+
 	return &enginev1.ExecutionPayloadDeneb{
-		ParentHash:    make([]byte, fieldparams.RootLength),
-		FeeRecipient:  make([]byte, fieldparams.FeeRecipientLength),
-		StateRoot:     make([]byte, fieldparams.RootLength),
-		ReceiptsRoot:  make([]byte, fieldparams.RootLength),
-		LogsBloom:     make([]byte, fieldparams.LogsBloomLength),
-		PrevRandao:    make([]byte, fieldparams.RootLength),
-		ExtraData:     make([]byte, 0),
-		BaseFeePerGas: make([]byte, fieldparams.RootLength),
-		BlockHash:     make([]byte, fieldparams.RootLength),
-		Transactions:  make([][]byte, 0),
-		Withdrawals:   make([]*enginev1.Withdrawal, 0),
+		ParentHash:    parentHash,
+		FeeRecipient:  feeRecipient,
+		StateRoot:     stateRoot,
+		ReceiptsRoot:  receiptsRoot,
+		LogsBloom:     logsBloom,
+		PrevRandao:    prevRandao,
+		BlockNumber:   1,
+		GasLimit:      30000000,
+		GasUsed:       0,
+		Timestamp:     timestamp,
+		ExtraData:     extraData,
+		BaseFeePerGas: baseFee.Bytes(),
+		BlockHash:     blockHash,
+		Transactions:  transactions,
+		Withdrawals:   withdrawals,
+	}
+}
+
+// emptyPayloadWithContext creates an empty payload using beacon state context
+func emptyPayloadWithContext(head state.BeaconState, slot primitives.Slot) *enginev1.ExecutionPayload {
+	// Get execution payload header from beacon state for context
+	executionPayloadHeader, err := head.LatestExecutionPayloadHeader()
+	if err != nil {
+		logrus.WithError(err).Warn("Could not get execution payload header, using basic empty payload")
+		return emptyPayload()
+	}
+
+	// Use current time for timestamp but ensure it's after parent
+	timestamp := uint64(time.Now().Unix())
+	parentTimestamp := executionPayloadHeader.Timestamp()
+	if timestamp <= parentTimestamp {
+		timestamp = parentTimestamp + 12 // Add 12 seconds (typical block time)
+	}
+
+	// Get proper values from execution payload header
+	parentHash := executionPayloadHeader.BlockHash()
+	blockNumber := executionPayloadHeader.BlockNumber() + 1
+	baseFeePerGas := executionPayloadHeader.BaseFeePerGas()
+
+	// Basic empty payload fields with proper context
+	feeRecipient := params.BeaconConfig().DefaultFeeRecipient.Bytes()
+	stateRoot := types.EmptyRootHash.Bytes()
+	receiptsRoot := types.EmptyRootHash.Bytes()
+	logsBloom := make([]byte, fieldparams.LogsBloomLength)
+	prevRandao := make([]byte, fieldparams.RootLength)
+	extraData := []byte("single-validator-recovery")
+	transactions := make([][]byte, 0)
+
+	// Calculate valid block hash with proper context
+	baseFee := new(big.Int).SetBytes(bytesutil.ReverseByteOrder(baseFeePerGas))
+	if baseFee.Cmp(big.NewInt(0)) == 0 {
+		baseFee = big.NewInt(1000000000) // 1 gwei fallback
+	}
+
+	blockHash := calculateValidBlockHash(parentHash, feeRecipient, stateRoot, receiptsRoot,
+		logsBloom, prevRandao, blockNumber, 30000000, 0, timestamp, extraData, baseFee, transactions, nil)
+
+	return &enginev1.ExecutionPayload{
+		ParentHash:    parentHash,
+		FeeRecipient:  feeRecipient,
+		StateRoot:     stateRoot,
+		ReceiptsRoot:  receiptsRoot,
+		LogsBloom:     logsBloom,
+		PrevRandao:    prevRandao,
+		BlockNumber:   blockNumber,
+		GasLimit:      30000000,
+		GasUsed:       0,
+		Timestamp:     timestamp,
+		ExtraData:     extraData,
+		BaseFeePerGas: baseFeePerGas,
+		BlockHash:     blockHash,
+		Transactions:  transactions,
+	}
+}
+
+// emptyPayloadCapellaWithContext creates an empty Capella payload using beacon state context
+func emptyPayloadCapellaWithContext(head state.BeaconState, slot primitives.Slot) *enginev1.ExecutionPayloadCapella {
+	// Get execution payload header from beacon state for context
+	executionPayloadHeader, err := head.LatestExecutionPayloadHeader()
+	if err != nil {
+		logrus.WithError(err).Warn("Could not get execution payload header, using basic empty payload")
+		return emptyPayloadCapella()
+	}
+
+	// Use current time for timestamp but ensure it's after parent
+	timestamp := uint64(time.Now().Unix())
+	parentTimestamp := executionPayloadHeader.Timestamp()
+	if timestamp <= parentTimestamp {
+		timestamp = parentTimestamp + 12 // Add 12 seconds
+	}
+
+	// Get proper values from execution payload header
+	parentHash := executionPayloadHeader.BlockHash()
+	blockNumber := executionPayloadHeader.BlockNumber() + 1
+	baseFeePerGas := executionPayloadHeader.BaseFeePerGas()
+
+	// Basic empty payload fields with proper context
+	feeRecipient := params.BeaconConfig().DefaultFeeRecipient.Bytes()
+	stateRoot := types.EmptyRootHash.Bytes()
+	receiptsRoot := types.EmptyRootHash.Bytes()
+	logsBloom := make([]byte, fieldparams.LogsBloomLength)
+	prevRandao := make([]byte, fieldparams.RootLength)
+	extraData := []byte("single-validator-recovery")
+	transactions := make([][]byte, 0)
+	withdrawals := make([]*enginev1.Withdrawal, 0)
+
+	// Calculate valid block hash with proper context
+	baseFee := new(big.Int).SetBytes(bytesutil.ReverseByteOrder(baseFeePerGas))
+	if baseFee.Cmp(big.NewInt(0)) == 0 {
+		baseFee = big.NewInt(1000000000)
+	}
+
+	blockHash := calculateValidBlockHash(parentHash, feeRecipient, stateRoot, receiptsRoot,
+		logsBloom, prevRandao, blockNumber, 30000000, 0, timestamp, extraData, baseFee, transactions, withdrawals)
+
+	return &enginev1.ExecutionPayloadCapella{
+		ParentHash:    parentHash,
+		FeeRecipient:  feeRecipient,
+		StateRoot:     stateRoot,
+		ReceiptsRoot:  receiptsRoot,
+		LogsBloom:     logsBloom,
+		PrevRandao:    prevRandao,
+		BlockNumber:   blockNumber,
+		GasLimit:      30000000,
+		GasUsed:       0,
+		Timestamp:     timestamp,
+		ExtraData:     extraData,
+		BaseFeePerGas: baseFeePerGas,
+		BlockHash:     blockHash,
+		Transactions:  transactions,
+		Withdrawals:   withdrawals,
+	}
+}
+
+// emptyPayloadDenebWithContext creates an empty Deneb payload using beacon state context
+func emptyPayloadDenebWithContext(head state.BeaconState, slot primitives.Slot) *enginev1.ExecutionPayloadDeneb {
+	// Get execution payload header from beacon state for context
+	executionPayloadHeader, err := head.LatestExecutionPayloadHeader()
+	if err != nil {
+		logrus.WithError(err).Warn("Could not get execution payload header, using basic empty payload")
+		return emptyPayloadDeneb()
+	}
+
+	// Use current time for timestamp but ensure it's after parent
+	timestamp := uint64(time.Now().Unix())
+	parentTimestamp := executionPayloadHeader.Timestamp()
+	if timestamp <= parentTimestamp {
+		timestamp = parentTimestamp + 12 // Add 12 seconds
+	}
+
+	// Get proper values from execution payload header
+	parentHash := executionPayloadHeader.BlockHash()
+	blockNumber := executionPayloadHeader.BlockNumber() + 1
+	baseFeePerGas := executionPayloadHeader.BaseFeePerGas()
+
+	// Basic empty payload fields with proper context
+	feeRecipient := params.BeaconConfig().DefaultFeeRecipient.Bytes()
+	stateRoot := types.EmptyRootHash.Bytes()
+	receiptsRoot := types.EmptyRootHash.Bytes()
+	logsBloom := make([]byte, fieldparams.LogsBloomLength)
+	prevRandao := make([]byte, fieldparams.RootLength)
+	extraData := []byte("single-validator-recovery")
+	transactions := make([][]byte, 0)
+	withdrawals := make([]*enginev1.Withdrawal, 0)
+
+	// Calculate valid block hash with proper context
+	baseFee := new(big.Int).SetBytes(bytesutil.ReverseByteOrder(baseFeePerGas))
+	if baseFee.Cmp(big.NewInt(0)) == 0 {
+		baseFee = big.NewInt(1000000000)
+	}
+
+	blockHash := calculateValidBlockHash(parentHash, feeRecipient, stateRoot, receiptsRoot,
+		logsBloom, prevRandao, blockNumber, 30000000, 0, timestamp, extraData, baseFee, transactions, withdrawals)
+
+	return &enginev1.ExecutionPayloadDeneb{
+		ParentHash:    parentHash,
+		FeeRecipient:  feeRecipient,
+		StateRoot:     stateRoot,
+		ReceiptsRoot:  receiptsRoot,
+		LogsBloom:     logsBloom,
+		PrevRandao:    prevRandao,
+		BlockNumber:   blockNumber,
+		GasLimit:      30000000,
+		GasUsed:       0,
+		Timestamp:     timestamp,
+		ExtraData:     extraData,
+		BaseFeePerGas: baseFeePerGas,
+		BlockHash:     blockHash,
+		Transactions:  transactions,
+		Withdrawals:   withdrawals,
 	}
 }
