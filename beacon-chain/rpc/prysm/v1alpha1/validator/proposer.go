@@ -21,6 +21,7 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/transition"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/db/kv"
+	"github.com/prysmaticlabs/prysm/v5/cmd/beacon-chain/flags"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/blocks"
@@ -183,7 +184,28 @@ func (vs *Server) getParentStateFromReorgData(ctx context.Context, slot primitiv
 	if head.Slot() >= slot {
 		return head, nil
 	}
-	head, err = transition.ProcessSlotsUsingNextSlotCache(ctx, head, parentRoot[:], slot)
+	// In single-validator setups after long downtime, allow more time for slot processing
+	slotDiff := slot - head.Slot()
+	processCtx := ctx
+	if flags.Get().MinimumSyncPeers == 0 && slotDiff > 100 {
+		// For single-validator setup with large slot gaps, use extended timeout
+		extendedTimeout := time.Duration(slotDiff/100) * 30 * time.Second // ~30s per 100 slots
+		if extendedTimeout > 10*time.Minute {
+			extendedTimeout = 10 * time.Minute // Cap at 10 minutes
+		}
+		logrus.WithFields(logrus.Fields{
+			"currentSlot":      head.Slot(),
+			"targetSlot":       slot,
+			"slotDiff":         slotDiff,
+			"extendedTimeout":  extendedTimeout,
+		}).Warn("Single-validator setup detected with large slot gap, using extended timeout for slot processing")
+
+		var cancel context.CancelFunc
+		processCtx, cancel = context.WithTimeout(ctx, extendedTimeout)
+		defer cancel()
+	}
+
+	head, err = transition.ProcessSlotsUsingNextSlotCache(processCtx, head, parentRoot[:], slot)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Could not process slots up to %d: %v", slot, err)
 	}
