@@ -80,6 +80,28 @@ func (s *Store) head(ctx context.Context) ([32]byte, error) {
 			}
 		}
 
+		// Final fallback for single-validator networks after extended downtime:
+		// If we have a bestDescendant with non-zero weight, use it even if epochs don't match
+		// This allows the validator to continue operating and eventually sync up
+		if bestDescendant != nil && bestDescendant.weight > 0 {
+			epochDiff := currentEpoch - bestDescendant.justifiedEpoch
+			finalizedDiff := s.finalizedCheckpoint.Epoch - bestDescendant.finalizedEpoch
+
+			// Only use this fallback if we're reasonably close (within recovery window)
+			if epochDiff <= 500 && finalizedDiff <= 10 {
+				log.WithFields(logrus.Fields{
+					"bestDescendantSlot":           bestDescendant.slot,
+					"bestDescendantRoot":           fmt.Sprintf("%#x", bestDescendant.root),
+					"epochDifference":              epochDiff,
+					"finalizedEpochDifference":     finalizedDiff,
+				}).Warn("Using best descendant as head despite epoch mismatch (single-validator recovery)")
+
+				s.allTipsAreInvalid = false
+				s.headNode = bestDescendant
+				return bestDescendant.root, nil
+			}
+		}
+
 		s.allTipsAreInvalid = true
 		return [32]byte{}, fmt.Errorf("head at slot %d with weight %d is not eligible, finalizedEpoch, justified Epoch %d, %d != %d, %d",
 			bestDescendant.slot, bestDescendant.weight/10e9, bestDescendant.finalizedEpoch, bestDescendant.justifiedEpoch, s.finalizedCheckpoint.Epoch, s.justifiedCheckpoint.Epoch)
