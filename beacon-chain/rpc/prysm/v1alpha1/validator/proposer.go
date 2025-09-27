@@ -21,11 +21,10 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/transition"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/db/kv"
-	"github.com/prysmaticlabs/prysm/v5/cmd/beacon-chain/flags"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
+	"github.com/prysmaticlabs/prysm/v5/cmd/beacon-chain/flags"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/blocks"
-	consensusblocks "github.com/prysmaticlabs/prysm/v5/consensus-types/blocks"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/interfaces"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
 	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing/trace"
@@ -198,10 +197,10 @@ func (vs *Server) getParentStateFromReorgData(ctx context.Context, slot primitiv
 			extendedTimeout = 15 * time.Minute // Cap at 15 minutes
 		}
 		logrus.WithFields(logrus.Fields{
-			"currentSlot":      head.Slot(),
-			"targetSlot":       slot,
-			"slotDiff":         slotDiff,
-			"extendedTimeout":  extendedTimeout,
+			"currentSlot":     head.Slot(),
+			"targetSlot":      slot,
+			"slotDiff":        slotDiff,
+			"extendedTimeout": extendedTimeout,
 		}).Warn("Single-validator setup detected with large slot gap, using extended timeout for slot processing")
 
 		// Create a new context from background to avoid parent timeout limitations
@@ -212,7 +211,7 @@ func (vs *Server) getParentStateFromReorgData(ctx context.Context, slot primitiv
 		// Copy important values from original context if needed
 		if deadline, ok := ctx.Deadline(); ok && time.Until(deadline) < extendedTimeout {
 			logrus.WithFields(logrus.Fields{
-				"parentDeadline": deadline,
+				"parentDeadline":  deadline,
 				"extendedTimeout": extendedTimeout,
 			}).Debug("Parent context has shorter deadline, using background context for slot processing")
 		}
@@ -295,27 +294,7 @@ func (vs *Server) BuildBlockParallel(ctx context.Context, sBlk interfaces.Signed
 		log.WithField("slot", sBlk.Block().Slot()).Debug("Getting local payload")
 		local, err := vs.getLocalPayload(ctx, sBlk.Block(), head)
 		if err != nil {
-			// In single-validator setups after long downtime, execution payload issues are common
-			// Continue with empty payload to allow block generation
-			logrus.WithError(err).Warn("Could not get local payload, using empty payload (single-validator recovery)")
-
-			// Create empty payload based on current fork version with proper execution context
-			currentSlot := sBlk.Block().Slot()
-
-			if slots.ToEpoch(currentSlot) >= params.BeaconConfig().DenebForkEpoch {
-				logrus.WithField("slot", currentSlot).Debug("Using empty Deneb payload for recovery")
-				local, err = consensusblocks.NewGetPayloadResponse(emptyPayloadDenebWithContext(head, currentSlot))
-			} else if slots.ToEpoch(currentSlot) >= params.BeaconConfig().CapellaForkEpoch {
-				logrus.WithField("slot", currentSlot).Debug("Using empty Capella payload for recovery")
-				local, err = consensusblocks.NewGetPayloadResponse(emptyPayloadCapellaWithContext(head, currentSlot))
-			} else {
-				logrus.WithField("slot", currentSlot).Debug("Using empty Bellatrix payload for recovery")
-				local, err = consensusblocks.NewGetPayloadResponse(emptyPayloadWithContext(head, currentSlot))
-			}
-
-			if err != nil {
-				return nil, status.Errorf(codes.Internal, "Could not create empty payload response: %v", err)
-			}
+			return nil, status.Errorf(codes.Internal, "Could not get local payload: %v", err)
 		}
 
 		// There's no reason to try to get a builder bid if local override is true.
@@ -595,11 +574,11 @@ func (vs *Server) computeStateRoot(ctx context.Context, block interfaces.ReadOnl
 			}
 
 			logrus.WithFields(logrus.Fields{
-				"currentSlot":      currentSlot,
-				"blockSlot":        blockSlot,
-				"stateSlot":        stateSlot,
-				"slotDiff":         slotDiff,
-				"extendedTimeout":  extendedTimeout,
+				"currentSlot":     currentSlot,
+				"blockSlot":       blockSlot,
+				"stateSlot":       stateSlot,
+				"slotDiff":        slotDiff,
+				"extendedTimeout": extendedTimeout,
 			}).Warn("Single-validator setup detected with large slot gap, using extended timeout for state root calculation")
 
 			// Create extended timeout context from background to avoid parent timeout limitations
