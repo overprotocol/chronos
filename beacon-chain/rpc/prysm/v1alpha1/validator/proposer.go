@@ -189,9 +189,13 @@ func (vs *Server) getParentStateFromReorgData(ctx context.Context, slot primitiv
 	processCtx := ctx
 	if flags.Get().MinimumSyncPeers == 0 && slotDiff > 100 {
 		// For single-validator setup with large slot gaps, use extended timeout
-		extendedTimeout := time.Duration(slotDiff/100) * 30 * time.Second // ~30s per 100 slots
-		if extendedTimeout > 10*time.Minute {
-			extendedTimeout = 10 * time.Minute // Cap at 10 minutes
+		// Use more aggressive timeout for very large gaps
+		extendedTimeout := time.Duration(slotDiff/50) * 30 * time.Second // ~30s per 50 slots (doubled)
+		if extendedTimeout < 5*time.Minute {
+			extendedTimeout = 5 * time.Minute // Minimum 5 minutes for large gaps
+		}
+		if extendedTimeout > 15*time.Minute {
+			extendedTimeout = 15 * time.Minute // Cap at 15 minutes
 		}
 		logrus.WithFields(logrus.Fields{
 			"currentSlot":      head.Slot(),
@@ -200,9 +204,18 @@ func (vs *Server) getParentStateFromReorgData(ctx context.Context, slot primitiv
 			"extendedTimeout":  extendedTimeout,
 		}).Warn("Single-validator setup detected with large slot gap, using extended timeout for slot processing")
 
+		// Create a new context from background to avoid parent timeout limitations
 		var cancel context.CancelFunc
-		processCtx, cancel = context.WithTimeout(ctx, extendedTimeout)
+		processCtx, cancel = context.WithTimeout(context.Background(), extendedTimeout)
 		defer cancel()
+
+		// Copy important values from original context if needed
+		if deadline, ok := ctx.Deadline(); ok && time.Until(deadline) < extendedTimeout {
+			logrus.WithFields(logrus.Fields{
+				"parentDeadline": deadline,
+				"extendedTimeout": extendedTimeout,
+			}).Debug("Parent context has shorter deadline, using background context for slot processing")
+		}
 	}
 
 	head, err = transition.ProcessSlotsUsingNextSlotCache(processCtx, head, parentRoot[:], slot)
