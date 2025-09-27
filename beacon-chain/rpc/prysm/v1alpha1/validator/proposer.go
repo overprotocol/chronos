@@ -62,13 +62,41 @@ func (vs *Server) GetBeaconBlock(ctx context.Context, req *ethpb.BlockRequest) (
 		"sinceSlotStartTime": time.Since(t),
 	}).Info("Begin building block")
 
-	log.WithField("slot", req.Slot).Debug("Checking sync status")
+	log.WithField("slot", req.Slot).Info("Checking sync status")
 	// A syncing validator should not produce a block.
 	if vs.SyncChecker.Syncing() {
-		log.WithField("slot", req.Slot).Debug("Validator is syncing, cannot propose block")
+		log.WithField("slot", req.Slot).Warn("Validator is syncing, cannot propose block - RETURNING EARLY")
 		return nil, status.Error(codes.Unavailable, "Syncing to latest head, not ready to respond")
 	}
-	log.WithField("slot", req.Slot).Debug("Sync check passed")
+	log.WithField("slot", req.Slot).Info("Sync check passed - continuing with block building")
+
+	// Check if beacon chain head is too far behind current slot
+	headSlot := vs.HeadFetcher.HeadSlot()
+	currentSlot := req.Slot
+	slotGap := currentSlot - headSlot
+
+	log.WithFields(logrus.Fields{
+		"currentSlot": currentSlot,
+		"headSlot":    headSlot,
+		"slotGap":     slotGap,
+	}).Info("Checking head-current slot gap")
+
+	// If head is significantly behind current slot, don't build block
+	if slotGap > 100 { // More than ~3 epochs behind
+		log.WithFields(logrus.Fields{
+			"currentSlot": currentSlot,
+			"headSlot":    headSlot,
+			"slotGap":     slotGap,
+		}).Warn("Head too far behind current slot, skipping block building to prevent execution payload issues")
+		return nil, status.Error(codes.Unavailable, "Head too far behind current slot, not ready to build block")
+	}
+
+	log.WithFields(logrus.Fields{
+		"currentSlot": currentSlot,
+		"headSlot":    headSlot,
+		"slotGap":     slotGap,
+	}).Info("Head-current slot gap acceptable - continuing with block building")
+
 	log.WithField("slot", req.Slot).Debug("Checking optimistic status")
 	// An optimistic validator MUST NOT produce a block (i.e., sign across the DOMAIN_BEACON_PROPOSER domain).
 	if slots.ToEpoch(req.Slot) >= params.BeaconConfig().BellatrixForkEpoch {
