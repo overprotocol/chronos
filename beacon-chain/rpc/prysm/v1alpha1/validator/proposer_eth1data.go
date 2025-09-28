@@ -8,6 +8,7 @@ import (
 	fastssz "github.com/prysmaticlabs/fastssz"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/blocks"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
+	"github.com/prysmaticlabs/prysm/v5/cmd/beacon-chain/flags"
 	"github.com/prysmaticlabs/prysm/v5/config/features"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
@@ -16,6 +17,7 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/encoding/bytesutil"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	"github.com/prysmaticlabs/prysm/v5/time/slots"
+	"github.com/sirupsen/logrus"
 )
 
 // eth1DataMajorityVote determines the appropriate eth1data for a block proposal using
@@ -35,6 +37,25 @@ func (vs *Server) eth1DataMajorityVote(ctx context.Context, beaconState state.Be
 	defer cancel()
 
 	slot := beaconState.Slot()
+
+	// Check if this is a single-validator checkpoint recovery scenario
+	if flags.Get().MinimumSyncPeers == 0 {
+		isCheckpointRecovery := slot >= 2131300 && slot <= 2131400
+		currentSlot := vs.TimeFetcher.CurrentSlot()
+		slotDiff := currentSlot - slot
+
+		if isCheckpointRecovery || slotDiff > 1000 {
+			log.WithFields(logrus.Fields{
+				"slot":                 slot,
+				"slotDiff":             slotDiff,
+				"isCheckpointRecovery": isCheckpointRecovery,
+			}).Debug("Checkpoint recovery: using existing eth1data to avoid time sync issues")
+
+			// Use existing eth1data from head state to avoid time synchronization issues
+			return vs.HeadFetcher.HeadETH1Data(), nil
+		}
+	}
+
 	votingPeriodStartTime := vs.slotStartTime(slot)
 
 	if vs.MockEth1Votes {

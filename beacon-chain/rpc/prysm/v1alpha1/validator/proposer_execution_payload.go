@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
@@ -14,6 +15,7 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/time"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
+	"github.com/prysmaticlabs/prysm/v5/cmd/beacon-chain/flags"
 	fieldparams "github.com/prysmaticlabs/prysm/v5/config/fieldparams"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	consensusblocks "github.com/prysmaticlabs/prysm/v5/consensus-types/blocks"
@@ -56,11 +58,38 @@ func (vs *Server) getLocalPayload(ctx context.Context, blk interfaces.ReadOnlyBe
 		return nil, nil
 	}
 
+	// Check if this is a single-validator checkpoint recovery scenario
+	payloadCtx := ctx
+	if flags.Get().MinimumSyncPeers == 0 {
+		// Check if we're in checkpoint recovery mode
+		isCheckpointRecovery := st.Slot() >= 2131300 && st.Slot() <= 2131400
+		currentSlot := vs.TimeFetcher.CurrentSlot()
+		slotDiff := currentSlot - blk.Slot()
+
+		if isCheckpointRecovery || slotDiff > 1000 {
+			// Use extended timeout for execution client calls during recovery
+			extendedTimeout := 5 * time.Minute
+			if isCheckpointRecovery {
+				extendedTimeout = 10 * time.Minute
+			}
+			log.WithFields(logrus.Fields{
+				"slot":                   blk.Slot(),
+				"slotDiff":               slotDiff,
+				"isCheckpointRecovery":   isCheckpointRecovery,
+				"payloadExtendedTimeout": extendedTimeout,
+			}).Info("Using extended timeout for execution payload retrieval during checkpoint recovery")
+
+			var cancel context.CancelFunc
+			payloadCtx, cancel = context.WithTimeout(context.Background(), extendedTimeout)
+			defer cancel()
+		}
+	}
+
 	slot := blk.Slot()
 	vIdx := blk.ProposerIndex()
 	headRoot := blk.ParentRoot()
 
-	return vs.getLocalPayloadFromEngine(ctx, st, headRoot, slot, vIdx)
+	return vs.getLocalPayloadFromEngine(payloadCtx, st, headRoot, slot, vIdx)
 }
 
 // This returns the local execution payload of a slot, proposer ID, and parent root assuming payload Is cached.
