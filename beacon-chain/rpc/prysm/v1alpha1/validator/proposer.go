@@ -427,6 +427,15 @@ func (vs *Server) BuildBlockParallel(ctx context.Context, sBlk interfaces.Signed
 			// Check if this is a checkpoint recovery scenario
 			headSlot := head.Slot()
 			isCheckpointRecovery := headSlot >= 2131300 && headSlot <= 2131400
+
+			log.WithError(err).WithFields(logrus.Fields{
+				"slot":                 sBlk.Block().Slot(),
+				"headSlot":             headSlot,
+				"isCheckpointRecovery": isCheckpointRecovery,
+				"checkpointMin":        2131300,
+				"checkpointMax":        2131400,
+			}).Error("Execution payload failed - checking checkpoint recovery conditions")
+
 			if isCheckpointRecovery {
 				log.WithError(err).WithFields(logrus.Fields{
 					"slot":                 sBlk.Block().Slot(),

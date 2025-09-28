@@ -105,6 +105,27 @@ func (vs *Server) getLocalPayloadFromEngine(
 		"slot":           slot,
 		"headRoot":       fmt.Sprintf("%#x", parentRoot),
 	}
+
+	// Check if this is a checkpoint recovery scenario at the engine level
+	headSlot := st.Slot()
+	isCheckpointRecovery := headSlot >= 2131300 && headSlot <= 2131400
+	if isCheckpointRecovery {
+		log.WithFields(logrus.Fields{
+			"slot":                 slot,
+			"headSlot":             headSlot,
+			"isCheckpointRecovery": isCheckpointRecovery,
+		}).Warn("Checkpoint recovery detected in getLocalPayloadFromEngine - returning empty payload to avoid execution client issues")
+
+		// Return empty payload immediately for checkpoint recovery
+		emptyExecData, err := vs.getEmptyExecutionData(version.Deneb) // Use latest version
+		if err != nil {
+			return nil, errors.Wrap(err, "could not create empty execution data for checkpoint recovery")
+		}
+		return &consensusblocks.GetPayloadResponse{
+			ExecutionData: emptyExecData,
+			BlobsBundle:   &enginev1.BlobsBundle{},
+		}, nil
+	}
 	payloadId, ok := vs.PayloadIDCache.PayloadID(slot, parentRoot)
 
 	val, tracked := vs.TrackedValidatorsCache.Validator(proposerId)

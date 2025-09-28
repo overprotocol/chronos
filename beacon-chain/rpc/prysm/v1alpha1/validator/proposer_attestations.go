@@ -43,15 +43,25 @@ func (vs *Server) packAttestations(ctx context.Context, latestState state.Beacon
 	}
 
 	// Check if this is a checkpoint recovery scenario
-	isCheckpointRecovery := false
-	headSlot := latestState.Slot()
+	// Use HeadFetcher instead of latestState.Slot() to get the actual head slot
+	headSlot := vs.HeadFetcher.HeadSlot()
 	currentSlot := vs.TimeFetcher.CurrentSlot()
-	if headSlot >= 2131300 && headSlot <= 2131400 {
-		isCheckpointRecovery = true
+	stateSlot := latestState.Slot()
+	isCheckpointRecovery := headSlot >= 2131300 && headSlot <= 2131400
+
+	log.WithFields(logrus.Fields{
+		"blkSlot":              blkSlot,
+		"headSlot":             headSlot,
+		"stateSlot":            stateSlot,
+		"currentSlot":          currentSlot,
+		"isCheckpointRecovery": isCheckpointRecovery,
+	}).Debug("packAttestations checkpoint recovery check")
+
+	if isCheckpointRecovery {
 		log.WithFields(logrus.Fields{
-			"slot":                 blkSlot,
+			"blkSlot":              blkSlot,
 			"headSlot":             headSlot,
-			"currentSlot":          currentSlot,
+			"stateSlot":            stateSlot,
 			"isCheckpointRecovery": isCheckpointRecovery,
 		}).Info("Checkpoint recovery detected in packAttestations - returning empty attestations to avoid validation errors")
 
