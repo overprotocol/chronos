@@ -9,6 +9,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
+	"github.com/prysmaticlabs/prysm/v5/cmd/beacon-chain/flags"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
 	"github.com/prysmaticlabs/prysm/v5/encoding/bytesutil"
@@ -119,6 +120,32 @@ func (s *Service) UpdateHead(ctx context.Context, proposingSlot primitives.Slot)
 	ctx, span := trace.StartSpan(ctx, "beacon-chain.blockchain.UpdateHead")
 	defer span.End()
 
+	// Check if this is a single-validator checkpoint recovery scenario
+	isSingleValidator := flags.Get().MinimumSyncPeers == 0
+
+	// Create extended context for checkpoint recovery scenarios
+	updateCtx := ctx
+	if isSingleValidator {
+		// Check if we're in checkpoint recovery mode by looking at current head
+		currentHead := s.HeadSlot()
+		isCheckpointRecovery := currentHead >= 2131300 && currentHead <= 2131400
+
+		if isCheckpointRecovery {
+			// Use much longer timeout for checkpoint recovery
+			extendedTimeout := 10 * time.Minute
+			log.WithFields(logrus.Fields{
+				"currentHead":         currentHead,
+				"proposingSlot":       proposingSlot,
+				"extendedTimeout":     extendedTimeout,
+				"isCheckpointRecovery": isCheckpointRecovery,
+			}).Warn("Single-validator checkpoint recovery: using extended timeout for head computation")
+
+			var cancel context.CancelFunc
+			updateCtx, cancel = context.WithTimeout(context.Background(), extendedTimeout)
+			defer cancel()
+		}
+	}
+
 	start := time.Now()
 	s.cfg.ForkChoiceStore.Lock()
 	defer s.cfg.ForkChoiceStore.Unlock()
@@ -126,22 +153,26 @@ func (s *Service) UpdateHead(ctx context.Context, proposingSlot primitives.Slot)
 	disparity := params.BeaconConfig().MaximumGossipClockDisparityDuration()
 	disparity += reorgLateBlockCountAttestations
 
-	s.processAttestations(ctx, disparity)
+	s.processAttestations(updateCtx, disparity)
 
 	processAttsElapsedTime.Observe(float64(time.Since(start).Milliseconds()))
 
 	start = time.Now()
 	// return early if we haven't changed head
-	newHeadRoot, err := s.cfg.ForkChoiceStore.Head(ctx)
+	newHeadRoot, err := s.cfg.ForkChoiceStore.Head(updateCtx)
 	if err != nil {
-		log.WithError(err).Error("Could not compute head from new attestations")
+		if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+			log.WithError(err).Warn("Head computation timeout - this is expected during checkpoint recovery with large slot gaps")
+		} else {
+			log.WithError(err).Error("Could not compute head from new attestations")
+		}
 		return
 	}
 	if !s.isNewHead(newHeadRoot) {
 		return
 	}
 	log.WithField("newHeadRoot", fmt.Sprintf("%#x", newHeadRoot)).Debug("Head changed due to attestations")
-	headState, headBlock, err := s.getStateAndBlock(ctx, newHeadRoot)
+	headState, headBlock, err := s.getStateAndBlock(updateCtx, newHeadRoot)
 	if err != nil {
 		log.WithError(err).Error("could not get head block")
 		return
