@@ -402,6 +402,8 @@ func emptyPayloadCapella() *enginev1.ExecutionPayloadCapella {
 }
 
 func emptyPayloadDeneb() *enginev1.ExecutionPayloadDeneb {
+	blobGasUsed := uint64(0)
+	excessBlobGas := uint64(0)
 	return &enginev1.ExecutionPayloadDeneb{
 		ParentHash:    make([]byte, fieldparams.RootLength),
 		FeeRecipient:  make([]byte, fieldparams.FeeRecipientLength),
@@ -414,5 +416,21 @@ func emptyPayloadDeneb() *enginev1.ExecutionPayloadDeneb {
 		BlockHash:     make([]byte, fieldparams.RootLength),
 		Transactions:  make([][]byte, 0),
 		Withdrawals:   make([]*enginev1.Withdrawal, 0),
+		BlobGasUsed:   blobGasUsed,
+		ExcessBlobGas: excessBlobGas,
+	}
+}
+
+// getEmptyExecutionData returns an empty execution data interface based on the block version
+func (vs *Server) getEmptyExecutionData(blockVersion int) (interfaces.ExecutionData, error) {
+	switch {
+	case blockVersion >= version.Deneb:
+		return consensusblocks.NewWrappedExecutionData(emptyPayloadDeneb())
+	case blockVersion >= version.Capella:
+		return consensusblocks.NewWrappedExecutionData(emptyPayloadCapella())
+	case blockVersion >= version.Bellatrix:
+		return consensusblocks.NewWrappedExecutionData(emptyPayload())
+	default:
+		return nil, nil
 	}
 }

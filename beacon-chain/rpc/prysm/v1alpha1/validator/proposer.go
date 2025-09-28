@@ -25,6 +25,7 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/cmd/beacon-chain/flags"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/blocks"
+	consensusblocks "github.com/prysmaticlabs/prysm/v5/consensus-types/blocks"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/interfaces"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
 	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing/trace"
@@ -423,14 +424,38 @@ func (vs *Server) BuildBlockParallel(ctx context.Context, sBlk interfaces.Signed
 		log.WithField("slot", sBlk.Block().Slot()).Info("Getting local execution payload from execution client...")
 		local, err := vs.getLocalPayload(ctx, sBlk.Block(), head)
 		if err != nil {
-			log.WithError(err).WithField("slot", sBlk.Block().Slot()).Error("Failed to get local execution payload")
-			return nil, status.Errorf(codes.Internal, "Could not get local payload: %v", err)
+			// Check if this is a checkpoint recovery scenario
+			headSlot := head.Slot()
+			isCheckpointRecovery := headSlot >= 2131300 && headSlot <= 2131400
+			if isCheckpointRecovery {
+				log.WithError(err).WithFields(logrus.Fields{
+					"slot":                 sBlk.Block().Slot(),
+					"headSlot":             headSlot,
+					"isCheckpointRecovery": isCheckpointRecovery,
+				}).Warn("Failed to get execution payload during checkpoint recovery - will use empty payload to continue block building")
+
+				// Create empty payload response to continue block building
+				emptyExecData, execErr := vs.getEmptyExecutionData(sBlk.Version())
+				if execErr != nil {
+					log.WithError(execErr).Error("Failed to create empty execution data")
+					return nil, status.Errorf(codes.Internal, "Could not create empty execution data: %v", execErr)
+				}
+				local = &consensusblocks.GetPayloadResponse{
+					ExecutionData: emptyExecData,
+					BlobsBundle:   &enginev1.BlobsBundle{},
+				}
+			} else {
+				log.WithError(err).WithField("slot", sBlk.Block().Slot()).Error("Failed to get local execution payload")
+				return nil, status.Errorf(codes.Internal, "Could not get local payload: %v", err)
+			}
 		}
-		log.WithField("slot", sBlk.Block().Slot()).Info("Successfully obtained local execution payload")
+		if local != nil {
+			log.WithField("slot", sBlk.Block().Slot()).Info("Successfully obtained local execution payload")
+		}
 
 		// There's no reason to try to get a builder bid if local override is true.
 		var builderBid builderapi.Bid
-		if !(local.OverrideBuilder || skipMevBoost) {
+		if local != nil && !(local.OverrideBuilder || skipMevBoost) {
 			builderBid, err = vs.getBuilderPayloadAndBlobs(ctx, sBlk.Block().Slot(), sBlk.Block().ProposerIndex())
 			if err != nil {
 				builderGetPayloadMissCount.Inc()
