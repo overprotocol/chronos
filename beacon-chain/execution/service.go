@@ -660,6 +660,11 @@ func (s *Service) cacheHeadersForEth1DataVote(ctx context.Context) error {
 	}
 	start, err := s.determineEarliestVotingBlock(ctx, end)
 	if err != nil {
+		// Check if this is a checkpoint recovery scenario where time sync issues are expected
+		if errors.Is(err, errBlockTimeTooLate) {
+			log.WithError(err).Warn("Skipping eth1 header caching due to checkpoint recovery time sync issue - will retry later")
+			return nil // Don't fail, just skip caching for now
+		}
 		return errors.Wrapf(err, "determineEarliestVotingBlock=%d", end)
 	}
 	return s.cacheBlockHeaders(start, end)

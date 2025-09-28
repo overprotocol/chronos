@@ -13,9 +13,16 @@
 - 대규모 slot gap에도 불구하고 block production 허용
 
 ### 2. Block Proposer 수정 (`beacon-chain/rpc/prysm/v1alpha1/validator/proposer.go`)
-- Checkpoint recovery scenario에서 slot gap 제한 완화
+- Checkpoint recovery scenario에서 slot gap 제한 완화 (slot 2131300-2131400 범위)
 - 확장된 timeout 설정 (최대 30분)
 - State root 계산을 위한 더 긴 timeout (최대 45분)
+
+### 3. Execution Service 수정 (`beacon-chain/execution/service.go`)
+- Checkpoint recovery 시 eth1 header caching 시간 동기화 오류 방지
+- "provided time is later than the current eth1 head" 오류 처리
+
+### 4. P2P Discovery 수정 (`beacon-chain/p2p/discovery.go`)
+- Single validator 환경에서 peer 검색 로그 빈도 감소
 
 ## 복구 절차
 

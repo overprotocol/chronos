@@ -268,15 +268,28 @@ func (s *Service) listenForNewNodes() {
 				"targetPeerCount":  s.cfg.MaxPeers,
 			}
 
+			// Check if this is a single-validator setup (min-sync-peers=0)
+			isSingleValidator := flags.Get().MinimumSyncPeers == 0
+
 			if missingPeerCount == 0 {
 				log.Trace("Not looking for peers, at peer limit")
 				time.Sleep(pollingPeriod)
 				continue
 			}
 
-			if time.Since(lastLogTime) > minLogInterval {
+			// For single-validator setups, reduce logging frequency to avoid spam
+			logInterval := minLogInterval
+			if isSingleValidator {
+				logInterval = 5 * minLogInterval // Log 5x less frequently
+			}
+
+			if time.Since(lastLogTime) > logInterval {
 				lastLogTime = time.Now()
-				log.WithFields(fields).Debug("Searching for new active peers")
+				if isSingleValidator {
+					log.WithFields(fields).Debug("Single-validator mode: searching for peers (reduced frequency logging)")
+				} else {
+					log.WithFields(fields).Debug("Searching for new active peers")
+				}
 			}
 
 			// Restrict dials if limit is applied.

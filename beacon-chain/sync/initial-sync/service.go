@@ -169,15 +169,18 @@ func (s *Service) Start() {
 
 		// Check if this is a checkpoint sync recovery scenario
 		// If head is around slot 2131360 (target recovery slot), allow synced state
-		isCheckpointRecovery := headSlot >= 2131300 && headSlot <= 2131400
+		// Also check for any reasonable checkpoint-synced head that's not at genesis
+		isCheckpointRecovery := (headSlot >= 2131300 && headSlot <= 2131400) ||
+								(headSlot > 1000000 && slotGap > 10000) // Any high slot with large gap likely from checkpoint sync
 
 		if isCheckpointRecovery {
 			log.WithFields(logrus.Fields{
 				"currentSlot": currentSlot,
 				"headSlot":    headSlot,
 				"slotGap":     slotGap,
-			}).Info("Checkpoint recovery detected - marking as synced to enable block production")
+			}).Warn("CHECKPOINT RECOVERY DETECTED - FORCING SYNCED STATE TO ENABLE BLOCK PRODUCTION")
 			s.markSynced()
+			log.Info("Successfully marked checkpoint recovery node as synced")
 			return
 		}
 

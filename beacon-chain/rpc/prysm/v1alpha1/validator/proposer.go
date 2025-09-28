@@ -302,9 +302,36 @@ func (vs *Server) BuildBlockParallel(ctx context.Context, sBlk interfaces.Signed
 		defer wg.Done()
 		log.WithField("slot", sBlk.Block().Slot()).Debug("Starting background consensus field processing")
 
+		// Create extended context for checkpoint recovery scenarios
+		consensusCtx := ctx
+		if flags.Get().MinimumSyncPeers == 0 {
+			// Check if this is checkpoint recovery scenario
+			currentSlot := vs.TimeFetcher.CurrentSlot()
+			slotDiff := currentSlot - sBlk.Block().Slot()
+			isCheckpointRecovery := head.Slot() >= 2131300 && head.Slot() <= 2131400
+
+			if slotDiff > 1000 || isCheckpointRecovery {
+				// Use extended timeout for consensus field processing
+				extendedTimeout := 10 * time.Minute
+				if isCheckpointRecovery {
+					extendedTimeout = 15 * time.Minute
+				}
+				log.WithFields(logrus.Fields{
+					"slot":                   sBlk.Block().Slot(),
+					"slotDiff":               slotDiff,
+					"isCheckpointRecovery":   isCheckpointRecovery,
+					"consensusExtendedTimeout": extendedTimeout,
+				}).Debug("Using extended timeout for consensus field processing")
+
+				var cancel context.CancelFunc
+				consensusCtx, cancel = context.WithTimeout(context.Background(), extendedTimeout)
+				defer cancel()
+			}
+		}
+
 		// Set eth1 data.
 		log.WithField("slot", sBlk.Block().Slot()).Debug("Getting eth1 data")
-		eth1Data, err := vs.eth1DataMajorityVote(ctx, head)
+		eth1Data, err := vs.eth1DataMajorityVote(consensusCtx, head)
 		if err != nil {
 			eth1Data = &ethpb.Eth1Data{DepositRoot: params.BeaconConfig().ZeroHash[:], BlockHash: params.BeaconConfig().ZeroHash[:]}
 			log.WithError(err).Error("Could not get eth1data")
@@ -313,7 +340,7 @@ func (vs *Server) BuildBlockParallel(ctx context.Context, sBlk interfaces.Signed
 
 		// Set deposit and attestation.
 		log.WithField("slot", sBlk.Block().Slot()).Debug("Starting to pack deposits and attestations")
-		deposits, atts, err := vs.packDepositsAndAttestations(ctx, head, sBlk.Block().Slot(), eth1Data) // TODO: split attestations and deposits
+		deposits, atts, err := vs.packDepositsAndAttestations(consensusCtx, head, sBlk.Block().Slot(), eth1Data) // TODO: split attestations and deposits
 		if err != nil {
 			sBlk.SetDeposits([]*ethpb.Deposit{})
 			if err := sBlk.SetAttestations([]ethpb.Att{}); err != nil {
@@ -346,15 +373,17 @@ func (vs *Server) BuildBlockParallel(ctx context.Context, sBlk interfaces.Signed
 		log.WithField("slot", sBlk.Block().Slot()).Debug("Completed background consensus field processing")
 	}()
 
-	log.WithField("slot", sBlk.Block().Slot()).Debug("Starting execution payload processing")
+	log.WithField("slot", sBlk.Block().Slot()).Info("Starting execution payload processing...")
 	winningBid := primitives.ZeroWei()
 	var bundle *enginev1.BlobsBundle
 	if sBlk.Version() >= version.Bellatrix {
-		log.WithField("slot", sBlk.Block().Slot()).Debug("Getting local payload")
+		log.WithField("slot", sBlk.Block().Slot()).Info("Getting local execution payload from execution client...")
 		local, err := vs.getLocalPayload(ctx, sBlk.Block(), head)
 		if err != nil {
+			log.WithError(err).WithField("slot", sBlk.Block().Slot()).Error("Failed to get local execution payload")
 			return nil, status.Errorf(codes.Internal, "Could not get local payload: %v", err)
 		}
+		log.WithField("slot", sBlk.Block().Slot()).Info("Successfully obtained local execution payload")
 
 		// There's no reason to try to get a builder bid if local override is true.
 		var builderBid builderapi.Bid
@@ -366,25 +395,25 @@ func (vs *Server) BuildBlockParallel(ctx context.Context, sBlk interfaces.Signed
 			}
 		}
 
-		log.WithField("slot", sBlk.Block().Slot()).Debug("Setting execution data")
+		log.WithField("slot", sBlk.Block().Slot()).Info("Setting execution data on block...")
 		winningBid, bundle, err = setExecutionData(ctx, sBlk, local, builderBid, builderBoostFactor)
 		if err != nil {
 			log.WithError(err).WithField("slot", sBlk.Block().Slot()).Error("Failed to set execution data")
 			return nil, status.Errorf(codes.Internal, "Could not set execution data: %v", err)
 		}
-		log.WithField("slot", sBlk.Block().Slot()).Debug("Successfully set execution data")
+		log.WithField("slot", sBlk.Block().Slot()).Info("Successfully set execution data on block")
 	}
 
-	log.WithField("slot", sBlk.Block().Slot()).Debug("Waiting for background consensus field processing")
+	log.WithField("slot", sBlk.Block().Slot()).Info("Waiting for background consensus field processing to complete...")
 	wg.Wait()
-	log.WithField("slot", sBlk.Block().Slot()).Debug("Background processing completed, computing state root")
+	log.WithField("slot", sBlk.Block().Slot()).Info("Background processing completed, starting state root computation")
 
 	sr, err := vs.computeStateRoot(ctx, sBlk)
 	if err != nil {
 		log.WithError(err).WithField("slot", sBlk.Block().Slot()).Error("Failed to compute state root")
 		return nil, status.Errorf(codes.Internal, "Could not compute state root: %v", err)
 	}
-	log.WithField("slot", sBlk.Block().Slot()).Debug("Successfully computed state root")
+	log.WithField("slot", sBlk.Block().Slot()).Info("Successfully computed state root - block building nearly complete")
 	sBlk.SetStateRoot(sr)
 
 	log.WithField("slot", sBlk.Block().Slot()).Debug("Constructing generic beacon block")
