@@ -116,8 +116,14 @@ func (vs *Server) getLocalPayloadFromEngine(
 			"isCheckpointRecovery": isCheckpointRecovery,
 		}).Warn("Checkpoint recovery detected in getLocalPayloadFromEngine - returning empty payload to avoid execution client issues")
 
+		// Get parent hash from state for empty payload
+		var parentHash []byte
+		if header, headerErr := st.LatestExecutionPayloadHeader(); headerErr == nil {
+			parentHash = header.BlockHash()
+		}
+
 		// Return empty payload immediately for checkpoint recovery
-		emptyExecData, err := vs.getEmptyExecutionData(version.Deneb) // Use latest version
+		emptyExecData, err := vs.getEmptyExecutionData(version.Deneb, parentHash) // Use latest version
 		if err != nil {
 			return nil, errors.Wrap(err, "could not create empty execution data for checkpoint recovery")
 		}
@@ -406,6 +412,14 @@ func emptyPayload() *enginev1.ExecutionPayload {
 	}
 }
 
+func emptyPayloadWithParent(parentHash []byte) *enginev1.ExecutionPayload {
+	payload := emptyPayload()
+	if parentHash != nil && len(parentHash) == fieldparams.RootLength {
+		copy(payload.ParentHash, parentHash)
+	}
+	return payload
+}
+
 func emptyPayloadCapella() *enginev1.ExecutionPayloadCapella {
 	return &enginev1.ExecutionPayloadCapella{
 		ParentHash:    make([]byte, fieldparams.RootLength),
@@ -420,6 +434,14 @@ func emptyPayloadCapella() *enginev1.ExecutionPayloadCapella {
 		Transactions:  make([][]byte, 0),
 		Withdrawals:   make([]*enginev1.Withdrawal, 0),
 	}
+}
+
+func emptyPayloadCapellaWithParent(parentHash []byte) *enginev1.ExecutionPayloadCapella {
+	payload := emptyPayloadCapella()
+	if parentHash != nil && len(parentHash) == fieldparams.RootLength {
+		copy(payload.ParentHash, parentHash)
+	}
+	return payload
 }
 
 func emptyPayloadDeneb() *enginev1.ExecutionPayloadDeneb {
@@ -442,15 +464,23 @@ func emptyPayloadDeneb() *enginev1.ExecutionPayloadDeneb {
 	}
 }
 
+func emptyPayloadDenebWithParent(parentHash []byte) *enginev1.ExecutionPayloadDeneb {
+	payload := emptyPayloadDeneb()
+	if parentHash != nil && len(parentHash) == fieldparams.RootLength {
+		copy(payload.ParentHash, parentHash)
+	}
+	return payload
+}
+
 // getEmptyExecutionData returns an empty execution data interface based on the block version
-func (vs *Server) getEmptyExecutionData(blockVersion int) (interfaces.ExecutionData, error) {
+func (vs *Server) getEmptyExecutionData(blockVersion int, parentHash []byte) (interfaces.ExecutionData, error) {
 	switch {
 	case blockVersion >= version.Deneb:
-		return consensusblocks.NewWrappedExecutionData(emptyPayloadDeneb())
+		return consensusblocks.NewWrappedExecutionData(emptyPayloadDenebWithParent(parentHash))
 	case blockVersion >= version.Capella:
-		return consensusblocks.NewWrappedExecutionData(emptyPayloadCapella())
+		return consensusblocks.NewWrappedExecutionData(emptyPayloadCapellaWithParent(parentHash))
 	case blockVersion >= version.Bellatrix:
-		return consensusblocks.NewWrappedExecutionData(emptyPayload())
+		return consensusblocks.NewWrappedExecutionData(emptyPayloadWithParent(parentHash))
 	default:
 		return nil, nil
 	}

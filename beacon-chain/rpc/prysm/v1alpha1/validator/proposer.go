@@ -449,8 +449,14 @@ func (vs *Server) BuildBlockParallel(ctx context.Context, sBlk interfaces.Signed
 				}).Warn("Failed to get execution payload - attempting to use empty payload to continue block building")
 			}
 
+			// Get parent hash from head state for empty payload
+			var parentHash []byte
+			if header, headerErr := head.LatestExecutionPayloadHeader(); headerErr == nil {
+				parentHash = header.BlockHash()
+			}
+
 			// Create empty payload response to continue block building
-			emptyExecData, execErr := vs.getEmptyExecutionData(sBlk.Version())
+			emptyExecData, execErr := vs.getEmptyExecutionData(sBlk.Version(), parentHash)
 			if execErr != nil {
 				log.WithError(execErr).Error("Failed to create empty execution data")
 				return nil, status.Errorf(codes.Internal, "Could not create empty execution data: %v", execErr)
