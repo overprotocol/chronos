@@ -81,15 +81,27 @@ func (vs *Server) GetBeaconBlock(ctx context.Context, req *ethpb.BlockRequest) (
 		"slotGap":     slotGap,
 	}).Info("Checking head-current slot gap")
 
-	// If head is significantly behind current slot, don't build block
-	// if slotGap > 100 { // More than ~3 epochs behind
-	// 	log.WithFields(logrus.Fields{
-	// 		"currentSlot": currentSlot,
-	// 		"headSlot":    headSlot,
-	// 		"slotGap":     slotGap,
-	// 	}).Warn("Head too far behind current slot, skipping block building to prevent execution payload issues")
-	// 	return nil, status.Error(codes.Unavailable, "Head too far behind current slot, not ready to build block")
-	// }
+	// Check if this is checkpoint recovery scenario (head around slot 2131360)
+	isCheckpointRecovery := headSlot >= 2131300 && headSlot <= 2131400
+
+	if isCheckpointRecovery {
+		log.WithFields(logrus.Fields{
+			"currentSlot": currentSlot,
+			"headSlot":    headSlot,
+			"slotGap":     slotGap,
+		}).Info("Checkpoint recovery scenario detected - allowing block building with large gap")
+	} else {
+		// For non-recovery scenarios, apply normal gap limits
+		// Commented out for now to allow aggressive catch-up
+		// if slotGap > 1000 { // More than ~31 epochs behind - very conservative
+		// 	log.WithFields(logrus.Fields{
+		// 		"currentSlot": currentSlot,
+		// 		"headSlot":    headSlot,
+		// 		"slotGap":     slotGap,
+		// 	}).Warn("Head too far behind current slot, skipping block building to prevent execution payload issues")
+		// 	return nil, status.Error(codes.Unavailable, "Head too far behind current slot, not ready to build block")
+		// }
+	}
 
 	log.WithFields(logrus.Fields{
 		"currentSlot": currentSlot,
@@ -214,21 +226,40 @@ func (vs *Server) getParentStateFromReorgData(ctx context.Context, slot primitiv
 	// In single-validator setups after long downtime, allow more time for slot processing
 	slotDiff := slot - head.Slot()
 	processCtx := ctx
-	if flags.Get().MinimumSyncPeers == 0 && slotDiff > 100 {
-		// For single-validator setup with large slot gaps, use extended timeout
-		// Use more aggressive timeout for very large gaps
-		extendedTimeout := time.Duration(slotDiff/50) * 30 * time.Second // ~30s per 50 slots (doubled)
-		if extendedTimeout < 5*time.Minute {
-			extendedTimeout = 5 * time.Minute // Minimum 5 minutes for large gaps
+
+	// Check if this is checkpoint recovery scenario
+	isCheckpointRecovery := head.Slot() >= 2131300 && head.Slot() <= 2131400
+
+	if flags.Get().MinimumSyncPeers == 0 && (slotDiff > 100 || isCheckpointRecovery) {
+		// For checkpoint recovery or large slot gaps, use extended timeout
+		var extendedTimeout time.Duration
+
+		if isCheckpointRecovery {
+			// More aggressive timeout for checkpoint recovery
+			extendedTimeout = time.Duration(slotDiff/20) * 10 * time.Second // ~10s per 20 slots
+			if extendedTimeout < 10*time.Minute {
+				extendedTimeout = 10 * time.Minute // Minimum 10 minutes for checkpoint recovery
+			}
+			if extendedTimeout > 30*time.Minute {
+				extendedTimeout = 30 * time.Minute // Cap at 30 minutes for checkpoint recovery
+			}
+		} else {
+			// Use more aggressive timeout for very large gaps
+			extendedTimeout = time.Duration(slotDiff/50) * 30 * time.Second // ~30s per 50 slots
+			if extendedTimeout < 5*time.Minute {
+				extendedTimeout = 5 * time.Minute // Minimum 5 minutes for large gaps
+			}
+			if extendedTimeout > 15*time.Minute {
+				extendedTimeout = 15 * time.Minute // Cap at 15 minutes
+			}
 		}
-		if extendedTimeout > 15*time.Minute {
-			extendedTimeout = 15 * time.Minute // Cap at 15 minutes
-		}
+
 		logrus.WithFields(logrus.Fields{
-			"currentSlot":     head.Slot(),
-			"targetSlot":      slot,
-			"slotDiff":        slotDiff,
-			"extendedTimeout": extendedTimeout,
+			"currentSlot":           head.Slot(),
+			"targetSlot":            slot,
+			"slotDiff":              slotDiff,
+			"extendedTimeout":       extendedTimeout,
+			"isCheckpointRecovery":  isCheckpointRecovery,
 		}).Warn("Single-validator setup detected with large slot gap, using extended timeout for slot processing")
 
 		// Create a new context from background to avoid parent timeout limitations
@@ -590,23 +621,40 @@ func (vs *Server) computeStateRoot(ctx context.Context, block interfaces.ReadOnl
 		blockSlot := block.Block().Slot()
 		stateSlot := beaconState.Slot()
 
+		// Check if this is checkpoint recovery scenario
+		isCheckpointRecovery := stateSlot >= 2131300 && stateSlot <= 2131400
+
 		// Check for large gaps that require extended timeout
 		slotDiff := currentSlot - stateSlot
-		if slotDiff > 100 {
+		if slotDiff > 100 || isCheckpointRecovery {
 			// Extended timeout based on slot difference
-			extendedTimeout := 5 * time.Minute
-			if slotDiff > 10000 {
-				extendedTimeout = 15 * time.Minute
-			} else if slotDiff > 1000 {
-				extendedTimeout = 10 * time.Minute
+			var extendedTimeout time.Duration
+
+			if isCheckpointRecovery {
+				// More aggressive timeout for checkpoint recovery
+				extendedTimeout = 20 * time.Minute
+				if slotDiff > 50000 {
+					extendedTimeout = 45 * time.Minute // Very large gaps need more time
+				} else if slotDiff > 20000 {
+					extendedTimeout = 30 * time.Minute
+				}
+			} else {
+				// Standard extended timeout for large gaps
+				extendedTimeout = 5 * time.Minute
+				if slotDiff > 10000 {
+					extendedTimeout = 15 * time.Minute
+				} else if slotDiff > 1000 {
+					extendedTimeout = 10 * time.Minute
+				}
 			}
 
 			logrus.WithFields(logrus.Fields{
-				"currentSlot":     currentSlot,
-				"blockSlot":       blockSlot,
-				"stateSlot":       stateSlot,
-				"slotDiff":        slotDiff,
-				"extendedTimeout": extendedTimeout,
+				"currentSlot":           currentSlot,
+				"blockSlot":             blockSlot,
+				"stateSlot":             stateSlot,
+				"slotDiff":              slotDiff,
+				"extendedTimeout":       extendedTimeout,
+				"isCheckpointRecovery":  isCheckpointRecovery,
 			}).Warn("Single-validator setup detected with large slot gap, using extended timeout for state root calculation")
 
 			// Create extended timeout context from background to avoid parent timeout limitations
