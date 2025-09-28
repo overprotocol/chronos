@@ -442,20 +442,22 @@ func (vs *Server) BuildBlockParallel(ctx context.Context, sBlk interfaces.Signed
 					"headSlot":             headSlot,
 					"isCheckpointRecovery": isCheckpointRecovery,
 				}).Warn("Failed to get execution payload during checkpoint recovery - will use empty payload to continue block building")
-
-				// Create empty payload response to continue block building
-				emptyExecData, execErr := vs.getEmptyExecutionData(sBlk.Version())
-				if execErr != nil {
-					log.WithError(execErr).Error("Failed to create empty execution data")
-					return nil, status.Errorf(codes.Internal, "Could not create empty execution data: %v", execErr)
-				}
-				local = &consensusblocks.GetPayloadResponse{
-					ExecutionData: emptyExecData,
-					BlobsBundle:   &enginev1.BlobsBundle{},
-				}
 			} else {
-				log.WithError(err).WithField("slot", sBlk.Block().Slot()).Error("Failed to get local execution payload")
-				return nil, status.Errorf(codes.Internal, "Could not get local payload: %v", err)
+				log.WithError(err).WithFields(logrus.Fields{
+					"slot":    sBlk.Block().Slot(),
+					"headSlot": headSlot,
+				}).Warn("Failed to get execution payload - attempting to use empty payload to continue block building")
+			}
+
+			// Create empty payload response to continue block building
+			emptyExecData, execErr := vs.getEmptyExecutionData(sBlk.Version())
+			if execErr != nil {
+				log.WithError(execErr).Error("Failed to create empty execution data")
+				return nil, status.Errorf(codes.Internal, "Could not create empty execution data: %v", execErr)
+			}
+			local = &consensusblocks.GetPayloadResponse{
+				ExecutionData: emptyExecData,
+				BlobsBundle:   &enginev1.BlobsBundle{},
 			}
 		}
 		if local != nil {
