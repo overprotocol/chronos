@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"math/big"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/cache"
@@ -27,6 +28,16 @@ func (vs *Server) packDepositsAndAttestations(
 	blkSlot primitives.Slot,
 	eth1Data *ethpb.Eth1Data,
 ) ([]*ethpb.Deposit, []ethpb.Att, error) {
+	// Check if we have an extended timeout for checkpoint recovery
+	if deadline, ok := ctx.Deadline(); ok {
+		log.WithFields(logrus.Fields{
+			"slot":                    blkSlot,
+			"contextDeadlineMinutes": deadline.Sub(time.Now()).Minutes(),
+		}).Debug("packDepositsAndAttestations context timeout information")
+	} else {
+		log.WithField("slot", blkSlot).Debug("packDepositsAndAttestations called with no context deadline")
+	}
+
 	eg, egctx := errgroup.WithContext(ctx)
 	var deposits []*ethpb.Deposit
 	var atts []ethpb.Att

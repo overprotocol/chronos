@@ -40,13 +40,16 @@ func (vs *Server) eth1DataMajorityVote(ctx context.Context, beaconState state.Be
 
 	// Check if this is a single-validator checkpoint recovery scenario
 	if flags.Get().MinimumSyncPeers == 0 {
-		isCheckpointRecovery := slot >= 2131300 && slot <= 2131400
+		// Check head slot for checkpoint recovery, not the slot being built
+		headSlot := vs.HeadFetcher.HeadSlot()
+		isCheckpointRecovery := headSlot >= 2131300 && headSlot <= 2131400
 		currentSlot := vs.TimeFetcher.CurrentSlot()
 		slotDiff := currentSlot - slot
 
 		if isCheckpointRecovery || slotDiff > 1000 {
 			log.WithFields(logrus.Fields{
 				"slot":                 slot,
+				"headSlot":             headSlot,
 				"slotDiff":             slotDiff,
 				"isCheckpointRecovery": isCheckpointRecovery,
 			}).Debug("Checkpoint recovery: using existing eth1data to avoid time sync issues")

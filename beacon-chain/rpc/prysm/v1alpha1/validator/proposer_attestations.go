@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"sort"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/prysmaticlabs/go-bitfield"
@@ -30,6 +31,16 @@ type proposerAtts []ethpb.Att
 func (vs *Server) packAttestations(ctx context.Context, latestState state.BeaconState, blkSlot primitives.Slot) ([]ethpb.Att, error) {
 	ctx, span := trace.StartSpan(ctx, "ProposerServer.packAttestations")
 	defer span.End()
+
+	// Check if we have an extended timeout for checkpoint recovery
+	if deadline, ok := ctx.Deadline(); ok {
+		log.WithFields(logrus.Fields{
+			"slot":                    blkSlot,
+			"contextDeadlineMinutes": deadline.Sub(time.Now()).Minutes(),
+		}).Debug("packAttestations context timeout information")
+	} else {
+		log.WithField("slot", blkSlot).Debug("packAttestations called with no context deadline")
+	}
 
 	atts := vs.AttPool.AggregatedAttestations()
 	atts, err := vs.validateAndDeleteAttsInPool(ctx, latestState, atts)
