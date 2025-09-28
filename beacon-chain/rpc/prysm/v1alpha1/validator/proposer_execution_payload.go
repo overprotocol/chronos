@@ -15,7 +15,6 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/helpers"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/time"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/state"
-	"github.com/prysmaticlabs/prysm/v5/cmd/beacon-chain/flags"
 	fieldparams "github.com/prysmaticlabs/prysm/v5/config/fieldparams"
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	consensusblocks "github.com/prysmaticlabs/prysm/v5/consensus-types/blocks"
@@ -58,38 +57,11 @@ func (vs *Server) getLocalPayload(ctx context.Context, blk interfaces.ReadOnlyBe
 		return nil, nil
 	}
 
-	// Check if this is a single-validator checkpoint recovery scenario
-	payloadCtx := ctx
-	if flags.Get().MinimumSyncPeers == 0 {
-		// Check if we're in checkpoint recovery mode
-		isCheckpointRecovery := st.Slot() >= 2131300 && st.Slot() <= 2131400
-		currentSlot := vs.TimeFetcher.CurrentSlot()
-		slotDiff := currentSlot - blk.Slot()
-
-		if isCheckpointRecovery || slotDiff > 1000 {
-			// Use extended timeout for execution client calls during recovery
-			extendedTimeout := 5 * gotime.Minute
-			if isCheckpointRecovery {
-				extendedTimeout = 10 * gotime.Minute
-			}
-			log.WithFields(logrus.Fields{
-				"slot":                   blk.Slot(),
-				"slotDiff":               slotDiff,
-				"isCheckpointRecovery":   isCheckpointRecovery,
-				"payloadExtendedTimeout": extendedTimeout,
-			}).Info("Using extended timeout for execution payload retrieval during checkpoint recovery")
-
-			var cancel context.CancelFunc
-			payloadCtx, cancel = context.WithTimeout(context.Background(), extendedTimeout)
-			defer cancel()
-		}
-	}
-
 	slot := blk.Slot()
 	vIdx := blk.ProposerIndex()
 	headRoot := blk.ParentRoot()
 
-	return vs.getLocalPayloadFromEngine(payloadCtx, st, headRoot, slot, vIdx)
+	return vs.getLocalPayloadFromEngine(ctx, st, headRoot, slot, vIdx)
 }
 
 // This returns the local execution payload of a slot, proposer ID, and parent root assuming payload Is cached.
@@ -114,21 +86,15 @@ func (vs *Server) getLocalPayloadFromEngine(
 			"slot":                 slot,
 			"headSlot":             headSlot,
 			"isCheckpointRecovery": isCheckpointRecovery,
-		}).Warn("Checkpoint recovery detected in getLocalPayloadFromEngine - returning empty payload to avoid execution client issues")
+		}).Warn("Checkpoint recovery detected in getLocalPayloadFromEngine - creating proper checkpoint recovery payload")
 
-		// Get parent hash from state for empty payload
-		var parentHash []byte
-		if header, headerErr := st.LatestExecutionPayloadHeader(); headerErr == nil {
-			parentHash = header.BlockHash()
-		}
-
-		// Return empty payload immediately for checkpoint recovery
-		emptyExecData, err := vs.getEmptyExecutionData(version.Deneb, parentHash) // Use latest version
+		// Create proper execution payload for checkpoint recovery instead of using execution engine
+		checkpointExecData, err := vs.getCheckpointRecoveryExecutionData(ctx, st, slot, proposerId)
 		if err != nil {
-			return nil, errors.Wrap(err, "could not create empty execution data for checkpoint recovery")
+			return nil, errors.Wrap(err, "could not create checkpoint recovery execution data")
 		}
 		return &consensusblocks.GetPayloadResponse{
-			ExecutionData: emptyExecData,
+			ExecutionData: checkpointExecData,
 			BlobsBundle:   &enginev1.BlobsBundle{},
 		}, nil
 	}
@@ -238,7 +204,47 @@ func (vs *Server) getLocalPayloadFromEngine(
 		return nil, errors.Wrap(err, "could not prepare payload")
 	}
 	if payloadID == nil {
-		return nil, fmt.Errorf("nil payload with block hash: %#x", parentHash)
+		log.WithFields(logrus.Fields{
+			"slot":           slot,
+			"parentHash":     fmt.Sprintf("%#x", parentHash),
+			"validatorIndex": proposerId,
+		}).Warn("Execution client returned nil payload ID - this may indicate the execution client is not fully synced or ready")
+
+		// Try to wait a bit and retry for execution client readiness
+		// In single-validator setups after downtime, execution client may need time to sync
+		retryDelay := 200 * gotime.Millisecond
+		select {
+		case <-gotime.After(retryDelay):
+		case <-ctx.Done():
+			return nil, fmt.Errorf("nil payload with block hash: %#x (context cancelled)", parentHash)
+		}
+
+		log.WithFields(logrus.Fields{
+			"slot":       slot,
+			"parentHash": fmt.Sprintf("%#x", parentHash),
+		}).Debug("Retrying ForkchoiceUpdated after brief wait")
+
+		payloadID, _, err = vs.ExecutionEngineCaller.ForkchoiceUpdated(ctx, f, attr)
+		if err != nil {
+			log.WithError(err).WithFields(logrus.Fields{
+				"slot":       slot,
+				"parentHash": fmt.Sprintf("%#x", parentHash),
+			}).Warn("Failed to prepare payload on retry")
+			return nil, errors.Wrap(err, "could not prepare payload on retry")
+		}
+		if payloadID == nil {
+			log.WithFields(logrus.Fields{
+				"slot":           slot,
+				"parentHash":     fmt.Sprintf("%#x", parentHash),
+				"validatorIndex": proposerId,
+			}).Error("Execution client still returned nil payload ID after retry - execution client may not be ready or syncing")
+			return nil, fmt.Errorf("nil payload with block hash: %#x (execution client may not be ready after retry)", parentHash)
+		}
+
+		log.WithFields(logrus.Fields{
+			"slot":       slot,
+			"parentHash": fmt.Sprintf("%#x", parentHash),
+		}).Info("Successfully obtained payload ID on retry")
 	}
 	res, err := vs.ExecutionEngineCaller.GetPayload(ctx, *payloadID, slot)
 	if err != nil {
@@ -420,6 +426,17 @@ func emptyPayloadWithParent(parentHash []byte) *enginev1.ExecutionPayload {
 	return payload
 }
 
+func emptyPayloadWithParentAndRandao(parentHash, randao []byte) *enginev1.ExecutionPayload {
+	payload := emptyPayload()
+	if parentHash != nil && len(parentHash) == fieldparams.RootLength {
+		copy(payload.ParentHash, parentHash)
+	}
+	if randao != nil && len(randao) == fieldparams.RootLength {
+		copy(payload.PrevRandao, randao)
+	}
+	return payload
+}
+
 func emptyPayloadCapella() *enginev1.ExecutionPayloadCapella {
 	return &enginev1.ExecutionPayloadCapella{
 		ParentHash:    make([]byte, fieldparams.RootLength),
@@ -440,6 +457,17 @@ func emptyPayloadCapellaWithParent(parentHash []byte) *enginev1.ExecutionPayload
 	payload := emptyPayloadCapella()
 	if parentHash != nil && len(parentHash) == fieldparams.RootLength {
 		copy(payload.ParentHash, parentHash)
+	}
+	return payload
+}
+
+func emptyPayloadCapellaWithParentAndRandao(parentHash, randao []byte) *enginev1.ExecutionPayloadCapella {
+	payload := emptyPayloadCapella()
+	if parentHash != nil && len(parentHash) == fieldparams.RootLength {
+		copy(payload.ParentHash, parentHash)
+	}
+	if randao != nil && len(randao) == fieldparams.RootLength {
+		copy(payload.PrevRandao, randao)
 	}
 	return payload
 }
@@ -472,16 +500,135 @@ func emptyPayloadDenebWithParent(parentHash []byte) *enginev1.ExecutionPayloadDe
 	return payload
 }
 
+func emptyPayloadDenebWithParentAndRandao(parentHash, randao []byte) *enginev1.ExecutionPayloadDeneb {
+	payload := emptyPayloadDeneb()
+	if parentHash != nil && len(parentHash) == fieldparams.RootLength {
+		copy(payload.ParentHash, parentHash)
+	}
+	if randao != nil && len(randao) == fieldparams.RootLength {
+		copy(payload.PrevRandao, randao)
+	}
+	return payload
+}
+
 // getEmptyExecutionData returns an empty execution data interface based on the block version
-func (vs *Server) getEmptyExecutionData(blockVersion int, parentHash []byte) (interfaces.ExecutionData, error) {
+func (vs *Server) getEmptyExecutionData(blockVersion int, parentHash, randao []byte) (interfaces.ExecutionData, error) {
 	switch {
 	case blockVersion >= version.Deneb:
-		return consensusblocks.NewWrappedExecutionData(emptyPayloadDenebWithParent(parentHash))
+		return consensusblocks.NewWrappedExecutionData(emptyPayloadDenebWithParentAndRandao(parentHash, randao))
 	case blockVersion >= version.Capella:
-		return consensusblocks.NewWrappedExecutionData(emptyPayloadCapellaWithParent(parentHash))
+		return consensusblocks.NewWrappedExecutionData(emptyPayloadCapellaWithParentAndRandao(parentHash, randao))
 	case blockVersion >= version.Bellatrix:
-		return consensusblocks.NewWrappedExecutionData(emptyPayloadWithParent(parentHash))
+		return consensusblocks.NewWrappedExecutionData(emptyPayloadWithParentAndRandao(parentHash, randao))
 	default:
 		return nil, nil
+	}
+}
+
+// getCheckpointRecoveryExecutionData creates a proper execution payload for checkpoint recovery
+func (vs *Server) getCheckpointRecoveryExecutionData(
+	ctx context.Context,
+	st state.BeaconState,
+	slot primitives.Slot,
+	proposerId primitives.ValidatorIndex,
+) (interfaces.ExecutionData, error) {
+	// Get parent execution payload header
+	parentExecution, err := st.LatestExecutionPayloadHeader()
+	if err != nil {
+		return nil, errors.Wrap(err, "could not get parent execution payload header")
+	}
+
+	// Calculate randao mix
+	random, err := helpers.RandaoMix(st, time.CurrentEpoch(st))
+	if err != nil {
+		return nil, errors.Wrap(err, "could not get randao mix")
+	}
+
+	// Calculate timestamp for slot
+	timestamp, err := slots.ToTime(st.GenesisTime(), slot)
+	if err != nil {
+		return nil, errors.Wrap(err, "could not get timestamp for slot")
+	}
+
+	// Get validator for fee recipient
+	val, tracked := vs.TrackedValidatorsCache.Validator(proposerId)
+	if !tracked {
+		log.WithField("validatorIndex", proposerId).Warn("could not find tracked proposer index for checkpoint recovery")
+	}
+	setFeeRecipientIfBurnAddress(&val)
+
+	// Generate deterministic block hash based on slot
+	blockHash := make([]byte, 32)
+	copy(blockHash, fmt.Sprintf("checkpoint-recovery-slot-%d", slot))
+	if len(blockHash) > 32 {
+		blockHash = blockHash[:32]
+	}
+
+	// Create execution payload based on version
+	switch st.Version() {
+	case version.Deneb:
+		payload := &enginev1.ExecutionPayloadDeneb{
+			ParentHash:    parentExecution.BlockHash(),
+			FeeRecipient:  val.FeeRecipient[:],
+			StateRoot:     params.BeaconConfig().ZeroHash[:],
+			ReceiptsRoot:  params.BeaconConfig().ZeroHash[:],
+			LogsBloom:     make([]byte, 256),
+			PrevRandao:    random,
+			BlockNumber:   uint64(slot),
+			GasLimit:      params.BeaconConfig().DefaultBuilderGasLimit,
+			GasUsed:       0,
+			Timestamp:     uint64(timestamp.Unix()),
+			ExtraData:     []byte("checkpoint-recovery"),
+			BaseFeePerGas: params.BeaconConfig().ZeroHash[:],
+			BlockHash:     blockHash,
+			Transactions:  [][]byte{},
+			Withdrawals:   []*enginev1.Withdrawal{},
+			BlobGasUsed:   0,
+			ExcessBlobGas: 0,
+		}
+		return consensusblocks.NewWrappedExecutionData(payload)
+	case version.Capella:
+		withdrawals, _, _, err := st.ExpectedWithdrawals()
+		if err != nil {
+			return nil, errors.Wrap(err, "could not get expected withdrawals")
+		}
+		payload := &enginev1.ExecutionPayloadCapella{
+			ParentHash:    parentExecution.BlockHash(),
+			FeeRecipient:  val.FeeRecipient[:],
+			StateRoot:     params.BeaconConfig().ZeroHash[:],
+			ReceiptsRoot:  params.BeaconConfig().ZeroHash[:],
+			LogsBloom:     make([]byte, 256),
+			PrevRandao:    random,
+			BlockNumber:   uint64(slot),
+			GasLimit:      params.BeaconConfig().DefaultBuilderGasLimit,
+			GasUsed:       0,
+			Timestamp:     uint64(timestamp.Unix()),
+			ExtraData:     []byte("checkpoint-recovery"),
+			BaseFeePerGas: params.BeaconConfig().ZeroHash[:],
+			BlockHash:     blockHash,
+			Transactions:  [][]byte{},
+			Withdrawals:   withdrawals,
+		}
+		return consensusblocks.NewWrappedExecutionData(payload)
+	case version.Bellatrix:
+		payload := &enginev1.ExecutionPayload{
+			ParentHash:    parentExecution.BlockHash(),
+			FeeRecipient:  val.FeeRecipient[:],
+			StateRoot:     params.BeaconConfig().ZeroHash[:],
+			ReceiptsRoot:  params.BeaconConfig().ZeroHash[:],
+			LogsBloom:     make([]byte, 256),
+			PrevRandao:    random,
+			BlockNumber:   uint64(slot),
+			GasLimit:      params.BeaconConfig().DefaultBuilderGasLimit,
+			GasUsed:       0,
+			Timestamp:     uint64(timestamp.Unix()),
+			ExtraData:     []byte("checkpoint-recovery"),
+			BaseFeePerGas: params.BeaconConfig().ZeroHash[:],
+			BlockHash:     blockHash,
+			Transactions:  [][]byte{},
+		}
+		return consensusblocks.NewWrappedExecutionData(payload)
+	default:
+		return nil, errors.New("unsupported beacon state version for checkpoint recovery")
 	}
 }

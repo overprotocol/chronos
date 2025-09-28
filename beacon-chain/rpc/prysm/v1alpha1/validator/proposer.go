@@ -441,29 +441,24 @@ func (vs *Server) BuildBlockParallel(ctx context.Context, sBlk interfaces.Signed
 					"slot":                 sBlk.Block().Slot(),
 					"headSlot":             headSlot,
 					"isCheckpointRecovery": isCheckpointRecovery,
-				}).Warn("Failed to get execution payload during checkpoint recovery - will use empty payload to continue block building")
+				}).Warn("Failed to get execution payload during checkpoint recovery - creating proper checkpoint recovery payload")
+
+				// Create proper execution payload for checkpoint recovery
+				checkpointExecData, checkpointErr := vs.getCheckpointRecoveryExecutionData(ctx, head, sBlk.Block().Slot(), sBlk.Block().ProposerIndex())
+				if checkpointErr != nil {
+					log.WithError(checkpointErr).Error("Failed to create checkpoint recovery execution data")
+					return nil, status.Errorf(codes.Internal, "Could not create checkpoint recovery execution data: %v", checkpointErr)
+				}
+				local = &consensusblocks.GetPayloadResponse{
+					ExecutionData: checkpointExecData,
+					BlobsBundle:   &enginev1.BlobsBundle{},
+				}
 			} else {
 				log.WithError(err).WithFields(logrus.Fields{
 					"slot":    sBlk.Block().Slot(),
 					"headSlot": headSlot,
-				}).Warn("Failed to get execution payload - attempting to use empty payload to continue block building")
-			}
-
-			// Get parent hash from head state for empty payload
-			var parentHash []byte
-			if header, headerErr := head.LatestExecutionPayloadHeader(); headerErr == nil {
-				parentHash = header.BlockHash()
-			}
-
-			// Create empty payload response to continue block building
-			emptyExecData, execErr := vs.getEmptyExecutionData(sBlk.Version(), parentHash)
-			if execErr != nil {
-				log.WithError(execErr).Error("Failed to create empty execution data")
-				return nil, status.Errorf(codes.Internal, "Could not create empty execution data: %v", execErr)
-			}
-			local = &consensusblocks.GetPayloadResponse{
-				ExecutionData: emptyExecData,
-				BlobsBundle:   &enginev1.BlobsBundle{},
+				}).Error("Failed to get execution payload - cannot proceed without valid execution payload")
+				return nil, status.Errorf(codes.Internal, "Could not get local payload: %v", err)
 			}
 		}
 		if local != nil {
