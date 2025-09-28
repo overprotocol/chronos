@@ -49,6 +49,33 @@ const (
 // GetBeaconBlock is called by a proposer during its assigned slot to request a block to sign
 // by passing in the slot and the signed randao reveal of the slot.
 func (vs *Server) GetBeaconBlock(ctx context.Context, req *ethpb.BlockRequest) (*ethpb.GenericBeaconBlock, error) {
+	// Check if this is a checkpoint recovery scenario and apply extended timeout if needed
+	// originalCtx := ctx
+	if flags.Get().MinimumSyncPeers == 0 {
+		headSlot := vs.HeadFetcher.HeadSlot()
+		currentSlot := vs.TimeFetcher.CurrentSlot()
+		slotDiff := currentSlot - req.Slot
+		isCheckpointRecovery := headSlot >= 2131300 && headSlot <= 2131400
+
+		if isCheckpointRecovery || slotDiff > 1000 {
+			extendedTimeout := 30 * time.Minute
+			if isCheckpointRecovery {
+				extendedTimeout = 45 * time.Minute
+			}
+			log.WithFields(logrus.Fields{
+				"slot":                 req.Slot,
+				"headSlot":             headSlot,
+				"slotDiff":             slotDiff,
+				"isCheckpointRecovery": isCheckpointRecovery,
+				"extendedTimeout":      extendedTimeout,
+			}).Info("Applying extended timeout for checkpoint recovery block building")
+
+			var cancel context.CancelFunc
+			ctx, cancel = context.WithTimeout(context.Background(), extendedTimeout)
+			defer cancel()
+		}
+	}
+
 	ctx, span := trace.StartSpan(ctx, "ProposerServer.GetBeaconBlock")
 	defer span.End()
 	span.SetAttributes(trace.Int64Attribute("slot", int64(req.Slot)))
@@ -255,11 +282,11 @@ func (vs *Server) getParentStateFromReorgData(ctx context.Context, slot primitiv
 		}
 
 		logrus.WithFields(logrus.Fields{
-			"currentSlot":           head.Slot(),
-			"targetSlot":            slot,
-			"slotDiff":              slotDiff,
-			"extendedTimeout":       extendedTimeout,
-			"isCheckpointRecovery":  isCheckpointRecovery,
+			"currentSlot":          head.Slot(),
+			"targetSlot":           slot,
+			"slotDiff":             slotDiff,
+			"extendedTimeout":      extendedTimeout,
+			"isCheckpointRecovery": isCheckpointRecovery,
 		}).Warn("Single-validator setup detected with large slot gap, using extended timeout for slot processing")
 
 		// Create a new context from background to avoid parent timeout limitations
@@ -304,11 +331,27 @@ func (vs *Server) BuildBlockParallel(ctx context.Context, sBlk interfaces.Signed
 
 		// Create extended context for checkpoint recovery scenarios
 		consensusCtx := ctx
-		if flags.Get().MinimumSyncPeers == 0 {
+		minSyncPeers := flags.Get().MinimumSyncPeers
+		log.WithFields(logrus.Fields{
+			"slot":         sBlk.Block().Slot(),
+			"minSyncPeers": minSyncPeers,
+			"headSlot":     head.Slot(),
+		}).Debug("Checking consensus field processing timeout conditions")
+
+		if minSyncPeers == 0 {
 			// Check if this is checkpoint recovery scenario
 			currentSlot := vs.TimeFetcher.CurrentSlot()
 			slotDiff := currentSlot - sBlk.Block().Slot()
 			isCheckpointRecovery := head.Slot() >= 2131300 && head.Slot() <= 2131400
+
+			log.WithFields(logrus.Fields{
+				"slot":                 sBlk.Block().Slot(),
+				"currentSlot":          currentSlot,
+				"slotDiff":             slotDiff,
+				"headSlot":             head.Slot(),
+				"isCheckpointRecovery": isCheckpointRecovery,
+				"slotDiffCheck":        slotDiff > 1000,
+			}).Debug("Consensus field processing condition check")
 
 			if slotDiff > 1000 || isCheckpointRecovery {
 				// Use extended timeout for consensus field processing
@@ -317,9 +360,9 @@ func (vs *Server) BuildBlockParallel(ctx context.Context, sBlk interfaces.Signed
 					extendedTimeout = 15 * time.Minute
 				}
 				log.WithFields(logrus.Fields{
-					"slot":                   sBlk.Block().Slot(),
-					"slotDiff":               slotDiff,
-					"isCheckpointRecovery":   isCheckpointRecovery,
+					"slot":                     sBlk.Block().Slot(),
+					"slotDiff":                 slotDiff,
+					"isCheckpointRecovery":     isCheckpointRecovery,
 					"consensusExtendedTimeout": extendedTimeout,
 				}).Debug("Using extended timeout for consensus field processing")
 
@@ -678,12 +721,12 @@ func (vs *Server) computeStateRoot(ctx context.Context, block interfaces.ReadOnl
 			}
 
 			logrus.WithFields(logrus.Fields{
-				"currentSlot":           currentSlot,
-				"blockSlot":             blockSlot,
-				"stateSlot":             stateSlot,
-				"slotDiff":              slotDiff,
-				"extendedTimeout":       extendedTimeout,
-				"isCheckpointRecovery":  isCheckpointRecovery,
+				"currentSlot":          currentSlot,
+				"blockSlot":            blockSlot,
+				"stateSlot":            stateSlot,
+				"slotDiff":             slotDiff,
+				"extendedTimeout":      extendedTimeout,
+				"isCheckpointRecovery": isCheckpointRecovery,
 			}).Warn("Single-validator setup detected with large slot gap, using extended timeout for state root calculation")
 
 			// Create extended timeout context from background to avoid parent timeout limitations
