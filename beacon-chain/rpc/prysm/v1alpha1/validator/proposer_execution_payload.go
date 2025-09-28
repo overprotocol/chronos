@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"time"
+	gotime "time"
 
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
@@ -68,9 +68,9 @@ func (vs *Server) getLocalPayload(ctx context.Context, blk interfaces.ReadOnlyBe
 
 		if isCheckpointRecovery || slotDiff > 1000 {
 			// Use extended timeout for execution client calls during recovery
-			extendedTimeout := 5 * time.Minute
+			extendedTimeout := 5 * gotime.Minute
 			if isCheckpointRecovery {
-				extendedTimeout = 10 * time.Minute
+				extendedTimeout = 10 * gotime.Minute
 			}
 			log.WithFields(logrus.Fields{
 				"slot":                   blk.Slot(),
@@ -416,4 +416,3 @@ func emptyPayloadDeneb() *enginev1.ExecutionPayloadDeneb {
 		Withdrawals:   make([]*enginev1.Withdrawal, 0),
 	}
 }
-
