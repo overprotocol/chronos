@@ -198,9 +198,18 @@ func (vs *Server) GetBeaconBlock(ctx context.Context, req *ethpb.BlockRequest) (
 		return nil, errors.Wrap(err, "could not build block in parallel")
 	}
 
+	// Debug: Always log to see if GetBeaconBlock is called
+	log.WithFields(logrus.Fields{
+		"slot": req.Slot,
+		"resp_nil": resp == nil,
+		"sBlk_nil": sBlk == nil,
+		"minSyncPeers": flags.Get().MinimumSyncPeers,
+	}).Info("GetBeaconBlock completed - checking auto-processing conditions")
+
 	// For single validator setup, automatically process the signed block to update head
 	// This is crucial for chain progression when there are no other peers
 	if resp != nil && sBlk != nil && flags.Get().MinimumSyncPeers == 0 {
+		log.WithField("slot", req.Slot).Info("Auto-processing conditions met - proceeding with block processing")
 		root, rootErr := sBlk.Block().HashTreeRoot()
 		if rootErr != nil {
 			log.WithError(rootErr).Warn("Failed to get signed block root for auto-processing")
@@ -210,6 +219,7 @@ func (vs *Server) GetBeaconBlock(ctx context.Context, req *ethpb.BlockRequest) (
 				processCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 				defer cancel()
 
+				log.WithField("slot", req.Slot).Info("Starting auto-processing of self-proposed block")
 				if processErr := vs.BlockReceiver.ReceiveBlock(processCtx, sBlk, root, nil); processErr != nil {
 					log.WithError(processErr).WithField("slot", req.Slot).Warn("Failed to auto-process self-proposed block")
 				} else {
@@ -217,6 +227,13 @@ func (vs *Server) GetBeaconBlock(ctx context.Context, req *ethpb.BlockRequest) (
 				}
 			}()
 		}
+	} else {
+		log.WithFields(logrus.Fields{
+			"slot": req.Slot,
+			"resp_nil": resp == nil,
+			"sBlk_nil": sBlk == nil,
+			"minSyncPeers": flags.Get().MinimumSyncPeers,
+		}).Info("Auto-processing conditions not met - skipping block processing")
 	}
 
 	return resp, nil
