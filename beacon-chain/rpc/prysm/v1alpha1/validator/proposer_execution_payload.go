@@ -544,8 +544,8 @@ func (vs *Server) getFallbackExecutionData(
 		return nil, errors.Wrap(err, "could not get randao mix")
 	}
 
-	// Calculate timestamp for slot
-	timestamp, err := slots.ToTime(st.GenesisTime(), slot)
+	// Calculate timestamp for state slot to match validation logic
+	timestamp, err := slots.ToTime(st.GenesisTime(), st.Slot())
 	if err != nil {
 		return nil, errors.Wrap(err, "could not get timestamp for slot")
 	}

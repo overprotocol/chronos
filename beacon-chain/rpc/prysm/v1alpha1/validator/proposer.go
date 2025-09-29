@@ -200,11 +200,11 @@ func (vs *Server) GetBeaconBlock(ctx context.Context, req *ethpb.BlockRequest) (
 
 	// For single validator setup, automatically process the block to update head
 	if resp != nil && resp.Block != nil {
-		block, blockErr := blocks.NewSignedBeaconBlock(resp.Block)
+		block, blockErr := blocks.NewBeaconBlock(resp.Block)
 		if blockErr != nil {
-			log.WithError(blockErr).Warn("Failed to create signed beacon block for auto-processing")
+			log.WithError(blockErr).Warn("Failed to create beacon block for auto-processing")
 		} else {
-			root, rootErr := block.Block().HashTreeRoot()
+			root, rootErr := block.HashTreeRoot()
 			if rootErr != nil {
 				log.WithError(rootErr).Warn("Failed to get block root for auto-processing")
 			} else {
