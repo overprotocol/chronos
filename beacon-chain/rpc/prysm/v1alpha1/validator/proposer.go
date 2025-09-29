@@ -198,45 +198,7 @@ func (vs *Server) GetBeaconBlock(ctx context.Context, req *ethpb.BlockRequest) (
 		return nil, errors.Wrap(err, "could not build block in parallel")
 	}
 
-	// Debug: Always log to see if GetBeaconBlock is called
-	log.WithFields(logrus.Fields{
-		"slot": req.Slot,
-		"resp_nil": resp == nil,
-		"sBlk_nil": sBlk == nil,
-		"minSyncPeers": flags.Get().MinimumSyncPeers,
-	}).Info("GetBeaconBlock completed - checking auto-processing conditions")
-
-	// For single validator setup, automatically process the signed block to update head
-	// This is crucial for chain progression when there are no other peers
-	if resp != nil && sBlk != nil && flags.Get().MinimumSyncPeers == 0 {
-		log.WithField("slot", req.Slot).Info("Auto-processing conditions met - proceeding with block processing")
-		root, rootErr := sBlk.Block().HashTreeRoot()
-		if rootErr != nil {
-			log.WithError(rootErr).Warn("Failed to get signed block root for auto-processing")
-		} else {
-			// Process the signed block in background to avoid blocking the response
-			go func() {
-				// Use extended timeout for checkpoint recovery scenarios
-				timeout := 10 * time.Minute
-				processCtx, cancel := context.WithTimeout(context.Background(), timeout)
-				defer cancel()
-
-				log.WithField("slot", req.Slot).Info("Starting auto-processing of self-proposed block")
-				if processErr := vs.BlockReceiver.ReceiveBlock(processCtx, sBlk, root, nil); processErr != nil {
-					log.WithError(processErr).WithField("slot", req.Slot).Warn("Failed to auto-process self-proposed block")
-				} else {
-					log.WithField("slot", req.Slot).Info("Successfully auto-processed self-proposed block - head should be updated")
-				}
-			}()
-		}
-	} else {
-		log.WithFields(logrus.Fields{
-			"slot": req.Slot,
-			"resp_nil": resp == nil,
-			"sBlk_nil": sBlk == nil,
-			"minSyncPeers": flags.Get().MinimumSyncPeers,
-		}).Info("Auto-processing conditions not met - skipping block processing")
-	}
+	// Note: Auto-processing moved to ProposeBeaconBlock for proper signed block handling
 
 	return resp, nil
 }
@@ -596,7 +558,31 @@ func (vs *Server) ProposeBeaconBlock(ctx context.Context, req *ethpb.GenericSign
 
 	wg.Wait()
 	if err := <-errChan; err != nil {
+		// For single validator setups, if broadcast/receive fails, try direct block processing
+		if flags.Get().MinimumSyncPeers == 0 {
+			log.WithFields(logrus.Fields{
+				"slot": block.Block().Slot(),
+				"error": err.Error(),
+			}).Warn("Broadcast/receive failed in single validator setup, attempting direct block processing")
+
+			// Try direct block processing with extended timeout for checkpoint recovery
+			go func() {
+				processCtx, cancel := context.WithTimeout(context.Background(), 15*time.Minute)
+				defer cancel()
+
+				if processErr := vs.BlockReceiver.ReceiveBlock(processCtx, block, root, nil); processErr != nil {
+					log.WithError(processErr).WithField("slot", block.Block().Slot()).Warn("Failed to directly process self-proposed block")
+				} else {
+					log.WithField("slot", block.Block().Slot()).Info("Successfully processed self-proposed block via fallback method - head should be updated")
+				}
+			}()
+		}
 		return nil, status.Errorf(codes.Internal, "Could not broadcast/receive block: %v", err)
+	}
+
+	// Additional logging for single validator setup
+	if flags.Get().MinimumSyncPeers == 0 {
+		log.WithField("slot", block.Block().Slot()).Info("Single validator block processing completed successfully via broadcastReceiveBlock")
 	}
 
 	return &ethpb.ProposeResponse{BlockRoot: root[:]}, nil
