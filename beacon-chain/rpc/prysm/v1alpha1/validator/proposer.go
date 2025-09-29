@@ -197,6 +197,32 @@ func (vs *Server) GetBeaconBlock(ctx context.Context, req *ethpb.BlockRequest) (
 	if err != nil {
 		return nil, errors.Wrap(err, "could not build block in parallel")
 	}
+
+	// For single validator setup, automatically process the block to update head
+	if resp != nil && resp.Block != nil {
+		block, blockErr := blocks.NewSignedBeaconBlock(resp.Block)
+		if blockErr != nil {
+			log.WithError(blockErr).Warn("Failed to create signed beacon block for auto-processing")
+		} else {
+			root, rootErr := block.Block().HashTreeRoot()
+			if rootErr != nil {
+				log.WithError(rootErr).Warn("Failed to get block root for auto-processing")
+			} else {
+				// Process the block in background to avoid blocking the response
+				go func() {
+					processCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+					defer cancel()
+
+					if processErr := vs.BlockReceiver.ReceiveBlock(processCtx, block, root, nil); processErr != nil {
+						log.WithError(processErr).WithField("slot", req.Slot).Warn("Failed to auto-process self-proposed block")
+					} else {
+						log.WithField("slot", req.Slot).Info("Successfully auto-processed self-proposed block")
+					}
+				}()
+			}
+		}
+	}
+
 	return resp, nil
 }
 
@@ -436,29 +462,30 @@ func (vs *Server) BuildBlockParallel(ctx context.Context, sBlk interfaces.Signed
 				"checkpointMax":        2131400,
 			}).Error("Execution payload failed - checking checkpoint recovery conditions")
 
+			// When execution client fails to provide payload, create a fallback payload
+			// This handles both checkpoint recovery and ongoing execution client issues
 			if isCheckpointRecovery {
 				log.WithError(err).WithFields(logrus.Fields{
 					"slot":                 sBlk.Block().Slot(),
 					"headSlot":             headSlot,
 					"isCheckpointRecovery": isCheckpointRecovery,
-				}).Warn("Failed to get execution payload during checkpoint recovery - creating proper checkpoint recovery payload")
-
-				// Create proper execution payload for checkpoint recovery
-				checkpointExecData, checkpointErr := vs.getCheckpointRecoveryExecutionData(ctx, head, sBlk.Block().Slot(), sBlk.Block().ProposerIndex())
-				if checkpointErr != nil {
-					log.WithError(checkpointErr).Error("Failed to create checkpoint recovery execution data")
-					return nil, status.Errorf(codes.Internal, "Could not create checkpoint recovery execution data: %v", checkpointErr)
-				}
-				local = &consensusblocks.GetPayloadResponse{
-					ExecutionData: checkpointExecData,
-					BlobsBundle:   &enginev1.BlobsBundle{},
-				}
+				}).Warn("Failed to get execution payload during checkpoint recovery - creating fallback payload")
 			} else {
 				log.WithError(err).WithFields(logrus.Fields{
 					"slot":    sBlk.Block().Slot(),
 					"headSlot": headSlot,
-				}).Error("Failed to get execution payload - cannot proceed without valid execution payload")
-				return nil, status.Errorf(codes.Internal, "Could not get local payload: %v", err)
+				}).Warn("Failed to get execution payload due to execution client issues - creating fallback payload to continue block building")
+			}
+
+			// Create fallback execution payload when execution client is unavailable
+			fallbackExecData, fallbackErr := vs.getFallbackExecutionData(ctx, head, sBlk.Block().Slot(), sBlk.Block().ProposerIndex())
+			if fallbackErr != nil {
+				log.WithError(fallbackErr).Error("Failed to create fallback execution data")
+				return nil, status.Errorf(codes.Internal, "Could not create fallback execution data: %v", fallbackErr)
+			}
+			local = &consensusblocks.GetPayloadResponse{
+				ExecutionData: fallbackExecData,
+				BlobsBundle:   &enginev1.BlobsBundle{},
 			}
 		}
 		if local != nil {

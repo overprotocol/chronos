@@ -89,7 +89,7 @@ func (vs *Server) getLocalPayloadFromEngine(
 		}).Warn("Checkpoint recovery detected in getLocalPayloadFromEngine - creating proper checkpoint recovery payload")
 
 		// Create proper execution payload for checkpoint recovery instead of using execution engine
-		checkpointExecData, err := vs.getCheckpointRecoveryExecutionData(ctx, st, slot, proposerId)
+		checkpointExecData, err := vs.getFallbackExecutionData(ctx, st, slot, proposerId)
 		if err != nil {
 			return nil, errors.Wrap(err, "could not create checkpoint recovery execution data")
 		}
@@ -525,8 +525,8 @@ func (vs *Server) getEmptyExecutionData(blockVersion int, parentHash, randao []b
 	}
 }
 
-// getCheckpointRecoveryExecutionData creates a proper execution payload for checkpoint recovery
-func (vs *Server) getCheckpointRecoveryExecutionData(
+// getFallbackExecutionData creates a proper execution payload for checkpoint recovery
+func (vs *Server) getFallbackExecutionData(
 	ctx context.Context,
 	st state.BeaconState,
 	slot primitives.Slot,
