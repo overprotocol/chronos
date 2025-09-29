@@ -565,8 +565,17 @@ func (vs *Server) getFallbackExecutionData(
 	}
 
 	// Create execution payload based on version
-	switch st.Version() {
-	case version.Deneb:
+	stateVersion := st.Version()
+	log.WithField("stateVersion", stateVersion).Debug("Creating fallback execution payload for beacon state version")
+
+	switch {
+	case stateVersion >= version.Deneb:
+		// Handle Deneb and later versions (including Electra, Alpaca, etc.)
+		withdrawals, _, _, err := st.ExpectedWithdrawals()
+		if err != nil {
+			log.WithError(err).Warn("Failed to get expected withdrawals for Deneb+ version, using empty withdrawals")
+			withdrawals = []*enginev1.Withdrawal{}
+		}
 		payload := &enginev1.ExecutionPayloadDeneb{
 			ParentHash:    parentExecution.BlockHash(),
 			FeeRecipient:  val.FeeRecipient[:],
@@ -578,16 +587,16 @@ func (vs *Server) getFallbackExecutionData(
 			GasLimit:      params.BeaconConfig().DefaultBuilderGasLimit,
 			GasUsed:       0,
 			Timestamp:     uint64(timestamp.Unix()),
-			ExtraData:     []byte("checkpoint-recovery"),
+			ExtraData:     []byte("fallback-payload"),
 			BaseFeePerGas: params.BeaconConfig().ZeroHash[:],
 			BlockHash:     blockHash,
 			Transactions:  [][]byte{},
-			Withdrawals:   []*enginev1.Withdrawal{},
+			Withdrawals:   withdrawals,
 			BlobGasUsed:   0,
 			ExcessBlobGas: 0,
 		}
 		return consensusblocks.NewWrappedExecutionData(payload)
-	case version.Capella:
+	case stateVersion >= version.Capella:
 		withdrawals, _, _, err := st.ExpectedWithdrawals()
 		if err != nil {
 			return nil, errors.Wrap(err, "could not get expected withdrawals")
@@ -603,14 +612,14 @@ func (vs *Server) getFallbackExecutionData(
 			GasLimit:      params.BeaconConfig().DefaultBuilderGasLimit,
 			GasUsed:       0,
 			Timestamp:     uint64(timestamp.Unix()),
-			ExtraData:     []byte("checkpoint-recovery"),
+			ExtraData:     []byte("fallback-payload"),
 			BaseFeePerGas: params.BeaconConfig().ZeroHash[:],
 			BlockHash:     blockHash,
 			Transactions:  [][]byte{},
 			Withdrawals:   withdrawals,
 		}
 		return consensusblocks.NewWrappedExecutionData(payload)
-	case version.Bellatrix:
+	case stateVersion >= version.Bellatrix:
 		payload := &enginev1.ExecutionPayload{
 			ParentHash:    parentExecution.BlockHash(),
 			FeeRecipient:  val.FeeRecipient[:],
@@ -622,13 +631,13 @@ func (vs *Server) getFallbackExecutionData(
 			GasLimit:      params.BeaconConfig().DefaultBuilderGasLimit,
 			GasUsed:       0,
 			Timestamp:     uint64(timestamp.Unix()),
-			ExtraData:     []byte("checkpoint-recovery"),
+			ExtraData:     []byte("fallback-payload"),
 			BaseFeePerGas: params.BeaconConfig().ZeroHash[:],
 			BlockHash:     blockHash,
 			Transactions:  [][]byte{},
 		}
 		return consensusblocks.NewWrappedExecutionData(payload)
 	default:
-		return nil, errors.New("unsupported beacon state version for checkpoint recovery")
+		return nil, fmt.Errorf("unsupported beacon state version %d for fallback payload creation", stateVersion)
 	}
 }
