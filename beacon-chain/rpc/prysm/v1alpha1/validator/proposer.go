@@ -198,9 +198,26 @@ func (vs *Server) GetBeaconBlock(ctx context.Context, req *ethpb.BlockRequest) (
 		return nil, errors.Wrap(err, "could not build block in parallel")
 	}
 
-	// Note: Automatic block processing removed due to type incompatibility
-	// The unsigned block from GetBeaconBlock cannot be directly processed by ReceiveBlock
-	// which requires a signed beacon block
+	// For single validator setup, automatically process the signed block to update head
+	// This is crucial for chain progression when there are no other peers
+	if resp != nil && sBlk != nil && flags.Get().MinimumSyncPeers == 0 {
+		root, rootErr := sBlk.Block().HashTreeRoot()
+		if rootErr != nil {
+			log.WithError(rootErr).Warn("Failed to get signed block root for auto-processing")
+		} else {
+			// Process the signed block in background to avoid blocking the response
+			go func() {
+				processCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+				defer cancel()
+
+				if processErr := vs.BlockReceiver.ReceiveBlock(processCtx, sBlk, root, nil); processErr != nil {
+					log.WithError(processErr).WithField("slot", req.Slot).Warn("Failed to auto-process self-proposed block")
+				} else {
+					log.WithField("slot", req.Slot).Info("Successfully auto-processed self-proposed block - head should be updated")
+				}
+			}()
+		}
+	}
 
 	return resp, nil
 }
