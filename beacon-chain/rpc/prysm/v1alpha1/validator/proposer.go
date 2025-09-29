@@ -216,7 +216,9 @@ func (vs *Server) GetBeaconBlock(ctx context.Context, req *ethpb.BlockRequest) (
 		} else {
 			// Process the signed block in background to avoid blocking the response
 			go func() {
-				processCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+				// Use extended timeout for checkpoint recovery scenarios
+				timeout := 10 * time.Minute
+				processCtx, cancel := context.WithTimeout(context.Background(), timeout)
 				defer cancel()
 
 				log.WithField("slot", req.Slot).Info("Starting auto-processing of self-proposed block")
