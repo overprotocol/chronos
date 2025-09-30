@@ -93,10 +93,24 @@ func (s *Service) postBlockProcess(cfg *postBlockProcessConfig) error {
 	headCtx, headCancel := context.WithTimeout(context.Background(), 30*time.Minute)
 	defer headCancel()
 	cfg.headRoot, err = s.cfg.ForkChoiceStore.Head(headCtx)
+	elapsed := time.Since(start)
 	if err != nil {
-		log.WithError(err).Warn("Could not update head")
+		log.WithFields(logrus.Fields{
+			"blockSlot":    cfg.roblock.Block().Slot(),
+			"blockRoot":    fmt.Sprintf("%#x", cfg.roblock.Root()),
+			"elapsed":      elapsed,
+			"error":        err,
+		}).Error("Head computation failed - block will not become head")
+	} else {
+		log.WithFields(logrus.Fields{
+			"blockSlot":    cfg.roblock.Block().Slot(),
+			"blockRoot":    fmt.Sprintf("%#x", cfg.roblock.Root()),
+			"computedHead": fmt.Sprintf("%#x", cfg.headRoot),
+			"isNewHead":    cfg.headRoot == cfg.roblock.Root(),
+			"elapsed":      elapsed,
+		}).Info("Head computation completed")
 	}
-	newBlockHeadElapsedTime.Observe(float64(time.Since(start).Milliseconds()))
+	newBlockHeadElapsedTime.Observe(float64(elapsed.Milliseconds()))
 	if cfg.headRoot != cfg.roblock.Root() {
 		s.logNonCanonicalBlockReceived(cfg.roblock.Root(), cfg.headRoot)
 		return nil
