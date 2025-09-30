@@ -36,7 +36,7 @@ func (vs *Server) GetAttestationData(ctx context.Context, req *ethpb.Attestation
 
 	// Check if this is checkpoint recovery scenario - use extended timeout
 	headSlot := vs.HeadFetcher.HeadSlot()
-	isCheckpointRecovery := headSlot >= 2131300 && headSlot <= 2131400
+	isCheckpointRecovery := headSlot >= 2131300 && headSlot <= 2170000
 
 	if isCheckpointRecovery {
 		log.WithFields(logrus.Fields{
