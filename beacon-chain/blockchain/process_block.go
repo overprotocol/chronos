@@ -89,7 +89,10 @@ func (s *Service) postBlockProcess(cfg *postBlockProcessConfig) error {
 		}
 	}
 	start := time.Now()
-	cfg.headRoot, err = s.cfg.ForkChoiceStore.Head(ctx)
+	// Use extended timeout for Head computation to handle large forkchoice trees
+	headCtx, headCancel := context.WithTimeout(context.Background(), 30*time.Minute)
+	defer headCancel()
+	cfg.headRoot, err = s.cfg.ForkChoiceStore.Head(headCtx)
 	if err != nil {
 		log.WithError(err).Warn("Could not update head")
 	}

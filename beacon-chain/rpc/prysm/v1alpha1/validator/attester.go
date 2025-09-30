@@ -41,7 +41,7 @@ func (vs *Server) GetAttestationData(ctx context.Context, req *ethpb.Attestation
 	if isCheckpointRecovery {
 		log.WithFields(logrus.Fields{
 			"requestSlot":          req.Slot,
-			"headSlot":            headSlot,
+			"headSlot":             headSlot,
 			"isCheckpointRecovery": isCheckpointRecovery,
 		}).Debug("Checkpoint recovery: Processing attestation data request with extended timeout")
 
@@ -56,8 +56,8 @@ func (vs *Server) GetAttestationData(ctx context.Context, req *ethpb.Attestation
 		if isCheckpointRecovery {
 			log.WithFields(logrus.Fields{
 				"requestSlot": req.Slot,
-				"headSlot":   headSlot,
-				"error":      err.Err,
+				"headSlot":    headSlot,
+				"error":       err.Err,
 			}).Warn("Checkpoint recovery: AttestationData request failed")
 		}
 		return nil, status.Errorf(core.ErrorReasonToGRPC(err.Reason), "Could not get attestation data: %v", err.Err)
@@ -66,7 +66,7 @@ func (vs *Server) GetAttestationData(ctx context.Context, req *ethpb.Attestation
 	if isCheckpointRecovery {
 		log.WithFields(logrus.Fields{
 			"requestSlot": req.Slot,
-			"headSlot":   headSlot,
+			"headSlot":    headSlot,
 		}).Debug("Checkpoint recovery: AttestationData request successful")
 	}
 
