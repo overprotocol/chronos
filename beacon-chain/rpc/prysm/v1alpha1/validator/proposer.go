@@ -276,13 +276,13 @@ func (vs *Server) getParentStateFromReorgData(ctx context.Context, slot primitiv
 		var extendedTimeout time.Duration
 
 		if isCheckpointRecovery {
-			// More aggressive timeout for checkpoint recovery with faster processing
-			extendedTimeout = time.Duration(slotDiff/100) * 30 * time.Second // ~30s per 100 slots (faster)
-			if extendedTimeout < 5*time.Minute {
-				extendedTimeout = 5 * time.Minute // Minimum 5 minutes for checkpoint recovery
+			// Ultra fast processing for checkpoint recovery - prioritize speed over robustness
+			extendedTimeout = time.Duration(slotDiff/1000) * 60 * time.Second // ~60s per 1000 slots (very fast)
+			if extendedTimeout < 2*time.Minute {
+				extendedTimeout = 2 * time.Minute // Minimum 2 minutes for checkpoint recovery
 			}
-			if extendedTimeout > 20*time.Minute {
-				extendedTimeout = 20 * time.Minute // Cap at 20 minutes for checkpoint recovery (reduced)
+			if extendedTimeout > 10*time.Minute {
+				extendedTimeout = 10 * time.Minute // Cap at 10 minutes for checkpoint recovery
 			}
 		} else {
 			// Use more aggressive timeout for very large gaps
@@ -628,6 +628,64 @@ func (vs *Server) ProposeBeaconBlock(ctx context.Context, req *ethpb.GenericSign
 			}()
 		}
 		return nil, status.Errorf(codes.Internal, "Could not broadcast/receive block: %v", err)
+	}
+
+	// For single validator setups in checkpoint recovery, always attempt additional head update
+	if flags.Get().MinimumSyncPeers == 0 {
+		currentHead := vs.HeadFetcher.HeadSlot()
+		blockSlot := block.Block().Slot()
+		isCheckpointRecovery := currentHead >= 2131300 && currentHead <= 2131400
+
+		if isCheckpointRecovery && blockSlot > currentHead {
+			log.WithFields(logrus.Fields{
+				"blockSlot":   blockSlot,
+				"currentHead": currentHead,
+				"slotGap":     blockSlot - currentHead,
+			}).Info("Checkpoint recovery: Ensuring block is processed to update head")
+
+			// Give extra processing time for head to update
+			go func() {
+				time.Sleep(2 * time.Second) // Brief delay to allow initial processing
+
+				processCtx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
+				defer cancel()
+
+				// Try processing again to ensure head updates
+				if processErr := vs.BlockReceiver.ReceiveBlock(processCtx, block, root, nil); processErr != nil {
+					log.WithError(processErr).WithFields(logrus.Fields{
+						"slot": blockSlot,
+						"head": currentHead,
+					}).Warn("Checkpoint recovery: Failed to ensure block processing")
+				} else {
+					newHead := vs.HeadFetcher.HeadSlot()
+					log.WithFields(logrus.Fields{
+						"slot":        blockSlot,
+						"previousHead": currentHead,
+						"newHead":     newHead,
+						"headUpdated": newHead > currentHead,
+					}).Info("Checkpoint recovery: Block processed successfully")
+
+					// If head still hasn't updated, force a forkchoice update
+					if newHead == currentHead {
+						log.WithFields(logrus.Fields{
+							"slot": blockSlot,
+							"head": currentHead,
+						}).Warn("Checkpoint recovery: Head not updated after block processing, forcing forkchoice update")
+
+						// Force update head in forkchoice
+						vs.ForkchoiceFetcher.UpdateHead(processCtx, blockSlot)
+
+						finalHead := vs.HeadFetcher.HeadSlot()
+						log.WithFields(logrus.Fields{
+							"slot":     blockSlot,
+							"oldHead":  currentHead,
+							"newHead":  finalHead,
+							"updated":  finalHead > currentHead,
+						}).Info("Checkpoint recovery: Forced forkchoice update completed")
+					}
+				}
+			}()
+		}
 	}
 
 	// Additional logging for single validator setup
