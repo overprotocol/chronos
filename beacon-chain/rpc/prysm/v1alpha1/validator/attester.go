@@ -2,6 +2,7 @@ package validator
 
 import (
 	"context"
+	"time"
 
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/cache"
 	"github.com/prysmaticlabs/prysm/v5/beacon-chain/core/feed"
@@ -13,6 +14,7 @@ import (
 	"github.com/prysmaticlabs/prysm/v5/monitoring/tracing/trace"
 	ethpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1"
 	"github.com/prysmaticlabs/prysm/v5/time/slots"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -31,10 +33,43 @@ func (vs *Server) GetAttestationData(ctx context.Context, req *ethpb.Attestation
 	if vs.SyncChecker.Syncing() {
 		return nil, status.Errorf(codes.Unavailable, "Syncing to latest head, not ready to respond")
 	}
+
+	// Check if this is checkpoint recovery scenario - use extended timeout
+	headSlot := vs.HeadFetcher.HeadSlot()
+	isCheckpointRecovery := headSlot >= 2131300 && headSlot <= 2131400
+
+	if isCheckpointRecovery {
+		log.WithFields(logrus.Fields{
+			"requestSlot":          req.Slot,
+			"headSlot":            headSlot,
+			"isCheckpointRecovery": isCheckpointRecovery,
+		}).Debug("Checkpoint recovery: Processing attestation data request with extended timeout")
+
+		// Use extended timeout for checkpoint recovery
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(context.Background(), 30*time.Minute)
+		defer cancel()
+	}
+
 	res, err := vs.CoreService.GetAttestationData(ctx, req)
 	if err != nil {
+		if isCheckpointRecovery {
+			log.WithFields(logrus.Fields{
+				"requestSlot": req.Slot,
+				"headSlot":   headSlot,
+				"error":      err.Err,
+			}).Warn("Checkpoint recovery: AttestationData request failed")
+		}
 		return nil, status.Errorf(core.ErrorReasonToGRPC(err.Reason), "Could not get attestation data: %v", err.Err)
 	}
+
+	if isCheckpointRecovery {
+		log.WithFields(logrus.Fields{
+			"requestSlot": req.Slot,
+			"headSlot":   headSlot,
+		}).Debug("Checkpoint recovery: AttestationData request successful")
+	}
+
 	return res, nil
 }
 
