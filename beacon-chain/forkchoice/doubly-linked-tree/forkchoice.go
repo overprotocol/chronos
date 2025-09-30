@@ -56,28 +56,52 @@ func (f *ForkChoice) Head(
 
 	calledHeadCount.Inc()
 
+	nodeCount := len(f.store.nodeByRoot)
+	startTime := time.Now()
+	logrus.WithFields(logrus.Fields{
+		"nodeCount": nodeCount,
+	}).Info("Starting Head computation")
+
 	if err := f.updateBalances(); err != nil {
 		return [32]byte{}, errors.Wrap(err, "could not update balances")
 	}
+	logrus.WithField("elapsed", time.Since(startTime)).Debug("updateBalances completed")
 
 	if err := f.applyProposerBoostScore(); err != nil {
 		return [32]byte{}, errors.Wrap(err, "could not apply proposer boost score")
 	}
+	logrus.WithField("elapsed", time.Since(startTime)).Debug("applyProposerBoostScore completed")
 
+	weightsStart := time.Now()
 	if err := f.store.treeRootNode.applyWeightChanges(ctx); err != nil {
 		return [32]byte{}, errors.Wrap(err, "could not apply weight changes")
 	}
+	logrus.WithField("elapsed", time.Since(weightsStart)).Info("applyWeightChanges completed")
 
 	jc := f.JustifiedCheckpoint()
 	fc := f.FinalizedCheckpoint()
 	currentEpoch := slots.EpochsSinceGenesis(time.Unix(int64(f.store.genesisTime), 0))
+	descendantStart := time.Now()
 	if err := f.store.treeRootNode.updateBestDescendant(ctx, jc.Epoch, fc.Epoch, currentEpoch); err != nil {
 		// In single-validator setups after long downtime, updateBestDescendant may timeout
 		// but we should still attempt head selection with current state
-		logrus.WithError(err).Warn("Could not update best descendant, attempting head selection anyway (single-validator recovery)")
+		logrus.WithFields(logrus.Fields{
+			"error":   err,
+			"elapsed": time.Since(descendantStart),
+		}).Warn("Could not update best descendant, attempting head selection anyway (single-validator recovery)")
 		// Continue to head selection despite updateBestDescendant failure
+	} else {
+		logrus.WithField("elapsed", time.Since(descendantStart)).Info("updateBestDescendant completed")
 	}
-	return f.store.head(ctx)
+
+	headStart := time.Now()
+	headRoot, err := f.store.head(ctx)
+	logrus.WithFields(logrus.Fields{
+		"elapsed":      time.Since(headStart),
+		"totalElapsed": time.Since(startTime),
+		"headRoot":     fmt.Sprintf("%#x", headRoot),
+	}).Info("Head computation completed")
+	return headRoot, err
 }
 
 // ProcessAttestation processes attestation for vote accounting, it iterates around validator indices

@@ -90,7 +90,7 @@ func (s *Service) postBlockProcess(cfg *postBlockProcessConfig) error {
 	}
 	start := time.Now()
 	// Use extended timeout for Head computation to handle large forkchoice trees
-	headCtx, headCancel := context.WithTimeout(context.Background(), 30*time.Minute)
+	headCtx, headCancel := context.WithTimeout(context.Background(), 6*time.Hour)
 	defer headCancel()
 	cfg.headRoot, err = s.cfg.ForkChoiceStore.Head(headCtx)
 	elapsed := time.Since(start)
