@@ -50,10 +50,14 @@ const (
 // GetBeaconBlock is called by a proposer during its assigned slot to request a block to sign
 // by passing in the slot and the signed randao reveal of the slot.
 func (vs *Server) GetBeaconBlock(ctx context.Context, req *ethpb.BlockRequest) (*ethpb.GenericBeaconBlock, error) {
+	// Declare variables at function level to avoid redefinition errors
+	var headSlot primitives.Slot
+	var slotGap primitives.Slot
+
 	// Check if this is a checkpoint recovery scenario and apply extended timeout if needed
 	// originalCtx := ctx
 	if flags.Get().MinimumSyncPeers == 0 {
-		headSlot := vs.HeadFetcher.HeadSlot()
+		headSlot = vs.HeadFetcher.HeadSlot()
 		currentSlot := vs.TimeFetcher.CurrentSlot()
 		slotDiff := currentSlot - req.Slot
 		isCheckpointRecovery := headSlot >= 2131300 && headSlot <= 2131400
@@ -85,8 +89,15 @@ func (vs *Server) GetBeaconBlock(ctx context.Context, req *ethpb.BlockRequest) (
 	if err != nil {
 		log.WithError(err).Error("Could not convert slot to time")
 	}
+	// Get parent slot information for gap analysis
+	headSlot = vs.HeadFetcher.HeadSlot()
+	slotGap = req.Slot - headSlot
+
 	log.WithFields(logrus.Fields{
 		"slot":               req.Slot,
+		"headSlot":           headSlot,
+		"parentSlot":         headSlot,  // parent is current head
+		"slotGap":            slotGap,
 		"sinceSlotStartTime": time.Since(t),
 	}).Info("Begin building block")
 
@@ -99,9 +110,9 @@ func (vs *Server) GetBeaconBlock(ctx context.Context, req *ethpb.BlockRequest) (
 	log.WithField("slot", req.Slot).Info("Sync check passed - continuing with block building")
 
 	// Check if beacon chain head is too far behind current slot
-	headSlot := vs.HeadFetcher.HeadSlot()
+	headSlot = vs.HeadFetcher.HeadSlot()
 	currentSlot := req.Slot
-	slotGap := currentSlot - headSlot
+	slotGap = currentSlot - headSlot
 
 	log.WithFields(logrus.Fields{
 		"currentSlot": currentSlot,
@@ -271,8 +282,8 @@ func (vs *Server) getParentStateFromReorgData(ctx context.Context, slot primitiv
 			if extendedTimeout < 10*time.Minute {
 				extendedTimeout = 10 * time.Minute // Minimum 10 minutes for checkpoint recovery
 			}
-			if extendedTimeout > 30*time.Minute {
-				extendedTimeout = 30 * time.Minute // Cap at 30 minutes for checkpoint recovery
+			if extendedTimeout > 60*time.Minute {
+				extendedTimeout = 60 * time.Minute // Cap at 60 minutes for checkpoint recovery
 			}
 		} else {
 			// Use more aggressive timeout for very large gaps
@@ -280,8 +291,8 @@ func (vs *Server) getParentStateFromReorgData(ctx context.Context, slot primitiv
 			if extendedTimeout < 5*time.Minute {
 				extendedTimeout = 5 * time.Minute // Minimum 5 minutes for large gaps
 			}
-			if extendedTimeout > 15*time.Minute {
-				extendedTimeout = 15 * time.Minute // Cap at 15 minutes
+			if extendedTimeout > 45*time.Minute {
+				extendedTimeout = 45 * time.Minute // Cap at 45 minutes
 			}
 		}
 
@@ -307,10 +318,32 @@ func (vs *Server) getParentStateFromReorgData(ctx context.Context, slot primitiv
 		}
 	}
 
+	logrus.WithFields(logrus.Fields{
+		"fromSlot": head.Slot(),
+		"toSlot":   slot,
+		"slotGap":  slot - head.Slot(),
+	}).Info("Starting slot processing for large gap")
+
+	startTime := time.Now()
 	head, err = transition.ProcessSlotsUsingNextSlotCache(processCtx, head, parentRoot[:], slot)
+	processingDuration := time.Since(startTime)
+
 	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"fromSlot":          head.Slot(),
+			"toSlot":            slot,
+			"slotGap":           slot - head.Slot(),
+			"processingTime":    processingDuration,
+			"error":            err.Error(),
+		}).Error("Failed to process slots for large gap")
 		return nil, status.Errorf(codes.Internal, "Could not process slots up to %d: %v", slot, err)
 	}
+
+	logrus.WithFields(logrus.Fields{
+		"fromSlot":       head.Slot(),
+		"toSlot":         slot,
+		"processingTime": processingDuration,
+	}).Info("Successfully completed slot processing for large gap")
 	return head, nil
 }
 
@@ -428,12 +461,12 @@ func (vs *Server) BuildBlockParallel(ctx context.Context, sBlk interfaces.Signed
 		local, err := vs.getLocalPayload(ctx, sBlk.Block(), head)
 		if err != nil {
 			// Check if this is a checkpoint recovery scenario
-			headSlot := head.Slot()
-			isCheckpointRecovery := headSlot >= 2131300 && headSlot <= 2131400
+			currentHeadSlot := head.Slot()
+			isCheckpointRecovery := currentHeadSlot >= 2131300 && currentHeadSlot <= 2131400
 
 			log.WithError(err).WithFields(logrus.Fields{
 				"slot":                 sBlk.Block().Slot(),
-				"headSlot":             headSlot,
+				"headSlot":             currentHeadSlot,
 				"isCheckpointRecovery": isCheckpointRecovery,
 				"checkpointMin":        2131300,
 				"checkpointMax":        2131400,
@@ -444,13 +477,13 @@ func (vs *Server) BuildBlockParallel(ctx context.Context, sBlk interfaces.Signed
 			if isCheckpointRecovery {
 				log.WithError(err).WithFields(logrus.Fields{
 					"slot":                 sBlk.Block().Slot(),
-					"headSlot":             headSlot,
+					"headSlot":             currentHeadSlot,
 					"isCheckpointRecovery": isCheckpointRecovery,
 				}).Warn("Failed to get execution payload during checkpoint recovery - creating fallback payload")
 			} else {
 				log.WithError(err).WithFields(logrus.Fields{
 					"slot":    sBlk.Block().Slot(),
-					"headSlot": headSlot,
+					"headSlot": currentHeadSlot,
 				}).Warn("Failed to get execution payload due to execution client issues - creating fallback payload to continue block building")
 			}
 
@@ -518,6 +551,11 @@ func (vs *Server) ProposeBeaconBlock(ctx context.Context, req *ethpb.GenericSign
 	if req == nil {
 		return nil, status.Errorf(codes.InvalidArgument, "empty request")
 	}
+
+	// Debug: Log ProposeBeaconBlock entry to track if it's called
+	log.WithFields(logrus.Fields{
+		"minSyncPeers": flags.Get().MinimumSyncPeers,
+	}).Info("ProposeBeaconBlock called - processing signed beacon block")
 
 	block, err := blocks.NewSignedBeaconBlock(req.Block)
 	if err != nil {
