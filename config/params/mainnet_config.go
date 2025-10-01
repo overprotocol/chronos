@@ -283,6 +283,11 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	NumberOfColumns:          128,
 	MaxCellsInExtendedMatrix: 768,
 
+	// Recovery mode parameters
+	RecoveryModeEnabled:   false, // Disabled by default
+	RecoveryModeStartSlot: 0,
+	RecoveryModeEndSlot:   0,
+
 	// Values related to networking parameters.
 	GossipMaxSize:                   10 * 1 << 20, // 10 MiB
 	MaxChunkSize:                    10 * 1 << 20, // 10 MiB

@@ -120,10 +120,26 @@ func ProcessBlockHeaderNoVerify(
 		return nil, err
 	}
 
-	if !bytes.Equal(parentRoot, parentHeaderRoot[:]) {
+	// RECOVERY MODE: Skip parent root validation for checkpoint recovery
+	// This allows processing blocks after a checkpoint sync with modified state
+	cfg := params.BeaconConfig()
+	isRecoverySlot := cfg.RecoveryModeEnabled &&
+		slot >= cfg.RecoveryModeStartSlot &&
+		slot < cfg.RecoveryModeEndSlot
+
+	if !isRecoverySlot && !bytes.Equal(parentRoot, parentHeaderRoot[:]) {
 		return nil, fmt.Errorf(
 			"parent root %#x does not match the latest block header signing root in state %#x",
 			parentRoot, parentHeaderRoot[:])
+	}
+
+	if isRecoverySlot && !bytes.Equal(parentRoot, parentHeaderRoot[:]) {
+		log.WithField("slot", slot).
+			WithField("blockParentRoot", fmt.Sprintf("%#x", parentRoot)).
+			WithField("stateHeaderRoot", fmt.Sprintf("%#x", parentHeaderRoot[:])).
+			WithField("recoveryStartSlot", cfg.RecoveryModeStartSlot).
+			WithField("recoveryEndSlot", cfg.RecoveryModeEndSlot).
+			Warn("RECOVERY MODE: Skipping parent root validation mismatch")
 	}
 
 	proposer, err := beaconState.ValidatorAtIndexReadOnly(idx)

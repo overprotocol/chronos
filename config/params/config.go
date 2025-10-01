@@ -279,6 +279,11 @@ type BeaconChainConfig struct {
 	// PeerDAS
 	NumberOfColumns          uint64 `yaml:"NUMBER_OF_COLUMNS" spec:"true"`            // NumberOfColumns in the extended data matrix.
 	MaxCellsInExtendedMatrix uint64 `yaml:"MAX_CELLS_IN_EXTENDED_MATRIX" spec:"true"` // MaxCellsInExtendedMatrix is the full data of one-dimensional erasure coding extended blobs (in row major format).
+
+	// Recovery mode parameters
+	RecoveryModeEnabled    bool            `yaml:"RECOVERY_MODE_ENABLED"`     // RecoveryModeEnabled enables checkpoint recovery mode that skips parent root validation.
+	RecoveryModeStartSlot  primitives.Slot `yaml:"RECOVERY_MODE_START_SLOT"`  // RecoveryModeStartSlot is the starting slot for recovery mode (inclusive).
+	RecoveryModeEndSlot    primitives.Slot `yaml:"RECOVERY_MODE_END_SLOT"`    // RecoveryModeEndSlot is the ending slot for recovery mode (exclusive).
 }
 
 // InitializeForkSchedule initializes the schedules forks baked into the config.
