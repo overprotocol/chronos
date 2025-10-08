@@ -31,6 +31,9 @@ func FlagOptions(c *cli.Context) ([]execution.Option, error) {
 	if len(jwtSecret) > 0 {
 		opts = append(opts, execution.WithHttpEndpointAndJWTSecret(endpoint, jwtSecret))
 	}
+	if c.Bool(flags.DisableEth1TimeValidation.Name) {
+		opts = append(opts, execution.WithDisableEth1TimeValidation(true))
+	}
 	return opts, nil
 }
 

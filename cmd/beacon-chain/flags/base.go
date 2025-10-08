@@ -91,6 +91,13 @@ var (
 		Name:  "jwt-id",
 		Usage: "JWT claims id. Could be used to identify the client",
 	}
+	// DisableEth1TimeValidation disables eth1 time validation for private networks with modified checkpoints.
+	DisableEth1TimeValidation = &cli.BoolFlag{
+		Name: "disable-eth1-time-validation",
+		Usage: "Disables eth1 time validation. This should only be used for private networks where " +
+			"checkpoint slots have been modified and may not align with the execution layer timeline. " +
+			"WARNING: This flag bypasses important validation checks and should NOT be used on public networks.",
+	}
 	// DepositContractFlag defines a flag for the deposit contract address.
 	DepositContractFlag = &cli.StringFlag{
 		Name:  "deposit-contract",

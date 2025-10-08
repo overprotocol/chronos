@@ -9,6 +9,8 @@ var Commands = []*cli.Command{
 		Usage:   "commands for managing checkpoint sync",
 		Subcommands: []*cli.Command{
 			downloadCmd,
+			modifyCmd,
+			uploadCmd,
 		},
 	},
 }

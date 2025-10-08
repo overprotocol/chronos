@@ -119,17 +119,18 @@ func (RPCClientEmpty) CallContext(context.Context, interface{}, string, ...inter
 
 // config defines a config struct for dependencies into the service.
 type config struct {
-	depositContractAddr     common.Address
-	beaconDB                db.HeadAccessDatabase
-	depositCache            cache.DepositCache
-	stateNotifier           statefeed.Notifier
-	stateGen                *stategen.State
-	eth1HeaderReqLimit      uint64
-	beaconNodeStatsUpdater  BeaconNodeStatsUpdater
-	currHttpEndpoint        network.Endpoint
-	headers                 []string
-	finalizedStateAtStartup state.BeaconState
-	jwtId                   string
+	disableEth1TimeValidation  bool // Skip eth1 time validation for private networks with modified checkpoints
+	depositContractAddr        common.Address
+	eth1HeaderReqLimit         uint64
+	stateGen                   *stategen.State
+	jwtId                      string
+	finalizedStateAtStartup    state.BeaconState
+	beaconNodeStatsUpdater     BeaconNodeStatsUpdater
+	stateNotifier              statefeed.Notifier
+	depositCache               cache.DepositCache
+	beaconDB                   db.HeadAccessDatabase
+	headers                    []string
+	currHttpEndpoint           network.Endpoint
 }
 
 // Service fetches important information about the canonical

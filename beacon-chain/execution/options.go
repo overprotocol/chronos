@@ -124,3 +124,11 @@ func WithVerifierWaiter(v *verification.InitializerWaiter) Option {
 		return nil
 	}
 }
+
+// WithDisableEth1TimeValidation disables eth1 time validation for private networks with modified checkpoints.
+func WithDisableEth1TimeValidation(disable bool) Option {
+	return func(s *Service) error {
+		s.cfg.disableEth1TimeValidation = disable
+		return nil
+	}
+}

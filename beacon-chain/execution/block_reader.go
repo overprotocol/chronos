@@ -106,8 +106,15 @@ func (s *Service) BlockByTimestamp(ctx context.Context, time uint64) (*types.Hea
 	latestBlkTime := s.latestEth1Data.BlockTime
 	s.latestEth1DataLock.RUnlock()
 
-	if time > latestBlkTime {
+	// Skip time validation for private networks with modified checkpoints
+	if !s.cfg.disableEth1TimeValidation && time > latestBlkTime {
 		return nil, errors.Wrap(errBlockTimeTooLate, fmt.Sprintf("(%d > %d)", time, latestBlkTime))
+	}
+
+	// If time validation is disabled and requested time is in the future,
+	// return the latest available block
+	if s.cfg.disableEth1TimeValidation && time > latestBlkTime {
+		return s.retrieveHeaderInfo(ctx, latestBlkHeight)
 	}
 	// Initialize a pointer to eth1 chain's history to start our search from.
 	cursorNum := new(big.Int).SetUint64(latestBlkHeight)
