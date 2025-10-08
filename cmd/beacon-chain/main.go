@@ -150,6 +150,7 @@ var appFlags = []cli.Flag{
 	genesis.BeaconAPIURL,
 	flags.SlasherDirFlag,
 	flags.JwtId,
+	flags.DisableEth1TimeValidation,
 	storage.BlobStoragePathFlag,
 	storage.BlobRetentionEpochFlag,
 	bflags.EnableExperimentalBackfill,
